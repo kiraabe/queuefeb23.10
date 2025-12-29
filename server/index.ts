@@ -356,7 +356,7 @@ export function createServer() {
     requireRole(["admin"]),
     resetUserPassword,
   );
-  app.get("/api/admin/job-titles", listJobTitlesHandler);
+  app.get("/api/admin/job-titles", requireRole(["admin", "employee"]), listJobTitlesHandler);
   app.get(
     "/api/admin/windows",
     requireRole(["admin"]),
