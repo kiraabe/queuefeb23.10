@@ -62,9 +62,10 @@ interface TicketRowProps {
 
 interface CaseHistoryRowProps {
   ticket: Ticket;
+  userMap?: Map<string, string>;
 }
 
-const CaseHistoryRow = ({ ticket }: CaseHistoryRowProps) => {
+const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   const duration = calculateDuration(
     ticket.startedAt,
     ticket.proceededAt || ticket.completedAt,
