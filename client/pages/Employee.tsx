@@ -385,6 +385,7 @@ export default function Employee() {
               <TabsList>
                 <TabsTrigger value="received">Received Cases</TabsTrigger>
                 <TabsTrigger value="completed">Completed Cases</TabsTrigger>
+                <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
 
               <TabsContent value="received" className="space-y-4 mt-4">
