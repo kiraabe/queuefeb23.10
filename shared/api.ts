@@ -162,6 +162,7 @@ export interface AuthUser {
   role: UserRole;
   windowId?: number | null; // set for tellers
   fullName?: string; // full name of the user, primarily for tellers
+  jobTitleId?: string | null; // job title for employees
 }
 export interface LoginRequest {
   username: string;
