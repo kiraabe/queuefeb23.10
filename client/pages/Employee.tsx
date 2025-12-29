@@ -309,7 +309,6 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
 
 export default function Employee() {
   const [tab, setTab] = useState<string>("received");
-  const [startCaseOpen, setStartCaseOpen] = useState(false);
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<"proceed" | null>(null);
