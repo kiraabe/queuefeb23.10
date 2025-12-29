@@ -53,6 +53,7 @@ function toAuthUserFromRow(row: {
   role: UserRole;
   window_id: number | null;
   full_name?: string | null;
+  job_title_id?: string | null;
 }): AuthUser {
   return {
     id: row.id,
@@ -60,6 +61,7 @@ function toAuthUserFromRow(row: {
     role: row.role,
     windowId: row.window_id ?? null,
     fullName: row.full_name ?? undefined,
+    jobTitleId: row.job_title_id ?? undefined,
   };
 }
 
