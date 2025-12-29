@@ -32,6 +32,11 @@ export interface Ticket {
   transferredToWindow?: number | null;
   transferredAt?: number | null;
   transferredToUserId?: string | null; // User ID of the employee who received the ticket
+  // Case workflow fields - for employee case tracking
+  startedAt?: number | null; // when current employee started handling the case
+  startedByUserId?: string | null; // which employee started the case
+  proceededAt?: number | null; // when case was transferred to another employee
+  jobTitleForProceed?: string | null; // job title selected when proceeding
   // Auto-expiration field
   expiredAt?: number | null;
 }
