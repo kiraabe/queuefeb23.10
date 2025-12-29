@@ -303,28 +303,48 @@ export const handleStartCase: RequestHandler = async (req, res) => {
 
   try {
     const p = getPool();
+    const client = await p.connect();
 
-    // Mark the case as started by this employee (begin time tracking)
-    // Only update if case is assigned to this employee, not yet started, and in received status
-    const { rows } = await p.query(
-      `UPDATE tickets
-       SET started_at = now(),
-           started_by_user_id = $1
-       WHERE id = $2
-         AND transferred_to_user_id = $1
-         AND status = 'transferred'
-         AND started_at IS NULL
-       RETURNING id`,
-      [userId, caseId],
-    );
+    try {
+      await client.query("BEGIN");
 
-    if (!rows.length) {
-      return res.status(404).json({
-        error: "Case not found, not assigned to you, or already started",
-      });
+      // Mark the case as started by this employee (begin time tracking)
+      // Only update if case is assigned to this employee, not yet started, and in received status
+      const startRes = await client.query(
+        `UPDATE tickets
+         SET started_at = now(),
+             started_by_user_id = $1
+         WHERE id = $2
+           AND transferred_to_user_id = $1
+           AND status = 'transferred'
+           AND started_at IS NULL
+         RETURNING id, service_category`,
+        [userId, caseId],
+      );
+
+      if (!startRes.rows.length) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          error: "Case not found, not assigned to you, or already started",
+        });
+      }
+
+      // Record performance tracking entry for this employee
+      const jobTitleId = startRes.rows[0].service_category; // service_category stores job_title_id
+      await client.query(
+        `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
+         VALUES ($1, $2, $3, now(), 'in_progress')`,
+        [caseId, userId, jobTitleId],
+      );
+
+      await client.query("COMMIT");
+      res.json({ success: true, caseId: caseId });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
     }
-
-    res.json({ success: true, caseId: rows[0].id });
   } catch (error) {
     console.error("Failed to start case:", error);
     res.status(500).json({
