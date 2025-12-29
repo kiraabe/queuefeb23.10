@@ -201,6 +201,12 @@ export async function apiFetch<T>(
         } else {
           message = "Your session has expired. Please sign in again.";
         }
+        // Auto-redirect to login for non-login endpoints with 401
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+        }
       }
     } else if (res.status === 403) {
       message =
