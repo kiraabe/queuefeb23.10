@@ -141,20 +141,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
 
 // Helper function to format ticket response
 function formatTicketResponse(r: any) {
-  let selectedServices = undefined;
-  if (Array.isArray(r.selected_services)) {
-    selectedServices = r.selected_services;
-  } else if (typeof r.selected_services === "string") {
-    try {
-      selectedServices = JSON.parse(r.selected_services);
-      if (!Array.isArray(selectedServices)) {
-        selectedServices = undefined;
-      }
-    } catch (e) {
-      console.warn("Failed to parse selected_services:", r.selected_services, e);
-      selectedServices = undefined;
-    }
-  }
+  const selectedServices = parseSelectedServices(r.selected_services);
 
   return {
     id: r.id,
