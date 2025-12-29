@@ -153,6 +153,7 @@ export async function initDb() {
     username text not null,
     role text not null check (role in ('reception','teller','admin','employee')),
     window_id int,
+    job_title_id uuid,
     token_hash text not null unique,
     created_at timestamptz not null default now(),
     last_seen_at timestamptz not null default now(),
@@ -160,6 +161,10 @@ export async function initDb() {
     revoked_at timestamptz,
     revoke_reason text
   );`);
+    // Add job_title_id column if it doesn't exist (for existing installations)
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`
+    );
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)`,
     );
