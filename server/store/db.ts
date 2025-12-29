@@ -550,6 +550,27 @@ export async function initDb() {
       );
     }
 
+    // Reset started_at for all transferred tickets to ensure employees see the Start button first
+    // This handles any existing tickets that were transferred with old logic
+    try {
+      const resetResult = await p.query(
+        `UPDATE tickets
+         SET started_at = NULL, started_by_user_id = NULL, proceeded_at = NULL
+         WHERE status = 'transferred'
+         AND transferred_to_user_id IS NOT NULL
+         AND transferred_at IS NOT NULL`,
+      );
+      if (resetResult.rowCount && resetResult.rowCount > 0) {
+        console.log(
+          `✅ Reset ${resetResult.rowCount} transferred tickets to show Start button first`,
+        );
+      }
+    } catch (error) {
+      console.log(
+        "ℹ️  Note: Could not reset existing tickets (this is normal if none exist yet)",
+      );
+    }
+
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
     console.log("ℹ️  Database initialization complete. No demo users created.");
   } catch (error) {
