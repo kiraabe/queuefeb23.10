@@ -178,63 +178,19 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     });
   }
 
-  if (tab === "received") {
+  if (tab === "proceed") {
     const countRes = await p.query(
       `SELECT COUNT(*)::int AS total
          FROM transfer_history th
          JOIN tickets t ON t.id = th.ticket_id
-        WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+        WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
       [windowId],
     );
     const { rows } = await p.query(
       `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at
          FROM transfer_history th
          JOIN tickets t ON t.id = th.ticket_id
-        WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
-        ORDER BY th.transferred_at DESC
-        LIMIT $2 OFFSET $3`,
-      [windowId, limit, offset],
-    );
-    return res.json({
-      items: rows.map((r) => ({
-        id: r.id,
-        service: r.service,
-        number: r.number,
-        code: r.code,
-        status: r.status,
-        windowId: r.current_window_id,
-        createdAt: Math.round(Number(r.created_at)),
-        startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
-        completedAt: r.completed_at
-          ? Math.round(Number(r.completed_at))
-          : undefined,
-        notes: r.notes ?? undefined,
-        ownerName: r.owner_name ?? undefined,
-        woreda: r.woreda ?? undefined,
-        remark: r.remark ?? undefined,
-        transferredFromWindow: r.transferred_from_window ?? undefined,
-        transferredToWindow: r.transferred_to_window ?? undefined,
-        transferredAt: r.transferred_at
-          ? Math.round(Number(r.transferred_at))
-          : undefined,
-      })),
-      total: Number(countRes.rows[0]?.total || 0),
-    });
-  }
-
-  if (tab === "sent") {
-    const countRes = await p.query(
-      `SELECT COUNT(*)::int AS total
-         FROM transfer_history th
-         JOIN tickets t ON t.id = th.ticket_id
-        WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
-      [windowId],
-    );
-    const { rows } = await p.query(
-      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at
-         FROM transfer_history th
-         JOIN tickets t ON t.id = th.ticket_id
-        WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
+        WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
         ORDER BY th.transferred_at DESC
         LIMIT $2 OFFSET $3`,
       [windowId, limit, offset],
