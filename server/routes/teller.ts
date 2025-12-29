@@ -46,18 +46,11 @@ export const tellerStats: RequestHandler = async (req, res) => {
         AND completed_at >= date_trunc('day', now())`,
       [windowId],
     );
-    const { rows: receivedRows } = await p.query(
+    const { rows: proceedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM transfer_history th
        JOIN tickets t ON t.id = th.ticket_id
-      WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
-      [windowId],
-    );
-    const { rows: sentRows } = await p.query(
-      `SELECT COUNT(*)::int AS c
-       FROM transfer_history th
-       JOIN tickets t ON t.id = th.ticket_id
-      WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+      WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
       [windowId],
     );
     const avg =
@@ -70,8 +63,7 @@ export const tellerStats: RequestHandler = async (req, res) => {
       inProgress: Number(inProgRows[0]?.c || 0),
       waiting: Number(waitingRows[0]?.c || 0),
       avgHandlingSecondsToday: avg,
-      receivedToday: Number(receivedRows[0]?.c || 0),
-      sentToday: Number(sentRows[0]?.c || 0),
+      proceedToday: Number(proceedRows[0]?.c || 0),
     });
   } catch (error) {
     console.error(
