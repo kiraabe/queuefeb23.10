@@ -141,7 +141,8 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     }));
 
     // Enrich tickets with service names
-    const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+    const enrichedTickets =
+      await enrichMultipleTicketsWithServiceNames(tickets);
 
     return res.json({
       items: enrichedTickets,
@@ -197,7 +198,8 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     }));
 
     // Enrich tickets with service names
-    const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+    const enrichedTickets =
+      await enrichMultipleTicketsWithServiceNames(tickets);
 
     return res.json({
       items: enrichedTickets,
@@ -254,7 +256,8 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     }));
 
     // Enrich tickets with service names
-    const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+    const enrichedTickets =
+      await enrichMultipleTicketsWithServiceNames(tickets);
 
     const totalCount = Number(countRes.rows[0]?.total || 0);
     return res.json({
