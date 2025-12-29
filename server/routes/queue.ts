@@ -618,8 +618,10 @@ export const clearNotes: RequestHandler = async (req, res) => {
 
   try {
     const ticket = await clearTicketNotesDb(ticketId);
-    sendSSE({ type: "ticket.updated", payload: ticket });
-    return res.json({ ok: true, ticket });
+    // Enrich ticket with service names
+    const enrichedTicket = await enrichSelectedServicesWithNames(ticket);
+    sendSSE({ type: "ticket.updated", payload: enrichedTicket });
+    return res.json({ ok: true, ticket: enrichedTicket });
   } catch (e: any) {
     return res.status(400).json({ error: e.message || String(e) });
   }
