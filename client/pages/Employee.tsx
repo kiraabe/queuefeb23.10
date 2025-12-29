@@ -355,6 +355,15 @@ export default function Employee() {
   const stats = statsQuery.data;
   const tickets = ticketsQuery.data?.items || [];
 
+  // Create a map of user IDs to full names for displaying forwarded-to names
+  const userMap = useMemo(() => {
+    const map = new Map<string, string>();
+    usersQuery.data?.users.forEach((user) => {
+      map.set(user.id, user.fullName || user.username);
+    });
+    return map;
+  }, [usersQuery.data]);
+
   const tabItems = useMemo(() => {
     if (tab === "completed") {
       return tickets
