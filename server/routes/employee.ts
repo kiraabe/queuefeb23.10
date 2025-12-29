@@ -21,7 +21,10 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
                 extract(epoch from t.completed_at)*1000 as completed_at,
                 t.notes, t.owner_name, t.woreda, t.remark, t.service_category, t.selected_services,
                 t.transferred_from_window, t.transferred_to_window, t.transferred_to_user_id,
-                extract(epoch from t.transferred_at)*1000 as transferred_at`;
+                extract(epoch from t.transferred_at)*1000 as transferred_at,
+                t.started_by_user_id,
+                extract(epoch from t.proceeded_at)*1000 as proceeded_at,
+                t.job_title_for_proceed`;
 
     // For employees, show tickets transferred to them
     if (tab === "received") {
