@@ -310,6 +310,29 @@ export async function initDb() {
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS job_title_for_proceed uuid REFERENCES job_title(id) ON DELETE SET NULL;`,
     );
 
+    // Employee Case Performance Tracking table
+    // Tracks how long each employee spends on each case from start to proceed/complete
+    await p.query(`CREATE TABLE IF NOT EXISTS employee_case_performance (
+    id uuid primary key default gen_random_uuid(),
+    ticket_id uuid not null references tickets(id) on delete cascade,
+    employee_id uuid not null references users(id) on delete cascade,
+    job_title_id uuid references job_title(id) on delete set null,
+    started_at timestamptz not null,
+    ended_at timestamptz,
+    status text check (status in ('in_progress', 'completed', 'proceeded')),
+    created_at timestamptz not null default now()
+  );`);
+
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_employee_case_performance_ticket ON employee_case_performance(ticket_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_employee_case_performance_employee ON employee_case_performance(employee_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_employee_case_performance_created ON employee_case_performance(created_at)`,
+    );
+
     // Seed service categories and services in Amharic
     const categories = [
       { code: "rights-group", name: "የመብት ቡድን" },
