@@ -123,6 +123,21 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
 
 // Helper function to format ticket response
 function formatTicketResponse(r: any) {
+  let selectedServices = undefined;
+  if (Array.isArray(r.selected_services)) {
+    selectedServices = r.selected_services;
+  } else if (typeof r.selected_services === "string") {
+    try {
+      selectedServices = JSON.parse(r.selected_services);
+      if (!Array.isArray(selectedServices)) {
+        selectedServices = undefined;
+      }
+    } catch (e) {
+      console.warn("Failed to parse selected_services:", r.selected_services, e);
+      selectedServices = undefined;
+    }
+  }
+
   return {
     id: r.id,
     service: r.service,
@@ -140,11 +155,7 @@ function formatTicketResponse(r: any) {
     woreda: r.woreda ?? undefined,
     remark: r.remark ?? undefined,
     serviceCategory: r.service_category ?? undefined,
-    selectedServices: Array.isArray(r.selected_services)
-      ? r.selected_services
-      : typeof r.selected_services === "string"
-        ? JSON.parse(r.selected_services)
-        : undefined,
+    selectedServices,
     transferredFromWindow: r.transferred_from_window ?? undefined,
     transferredToWindow: r.transferred_to_window ?? undefined,
     transferredToUserId: r.transferred_to_user_id ?? undefined,
