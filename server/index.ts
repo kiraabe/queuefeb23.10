@@ -301,6 +301,11 @@ export function createServer() {
   );
   app.post("/api/employee/cases/start", requireRole(["employee"]), startCase);
   app.post(
+    "/api/employee/cases/:id/proceed",
+    requireRole(["employee"]),
+    proceedCase,
+  );
+  app.post(
     "/api/employee/cases/:id/complete",
     requireRole(["employee"]),
     completeCase,
