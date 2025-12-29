@@ -590,16 +590,11 @@ export default function TellerWindow() {
         isWithin24Hours(t.createdAt) &&
         windowServices.includes(t.service),
     ).length;
-    const receivedToday = all.filter(
+    const proceedToday = all.filter(
       (t) =>
         t.status === "transferred" &&
-        t.transferredToWindow === windowId &&
-        isWithin24Hours(t.transferredAt),
-    ).length;
-    const sentToday = all.filter(
-      (t) =>
-        t.status === "transferred" &&
-        t.transferredFromWindow === windowId &&
+        (t.transferredToWindow === windowId ||
+          t.transferredFromWindow === windowId) &&
         isWithin24Hours(t.transferredAt),
     ).length;
     // Try estimate avg handling from available done tickets in memory (best-effort)
@@ -625,8 +620,7 @@ export default function TellerWindow() {
       inProgress,
       waiting,
       avgHandlingSecondsToday: avg,
-      receivedToday,
-      sentToday,
+      proceedToday,
     };
   }, [tickets, ticketsQuery.data, windowId, windowServices]);
 
@@ -640,8 +634,7 @@ export default function TellerWindow() {
       s.waiting === 0 &&
       (s.avgHandlingSecondsToday === null ||
         s.avgHandlingSecondsToday === undefined) &&
-      s.receivedToday === 0 &&
-      s.sentToday === 0;
+      s.proceedToday === 0;
     return !isDefaultEmpty;
   }, [statsQuery.data]);
 
@@ -681,22 +674,13 @@ export default function TellerWindow() {
         )
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
-    if (tab === "received") {
+    if (tab === "proceed") {
       return all
         .filter(
           (t) =>
             t.status === "transferred" &&
-            t.transferredToWindow === windowId &&
-            isWithin24Hours(t.transferredAt),
-        )
-        .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
-    }
-    if (tab === "sent") {
-      return all
-        .filter(
-          (t) =>
-            t.status === "transferred" &&
-            t.transferredFromWindow === windowId &&
+            (t.transferredToWindow === windowId ||
+              t.transferredFromWindow === windowId) &&
             isWithin24Hours(t.transferredAt),
         )
         .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
@@ -811,18 +795,10 @@ export default function TellerWindow() {
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Received Today
+            Proceed Today
           </div>
           <div className="mt-1 text-2xl font-semibold">
-            {stats.receivedToday ?? 0}
-          </div>
-        </Card>
-        <Card className="border-border/60 bg-card/90 p-4">
-          <div className="text-xs uppercase text-muted-foreground">
-            Sent Today
-          </div>
-          <div className="mt-1 text-2xl font-semibold">
-            {stats.sentToday ?? 0}
+            {stats.proceedToday ?? 0}
           </div>
         </Card>
       </div>
@@ -1114,8 +1090,7 @@ export default function TellerWindow() {
             <TabsTrigger value="completed">Today's Completed</TabsTrigger>
             <TabsTrigger value="skipped">Today's Skipped</TabsTrigger>
             <TabsTrigger value="serving">Ongoing</TabsTrigger>
-            <TabsTrigger value="received">Received</TabsTrigger>
-            <TabsTrigger value="sent">Sent</TabsTrigger>
+            <TabsTrigger value="proceed">Proceed</TabsTrigger>
           </TabsList>
           <TabsContent value="completed">
             <div className="mt-3">
@@ -1140,20 +1115,11 @@ export default function TellerWindow() {
               <TicketSection items={tabItems} title="Ongoing" pageSize={10} />
             </div>
           </TabsContent>
-          <TabsContent value="received">
+          <TabsContent value="proceed">
             <div className="mt-3">
               <TicketSection
                 items={tabItems}
-                title="Received Transfers"
-                pageSize={10}
-              />
-            </div>
-          </TabsContent>
-          <TabsContent value="sent">
-            <div className="mt-3">
-              <TicketSection
-                items={tabItems}
-                title="Sent Transfers"
+                title="Proceed Transfers"
                 pageSize={10}
               />
             </div>
