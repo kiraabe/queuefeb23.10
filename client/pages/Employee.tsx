@@ -62,7 +62,11 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
 
   const handleStart = async () => {
     try {
-      onActionStart?.(ticket.id, "start");
+      await apiFetch(`/api/employee/cases/${ticket.id}/start`, {
+        method: "POST",
+      });
+      toast.success("Case started");
+      onComplete?.(ticket.id);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to start case",
