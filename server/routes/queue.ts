@@ -524,7 +524,9 @@ export const transfer: RequestHandler = async (req, res) => {
     );
     sendSSE({ type: "window.updated", payload: source });
     sendSSE({ type: "window.updated", payload: target });
-    sendSSE({ type: "ticket.updated", payload: ticket });
+    // Enrich ticket with service names
+    const enrichedTicket = await enrichSelectedServicesWithNames(ticket);
+    sendSSE({ type: "ticket.updated", payload: enrichedTicket });
     const state = await displayStateDb();
     sendSSE({ type: "display.updated", payload: state });
 
