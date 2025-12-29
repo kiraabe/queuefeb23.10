@@ -470,6 +470,14 @@ export default function Employee() {
     return map;
   }, [usersQuery.data]);
 
+  const getJobTitleName = useMemo(() => {
+    if (!user?.jobTitleId || !jobTitlesQuery.data) return null;
+    const jobTitle = jobTitlesQuery.data.jobTitles.find(
+      (jt) => jt.id === user.jobTitleId
+    );
+    return jobTitle?.nameEnglish || jobTitle?.nameAmharic || null;
+  }, [user?.jobTitleId, jobTitlesQuery.data]);
+
   const tabItems = useMemo(() => {
     if (tab === "completed") {
       return tickets
