@@ -129,7 +129,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             <span className="font-medium">Category:</span>{" "}
             {ticket.serviceCategory || "—"}
           </div>
-          {ticket.selectedServices && ticket.selectedServices.length > 0 && (
+          {Array.isArray(ticket.selectedServices) && ticket.selectedServices.length > 0 && (
             <div className="text-xs text-muted-foreground">
               <span className="font-medium">Services:</span>{" "}
               {ticket.selectedServices.join(", ")}
