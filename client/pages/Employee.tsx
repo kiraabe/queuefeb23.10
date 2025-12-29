@@ -407,31 +407,21 @@ export default function Employee() {
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">
-              Employee Dashboard
+              Welcome, {user?.fullName || user?.username}
             </h1>
             <p className="text-muted-foreground">
               Track your daily cases and performance metrics
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setStartCaseOpen(true)}
-              size="sm"
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Start Case
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </div>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
         </div>
 
         {/* Stats Cards */}
