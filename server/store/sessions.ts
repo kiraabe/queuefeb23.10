@@ -40,6 +40,7 @@ export interface SessionRecord {
   username: string;
   role: UserRole;
   windowId: number | null;
+  jobTitleId: string | null;
   tokenHash: string;
   createdAt: Date;
   lastSeenAt: Date;
