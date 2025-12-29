@@ -170,10 +170,10 @@ export async function apiFetch<T>(
     } catch {}
 
     // Log server errors for debugging
-    console.error(`[API] Server error ${res.status} for ${path}: ${message}`, {
-      data,
-      statusText: res.statusText,
-    });
+    console.error(`[API] Server error ${res.status} for ${path}: ${message}`);
+    if (data) {
+      console.debug(`[API] Response data:`, data);
+    }
 
     if (res.status === 400) {
       if (data?.code === "MISSING_CREDENTIALS") {
