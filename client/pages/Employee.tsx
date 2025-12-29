@@ -148,8 +148,17 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         )}
       </div>
       <div className="flex flex-col items-end gap-2 text-right">
-        <div className="text-sm font-semibold text-foreground">
-          {formatDuration(duration)}
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-semibold text-foreground">
+            {formatDuration(duration)}
+          </div>
+          {ticket.startedAt && !ticket.proceededAt && !ticket.completedAt && (
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-muted-foreground">(in progress</span>
+              <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-xs text-muted-foreground">)</span>
+            </div>
+          )}
         </div>
         <p className="text-xs text-muted-foreground">
           {ticket.startedAt
