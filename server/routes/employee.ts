@@ -33,6 +33,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
 
   try {
     // Build the common ticket selection query
+    // Include LEFT JOIN with employee_case_performance to track if current employee has started this case
     const selectTicketColumns = `t.id, t.service, t.number, t.code, t.status, t.window_id,
                 extract(epoch from t.created_at)*1000 as created_at,
                 extract(epoch from t.started_at)*1000 as started_at,
@@ -42,7 +43,8 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
                 extract(epoch from t.transferred_at)*1000 as transferred_at,
                 t.started_by_user_id,
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
-                t.job_title_for_proceed`;
+                t.job_title_for_proceed,
+                CASE WHEN ecp.id IS NOT NULL THEN extract(epoch from ecp.started_at)*1000 ELSE NULL END as employee_started_at`;
 
     // For employees, show tickets transferred to them
     if (tab === "received") {
