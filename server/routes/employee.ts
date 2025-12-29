@@ -210,3 +210,99 @@ export const employeeStats: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const startCase: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { jobTitleId, employeeId } = req.body as {
+    jobTitleId?: string;
+    employeeId?: string;
+  };
+
+  if (!jobTitleId || !employeeId) {
+    return res.status(400).json({ error: "Missing jobTitleId or employeeId" });
+  }
+
+  try {
+    const p = getPool();
+
+    // Create a new ticket for this employee (transferred to them)
+    const { rows } = await p.query(
+      `INSERT INTO tickets (
+        service, status, window_id, owner_name, woreda, remark, notes,
+        transferred_from_window, transferred_to_user_id, transferred_at,
+        created_at, service_category
+      ) VALUES (
+        $1, $2, NULL, $3, $4, $5, $6,
+        NULL, $7, now(),
+        now(), $8
+      )
+      RETURNING id, code`,
+      [
+        jobTitleId,
+        "transferred",
+        "",
+        "",
+        "",
+        "",
+        employeeId,
+        jobTitleId,
+      ],
+    );
+
+    if (!rows.length) {
+      return res.status(500).json({ error: "Failed to create case" });
+    }
+
+    res.json({
+      id: rows[0].id,
+      code: rows[0].code,
+    });
+  } catch (error) {
+    console.error("Failed to start case:", error);
+    res.status(500).json({
+      error: "Failed to start case. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const completeCase: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const caseId = req.params.id;
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing case id" });
+  }
+
+  try {
+    const p = getPool();
+
+    const { rows } = await p.query(
+      `UPDATE tickets
+       SET status = 'done',
+           completed_at = now()
+       WHERE id = $1 AND transferred_to_user_id = $2
+       RETURNING id, completed_at`,
+      [caseId, userId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Case not found or not assigned to you" });
+    }
+
+    res.json({ success: true, completedAt: rows[0].completed_at });
+  } catch (error) {
+    console.error("Failed to complete case:", error);
+    res.status(500).json({
+      error: "Failed to complete case. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
