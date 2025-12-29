@@ -116,6 +116,8 @@ export function createServer() {
         return res.redirect(301, url);
       }
     }
+    // Disable strict origin checks if ALLOWED_ORIGINS is not explicitly configured
+    // This allows the app to work on any origin in production without additional config
     next();
   });
 
