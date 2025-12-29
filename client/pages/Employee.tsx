@@ -314,7 +314,7 @@ export default function Employee() {
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<"proceed" | null>(null);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = async () => {
     try {
