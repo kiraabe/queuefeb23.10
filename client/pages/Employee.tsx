@@ -428,6 +428,24 @@ export default function Employee() {
                   </div>
                 )}
               </TabsContent>
+
+              <TabsContent value="history" className="space-y-4 mt-4">
+                {historyQuery.isPending ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading case history...
+                  </div>
+                ) : tabItems.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No case history yet
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tabItems.map((ticket) => (
+                      <CaseHistoryRow key={ticket.id} ticket={ticket} />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
