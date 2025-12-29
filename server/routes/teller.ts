@@ -100,7 +100,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       [windowId],
     );
     const { rows } = await p.query(
-      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, extract(epoch from t.skipped_at)*1000 as skipped_at, t.skipped_by_window, t.transferred_from_window, extract(epoch from t.transferred_at)*1000 as transferred_at
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, extract(epoch from t.skipped_at)*1000 as skipped_at, t.skipped_by_window, t.transferred_from_window, extract(epoch from t.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services
          FROM windows w
          JOIN tickets t ON t.id = w.current_ticket_id
         WHERE w.id = $1 AND t.status IN ('serving','transferred')
@@ -108,30 +108,43 @@ export const tellerTickets: RequestHandler = async (req, res) => {
         LIMIT $2 OFFSET $3`,
       [windowId, limit, offset],
     );
+
+    // Convert rows to Ticket objects
+    const tickets: Ticket[] = rows.map((r) => ({
+      id: r.id,
+      service: r.service,
+      number: r.number,
+      code: r.code,
+      status: r.status,
+      windowId: r.window_id,
+      createdAt: Math.round(Number(r.created_at)),
+      startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+      completedAt: r.completed_at
+        ? Math.round(Number(r.completed_at))
+        : undefined,
+      notes: r.notes ?? undefined,
+      ownerName: r.owner_name ?? undefined,
+      woreda: r.woreda ?? undefined,
+      remark: r.remark ?? undefined,
+      skippedAt: r.skipped_at ? Math.round(Number(r.skipped_at)) : null,
+      skippedByWindow: r.skipped_by_window ?? null,
+      transferredFromWindow: r.transferred_from_window ?? undefined,
+      transferredAt: r.transferred_at
+        ? Math.round(Number(r.transferred_at))
+        : undefined,
+      serviceCategory: r.service_category ?? undefined,
+      selectedServices: Array.isArray(r.selected_services)
+        ? r.selected_services
+        : typeof r.selected_services === "string"
+          ? JSON.parse(r.selected_services)
+          : undefined,
+    }));
+
+    // Enrich tickets with service names
+    const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+
     return res.json({
-      items: rows.map((r) => ({
-        id: r.id,
-        service: r.service,
-        number: r.number,
-        code: r.code,
-        status: r.status,
-        windowId: r.window_id,
-        createdAt: Math.round(Number(r.created_at)),
-        startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
-        completedAt: r.completed_at
-          ? Math.round(Number(r.completed_at))
-          : undefined,
-        notes: r.notes ?? undefined,
-        ownerName: r.owner_name ?? undefined,
-        woreda: r.woreda ?? undefined,
-        remark: r.remark ?? undefined,
-        skippedAt: r.skipped_at ? Math.round(Number(r.skipped_at)) : null,
-        skippedByWindow: r.skipped_by_window ?? null,
-        transferredFromWindow: r.transferred_from_window ?? undefined,
-        transferredAt: r.transferred_at
-          ? Math.round(Number(r.transferred_at))
-          : undefined,
-      })),
+      items: enrichedTickets,
       total: Number(countRes.rows[0]?.total || 0),
     });
   }
