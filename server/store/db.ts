@@ -1367,6 +1367,9 @@ export async function enrichSelectedServicesWithNames(
     );
 
     if (!catRes.rowCount) {
+      console.warn(
+        `Service category not found: ${ticket.serviceCategory} for ticket ${ticket.id}`,
+      );
       return ticket; // Fallback if category not found
     }
 
@@ -1378,6 +1381,10 @@ export async function enrichSelectedServicesWithNames(
       [categoryId, ticket.selectedServices],
     );
 
+    console.log(
+      `[enrichSingleTicket] Ticket ${ticket.id}: category=${ticket.serviceCategory}, categoryId=${categoryId}, serviceIds=${ticket.selectedServices.join(", ")}, found=${servicesRes.rowCount} matches`,
+    );
+
     // Create a map of ID to name
     const idToNameMap = new Map(
       servicesRes.rows.map((r: any) => [r.id, r.name]),
@@ -1385,12 +1392,20 @@ export async function enrichSelectedServicesWithNames(
 
     // Return names in the same order as the IDs
     const enrichedNames = ticket.selectedServices
-      .map((id: string) => idToNameMap.get(id))
+      .map((id: string) => {
+        const name = idToNameMap.get(id);
+        if (!name) {
+          console.warn(
+            `Service ID ${id} not found in category ${ticket.serviceCategory} for ticket ${ticket.id}`,
+          );
+        }
+        return name;
+      })
       .filter((name: string | undefined) => name !== undefined) as string[];
 
     return {
       ...ticket,
-      selectedServices: enrichedNames.length > 0 ? enrichedNames : undefined,
+      selectedServices: enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices,
     };
   } catch (error) {
     console.warn("Error enriching selected services with names:", error);
