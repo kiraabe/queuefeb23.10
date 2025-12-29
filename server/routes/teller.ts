@@ -214,7 +214,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       [windowId],
     );
     const { rows } = await p.query(
-      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services
          FROM transfer_history th
          JOIN tickets t ON t.id = th.ticket_id
         WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
@@ -222,8 +222,9 @@ export const tellerTickets: RequestHandler = async (req, res) => {
         LIMIT $2 OFFSET $3`,
       [windowId, limit, offset],
     );
-    // Return paginated items but ensure total reflects the actual count query
-    const items = rows.map((r) => ({
+
+    // Convert rows to Ticket objects
+    const tickets: Ticket[] = rows.map((r) => ({
       id: r.id,
       service: r.service,
       number: r.number,
@@ -244,10 +245,20 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       transferredAt: r.transferred_at
         ? Math.round(Number(r.transferred_at))
         : undefined,
+      serviceCategory: r.service_category ?? undefined,
+      selectedServices: Array.isArray(r.selected_services)
+        ? r.selected_services
+        : typeof r.selected_services === "string"
+          ? JSON.parse(r.selected_services)
+          : undefined,
     }));
+
+    // Enrich tickets with service names
+    const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+
     const totalCount = Number(countRes.rows[0]?.total || 0);
     return res.json({
-      items,
+      items: enrichedTickets,
       total: totalCount,
     });
   }
