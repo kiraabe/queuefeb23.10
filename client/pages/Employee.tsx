@@ -330,6 +330,12 @@ export default function Employee() {
     refetchInterval: 10000,
   });
 
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: () => apiFetch<ListUsersResponse>("/api/admin/users"),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
   const handleCaseStarted = () => {
     ticketsQuery.refetch();
   };
