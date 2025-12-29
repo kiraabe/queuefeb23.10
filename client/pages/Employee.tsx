@@ -534,7 +534,7 @@ export default function Employee() {
                 ) : (
                   <div className="space-y-2">
                     {tabItems.map((ticket) => (
-                      <CaseHistoryRow key={ticket.id} ticket={ticket} />
+                      <CaseHistoryRow key={ticket.id} ticket={ticket} userMap={userMap} />
                     ))}
                   </div>
                 )}
