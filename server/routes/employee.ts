@@ -90,6 +90,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
       const { rows } = await p.query(
         `SELECT ${selectTicketColumns}
          FROM tickets t
+         LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id AND ecp.employee_id = $1 AND ecp.status = 'in_progress'
          WHERE t.status = 'done'
            AND t.transferred_to_user_id = $1
            AND t.completed_at >= date_trunc('day', now())
