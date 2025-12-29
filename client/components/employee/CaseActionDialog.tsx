@@ -113,7 +113,7 @@ export function CaseActionDialog({
               <label className="text-sm font-medium">Job Title</label>
               <Select
                 value={selectedJobTitle}
-                onValueChange={setSelectedJobTitle}
+                onValueChange={handleJobTitleChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a job title" />
@@ -133,12 +133,19 @@ export function CaseActionDialog({
               <Select
                 value={selectedEmployee}
                 onValueChange={setSelectedEmployee}
+                disabled={!selectedJobTitle}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an employee" />
+                  <SelectValue
+                    placeholder={
+                      !selectedJobTitle
+                        ? "Select a job title first"
+                        : "Select an employee"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees.map((emp) => (
+                  {filteredEmployees.map((emp) => (
                     <SelectItem key={emp.id} value={emp.id}>
                       {emp.fullName || emp.username}
                     </SelectItem>
