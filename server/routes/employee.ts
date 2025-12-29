@@ -411,3 +411,63 @@ export const completeCase: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const employeeHistory: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const limit = Math.min(Math.max(Number(req.query.limit || 100), 1), 500);
+  const offset = Math.max(Number(req.query.offset || 0), 0);
+
+  const p = getPool();
+
+  try {
+    // Build the ticket selection query
+    const selectTicketColumns = `t.id, t.service, t.number, t.code, t.status, t.window_id,
+                extract(epoch from t.created_at)*1000 as created_at,
+                extract(epoch from t.started_at)*1000 as started_at,
+                extract(epoch from t.completed_at)*1000 as completed_at,
+                t.notes, t.owner_name, t.woreda, t.remark, t.service_category, t.selected_services,
+                t.transferred_from_window, t.transferred_to_window, t.transferred_to_user_id,
+                extract(epoch from t.transferred_at)*1000 as transferred_at,
+                t.started_by_user_id,
+                extract(epoch from t.proceeded_at)*1000 as proceeded_at,
+                t.job_title_for_proceed`;
+
+    // Get all cases this employee started today (whether forwarded or completed)
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total
+       FROM tickets t
+       WHERE t.started_by_user_id = $1
+         AND t.started_at IS NOT NULL
+         AND t.created_at >= date_trunc('day', now())`,
+      [userId],
+    );
+
+    const { rows } = await p.query(
+      `SELECT ${selectTicketColumns}
+       FROM tickets t
+       WHERE t.started_by_user_id = $1
+         AND t.started_at IS NOT NULL
+         AND t.created_at >= date_trunc('day', now())
+       ORDER BY COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
+       LIMIT $2 OFFSET $3`,
+      [userId, limit, offset],
+    );
+
+    const items = rows.map((r) => formatTicketResponse(r));
+    const enrichedItems = await enrichMultipleTicketsWithServiceNames(items);
+    return res.json({
+      items: enrichedItems,
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  } catch (error) {
+    console.error("Failed to fetch case history:", error);
+    res.status(500).json({
+      error: "Failed to fetch case history. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
