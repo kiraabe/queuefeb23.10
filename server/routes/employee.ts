@@ -188,13 +188,18 @@ export const employeeStats: RequestHandler = async (req, res) => {
       [userId],
     );
 
-    // Calculate average processing time (from transfer to completion) for this employee
+    // Calculate average processing time (from started to completion) for this employee
+    // Uses proceeded_at if case was transferred, otherwise uses completed_at
     const { rows: avgRows } = await p.query(
-      `SELECT AVG(EXTRACT(EPOCH FROM (t.completed_at - t.transferred_at))) AS avg_seconds
+      `SELECT AVG(
+         EXTRACT(EPOCH FROM (
+           COALESCE(t.proceeded_at, t.completed_at) - t.started_at
+         ))
+       ) AS avg_seconds
        FROM tickets t
        WHERE t.status = 'done'
-         AND t.transferred_to_user_id = $1
-         AND t.transferred_at IS NOT NULL
+         AND t.started_by_user_id = $1
+         AND t.started_at IS NOT NULL
          AND t.completed_at IS NOT NULL
          AND t.completed_at >= date_trunc('day', now())`,
       [userId],
