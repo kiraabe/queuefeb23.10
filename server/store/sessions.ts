@@ -95,6 +95,7 @@ export async function createUserSession(params: {
   username: string;
   role: UserRole;
   windowId: number | null;
+  jobTitleId?: string | null;
 }): Promise<{ token: string; session: SessionRecord }> {
   const token = generateSessionToken();
   const hash = hashToken(token);
@@ -107,17 +108,19 @@ export async function createUserSession(params: {
       username,
       role,
       window_id,
+      job_title_id,
       token_hash,
       created_at,
       last_seen_at,
       expires_at
-    ) VALUES ($1, $2, $3, $4, $5, now(), now(), $6)
-    RETURNING id, user_id, username, role, window_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, now(), now(), $7)
+    RETURNING id, user_id, username, role, window_id, job_title_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason`,
     [
       params.userId,
       params.username,
       params.role,
       params.windowId ?? null,
+      params.jobTitleId ?? null,
       hash,
       expiresAt.toISOString(),
     ],
