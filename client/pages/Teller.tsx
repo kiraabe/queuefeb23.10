@@ -434,22 +434,6 @@ export default function Teller() {
             <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground">
               Window Controls
             </h2>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (
-                  confirm(
-                    "Are you sure you want to clear all windows? This will reset all tickets and statuses.",
-                  )
-                ) {
-                  clearAllWindows.mutate();
-                }
-              }}
-              disabled={clearAllWindows.isPending}
-              className="h-9 sm:h-10 text-xs sm:text-sm"
-            >
-              {clearAllWindows.isPending ? "Clearing..." : "Clear All Windows"}
-            </Button>
           </div>
           <div className="grid gap-2 sm:gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
             {windowsQuery.data?.map((w) => (
