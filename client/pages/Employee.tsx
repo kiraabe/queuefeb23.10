@@ -545,12 +545,6 @@ export default function Employee() {
         </Card>
       </div>
 
-      <StartCaseDialog
-        open={startCaseOpen}
-        onOpenChange={setStartCaseOpen}
-        onSuccess={handleCaseStarted}
-      />
-
       <CaseActionDialog
         open={actionDialogOpen}
         onOpenChange={setActionDialogOpen}
