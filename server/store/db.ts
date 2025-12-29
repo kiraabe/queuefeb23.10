@@ -1439,6 +1439,10 @@ export async function enrichMultipleTicketsWithServiceNames(
       }
     }
 
+    console.log(
+      `[enrichMultipleTickets] Processing ${tickets.length} tickets, ${ticketsByCategory.size} categories with services`,
+    );
+
     // For each category, fetch all service names
     const allServicesByCategory = new Map<string, Map<string, string>>();
 
@@ -1450,6 +1454,7 @@ export async function enrichMultipleTicketsWithServiceNames(
       );
 
       if (!catRes.rowCount) {
+        console.warn(`Service category not found: ${categoryCode}`);
         continue;
       }
 
@@ -1470,9 +1475,24 @@ export async function enrichMultipleTicketsWithServiceNames(
           [categoryId, Array.from(serviceIds)],
         );
 
+        console.log(
+          `[enrichMultipleTickets] Category ${categoryCode}: looking for ${serviceIds.size} services, found ${servicesRes.rowCount} matches`,
+        );
+
         const idToNameMap = new Map(
           servicesRes.rows.map((r: any) => [r.id, r.name]),
         );
+
+        // Log which IDs were not found
+        const missingIds = Array.from(serviceIds).filter(
+          (id) => !idToNameMap.has(id),
+        );
+        if (missingIds.length > 0) {
+          console.warn(
+            `[enrichMultipleTickets] Missing services in ${categoryCode}: ${missingIds.join(", ")}`,
+          );
+        }
+
         allServicesByCategory.set(categoryCode, idToNameMap);
       }
     }
