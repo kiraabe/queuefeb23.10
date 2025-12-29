@@ -337,10 +337,11 @@ export async function initDb() {
 
     // Helper function to generate deterministic UUID for a service
     // Uses the category code and service code to create a stable UUID
-    const generateServiceUUID = (categoryCode: string, serviceCode: string) => {
-      // Create a deterministic UUID v5 using namespace + text
-      // We use a simple hash-based approach since we're in Node.js
-      const { createHash } = await import("node:crypto");
+    const { createHash } = await import("node:crypto");
+    const generateServiceUUID = (
+      categoryCode: string,
+      serviceCode: string,
+    ): string => {
       const namespace = "services:";
       const combined = namespace + categoryCode + ":" + serviceCode;
       const hash = createHash("sha256").update(combined).digest();
