@@ -38,9 +38,12 @@ const COOKIE_SECURE =
   COOKIE_SAMESITE.toLowerCase() === "none";
 
 // Log cookie configuration for debugging
-if (process.env.NODE_ENV === "production" || process.env.FORCE_HTTPS === "true") {
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.FORCE_HTTPS === "true"
+) {
   console.log(
-    `[Auth] Production mode - SameSite=${COOKIE_SAMESITE}, Secure=${COOKIE_SECURE}`
+    `[Auth] Production mode - SameSite=${COOKIE_SAMESITE}, Secure=${COOKIE_SECURE}`,
   );
 }
 
@@ -167,7 +170,7 @@ async function authenticateRequest(
     // Session cookie not found - this could be a new user or the cookie wasn't sent
     const hasCookieHeader = !!req.headers.cookie;
     console.warn(
-      `[Auth] Session cookie not found. Cookie header present: ${hasCookieHeader}, Looking for: ${SESSION_COOKIE}`
+      `[Auth] Session cookie not found. Cookie header present: ${hasCookieHeader}, Looking for: ${SESSION_COOKIE}`,
     );
     return {
       ok: false,
