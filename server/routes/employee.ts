@@ -274,6 +274,46 @@ export const startCase: RequestHandler = async (req, res) => {
   }
 };
 
+export const handleStartCase: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const caseId = req.params.id;
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing case id" });
+  }
+
+  try {
+    const p = getPool();
+
+    // Mark the case as started by this employee
+    const { rows } = await p.query(
+      `UPDATE tickets
+       SET started_at = now(),
+           started_by_user_id = $1
+       WHERE id = $2 AND transferred_to_user_id = $1 AND status = 'transferred'
+       RETURNING id`,
+      [userId, caseId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({
+        error: "Case not found or not assigned to you"
+      });
+    }
+
+    res.json({ success: true, caseId: rows[0].id });
+  } catch (error) {
+    console.error("Failed to start case:", error);
+    res.status(500).json({
+      error: "Failed to start case. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
 export const proceedCase: RequestHandler = async (req, res) => {
   const userId = (req as any).auth?.id;
   if (!userId) {
