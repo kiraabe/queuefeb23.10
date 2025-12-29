@@ -11,10 +11,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CheckCircle2, Package, Zap, LogOut } from "lucide-react";
+import { CheckCircle2, Package, Zap, LogOut, Plus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { StartCaseDialog } from "@/components/employee/StartCaseDialog";
 import type { Ticket } from "@shared/api";
 
 interface EmployeeStats {
@@ -46,14 +47,31 @@ function calculateDuration(
 
 interface TicketRowProps {
   ticket: Ticket;
+  onComplete?: (ticketId: string) => void;
 }
 
-const TicketRow = ({ ticket }: TicketRowProps) => {
+const TicketRow = ({ ticket, onComplete }: TicketRowProps) => {
   const duration = calculateDuration(ticket.transferredAt, ticket.completedAt);
   const statusColor =
     ticket.status === "done"
       ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
       : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
+
+  const handleComplete = async () => {
+    try {
+      await apiFetch(`/api/employee/cases/${ticket.id}/complete`, {
+        method: "POST",
+      });
+      toast.success("Case completed successfully");
+      onComplete?.(ticket.id);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to complete case",
+      );
+    }
+  };
+
+  const isReceived = ticket.status === "transferred";
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
@@ -81,7 +99,7 @@ const TicketRow = ({ ticket }: TicketRowProps) => {
           </p>
         )}
       </div>
-      <div className="flex flex-col items-end gap-1 text-right">
+      <div className="flex flex-col items-end gap-2 text-right">
         <div className="text-sm font-semibold text-foreground">
           {formatDuration(duration)}
         </div>
@@ -95,6 +113,15 @@ const TicketRow = ({ ticket }: TicketRowProps) => {
             to {new Date(ticket.completedAt).toLocaleTimeString()}
           </p>
         )}
+        {isReceived && (
+          <Button
+            size="sm"
+            onClick={handleComplete}
+            className="mt-2"
+          >
+            Complete
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -102,6 +129,7 @@ const TicketRow = ({ ticket }: TicketRowProps) => {
 
 export default function Employee() {
   const [tab, setTab] = useState<string>("received");
+  const [startCaseOpen, setStartCaseOpen] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -127,7 +155,16 @@ export default function Employee() {
       apiFetch<EmployeeTicketsResponse>(
         `/api/employee/tickets?tab=${encodeURIComponent(tab)}`,
       ),
+    refetchInterval: 5000,
   });
+
+  const handleCaseStarted = () => {
+    ticketsQuery.refetch();
+  };
+
+  const handleCaseCompleted = () => {
+    ticketsQuery.refetch();
+  };
 
   const stats = statsQuery.data;
   const tickets = ticketsQuery.data?.items || [];
@@ -156,15 +193,25 @@ export default function Employee() {
               Track your daily cases and performance metrics
             </p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setStartCaseOpen(true)}
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Start Case
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -242,7 +289,11 @@ export default function Employee() {
                 ) : (
                   <div className="space-y-2">
                     {tabItems.map((ticket) => (
-                      <TicketRow key={ticket.id} ticket={ticket} />
+                      <TicketRow
+                        key={ticket.id}
+                        ticket={ticket}
+                        onComplete={handleCaseCompleted}
+                      />
                     ))}
                   </div>
                 )}
@@ -269,6 +320,12 @@ export default function Employee() {
           </CardContent>
         </Card>
       </div>
+
+      <StartCaseDialog
+        open={startCaseOpen}
+        onOpenChange={setStartCaseOpen}
+        onSuccess={handleCaseStarted}
+      />
     </div>
   );
 }
