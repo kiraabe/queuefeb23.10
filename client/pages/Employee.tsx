@@ -401,7 +401,7 @@ export default function Employee() {
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">
-              Welcome, {user?.fullName || user?.username}
+              {user?.fullName ? `Welcome, ${user.fullName}` : "Employee Dashboard"}
             </h1>
             <p className="text-muted-foreground">
               Track your daily cases and performance metrics
