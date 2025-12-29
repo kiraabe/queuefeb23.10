@@ -243,18 +243,19 @@ export const startCase: RequestHandler = async (req, res) => {
     const p = getPool();
 
     // Create a new ticket for this employee (transferred to them)
+    // Note: Do NOT set started_at here - it should only be set when employee clicks Start
     const { rows } = await p.query(
       `INSERT INTO tickets (
         service, status, window_id, owner_name, woreda, remark, notes,
         transferred_from_window, transferred_to_user_id, transferred_at,
-        created_at, service_category, started_at, started_by_user_id
+        created_at, service_category
       ) VALUES (
         $1, $2, NULL, $3, $4, $5, $6,
         NULL, $7, now(),
-        now(), $8, now(), $9
+        now(), $8
       )
       RETURNING id, code`,
-      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId, employeeId],
+      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId],
     );
 
     if (!rows.length) {
