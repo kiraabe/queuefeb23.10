@@ -508,6 +508,11 @@ export default function Employee() {
                 ? `Welcome, ${user.fullName}`
                 : "Employee Dashboard"}
             </h1>
+            {getJobTitleName && (
+              <p className="text-sm text-muted-foreground font-medium">
+                {getJobTitleName}
+              </p>
+            )}
             <p className="text-muted-foreground">
               Track your daily cases and performance metrics
             </p>
