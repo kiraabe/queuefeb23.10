@@ -349,6 +349,26 @@ export async function initDb() {
       ]);
     }
 
+    // Helper function to generate deterministic UUID for a service
+    // Uses the category code and service code to create a stable UUID
+    const generateServiceUUID = (categoryCode: string, serviceCode: string) => {
+      // Create a deterministic UUID v5 using namespace + text
+      // We use a simple hash-based approach since we're in Node.js
+      const { createHash } = await import("node:crypto");
+      const namespace = "services:";
+      const combined = namespace + categoryCode + ":" + serviceCode;
+      const hash = createHash("sha256").update(combined).digest();
+      // Convert first 16 bytes of hash to a valid UUID format
+      const uuid = [
+        hash.slice(0, 4).toString("hex"),
+        hash.slice(4, 6).toString("hex"),
+        hash.slice(6, 8).toString("hex"),
+        hash.slice(8, 10).toString("hex"),
+        hash.slice(10, 16).toString("hex"),
+      ].join("-");
+      return uuid;
+    };
+
     // Rights Group Services
     if (catMap["rights-group"]) {
       const rightsServices = [
@@ -361,12 +381,19 @@ export async function initDb() {
         "የጠፋ ሰርተፍኬት ጋዜጣ ማሳወጅ",
       ];
       for (let i = 0; i < rightsServices.length; i++) {
+        const serviceCode = `RG${String(i + 1).padStart(2, "0")}`;
+        const serviceUUID = await generateServiceUUID(
+          "rights-group",
+          serviceCode,
+        );
         await p.query(
-          `INSERT INTO services (category_id, code, name, display_order)
-           VALUES ($1, $2, $3, $4);`,
+          `INSERT INTO services (id, category_id, code, name, display_order)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
           [
+            serviceUUID,
             catMap["rights-group"],
-            `RG${String(i + 1).padStart(2, "0")}`,
+            serviceCode,
             rightsServices[i],
             i,
           ],
@@ -390,12 +417,19 @@ export async function initDb() {
         "የይካተትልኝ አገልግሎት",
       ];
       for (let i = 0; i < cadastralServices.length; i++) {
+        const serviceCode = `CG${String(i + 1).padStart(2, "0")}`;
+        const serviceUUID = await generateServiceUUID(
+          "cadastral-group",
+          serviceCode,
+        );
         await p.query(
-          `INSERT INTO services (category_id, code, name, display_order)
-           VALUES ($1, $2, $3, $4);`,
+          `INSERT INTO services (id, category_id, code, name, display_order)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
           [
+            serviceUUID,
             catMap["cadastral-group"],
-            `CG${String(i + 1).padStart(2, "0")}`,
+            serviceCode,
             cadastralServices[i],
             i,
           ],
@@ -407,12 +441,19 @@ export async function initDb() {
     if (catMap["fixed-property-group"]) {
       const fixedPropertyServices = ["የንብረት ትመና አገልግሎት", "የግብር ተመን"];
       for (let i = 0; i < fixedPropertyServices.length; i++) {
+        const serviceCode = `FP${String(i + 1).padStart(2, "0")}`;
+        const serviceUUID = await generateServiceUUID(
+          "fixed-property-group",
+          serviceCode,
+        );
         await p.query(
-          `INSERT INTO services (category_id, code, name, display_order)
-           VALUES ($1, $2, $3, $4);`,
+          `INSERT INTO services (id, category_id, code, name, display_order)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
           [
+            serviceUUID,
             catMap["fixed-property-group"],
-            `FP${String(i + 1).padStart(2, "0")}`,
+            serviceCode,
             fixedPropertyServices[i],
             i,
           ],
