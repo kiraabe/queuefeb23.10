@@ -330,11 +330,15 @@ export const handleStartCase: RequestHandler = async (req, res) => {
       }
 
       // Record performance tracking entry for this employee
-      const jobTitleId = startRes.rows[0].service_category; // service_category stores job_title_id
+      // Note: job_title_id can be NULL if ticket was transferred from window
+      // (service_category may contain service type, not job_title UUID)
+      const jobTitleId = startRes.rows[0].service_category;
+      const isValidUUID =
+        jobTitleId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobTitleId);
       await client.query(
         `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
          VALUES ($1, $2, $3, now(), 'in_progress')`,
-        [caseId, userId, jobTitleId],
+        [caseId, userId, isValidUUID ? jobTitleId : null],
       );
 
       await client.query("COMMIT");
