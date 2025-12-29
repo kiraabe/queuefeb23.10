@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
-import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
