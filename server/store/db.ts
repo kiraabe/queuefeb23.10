@@ -370,10 +370,11 @@ export async function initDb() {
       for (let i = 0; i < rightsServices.length; i++) {
         const serviceCode = `RG${String(i + 1).padStart(2, "0")}`;
         const serviceUUID = generateServiceUUID("rights-group", serviceCode);
+        // First try to insert. If it exists, update name and display_order
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["rights-group"],
@@ -403,10 +404,11 @@ export async function initDb() {
       for (let i = 0; i < cadastralServices.length; i++) {
         const serviceCode = `CG${String(i + 1).padStart(2, "0")}`;
         const serviceUUID = generateServiceUUID("cadastral-group", serviceCode);
+        // First try to insert. If it exists, update name and display_order
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["cadastral-group"],
@@ -424,10 +426,11 @@ export async function initDb() {
       for (let i = 0; i < fixedPropertyServices.length; i++) {
         const serviceCode = `FP${String(i + 1).padStart(2, "0")}`;
         const serviceUUID = generateServiceUUID("fixed-property-group", serviceCode);
+        // First try to insert. If it exists, update name and display_order
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["fixed-property-group"],
