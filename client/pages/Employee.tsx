@@ -332,6 +332,7 @@ export default function Employee() {
                         key={ticket.id}
                         ticket={ticket}
                         onComplete={handleCaseCompleted}
+                        onActionStart={handleCaseAction}
                       />
                     ))}
                   </div>
