@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { StartCaseDialog } from "@/components/employee/StartCaseDialog";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
-import type { Ticket } from "@shared/api";
+import type { Ticket, ListUsersResponse } from "@shared/api";
 
 interface EmployeeStats {
   receivedToday: number;
