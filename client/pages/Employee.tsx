@@ -98,29 +98,41 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             {status}
           </Badge>
         </div>
-        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-          <div>
-            <span className="font-medium">Started:</span>{" "}
-            {ticket.startedAt
-              ? new Date(ticket.startedAt).toLocaleTimeString()
-              : "—"}
-          </div>
-          <div>
-            <span className="font-medium">Ended:</span>{" "}
-            {ticket.proceededAt || ticket.completedAt
-              ? new Date(
-                  ticket.proceededAt || ticket.completedAt || 0,
-                ).toLocaleTimeString()
-              : "—"}
-          </div>
-          <div>
-            <span className="font-medium">Duration:</span>{" "}
-            {formatDuration(duration)}
-          </div>
-          {isProceed && ticket.transferredToUserId && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div>
-              <span className="font-medium">Forwarded To:</span>{" "}
-              {userMap?.get(ticket.transferredToUserId) || ticket.transferredToUserId}
+              <span className="font-medium">Started:</span>{" "}
+              {ticket.startedAt
+                ? new Date(ticket.startedAt).toLocaleTimeString()
+                : "—"}
+            </div>
+            <div>
+              <span className="font-medium">Ended:</span>{" "}
+              {ticket.proceededAt || ticket.completedAt
+                ? new Date(
+                    ticket.proceededAt || ticket.completedAt || 0,
+                  ).toLocaleTimeString()
+                : "—"}
+            </div>
+            <div>
+              <span className="font-medium">Duration:</span>{" "}
+              {formatDuration(duration)}
+            </div>
+            {isProceed && ticket.transferredToUserId && (
+              <div>
+                <span className="font-medium">Forwarded To:</span>{" "}
+                {userMap?.get(ticket.transferredToUserId) || ticket.transferredToUserId}
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            <span className="font-medium">Category:</span>{" "}
+            {ticket.serviceCategory || "—"}
+          </div>
+          {ticket.selectedServices && ticket.selectedServices.length > 0 && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Services:</span>{" "}
+              {ticket.selectedServices.join(", ")}
             </div>
           )}
         </div>
