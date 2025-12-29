@@ -29,10 +29,20 @@ import {
 } from "../store/sessions";
 import type { SessionRecord, SessionRevokeReason } from "../store/sessions";
 
+// For production HTTPS, use SameSite=None with Secure flag
+// For development HTTP, use SameSite=Lax without Secure flag
+// Environment variable override: COOKIE_SAMESITE and COOKIE_SECURE
 const COOKIE_SAMESITE = (process.env.COOKIE_SAMESITE || "None").trim();
 const COOKIE_SECURE =
   process.env.COOKIE_SECURE === "true" ||
   COOKIE_SAMESITE.toLowerCase() === "none";
+
+// Log cookie configuration for debugging
+if (process.env.NODE_ENV === "production" || process.env.FORCE_HTTPS === "true") {
+  console.log(
+    `[Auth] Production mode - SameSite=${COOKIE_SAMESITE}, Secure=${COOKIE_SECURE}`
+  );
+}
 
 function toAuthUserFromRow(row: {
   id: string;
