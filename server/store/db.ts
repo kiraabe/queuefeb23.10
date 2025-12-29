@@ -1494,7 +1494,8 @@ export async function enrichMultipleTicketsWithServiceNames(
 
       return {
         ...ticket,
-        selectedServices: enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices, // Keep original IDs if enrichment fails
+        selectedServices:
+          enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices, // Keep original IDs if enrichment fails
       };
     });
 

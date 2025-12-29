@@ -120,7 +120,8 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             {isProceed && ticket.transferredToUserId && (
               <div>
                 <span className="font-medium">Forwarded To:</span>{" "}
-                {userMap?.get(ticket.transferredToUserId) || ticket.transferredToUserId}
+                {userMap?.get(ticket.transferredToUserId) ||
+                  ticket.transferredToUserId}
               </div>
             )}
           </div>
@@ -128,12 +129,13 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             <span className="font-medium">Category:</span>{" "}
             {ticket.serviceCategory || "—"}
           </div>
-          {Array.isArray(ticket.selectedServices) && ticket.selectedServices.length > 0 && (
-            <div className="text-xs text-muted-foreground">
-              <span className="font-medium">Services:</span>{" "}
-              {ticket.selectedServices.join(", ")}
-            </div>
-          )}
+          {Array.isArray(ticket.selectedServices) &&
+            ticket.selectedServices.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-medium">Services:</span>{" "}
+                {ticket.selectedServices.join(", ")}
+              </div>
+            )}
         </div>
       </div>
       <div className="flex flex-col items-end gap-1 text-right">
@@ -244,11 +246,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         <p className="text-xs text-muted-foreground">
           Category: {ticket.serviceCategory || "—"}
         </p>
-        {Array.isArray(ticket.selectedServices) && ticket.selectedServices.length > 0 && (
-          <p className="text-xs text-muted-foreground">
-            Services: {ticket.selectedServices.join(", ")}
-          </p>
-        )}
+        {Array.isArray(ticket.selectedServices) &&
+          ticket.selectedServices.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Services: {ticket.selectedServices.join(", ")}
+            </p>
+          )}
         {ticket.notes && (
           <p className="text-xs text-muted-foreground mt-1">
             Notes: {ticket.notes}
@@ -401,7 +404,9 @@ export default function Employee() {
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">
-              {user?.fullName ? `Welcome, ${user.fullName}` : "Employee Dashboard"}
+              {user?.fullName
+                ? `Welcome, ${user.fullName}`
+                : "Employee Dashboard"}
             </h1>
             <p className="text-muted-foreground">
               Track your daily cases and performance metrics
@@ -535,7 +540,11 @@ export default function Employee() {
                 ) : (
                   <div className="space-y-2">
                     {tabItems.map((ticket) => (
-                      <CaseHistoryRow key={ticket.id} ticket={ticket} userMap={userMap} />
+                      <CaseHistoryRow
+                        key={ticket.id}
+                        ticket={ticket}
+                        userMap={userMap}
+                      />
                     ))}
                   </div>
                 )}
