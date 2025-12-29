@@ -463,6 +463,7 @@ export const login: RequestHandler = async (req, res) => {
     username: userRow.username,
     role: userRow.role,
     windowId: userRow.window_id ?? null,
+    jobTitleId: userRow.job_title_id ?? null,
   });
 
   res.setHeader("Set-Cookie", buildSessionCookie(token));
