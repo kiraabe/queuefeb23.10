@@ -448,23 +448,43 @@ export const completeCase: RequestHandler = async (req, res) => {
 
   try {
     const p = getPool();
+    const client = await p.connect();
 
-    const { rows } = await p.query(
-      `UPDATE tickets
-       SET status = 'done',
-           completed_at = now()
-       WHERE id = $1 AND transferred_to_user_id = $2
-       RETURNING id, completed_at`,
-      [caseId, userId],
-    );
+    try {
+      await client.query("BEGIN");
 
-    if (!rows.length) {
-      return res
-        .status(404)
-        .json({ error: "Case not found or not assigned to you" });
+      const completeRes = await client.query(
+        `UPDATE tickets
+         SET status = 'done',
+             completed_at = now()
+         WHERE id = $1 AND transferred_to_user_id = $2
+         RETURNING id, completed_at`,
+        [caseId, userId],
+      );
+
+      if (!completeRes.rows.length) {
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ error: "Case not found or not assigned to you" });
+      }
+
+      // Record that current employee's performance ended with 'completed' status
+      await client.query(
+        `UPDATE employee_case_performance
+         SET ended_at = now(), status = 'completed'
+         WHERE ticket_id = $1 AND employee_id = $2 AND status = 'in_progress'`,
+        [caseId, userId],
+      );
+
+      await client.query("COMMIT");
+      res.json({ success: true, completedAt: completeRes.rows[0].completed_at });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
     }
-
-    res.json({ success: true, completedAt: rows[0].completed_at });
   } catch (error) {
     console.error("Failed to complete case:", error);
     res.status(500).json({
