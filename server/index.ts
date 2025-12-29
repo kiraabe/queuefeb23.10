@@ -346,7 +346,7 @@ export function createServer() {
   // Window service restrictions endpoints
   app.get(
     "/api/admin/windows/:windowId/services",
-    requireRole(["admin"]),
+    requireTellerForWindowParam("windowId"),
     getWindowServices,
   );
   app.put(
