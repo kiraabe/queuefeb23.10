@@ -1474,16 +1474,27 @@ export async function enrichMultipleTicketsWithServiceNames(
 
       const idToNameMap = allServicesByCategory.get(ticket.serviceCategory);
       if (!idToNameMap) {
+        console.warn(
+          `No service names found for category ${ticket.serviceCategory} in ticket ${ticket.id}`,
+        );
         return ticket;
       }
 
       const enrichedNames = ticket.selectedServices
-        .map((id: string) => idToNameMap.get(id))
+        .map((id: string) => {
+          const name = idToNameMap.get(id);
+          if (!name) {
+            console.warn(
+              `Service ID ${id} not found in category ${ticket.serviceCategory} for ticket ${ticket.id}`,
+            );
+          }
+          return name;
+        })
         .filter((name: string | undefined) => name !== undefined) as string[];
 
       return {
         ...ticket,
-        selectedServices: enrichedNames.length > 0 ? enrichedNames : undefined,
+        selectedServices: enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices, // Keep original IDs if enrichment fails
       };
     });
 
