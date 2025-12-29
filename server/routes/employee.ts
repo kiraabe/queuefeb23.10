@@ -148,6 +148,11 @@ function formatTicketResponse(r: any) {
     transferredAt: r.transferred_at
       ? Math.round(Number(r.transferred_at))
       : undefined,
+    startedByUserId: r.started_by_user_id ?? undefined,
+    proceededAt: r.proceeded_at
+      ? Math.round(Number(r.proceeded_at))
+      : undefined,
+    jobTitleForProceed: r.job_title_for_proceed ?? undefined,
   };
 }
 
