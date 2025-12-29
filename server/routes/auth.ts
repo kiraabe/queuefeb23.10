@@ -71,6 +71,7 @@ function toAuthUserFromSession(session: SessionRecord): AuthUser {
     username: session.username,
     role: session.role,
     windowId: session.windowId ?? null,
+    jobTitleId: session.jobTitleId ?? undefined,
   };
 }
 
