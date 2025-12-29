@@ -1,0 +1,139 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    --font-sans: "Lexend", "Inter", "system-ui", sans-serif;
+    --font-display: "Space Grotesk", "Lexend", "Inter", "system-ui", sans-serif;
+
+    --background: 220 62% 98%;
+    --foreground: 226 58% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 226 58% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 226 58% 10%;
+
+    --primary: 202 100% 46%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 164 64% 92%;
+    --secondary-foreground: 162 86% 24%;
+
+    --muted: 219 26% 90%;
+    --muted-foreground: 220 15% 45%;
+
+    --accent: 201 100% 90%;
+    --accent-foreground: 202 94% 32%;
+
+    --destructive: 356 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 219 28% 86%;
+    --input: 219 28% 86%;
+    --ring: 202 100% 38%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 218 60% 96%;
+    --sidebar-foreground: 228 56% 14%;
+    --sidebar-primary: 202 100% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 62% 92%;
+    --sidebar-accent-foreground: 208 75% 26%;
+    --sidebar-border: 220 36% 84%;
+    --sidebar-ring: 202 100% 42%;
+  }
+
+  .dark {
+    --background: 222 48% 9%;
+    --foreground: 210 40% 98%;
+
+    --card: 223 42% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 223 42% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 200 100% 64%;
+    --primary-foreground: 223 52% 11%;
+
+    --secondary: 166 32% 20%;
+    --secondary-foreground: 156 72% 74%;
+
+    --muted: 220 27% 22%;
+    --muted-foreground: 215 18% 68%;
+
+    --accent: 210 78% 21%;
+    --accent-foreground: 199 100% 82%;
+
+    --destructive: 6 70% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 28% 24%;
+    --input: 220 28% 24%;
+    --ring: 199 100% 70%;
+
+    --sidebar-background: 219 40% 12%;
+    --sidebar-foreground: 208 44% 94%;
+    --sidebar-primary: 200 100% 64%;
+    --sidebar-primary-foreground: 224 60% 10%;
+    --sidebar-accent: 220 30% 18%;
+    --sidebar-accent-foreground: 199 100% 82%;
+    --sidebar-border: 218 32% 22%;
+    --sidebar-ring: 199 100% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    @apply tracking-tight;
+  }
+
+  p {
+    @apply text-base leading-relaxed text-muted-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes blink {
+    0%,
+    49%,
+    100% {
+      opacity: 1;
+    }
+    50%,
+    99% {
+      opacity: 0.3;
+    }
+  }
+
+  .animate-blink {
+    animation: blink 1s infinite;
+  }
+}

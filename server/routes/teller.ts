@@ -1,0 +1,315 @@
+import type { RequestHandler } from "express";
+import { getPool } from "../store/db";
+
+export const tellerStats: RequestHandler = async (req, res) => {
+  const windowId = Number(req.params.id);
+  if (!Number.isInteger(windowId) || windowId <= 0)
+    return res
+      .status(400)
+      .json({ error: "Invalid window id", message: "Invalid window id" });
+
+  try {
+    const p = getPool();
+    const { rows: servedRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM tickets
+      WHERE status = 'done'
+        AND window_id = $1
+        AND completed_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows: skippedRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM tickets
+      WHERE status = 'skipped'
+        AND skipped_by_window = $1
+        AND skipped_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows: inProgRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM windows w
+       JOIN tickets t ON t.id = w.current_ticket_id
+      WHERE w.id = $1 AND t.status IN ('serving','transferred')`,
+      [windowId],
+    );
+    const { rows: waitingRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM tickets
+      WHERE status = 'waiting'`,
+    );
+    const { rows: avgRows } = await p.query(
+      `SELECT AVG(EXTRACT(EPOCH FROM (completed_at - started_at))) AS avg_seconds
+       FROM tickets
+      WHERE window_id = $1
+        AND completed_at IS NOT NULL AND started_at IS NOT NULL
+        AND completed_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows: receivedRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM transfer_history th
+       JOIN tickets t ON t.id = th.ticket_id
+      WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows: sentRows } = await p.query(
+      `SELECT COUNT(*)::int AS c
+       FROM transfer_history th
+       JOIN tickets t ON t.id = th.ticket_id
+      WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const avg =
+      avgRows[0]?.avg_seconds != null
+        ? Math.round(Number(avgRows[0].avg_seconds))
+        : null;
+    res.json({
+      servedToday: Number(servedRows[0]?.c || 0),
+      skippedToday: Number(skippedRows[0]?.c || 0),
+      inProgress: Number(inProgRows[0]?.c || 0),
+      waiting: Number(waitingRows[0]?.c || 0),
+      avgHandlingSecondsToday: avg,
+      receivedToday: Number(receivedRows[0]?.c || 0),
+      sentToday: Number(sentRows[0]?.c || 0),
+    });
+  } catch (error) {
+    console.error(
+      `Failed to fetch teller stats for window ${windowId}:`,
+      error,
+    );
+    res.status(500).json({
+      error: "Failed to fetch statistics. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const tellerTickets: RequestHandler = async (req, res) => {
+  const windowId = Number(req.params.id);
+  const tab = String(req.query.tab || "completed");
+  const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
+  const offset = Math.max(Number(req.query.offset || 0), 0);
+
+  if (!Number.isInteger(windowId) || windowId <= 0)
+    return res
+      .status(400)
+      .json({ error: "Invalid window id", message: "Invalid window id" });
+
+  const p = getPool();
+
+  if (tab === "serving") {
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total
+         FROM windows w
+         JOIN tickets t ON t.id = w.current_ticket_id
+        WHERE w.id = $1 AND t.status IN ('serving','transferred')`,
+      [windowId],
+    );
+    const { rows } = await p.query(
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, extract(epoch from t.skipped_at)*1000 as skipped_at, t.skipped_by_window, t.transferred_from_window, extract(epoch from t.transferred_at)*1000 as transferred_at
+         FROM windows w
+         JOIN tickets t ON t.id = w.current_ticket_id
+        WHERE w.id = $1 AND t.status IN ('serving','transferred')
+        ORDER BY w.updated_at DESC
+        LIMIT $2 OFFSET $3`,
+      [windowId, limit, offset],
+    );
+    return res.json({
+      items: rows.map((r) => ({
+        id: r.id,
+        service: r.service,
+        number: r.number,
+        code: r.code,
+        status: r.status,
+        windowId: r.window_id,
+        createdAt: Math.round(Number(r.created_at)),
+        startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+        completedAt: r.completed_at
+          ? Math.round(Number(r.completed_at))
+          : undefined,
+        notes: r.notes ?? undefined,
+        ownerName: r.owner_name ?? undefined,
+        woreda: r.woreda ?? undefined,
+        remark: r.remark ?? undefined,
+        skippedAt: r.skipped_at ? Math.round(Number(r.skipped_at)) : null,
+        skippedByWindow: r.skipped_by_window ?? null,
+        transferredFromWindow: r.transferred_from_window ?? undefined,
+        transferredAt: r.transferred_at
+          ? Math.round(Number(r.transferred_at))
+          : undefined,
+      })),
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  }
+
+  if (tab === "skipped") {
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total
+         FROM tickets
+        WHERE skipped_by_window = $1 AND status = 'skipped' AND skipped_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows } = await p.query(
+      `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window, transferred_from_window, extract(epoch from transferred_at)*1000 as transferred_at
+         FROM tickets
+        WHERE skipped_by_window = $1 AND status = 'skipped' AND skipped_at >= date_trunc('day', now())
+        ORDER BY skipped_at DESC
+        LIMIT $2 OFFSET $3`,
+      [windowId, limit, offset],
+    );
+    return res.json({
+      items: rows.map((r) => ({
+        id: r.id,
+        service: r.service,
+        number: r.number,
+        code: r.code,
+        status: r.status,
+        windowId: r.window_id,
+        createdAt: Math.round(Number(r.created_at)),
+        startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+        completedAt: r.completed_at
+          ? Math.round(Number(r.completed_at))
+          : undefined,
+        notes: r.notes ?? undefined,
+        ownerName: r.owner_name ?? undefined,
+        woreda: r.woreda ?? undefined,
+        remark: r.remark ?? undefined,
+        skippedAt: r.skipped_at ? Math.round(Number(r.skipped_at)) : null,
+        skippedByWindow: r.skipped_by_window ?? null,
+        transferredFromWindow: r.transferred_from_window ?? undefined,
+        transferredAt: r.transferred_at
+          ? Math.round(Number(r.transferred_at))
+          : undefined,
+      })),
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  }
+
+  if (tab === "received") {
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total
+         FROM transfer_history th
+         JOIN tickets t ON t.id = th.ticket_id
+        WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows } = await p.query(
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at
+         FROM transfer_history th
+         JOIN tickets t ON t.id = th.ticket_id
+        WHERE th.to_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
+        ORDER BY th.transferred_at DESC
+        LIMIT $2 OFFSET $3`,
+      [windowId, limit, offset],
+    );
+    return res.json({
+      items: rows.map((r) => ({
+        id: r.id,
+        service: r.service,
+        number: r.number,
+        code: r.code,
+        status: r.status,
+        windowId: r.current_window_id,
+        createdAt: Math.round(Number(r.created_at)),
+        startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+        completedAt: r.completed_at
+          ? Math.round(Number(r.completed_at))
+          : undefined,
+        notes: r.notes ?? undefined,
+        ownerName: r.owner_name ?? undefined,
+        woreda: r.woreda ?? undefined,
+        remark: r.remark ?? undefined,
+        transferredFromWindow: r.transferred_from_window ?? undefined,
+        transferredToWindow: r.transferred_to_window ?? undefined,
+        transferredAt: r.transferred_at
+          ? Math.round(Number(r.transferred_at))
+          : undefined,
+      })),
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  }
+
+  if (tab === "sent") {
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total
+         FROM transfer_history th
+         JOIN tickets t ON t.id = th.ticket_id
+        WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+      [windowId],
+    );
+    const { rows } = await p.query(
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at
+         FROM transfer_history th
+         JOIN tickets t ON t.id = th.ticket_id
+        WHERE th.from_window = $1 AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
+        ORDER BY th.transferred_at DESC
+        LIMIT $2 OFFSET $3`,
+      [windowId, limit, offset],
+    );
+    // Return paginated items but ensure total reflects the actual count query
+    const items = rows.map((r) => ({
+      id: r.id,
+      service: r.service,
+      number: r.number,
+      code: r.code,
+      status: r.status,
+      windowId: r.current_window_id,
+      createdAt: Math.round(Number(r.created_at)),
+      startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+      completedAt: r.completed_at
+        ? Math.round(Number(r.completed_at))
+        : undefined,
+      notes: r.notes ?? undefined,
+      ownerName: r.owner_name ?? undefined,
+      woreda: r.woreda ?? undefined,
+      remark: r.remark ?? undefined,
+      transferredFromWindow: r.transferred_from_window ?? undefined,
+      transferredToWindow: r.transferred_to_window ?? undefined,
+      transferredAt: r.transferred_at
+        ? Math.round(Number(r.transferred_at))
+        : undefined,
+    }));
+    const totalCount = Number(countRes.rows[0]?.total || 0);
+    return res.json({
+      items,
+      total: totalCount,
+    });
+  }
+
+  // default completed
+  const countRes = await p.query(
+    `SELECT COUNT(*)::int AS total
+       FROM tickets
+      WHERE window_id = $1 AND status = 'done' AND completed_at >= date_trunc('day', now())`,
+    [windowId],
+  );
+  const { rows } = await p.query(
+    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark
+       FROM tickets
+      WHERE window_id = $1 AND status = 'done' AND completed_at >= date_trunc('day', now())
+      ORDER BY completed_at DESC
+      LIMIT $2 OFFSET $3`,
+    [windowId, limit, offset],
+  );
+  return res.json({
+    items: rows.map((r) => ({
+      id: r.id,
+      service: r.service,
+      number: r.number,
+      code: r.code,
+      status: r.status,
+      windowId: r.window_id,
+      createdAt: Math.round(Number(r.created_at)),
+      startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+      completedAt: r.completed_at
+        ? Math.round(Number(r.completed_at))
+        : undefined,
+      notes: r.notes ?? undefined,
+      ownerName: r.owner_name ?? undefined,
+      woreda: r.woreda ?? undefined,
+      remark: r.remark ?? undefined,
+    })),
+    total: Number(countRes.rows[0]?.total || 0),
+  });
+};

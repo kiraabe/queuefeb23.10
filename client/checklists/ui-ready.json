@@ -1,0 +1,25 @@
+{
+  "breakpoints": [
+    "Mobile ≤640px: single-column layout, collapsible left nav, 44x44px touch targets",
+    "Tablet 641–1024px: two-column content, left nav visible, responsive grids",
+    "Desktop >1024px: three-column or content+side panel layouts"
+  ],
+  "accessibility": [
+    "Semantic headings and landmarks (header, main, nav, aside)",
+    "ARIA roles and labels for actionable lists and controls",
+    "Keyboard navigable (Tab/Shift+Tab, Enter/Space)",
+    "Visible focus states and sufficient color contrast",
+    "Announce network status changes politely via aria-live"
+  ],
+  "performance": [
+    "Lazy-load QR data URLs and non-critical assets",
+    "Debounced/intervalled live updates with SSE watchdog",
+    "Avoid layout thrash; use CSS transforms and utility classes",
+    "Use system fonts + two webfonts; font-display swap",
+    "Minimize re-renders by memoizing derived data"
+  ],
+  "realtime": [
+    "SSE with auto-reconnect and 60s heartbeat watchdog",
+    "Offline banner pauses actions and resumes when online"
+  ]
+}

@@ -1,0 +1,216 @@
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+
+const NAV_LINKS = [
+  { label: "Overview", to: "/" },
+  { label: "Reception Console", to: "/reception" },
+  { label: "Virtual Queue", to: "/queue" },
+  { label: "Teller Console", to: "/teller" },
+  { label: "Display", to: "/display" },
+];
+
+const ADMIN_NAV_LINKS = [{ label: "Admin Panel", to: "/admin" }];
+
+const SiteHeader = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+  const closeMenu = () => setIsMenuOpen(false);
+
+  return (
+    <header className="relative sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 sm:gap-6 py-3 sm:py-4">
+        <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink-0">
+          <img
+            src="/logos/aa-landholding-logo.webp"
+            alt="AA Landholding Reg & Info Agency logo"
+            className="h-9 sm:h-10 w-9 sm:w-10 rounded-full object-cover flex-shrink-0"
+          />
+          <div className="hidden sm:flex flex-col min-w-0">
+            <span className="font-display text-sm sm:text-base font-semibold tracking-tight text-foreground truncate">
+              AA Landholding Reg & Info Agency
+            </span>
+            <span className="text-xs text-muted-foreground truncate">
+              Scan, wait freely, stay informed
+            </span>
+          </div>
+        </Link>
+
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={closeMenu}
+              className={({ isActive }) =>
+                cn(
+                  "relative rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition",
+                  "hover:text-foreground",
+                  isActive &&
+                    "text-foreground after:absolute after:inset-x-2 after:-bottom-2 after:h-0.5 after:rounded-full after:bg-primary",
+                )
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+          {user?.role === "admin" && (
+            <>
+              <div className="h-6 w-px bg-border/50" />
+              {ADMIN_NAV_LINKS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    cn(
+                      "relative rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition",
+                      "hover:text-foreground",
+                      isActive &&
+                        "text-foreground after:absolute after:inset-x-2 after:-bottom-2 after:h-0.5 after:rounded-full after:bg-primary",
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </>
+          )}
+        </nav>
+
+        <div className="hidden items-center gap-3 md:flex">
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {user.username} · {user.role}
+              </span>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  await logout();
+                  navigate(`/login`);
+                }}
+              >
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={() => navigate(`/login`)}>
+              Sign in
+            </Button>
+          )}
+        </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          className="md:hidden"
+          onClick={toggleMenu}
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        >
+          {isMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </Button>
+      </div>
+
+      <div
+        className={cn(
+          "md:hidden",
+          "absolute left-0 right-0 top-full z-40 origin-top bg-background/95 backdrop-blur transition-all duration-200",
+          isMenuOpen
+            ? "pointer-events-auto visible translate-y-0 opacity-100"
+            : "pointer-events-none invisible -translate-y-3 opacity-0",
+        )}
+      >
+        <div className="w-full flex flex-col gap-3 py-6 px-4">
+          {NAV_LINKS.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={closeMenu}
+              className={({ isActive }) =>
+                cn(
+                  "rounded-2xl border border-border/70 bg-card px-5 py-3 text-base font-semibold text-muted-foreground transition",
+                  "hover:border-primary/40 hover:text-foreground",
+                  isActive && "border-primary/60 text-foreground",
+                )
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+          {user?.role === "admin" && (
+            <>
+              <div className="h-px bg-border/50 my-2" />
+              {ADMIN_NAV_LINKS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    cn(
+                      "rounded-2xl border border-border/70 bg-card px-5 py-3 text-base font-semibold text-muted-foreground transition",
+                      "hover:border-primary/40 hover:text-foreground",
+                      isActive && "border-primary/60 text-foreground",
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </>
+          )}
+
+          {/* Mobile Auth Section */}
+          <div className="flex flex-col gap-2 border-t border-border/40 pt-4 mt-2">
+            {user ? (
+              <>
+                <div className="px-5 py-2 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">{user.username}</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {user.role}
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  className="w-full h-10 text-sm font-medium"
+                  onClick={async () => {
+                    await logout();
+                    closeMenu();
+                    navigate("/login");
+                  }}
+                >
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full h-10 text-sm font-medium"
+                onClick={() => {
+                  closeMenu();
+                  navigate("/login");
+                }}
+              >
+                Sign in
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default SiteHeader;

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: fusion-starter
+    env: node
+    plan: starter
+    rootDir: .
+    buildCommand: corepack enable pnpm && pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm start
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
