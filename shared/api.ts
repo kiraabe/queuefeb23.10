@@ -135,8 +135,7 @@ export interface TellerStats {
   inProgress: number;
   waiting: number;
   avgHandlingSecondsToday: number | null;
-  receivedToday: number;
-  sentToday: number;
+  proceedToday: number;
 }
 
 export interface TellerTicketsResponse {
