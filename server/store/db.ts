@@ -350,29 +350,9 @@ export async function initDb() {
       return uuid;
     };
 
-    // Clear all services and tickets to start fresh with deterministic UUIDs
-    // This prevents mismatches between old random UUIDs and new deterministic ones
-    try {
-      await p.query(`DELETE FROM tickets;`);
-    } catch {
-      // Ignore if tickets table doesn't exist yet
-    }
-
-    if (catMap["rights-group"]) {
-      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
-        catMap["rights-group"],
-      ]);
-    }
-    if (catMap["cadastral-group"]) {
-      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
-        catMap["cadastral-group"],
-      ]);
-    }
-    if (catMap["fixed-property-group"]) {
-      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
-        catMap["fixed-property-group"],
-      ]);
-    }
+    // Note: Do NOT delete tickets or services on initialization
+    // We use INSERT...ON CONFLICT DO UPDATE to handle service updates
+    // while preserving all existing ticket and proceed data across restarts
 
     // Rights Group Services
     if (catMap["rights-group"]) {
