@@ -416,10 +416,13 @@ export const proceedCase: RequestHandler = async (req, res) => {
       );
 
       // Create new performance tracking entry for next employee
+      // Validate jobTitleId is a proper UUID
+      const isValidUUID =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobTitleId);
       await client.query(
         `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
          VALUES ($1, $2, $3, now(), 'in_progress')`,
-        [caseId, nextEmployeeId, jobTitleId],
+        [caseId, nextEmployeeId, isValidUUID ? jobTitleId : null],
       );
 
       await client.query("COMMIT");
