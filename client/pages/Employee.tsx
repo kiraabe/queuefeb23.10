@@ -49,14 +49,30 @@ function calculateDuration(
 interface TicketRowProps {
   ticket: Ticket;
   onComplete?: (ticketId: string) => void;
+  onActionStart?: (ticketId: string, action: "start" | "proceed") => void;
 }
 
-const TicketRow = ({ ticket, onComplete }: TicketRowProps) => {
-  const duration = calculateDuration(ticket.transferredAt, ticket.completedAt);
+const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
+  // Calculate duration from started time
+  const duration = calculateDuration(ticket.startedAt, ticket.proceededAt || ticket.completedAt);
   const statusColor =
     ticket.status === "done"
       ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
       : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
+
+  const handleStart = async () => {
+    try {
+      onActionStart?.(ticket.id, "start");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to start case",
+      );
+    }
+  };
+
+  const handleProceed = async () => {
+    onActionStart?.(ticket.id, "proceed");
+  };
 
   const handleComplete = async () => {
     try {
@@ -73,6 +89,8 @@ const TicketRow = ({ ticket, onComplete }: TicketRowProps) => {
   };
 
   const isReceived = ticket.status === "transferred";
+  const hasStarted = ticket.startedAt != null;
+  const hasProceeded = ticket.proceededAt != null;
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
@@ -105,19 +123,32 @@ const TicketRow = ({ ticket, onComplete }: TicketRowProps) => {
           {formatDuration(duration)}
         </div>
         <p className="text-xs text-muted-foreground">
-          {ticket.transferredAt
-            ? new Date(ticket.transferredAt).toLocaleTimeString()
+          {ticket.startedAt
+            ? new Date(ticket.startedAt).toLocaleTimeString()
             : "—"}
         </p>
-        {ticket.completedAt && (
+        {(ticket.proceededAt || ticket.completedAt) && (
           <p className="text-xs text-muted-foreground">
-            to {new Date(ticket.completedAt).toLocaleTimeString()}
+            to {new Date(ticket.proceededAt || ticket.completedAt || 0).toLocaleTimeString()}
           </p>
         )}
         {isReceived && (
-          <Button size="sm" onClick={handleComplete} className="mt-2">
-            Complete
-          </Button>
+          <div className="flex gap-2 mt-2">
+            {!hasStarted ? (
+              <Button size="sm" onClick={handleStart}>
+                Start
+              </Button>
+            ) : (
+              <>
+                <Button size="sm" onClick={handleProceed} variant="outline">
+                  Proceed
+                </Button>
+                <Button size="sm" onClick={handleComplete}>
+                  Complete
+                </Button>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>
