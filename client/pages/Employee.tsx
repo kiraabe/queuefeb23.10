@@ -33,9 +33,17 @@ interface EmployeeTicketsResponse {
 function formatDuration(seconds: number | null | undefined): string {
   if (seconds == null) return "—";
   if (seconds < 60) return `${Math.round(seconds)}s`;
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
-  return s === 0 ? `${m}m` : `${m}m ${s}s`;
+
+  const totalMinutes = Math.floor(seconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const secs = Math.round(seconds % 60);
+
+  if (hours > 0) {
+    return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+  }
+
+  return secs === 0 ? `${minutes}m` : `${minutes}m ${secs}s`;
 }
 
 function calculateDuration(
