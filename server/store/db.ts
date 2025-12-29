@@ -1887,10 +1887,11 @@ export async function getUserByUsername(username: string): Promise<{
   window_id: number | null;
   disabled?: boolean | null;
   full_name?: string | null;
+  job_title_id?: string | null;
 } | null> {
   try {
     const { rows } = await getPool().query(
-      `SELECT id, username, password_hash, role, window_id, disabled, full_name FROM users WHERE username=$1 LIMIT 1`,
+      `SELECT id, username, password_hash, role, window_id, disabled, full_name, job_title_id FROM users WHERE username=$1 LIMIT 1`,
       [username],
     );
     return rows[0] || null;
