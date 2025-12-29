@@ -352,10 +352,6 @@ export default function Employee() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const handleCaseStarted = () => {
-    ticketsQuery.refetch();
-  };
-
   const handleCaseCompleted = () => {
     ticketsQuery.refetch();
   };
