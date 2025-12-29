@@ -293,6 +293,12 @@ export function createServer() {
     requireRole(["employee"]),
     employeeReceivedTickets,
   );
+  app.post("/api/employee/cases/start", requireRole(["employee"]), startCase);
+  app.post(
+    "/api/employee/cases/:id/complete",
+    requireRole(["employee"]),
+    completeCase,
+  );
 
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
