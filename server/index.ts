@@ -47,6 +47,7 @@ import {
   startCase,
   completeCase,
   proceedCase,
+  handleStartCase,
 } from "./routes/employee";
 import {
   listUsers,
