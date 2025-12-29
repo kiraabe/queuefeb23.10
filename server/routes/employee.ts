@@ -1,6 +1,24 @@
 import type { RequestHandler } from "express";
 import { getPool, enrichMultipleTicketsWithServiceNames } from "../store/db";
 
+// Helper function to safely parse selectedServices
+function parseSelectedServices(data: any): string[] | undefined {
+  if (Array.isArray(data)) {
+    return data.filter((item) => typeof item === "string");
+  }
+  if (typeof data === "string") {
+    try {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item) => typeof item === "string");
+      }
+    } catch (e) {
+      console.warn("Failed to parse selectedServices JSON:", data, e);
+    }
+  }
+  return undefined;
+}
+
 export const employeeReceivedTickets: RequestHandler = async (req, res) => {
   const userId = (req as any).auth?.id;
   if (!userId) {
