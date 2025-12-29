@@ -78,7 +78,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   }, [ticket.startedAt, ticket.proceededAt, ticket.completedAt]);
 
   // Use elapsed time for in-progress, otherwise calculate from start to end
-  const duration = elapsedTime ?? calculateDuration(ticket.startedAt, ticket.proceededAt || ticket.completedAt);
+  const duration =
+    elapsedTime ??
+    calculateDuration(
+      ticket.startedAt,
+      ticket.proceededAt || ticket.completedAt,
+    );
 
   const statusColor =
     ticket.status === "done"
@@ -154,7 +159,9 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           </div>
           {ticket.startedAt && !ticket.proceededAt && !ticket.completedAt && (
             <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">(in progress</span>
+              <span className="text-xs text-muted-foreground">
+                (in progress
+              </span>
               <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               <span className="text-xs text-muted-foreground">)</span>
             </div>
@@ -167,7 +174,10 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         </p>
         {(ticket.proceededAt || ticket.completedAt) && (
           <p className="text-xs text-muted-foreground">
-            to {new Date(ticket.proceededAt || ticket.completedAt || 0).toLocaleTimeString()}
+            to{" "}
+            {new Date(
+              ticket.proceededAt || ticket.completedAt || 0,
+            ).toLocaleTimeString()}
           </p>
         )}
         {isReceived && (

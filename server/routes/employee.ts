@@ -305,7 +305,7 @@ export const handleStartCase: RequestHandler = async (req, res) => {
 
     if (!rows.length) {
       return res.status(404).json({
-        error: "Case not found, not assigned to you, or already started"
+        error: "Case not found, not assigned to you, or already started",
       });
     }
 
@@ -336,7 +336,9 @@ export const proceedCase: RequestHandler = async (req, res) => {
   };
 
   if (!jobTitleId || !nextEmployeeId) {
-    return res.status(400).json({ error: "Missing jobTitleId or nextEmployeeId" });
+    return res
+      .status(400)
+      .json({ error: "Missing jobTitleId or nextEmployeeId" });
   }
 
   try {
@@ -357,7 +359,7 @@ export const proceedCase: RequestHandler = async (req, res) => {
 
     if (!rows.length) {
       return res.status(404).json({
-        error: "Case not found or not assigned to you"
+        error: "Case not found or not assigned to you",
       });
     }
 
