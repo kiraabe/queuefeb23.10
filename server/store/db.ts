@@ -698,25 +698,28 @@ export async function initDb() {
             const ticketNumber = Math.floor(Math.random() * 100) + 1;
             const ticketCode = testCase.code;
 
-            await p.query(
-              `INSERT INTO tickets (id, service, number, code, status, owner_name, woreda, service_category, selected_services, transferred_to_user_id, transferred_at, started_at, completed_at)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11, $12)
-               ON CONFLICT DO NOTHING`,
-              [
-                ticketId,
-                "cadastral-group",
-                ticketNumber,
-                ticketCode,
-                testCase.status,
-                testCase.ownerName,
-                testCase.woreda,
-                "cadastral-group",
-                JSON.stringify(testCase.serviceIds),
-                finalEmployeeId,
-                testCase.status === "done" ? new Date(Date.now() - 3600000) : null,
-                new Date(Date.now() - 1800000),
-              ],
-            );
+            try {
+              await p.query(
+                `INSERT INTO tickets (id, service, number, code, status, owner_name, woreda, service_category, selected_services, transferred_to_user_id, transferred_at, started_at, completed_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11, $12)`,
+                [
+                  ticketId,
+                  "cadastral-group",
+                  ticketNumber,
+                  ticketCode,
+                  testCase.status,
+                  testCase.ownerName,
+                  testCase.woreda,
+                  "cadastral-group",
+                  JSON.stringify(testCase.serviceIds),
+                  finalEmployeeId,
+                  testCase.status === "done" ? new Date(Date.now() - 3600000) : null,
+                  new Date(Date.now() - 1800000),
+                ],
+              );
+            } catch (err) {
+              // Ignore if ticket already exists
+            }
           }
 
           console.log(`✅ Created 3 test cases for employee Almaz Kebede:
