@@ -53,8 +53,33 @@ interface TicketRowProps {
 }
 
 const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
-  // Calculate duration from started time
-  const duration = calculateDuration(ticket.startedAt, ticket.proceededAt || ticket.completedAt);
+  // For in-progress cases, calculate elapsed time from start until now
+  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (!ticket.startedAt || ticket.proceededAt || ticket.completedAt) {
+      setElapsedTime(null);
+      return;
+    }
+
+    // Update elapsed time every second for in-progress cases
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const elapsed = Math.round((now - ticket.startedAt!) / 1000);
+      setElapsedTime(elapsed);
+    }, 1000);
+
+    // Initial calculation
+    const now = Date.now();
+    const elapsed = Math.round((now - ticket.startedAt) / 1000);
+    setElapsedTime(elapsed);
+
+    return () => clearInterval(interval);
+  }, [ticket.startedAt, ticket.proceededAt, ticket.completedAt]);
+
+  // Use elapsed time for in-progress, otherwise calculate from start to end
+  const duration = elapsedTime ?? calculateDuration(ticket.startedAt, ticket.proceededAt || ticket.completedAt);
+
   const statusColor =
     ticket.status === "done"
       ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
