@@ -52,8 +52,19 @@ export function CaseActionDialog({
   });
 
   const jobTitles = jobTitlesQuery.data?.jobTitles || [];
-  const employees =
+  const allEmployees =
     usersQuery.data?.users.filter((u) => u.role === "employee") || [];
+
+  // Filter employees by selected job title
+  const filteredEmployees = selectedJobTitle
+    ? allEmployees.filter((emp) => emp.jobTitleId === selectedJobTitle)
+    : [];
+
+  const handleJobTitleChange = (jobTitleId: string) => {
+    setSelectedJobTitle(jobTitleId);
+    // Reset selected employee when job title changes
+    setSelectedEmployee("");
+  };
 
   const handleProceed = async () => {
     if (!selectedJobTitle || !selectedEmployee) {
