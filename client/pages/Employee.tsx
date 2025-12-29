@@ -64,7 +64,31 @@ interface CaseHistoryRowProps {
   userMap?: Map<string, string>;
 }
 
+interface PerformanceMetric {
+  id: string;
+  ticketId: string;
+  employeeId: string;
+  employeeName: string;
+  ticketCode: string;
+  startedAt: number | null;
+  endedAt: number | null;
+  status: "in_progress" | "completed" | "proceeded";
+  durationSeconds: number | null;
+}
+
 const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
+  const [performanceDetails, setPerformanceDetails] = useState<PerformanceMetric[]>([]);
+  const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    // Fetch performance metrics for this ticket
+    apiFetch<{ items: PerformanceMetric[] }>(
+      `/api/employee/performance?ticketId=${ticket.id}`,
+    )
+      .then((data) => setPerformanceDetails(data.items))
+      .catch(() => {});
+  }, [ticket.id]);
+
   const duration = calculateDuration(
     ticket.startedAt,
     ticket.proceededAt || ticket.completedAt,
@@ -84,70 +108,129 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
       : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="font-display font-semibold text-foreground truncate">
-            Ticket {ticket.code}
-          </h3>
-          <Badge
-            className={`text-xs whitespace-nowrap ${statusColor}`}
-            variant="secondary"
-          >
-            {status}
-          </Badge>
-        </div>
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div>
-              <span className="font-medium">Started:</span>{" "}
-              {ticket.startedAt
-                ? new Date(ticket.startedAt).toLocaleTimeString()
-                : "—"}
-            </div>
-            <div>
-              <span className="font-medium">Ended:</span>{" "}
-              {ticket.proceededAt || ticket.completedAt
-                ? new Date(
-                    ticket.proceededAt || ticket.completedAt || 0,
-                  ).toLocaleTimeString()
-                : "—"}
-            </div>
-            <div>
-              <span className="font-medium">Duration:</span>{" "}
-              {formatDuration(duration)}
-            </div>
-            {isProceed && ticket.transferredToUserId && (
+    <div className="space-y-2">
+      <div
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors cursor-pointer"
+        onClick={() => setShowDetails(!showDetails)}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-display font-semibold text-foreground truncate">
+              Ticket {ticket.code}
+            </h3>
+            <Badge
+              className={`text-xs whitespace-nowrap ${statusColor}`}
+              variant="secondary"
+            >
+              {status}
+            </Badge>
+          </div>
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
               <div>
-                <span className="font-medium">Forwarded To:</span>{" "}
-                {userMap?.get(ticket.transferredToUserId) ||
-                  ticket.transferredToUserId}
+                <span className="font-medium">Started:</span>{" "}
+                {ticket.startedAt
+                  ? new Date(ticket.startedAt).toLocaleTimeString()
+                  : "—"}
               </div>
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            <span className="font-medium">Category:</span>{" "}
-            {ticket.serviceCategory || "—"}
-          </div>
-          {Array.isArray(ticket.selectedServices) &&
-            ticket.selectedServices.length > 0 && (
-              <div className="text-xs text-muted-foreground">
-                <span className="font-medium">Services:</span>{" "}
-                {ticket.selectedServices.join(", ")}
+              <div>
+                <span className="font-medium">Ended:</span>{" "}
+                {ticket.proceededAt || ticket.completedAt
+                  ? new Date(
+                      ticket.proceededAt || ticket.completedAt || 0,
+                    ).toLocaleTimeString()
+                  : "—"}
               </div>
-            )}
+              <div>
+                <span className="font-medium">Duration:</span>{" "}
+                {formatDuration(duration)}
+              </div>
+              {isProceed && ticket.transferredToUserId && (
+                <div>
+                  <span className="font-medium">Forwarded To:</span>{" "}
+                  {userMap?.get(ticket.transferredToUserId) ||
+                    ticket.transferredToUserId}
+                </div>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Category:</span>{" "}
+              {ticket.serviceCategory || "—"}
+            </div>
+            {Array.isArray(ticket.selectedServices) &&
+              ticket.selectedServices.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  <span className="font-medium">Services:</span>{" "}
+                  {ticket.selectedServices.join(", ")}
+                </div>
+              )}
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-1 text-right">
+          <div className="text-sm font-semibold text-foreground">
+            {formatDuration(duration)}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {ticket.startedAt
+              ? new Date(ticket.startedAt).toLocaleDateString()
+              : "—"}
+          </p>
+          {performanceDetails.length > 0 && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">
+              {performanceDetails.length} handler{performanceDetails.length !== 1 ? "s" : ""}
+            </p>
+          )}
         </div>
       </div>
-      <div className="flex flex-col items-end gap-1 text-right">
-        <div className="text-sm font-semibold text-foreground">
-          {formatDuration(duration)}
+
+      {/* Performance Details */}
+      {showDetails && performanceDetails.length > 0 && (
+        <div className="ml-0 sm:ml-4 space-y-2 border-l-2 border-blue-200 dark:border-blue-900 pl-4">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            Performance Breakdown
+          </p>
+          {performanceDetails.map((perf) => (
+            <div
+              key={perf.id}
+              className="rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-3 text-xs"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1">
+                  <p className="font-medium text-foreground">
+                    {perf.employeeName}
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    <span className="font-medium">Started:</span>{" "}
+                    {perf.startedAt
+                      ? new Date(perf.startedAt).toLocaleTimeString()
+                      : "—"}
+                  </p>
+                  {perf.endedAt && (
+                    <p className="text-muted-foreground">
+                      <span className="font-medium">Ended:</span>{" "}
+                      {new Date(perf.endedAt).toLocaleTimeString()}
+                    </p>
+                  )}
+                  <p className="text-muted-foreground">
+                    <span className="font-medium">Status:</span>{" "}
+                    {perf.status === "completed"
+                      ? "✓ Completed"
+                      : perf.status === "proceeded"
+                        ? "→ Forwarded"
+                        : "⏳ In Progress"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-foreground">
+                    {formatDuration(perf.durationSeconds)}
+                  </p>
+                  <p className="text-muted-foreground text-xs">time spent</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          {ticket.startedAt
-            ? new Date(ticket.startedAt).toLocaleDateString()
-            : "—"}
-        </p>
-      </div>
+      )}
     </div>
   );
 };
