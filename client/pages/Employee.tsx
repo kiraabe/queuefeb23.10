@@ -440,6 +440,12 @@ export default function Employee() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  const jobTitlesQuery = useQuery({
+    queryKey: ["job-titles"],
+    queryFn: () => apiFetch<ListJobTitlesResponse>("/api/admin/job-titles"),
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+
   const handleCaseCompleted = () => {
     ticketsQuery.refetch();
   };
