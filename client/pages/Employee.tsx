@@ -15,7 +15,6 @@ import { CheckCircle2, Package, Zap, LogOut, Plus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { StartCaseDialog } from "@/components/employee/StartCaseDialog";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
 import type { Ticket, ListUsersResponse } from "@shared/api";
 
