@@ -234,14 +234,14 @@ export const startCase: RequestHandler = async (req, res) => {
       `INSERT INTO tickets (
         service, status, window_id, owner_name, woreda, remark, notes,
         transferred_from_window, transferred_to_user_id, transferred_at,
-        created_at, service_category
+        created_at, service_category, started_at, started_by_user_id
       ) VALUES (
         $1, $2, NULL, $3, $4, $5, $6,
         NULL, $7, now(),
-        now(), $8
+        now(), $8, now(), $9
       )
       RETURNING id, code`,
-      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId],
+      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId, employeeId],
     );
 
     if (!rows.length) {
@@ -256,6 +256,58 @@ export const startCase: RequestHandler = async (req, res) => {
     console.error("Failed to start case:", error);
     res.status(500).json({
       error: "Failed to start case. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const proceedCase: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const caseId = req.params.id;
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing case id" });
+  }
+
+  const { jobTitleId, nextEmployeeId } = req.body as {
+    jobTitleId?: string;
+    nextEmployeeId?: string;
+  };
+
+  if (!jobTitleId || !nextEmployeeId) {
+    return res.status(400).json({ error: "Missing jobTitleId or nextEmployeeId" });
+  }
+
+  try {
+    const p = getPool();
+
+    // Update ticket to transfer to next employee, record proceed time
+    const { rows } = await p.query(
+      `UPDATE tickets
+       SET transferred_to_user_id = $1,
+           transferred_at = now(),
+           proceeded_at = now(),
+           job_title_for_proceed = $2,
+           status = 'transferred'
+       WHERE id = $3 AND transferred_to_user_id = $4
+       RETURNING id`,
+      [nextEmployeeId, jobTitleId, caseId, userId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({
+        error: "Case not found or not assigned to you"
+      });
+    }
+
+    res.json({ success: true, caseId: rows[0].id });
+  } catch (error) {
+    console.error("Failed to proceed case:", error);
+    res.status(500).json({
+      error: "Failed to proceed case. Please try again later.",
       details: error instanceof Error ? error.message : String(error),
     });
   }
