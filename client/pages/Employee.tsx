@@ -197,6 +197,14 @@ export default function Employee() {
     ticketsQuery.refetch();
   };
 
+  const handleCaseAction = (ticketId: string, action: "start" | "proceed") => {
+    setSelectedCaseId(ticketId);
+    if (action === "proceed") {
+      setSelectedAction("proceed");
+      setActionDialogOpen(true);
+    }
+  };
+
   const stats = statsQuery.data;
   const tickets = ticketsQuery.data?.items || [];
 
