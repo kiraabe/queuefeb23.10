@@ -277,11 +277,19 @@ export default function Employee() {
         .filter((t) => t.status === "done")
         .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
     }
+    if (tab === "history") {
+      const historyTickets = historyQuery.data?.items || [];
+      return historyTickets.sort((a, b) => {
+        const aTime = a.proceededAt || a.completedAt || 0;
+        const bTime = b.proceededAt || b.completedAt || 0;
+        return bTime - aTime;
+      });
+    }
     // received
     return tickets
       .filter((t) => t.status === "transferred")
       .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
-  }, [tickets, tab]);
+  }, [tickets, tab, historyQuery.data]);
 
   return (
     <div className="container mx-auto px-4 py-6">
