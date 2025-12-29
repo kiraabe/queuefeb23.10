@@ -163,7 +163,7 @@ export async function initDb() {
   );`);
     // Add job_title_id column if it doesn't exist (for existing installations)
     await p.query(
-      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
     );
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)`,

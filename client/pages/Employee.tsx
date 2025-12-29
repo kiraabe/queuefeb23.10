@@ -16,7 +16,11 @@ import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
-import type { Ticket, ListUsersResponse, ListJobTitlesResponse } from "@shared/api";
+import type {
+  Ticket,
+  ListUsersResponse,
+  ListJobTitlesResponse,
+} from "@shared/api";
 
 interface EmployeeStats {
   receivedToday: number;
@@ -473,7 +477,7 @@ export default function Employee() {
   const getJobTitleName = useMemo(() => {
     if (!user?.jobTitleId || !jobTitlesQuery.data) return null;
     const jobTitle = jobTitlesQuery.data.jobTitles.find(
-      (jt) => jt.id === user.jobTitleId
+      (jt) => jt.id === user.jobTitleId,
     );
     return jobTitle?.nameEnglish || jobTitle?.nameAmharic || null;
   }, [user?.jobTitleId, jobTitlesQuery.data]);
