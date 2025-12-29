@@ -366,6 +366,14 @@ export default function Employee() {
         onOpenChange={setStartCaseOpen}
         onSuccess={handleCaseStarted}
       />
+
+      <CaseActionDialog
+        open={actionDialogOpen}
+        onOpenChange={setActionDialogOpen}
+        caseId={selectedCaseId || ""}
+        action={selectedAction}
+        onSuccess={handleCaseCompleted}
+      />
     </div>
   );
 }
