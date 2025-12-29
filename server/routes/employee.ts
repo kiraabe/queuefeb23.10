@@ -553,3 +553,81 @@ export const employeeHistory: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const ticketId = req.query.ticketId as string | undefined;
+  const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 200);
+  const offset = Math.max(Number(req.query.offset || 0), 0);
+
+  const p = getPool();
+
+  try {
+    let query = `
+      SELECT
+        ecp.id,
+        ecp.ticket_id,
+        ecp.employee_id,
+        ecp.job_title_id,
+        extract(epoch from ecp.started_at)*1000 as started_at,
+        extract(epoch from ecp.ended_at)*1000 as ended_at,
+        ecp.status,
+        EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
+        u.username,
+        u.full_name,
+        t.code as ticket_code
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      LEFT JOIN tickets t ON ecp.ticket_id = t.id
+      WHERE ecp.employee_id = $1
+    `;
+
+    const params: any[] = [userId];
+    let paramIndex = 2;
+
+    if (ticketId) {
+      query += ` AND ecp.ticket_id = $${paramIndex}`;
+      params.push(ticketId);
+      paramIndex++;
+    }
+
+    // Get total count
+    const countRes = await p.query(
+      `SELECT COUNT(*)::int AS total FROM employee_case_performance WHERE employee_id = $1${ticketId ? ` AND ticket_id = $2` : ""}`,
+      ticketId ? [userId, ticketId] : [userId],
+    );
+
+    query += ` ORDER BY ecp.started_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(limit, offset);
+
+    const { rows } = await p.query(query, params);
+
+    const items = rows.map((r) => ({
+      id: r.id,
+      ticketId: r.ticket_id,
+      employeeId: r.employee_id,
+      jobTitleId: r.job_title_id,
+      startedAt: r.started_at ? Math.round(r.started_at) : null,
+      endedAt: r.ended_at ? Math.round(r.ended_at) : null,
+      status: r.status,
+      durationSeconds: r.duration_seconds ? Math.round(r.duration_seconds) : null,
+      employeeName: r.full_name || r.username,
+      ticketCode: r.ticket_code,
+    }));
+
+    res.json({
+      items,
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  } catch (error) {
+    console.error("Failed to fetch performance metrics:", error);
+    res.status(500).json({
+      error: "Failed to fetch performance metrics. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
