@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
-import { getPool } from "../store/db";
+import { getPool, enrichMultipleTicketsWithServiceNames } from "../store/db";
+import { rowToTicket } from "../store/db";
 
 export const tellerStats: RequestHandler = async (req, res) => {
   const windowId = Number(req.params.id);
