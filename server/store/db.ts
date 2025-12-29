@@ -446,7 +446,10 @@ export async function initDb() {
       const fixedPropertyServices = ["የንብረት ትመና አገልግሎት", "የግብር ተመን"];
       for (let i = 0; i < fixedPropertyServices.length; i++) {
         const serviceCode = `FP${String(i + 1).padStart(2, "0")}`;
-        const serviceUUID = generateServiceUUID("fixed-property-group", serviceCode);
+        const serviceUUID = generateServiceUUID(
+          "fixed-property-group",
+          serviceCode,
+        );
         // First try to insert. If it exists, update name and display_order
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
@@ -615,7 +618,9 @@ export async function initDb() {
     }
 
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
-    console.log("ℹ️  Database initialization complete. No demo users or test data created.");
+    console.log(
+      "ℹ️  Database initialization complete. No demo users or test data created.",
+    );
   } catch (error) {
     throw error;
   }
@@ -1448,7 +1453,8 @@ export async function enrichSelectedServicesWithNames(
 
     return {
       ...ticket,
-      selectedServices: enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices,
+      selectedServices:
+        enrichedNames.length > 0 ? enrichedNames : ticket.selectedServices,
     };
   } catch (error) {
     console.warn("Error enriching selected services with names:", error);
