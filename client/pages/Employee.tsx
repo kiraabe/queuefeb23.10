@@ -114,11 +114,7 @@ const TicketRow = ({ ticket, onComplete }: TicketRowProps) => {
           </p>
         )}
         {isReceived && (
-          <Button
-            size="sm"
-            onClick={handleComplete}
-            className="mt-2"
-          >
+          <Button size="sm" onClick={handleComplete} className="mt-2">
             Complete
           </Button>
         )}

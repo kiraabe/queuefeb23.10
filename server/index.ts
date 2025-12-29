@@ -41,7 +41,12 @@ import {
   requireTellerForWindowParam,
 } from "./routes/auth";
 import { tellerStats, tellerTickets } from "./routes/teller";
-import { employeeReceivedTickets, employeeStats, startCase, completeCase } from "./routes/employee";
+import {
+  employeeReceivedTickets,
+  employeeStats,
+  startCase,
+  completeCase,
+} from "./routes/employee";
 import {
   listUsers,
   createUser,

@@ -147,7 +147,9 @@ export async function apiFetch<T>(
       res = await doFetch();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error(`[API] Failed to reach server at path ${path}: ${errorMsg}`);
+      console.error(
+        `[API] Failed to reach server at path ${path}: ${errorMsg}`,
+      );
       throw new Error(
         "Unable to reach the server. Please check your connection and try again.",
       );

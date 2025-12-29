@@ -48,7 +48,8 @@ export function StartCaseDialog({
   });
 
   const jobTitles = jobTitlesQuery.data?.jobTitles || [];
-  const employees = usersQuery.data?.users.filter((u) => u.role === "employee") || [];
+  const employees =
+    usersQuery.data?.users.filter((u) => u.role === "employee") || [];
 
   const handleStart = async () => {
     if (!selectedJobTitle || !selectedEmployee) {
@@ -92,7 +93,10 @@ export function StartCaseDialog({
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Job Title</label>
-            <Select value={selectedJobTitle} onValueChange={setSelectedJobTitle}>
+            <Select
+              value={selectedJobTitle}
+              onValueChange={setSelectedJobTitle}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a job title" />
               </SelectTrigger>
@@ -108,7 +112,10 @@ export function StartCaseDialog({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Assign Employee</label>
-            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+            <Select
+              value={selectedEmployee}
+              onValueChange={setSelectedEmployee}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select an employee" />
               </SelectTrigger>

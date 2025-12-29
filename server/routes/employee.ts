@@ -241,16 +241,7 @@ export const startCase: RequestHandler = async (req, res) => {
         now(), $8
       )
       RETURNING id, code`,
-      [
-        jobTitleId,
-        "transferred",
-        "",
-        "",
-        "",
-        "",
-        employeeId,
-        jobTitleId,
-      ],
+      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId],
     );
 
     if (!rows.length) {
@@ -294,7 +285,9 @@ export const completeCase: RequestHandler = async (req, res) => {
     );
 
     if (!rows.length) {
-      return res.status(404).json({ error: "Case not found or not assigned to you" });
+      return res
+        .status(404)
+        .json({ error: "Case not found or not assigned to you" });
     }
 
     res.json({ success: true, completedAt: rows[0].completed_at });
