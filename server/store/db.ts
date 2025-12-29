@@ -214,9 +214,6 @@ export async function initDb() {
     await p.query(
       `UPDATE service_counters SET counter_date = current_date WHERE counter_date IS NULL;`,
     );
-    try {
-      await p.query(`DROP TABLE IF EXISTS transfer_history CASCADE;`);
-    } catch {}
     await p.query(`CREATE TABLE IF NOT EXISTS transfer_history (
     id uuid primary key default gen_random_uuid(),
     ticket_id uuid not null,
