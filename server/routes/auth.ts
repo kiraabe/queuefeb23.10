@@ -164,6 +164,11 @@ async function authenticateRequest(
   const cookies = parseCookies(req.headers.cookie || "");
   const token = cookies[SESSION_COOKIE];
   if (!token) {
+    // Session cookie not found - this could be a new user or the cookie wasn't sent
+    const hasCookieHeader = !!req.headers.cookie;
+    console.warn(
+      `[Auth] Session cookie not found. Cookie header present: ${hasCookieHeader}, Looking for: ${SESSION_COOKIE}`
+    );
     return {
       ok: false,
       status: 401,
@@ -173,6 +178,7 @@ async function authenticateRequest(
   }
   const session = await findSessionByToken(token);
   if (!session) {
+    console.warn(`[Auth] Session token not found in database for cookie`);
     res.setHeader("Set-Cookie", buildSessionClearCookie());
     return {
       ok: false,
