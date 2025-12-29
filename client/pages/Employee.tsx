@@ -72,7 +72,11 @@ const CaseHistoryRow = ({ ticket }: CaseHistoryRowProps) => {
 
   const isProceed = ticket.proceededAt != null;
   const isComplete = ticket.completedAt != null;
-  const status = isComplete ? "Completed" : isProceed ? "Forwarded" : "In Progress";
+  const status = isComplete
+    ? "Completed"
+    : isProceed
+      ? "Forwarded"
+      : "In Progress";
   const statusColor = isComplete
     ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
     : isProceed
@@ -95,17 +99,27 @@ const CaseHistoryRow = ({ ticket }: CaseHistoryRowProps) => {
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
           <div>
-            <span className="font-medium">Started:</span> {ticket.startedAt ? new Date(ticket.startedAt).toLocaleTimeString() : "—"}
+            <span className="font-medium">Started:</span>{" "}
+            {ticket.startedAt
+              ? new Date(ticket.startedAt).toLocaleTimeString()
+              : "—"}
           </div>
           <div>
-            <span className="font-medium">Ended:</span> {ticket.proceededAt || ticket.completedAt ? new Date(ticket.proceededAt || ticket.completedAt || 0).toLocaleTimeString() : "—"}
+            <span className="font-medium">Ended:</span>{" "}
+            {ticket.proceededAt || ticket.completedAt
+              ? new Date(
+                  ticket.proceededAt || ticket.completedAt || 0,
+                ).toLocaleTimeString()
+              : "—"}
           </div>
           <div>
-            <span className="font-medium">Duration:</span> {formatDuration(duration)}
+            <span className="font-medium">Duration:</span>{" "}
+            {formatDuration(duration)}
           </div>
           {ticket.jobTitleForProceed && (
             <div>
-              <span className="font-medium">Forwarded To:</span> {ticket.jobTitleForProceed}
+              <span className="font-medium">Forwarded To:</span>{" "}
+              {ticket.jobTitleForProceed}
             </div>
           )}
         </div>
@@ -311,8 +325,7 @@ export default function Employee() {
 
   const historyQuery = useQuery({
     queryKey: ["employee-history"],
-    queryFn: () =>
-      apiFetch<EmployeeTicketsResponse>("/api/employee/history"),
+    queryFn: () => apiFetch<EmployeeTicketsResponse>("/api/employee/history"),
     refetchInterval: 10000,
   });
 
