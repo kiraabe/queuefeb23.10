@@ -332,9 +332,6 @@ export async function initDb() {
     const catRes = await p.query(`SELECT id, code FROM service_categories`);
     const catMap = Object.fromEntries(catRes.rows.map((r) => [r.code, r.id]));
 
-    // Note: We no longer delete services to preserve UUIDs that might be referenced in tickets
-    // Instead, we use upsert (ON CONFLICT) to update existing services while creating new ones
-
     // Helper function to generate deterministic UUID for a service
     // Uses the category code and service code to create a stable UUID
     const { createHash } = await import("node:crypto");
@@ -355,6 +352,32 @@ export async function initDb() {
       ].join("-");
       return uuid;
     };
+
+    // Clear services to start fresh with deterministic UUIDs
+    // This prevents mismatches between old random UUIDs and new deterministic ones
+    if (catMap["rights-group"]) {
+      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
+        catMap["rights-group"],
+      ]);
+    }
+    if (catMap["cadastral-group"]) {
+      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
+        catMap["cadastral-group"],
+      ]);
+    }
+    if (catMap["fixed-property-group"]) {
+      await p.query(`DELETE FROM services WHERE category_id = $1;`, [
+        catMap["fixed-property-group"],
+      ]);
+    }
+
+    // Also clear any tickets that might reference old service IDs
+    // This is necessary to start with a clean slate with the new UUID scheme
+    try {
+      await p.query(`DELETE FROM tickets WHERE selected_services IS NOT NULL;`);
+    } catch {
+      // Ignore if tickets table doesn't exist yet
+    }
 
     // Rights Group Services
     if (catMap["rights-group"]) {
