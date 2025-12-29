@@ -245,7 +245,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         <p className="text-xs text-muted-foreground">
           Category: {ticket.serviceCategory || "—"}
         </p>
-        {ticket.selectedServices && ticket.selectedServices.length > 0 && (
+        {Array.isArray(ticket.selectedServices) && ticket.selectedServices.length > 0 && (
           <p className="text-xs text-muted-foreground">
             Services: {ticket.selectedServices.join(", ")}
           </p>
