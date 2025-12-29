@@ -303,6 +303,11 @@ export function createServer() {
     employeeReceivedTickets,
   );
   app.get("/api/employee/history", requireRole(["employee"]), employeeHistory);
+  app.get(
+    "/api/employee/performance",
+    requireRole(["employee"]),
+    employeePerformanceMetrics,
+  );
   app.post("/api/employee/cases/start", requireRole(["employee"]), startCase);
   app.post(
     "/api/employee/cases/:id/start",
