@@ -130,12 +130,9 @@ export async function apiFetch<T>(
       return await Promise.race([fetch(url, requestInit), timeoutPromise]);
     } catch (err) {
       // Log network errors for debugging
+      const errorMsg = err instanceof Error ? err.message : String(err);
       console.error(
-        `[API] Network error for ${opts?.method || "GET"} ${path}:`,
-        {
-          error: err instanceof Error ? err.message : String(err),
-          url,
-        },
+        `[API] Network error for ${opts?.method || "GET"} ${path}: ${errorMsg}`,
       );
       throw err;
     }
