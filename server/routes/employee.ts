@@ -184,28 +184,28 @@ export const employeeStats: RequestHandler = async (req, res) => {
   try {
     const p = getPool();
 
-    // Count received tickets today (started by this employee)
+    // Count received tickets today (transferred to this employee)
     const { rows: receivedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM tickets t
        WHERE t.status = 'transferred'
-         AND t.started_by_user_id = $1
+         AND t.transferred_to_user_id = $1
          AND t.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
-    // Count completed tickets today (started by this employee and completed)
+    // Count completed tickets today (transferred to this employee and completed)
     const { rows: completedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM tickets t
        WHERE t.status = 'done'
-         AND t.started_by_user_id = $1
+         AND t.transferred_to_user_id = $1
          AND t.completed_at >= date_trunc('day', now())`,
       [userId],
     );
 
     // Calculate average processing time (from started to completion) for this employee
-    // Uses proceeded_at if case was transferred, otherwise uses completed_at
+    // For tickets transferred to this employee, measure from when they started it to when it was completed or forwarded
     const { rows: avgRows } = await p.query(
       `SELECT AVG(
          EXTRACT(EPOCH FROM (
@@ -213,11 +213,10 @@ export const employeeStats: RequestHandler = async (req, res) => {
          ))
        ) AS avg_seconds
        FROM tickets t
-       WHERE t.status = 'done'
-         AND t.started_by_user_id = $1
+       WHERE t.transferred_to_user_id = $1
          AND t.started_at IS NOT NULL
-         AND t.completed_at IS NOT NULL
-         AND t.completed_at >= date_trunc('day', now())`,
+         AND (t.completed_at IS NOT NULL OR t.proceeded_at IS NOT NULL)
+         AND t.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
