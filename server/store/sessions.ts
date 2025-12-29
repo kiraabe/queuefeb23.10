@@ -60,6 +60,7 @@ function mapRow(row: any): SessionRecord {
     username: row.username,
     role: row.role,
     windowId: row.window_id ?? null,
+    jobTitleId: row.job_title_id ?? null,
     tokenHash: row.token_hash,
     createdAt: new Date(row.created_at),
     lastSeenAt: new Date(row.last_seen_at),
