@@ -289,19 +289,23 @@ export const handleStartCase: RequestHandler = async (req, res) => {
   try {
     const p = getPool();
 
-    // Mark the case as started by this employee
+    // Mark the case as started by this employee (begin time tracking)
+    // Only update if case is assigned to this employee, not yet started, and in received status
     const { rows } = await p.query(
       `UPDATE tickets
        SET started_at = now(),
            started_by_user_id = $1
-       WHERE id = $2 AND transferred_to_user_id = $1 AND status = 'transferred'
+       WHERE id = $2
+         AND transferred_to_user_id = $1
+         AND status = 'transferred'
+         AND started_at IS NULL
        RETURNING id`,
       [userId, caseId],
     );
 
     if (!rows.length) {
       return res.status(404).json({
-        error: "Case not found or not assigned to you"
+        error: "Case not found, not assigned to you, or already started"
       });
     }
 
