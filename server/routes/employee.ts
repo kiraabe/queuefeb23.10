@@ -204,19 +204,17 @@ export const employeeStats: RequestHandler = async (req, res) => {
       [userId],
     );
 
-    // Calculate average processing time (from started to completion) for this employee
-    // For tickets transferred to this employee, measure from when they started it to when it was completed or forwarded
+    // Calculate average processing time per employee using employee_case_performance records
+    // This ensures accurate per-employee time tracking even when cases are forwarded between employees
     const { rows: avgRows } = await p.query(
       `SELECT AVG(
-         EXTRACT(EPOCH FROM (
-           COALESCE(t.proceeded_at, t.completed_at) - t.started_at
-         ))
+         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))
        ) AS avg_seconds
-       FROM tickets t
-       WHERE t.transferred_to_user_id = $1
-         AND t.started_at IS NOT NULL
-         AND (t.completed_at IS NOT NULL OR t.proceeded_at IS NOT NULL)
-         AND t.created_at >= date_trunc('day', now())`,
+       FROM employee_case_performance ecp
+       WHERE ecp.employee_id = $1
+         AND ecp.ended_at IS NOT NULL
+         AND ecp.status IN ('completed', 'proceeded')
+         AND ecp.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
