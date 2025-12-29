@@ -56,7 +56,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   // For in-progress cases, calculate elapsed time from start until now
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!ticket.startedAt || ticket.proceededAt || ticket.completedAt) {
       setElapsedTime(null);
       return;
