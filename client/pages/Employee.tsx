@@ -245,6 +245,13 @@ export default function Employee() {
     refetchInterval: 5000,
   });
 
+  const historyQuery = useQuery({
+    queryKey: ["employee-history"],
+    queryFn: () =>
+      apiFetch<EmployeeTicketsResponse>("/api/employee/history"),
+    refetchInterval: 10000,
+  });
+
   const handleCaseStarted = () => {
     ticketsQuery.refetch();
   };
