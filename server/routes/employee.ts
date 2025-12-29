@@ -378,27 +378,54 @@ export const proceedCase: RequestHandler = async (req, res) => {
 
   try {
     const p = getPool();
+    const client = await p.connect();
 
-    // Update ticket to transfer to next employee, record proceed time
-    const { rows } = await p.query(
-      `UPDATE tickets
-       SET transferred_to_user_id = $1,
-           transferred_at = now(),
-           proceeded_at = now(),
-           job_title_for_proceed = $2,
-           status = 'transferred'
-       WHERE id = $3 AND transferred_to_user_id = $4
-       RETURNING id`,
-      [nextEmployeeId, jobTitleId, caseId, userId],
-    );
+    try {
+      await client.query("BEGIN");
 
-    if (!rows.length) {
-      return res.status(404).json({
-        error: "Case not found or not assigned to you",
-      });
+      // Update ticket to transfer to next employee, record proceed time
+      const updateRes = await client.query(
+        `UPDATE tickets
+         SET transferred_to_user_id = $1,
+             transferred_at = now(),
+             proceeded_at = now(),
+             job_title_for_proceed = $2,
+             status = 'transferred'
+         WHERE id = $3 AND transferred_to_user_id = $4
+         RETURNING id`,
+        [nextEmployeeId, jobTitleId, caseId, userId],
+      );
+
+      if (!updateRes.rows.length) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({
+          error: "Case not found or not assigned to you",
+        });
+      }
+
+      // Record that current employee's performance ended with 'proceeded' status
+      await client.query(
+        `UPDATE employee_case_performance
+         SET ended_at = now(), status = 'proceeded'
+         WHERE ticket_id = $1 AND employee_id = $2 AND status = 'in_progress'`,
+        [caseId, userId],
+      );
+
+      // Create new performance tracking entry for next employee
+      await client.query(
+        `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
+         VALUES ($1, $2, $3, now(), 'in_progress')`,
+        [caseId, nextEmployeeId, jobTitleId],
+      );
+
+      await client.query("COMMIT");
+      res.json({ success: true, caseId: caseId });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
     }
-
-    res.json({ success: true, caseId: rows[0].id });
   } catch (error) {
     console.error("Failed to proceed case:", error);
     res.status(500).json({
