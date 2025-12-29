@@ -44,6 +44,7 @@ import { tellerStats, tellerTickets } from "./routes/teller";
 import {
   employeeReceivedTickets,
   employeeStats,
+  employeeHistory,
   startCase,
   completeCase,
   proceedCase,
