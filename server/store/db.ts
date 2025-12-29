@@ -299,6 +299,19 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS selected_services jsonb;`,
     );
+    // Case workflow columns - for employee case tracking
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_at timestamptz;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_by_user_id uuid REFERENCES users(id) ON DELETE SET NULL;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS proceeded_at timestamptz;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS job_title_for_proceed uuid REFERENCES job_title(id) ON DELETE SET NULL;`,
+    );
 
     // Seed service categories and services in Amharic
     const categories = [
