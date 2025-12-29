@@ -369,14 +369,11 @@ export async function initDb() {
       ];
       for (let i = 0; i < rightsServices.length; i++) {
         const serviceCode = `RG${String(i + 1).padStart(2, "0")}`;
-        const serviceUUID = await generateServiceUUID(
-          "rights-group",
-          serviceCode,
-        );
+        const serviceUUID = generateServiceUUID("rights-group", serviceCode);
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["rights-group"],
@@ -405,14 +402,11 @@ export async function initDb() {
       ];
       for (let i = 0; i < cadastralServices.length; i++) {
         const serviceCode = `CG${String(i + 1).padStart(2, "0")}`;
-        const serviceUUID = await generateServiceUUID(
-          "cadastral-group",
-          serviceCode,
-        );
+        const serviceUUID = generateServiceUUID("cadastral-group", serviceCode);
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["cadastral-group"],
@@ -429,14 +423,11 @@ export async function initDb() {
       const fixedPropertyServices = ["የንብረት ትመና አገልግሎት", "የግብር ተመን"];
       for (let i = 0; i < fixedPropertyServices.length; i++) {
         const serviceCode = `FP${String(i + 1).padStart(2, "0")}`;
-        const serviceUUID = await generateServiceUUID(
-          "fixed-property-group",
-          serviceCode,
-        );
+        const serviceUUID = generateServiceUUID("fixed-property-group", serviceCode);
         await p.query(
           `INSERT INTO services (id, category_id, code, name, display_order)
            VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (id) DO UPDATE SET name=$4, display_order=$5;`,
+           ON CONFLICT (category_id, code) DO UPDATE SET id=$1, name=$4, display_order=$5;`,
           [
             serviceUUID,
             catMap["fixed-property-group"],
