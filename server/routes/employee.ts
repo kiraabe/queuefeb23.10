@@ -478,7 +478,10 @@ export const completeCase: RequestHandler = async (req, res) => {
       );
 
       await client.query("COMMIT");
-      res.json({ success: true, completedAt: completeRes.rows[0].completed_at });
+      res.json({
+        success: true,
+        completedAt: completeRes.rows[0].completed_at,
+      });
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -614,7 +617,9 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
       startedAt: r.started_at ? Math.round(r.started_at) : null,
       endedAt: r.ended_at ? Math.round(r.ended_at) : null,
       status: r.status,
-      durationSeconds: r.duration_seconds ? Math.round(r.duration_seconds) : null,
+      durationSeconds: r.duration_seconds
+        ? Math.round(r.duration_seconds)
+        : null,
       employeeName: r.full_name || r.username,
       ticketCode: r.ticket_code,
     }));

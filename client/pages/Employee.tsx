@@ -77,7 +77,9 @@ interface PerformanceMetric {
 }
 
 const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
-  const [performanceDetails, setPerformanceDetails] = useState<PerformanceMetric[]>([]);
+  const [performanceDetails, setPerformanceDetails] = useState<
+    PerformanceMetric[]
+  >([]);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -177,7 +179,8 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
           </p>
           {performanceDetails.length > 0 && (
             <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">
-              {performanceDetails.length} handler{performanceDetails.length !== 1 ? "s" : ""}
+              {performanceDetails.length} handler
+              {performanceDetails.length !== 1 ? "s" : ""}
             </p>
           )}
         </div>
