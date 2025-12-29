@@ -168,22 +168,22 @@ export const employeeStats: RequestHandler = async (req, res) => {
   try {
     const p = getPool();
 
-    // Count received tickets today (transferred to this employee)
+    // Count received tickets today (started by this employee)
     const { rows: receivedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM tickets t
        WHERE t.status = 'transferred'
-         AND t.transferred_to_user_id = $1
+         AND t.started_by_user_id = $1
          AND t.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
-    // Count completed tickets today (completed by this employee)
+    // Count completed tickets today (started by this employee and completed)
     const { rows: completedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM tickets t
        WHERE t.status = 'done'
-         AND t.transferred_to_user_id = $1
+         AND t.started_by_user_id = $1
          AND t.completed_at >= date_trunc('day', now())`,
       [userId],
     );
