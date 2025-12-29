@@ -60,6 +60,70 @@ interface TicketRowProps {
   onActionStart?: (ticketId: string, action: "start" | "proceed") => void;
 }
 
+interface CaseHistoryRowProps {
+  ticket: Ticket;
+}
+
+const CaseHistoryRow = ({ ticket }: CaseHistoryRowProps) => {
+  const duration = calculateDuration(
+    ticket.startedAt,
+    ticket.proceededAt || ticket.completedAt,
+  );
+
+  const isProceed = ticket.proceededAt != null;
+  const isComplete = ticket.completedAt != null;
+  const status = isComplete ? "Completed" : isProceed ? "Forwarded" : "In Progress";
+  const statusColor = isComplete
+    ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+    : isProceed
+      ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+      : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
+
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="font-display font-semibold text-foreground truncate">
+            Ticket {ticket.code}
+          </h3>
+          <Badge
+            className={`text-xs whitespace-nowrap ${statusColor}`}
+            variant="secondary"
+          >
+            {status}
+          </Badge>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+          <div>
+            <span className="font-medium">Started:</span> {ticket.startedAt ? new Date(ticket.startedAt).toLocaleTimeString() : "—"}
+          </div>
+          <div>
+            <span className="font-medium">Ended:</span> {ticket.proceededAt || ticket.completedAt ? new Date(ticket.proceededAt || ticket.completedAt || 0).toLocaleTimeString() : "—"}
+          </div>
+          <div>
+            <span className="font-medium">Duration:</span> {formatDuration(duration)}
+          </div>
+          {ticket.jobTitleForProceed && (
+            <div>
+              <span className="font-medium">Forwarded To:</span> {ticket.jobTitleForProceed}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-1 text-right">
+        <div className="text-sm font-semibold text-foreground">
+          {formatDuration(duration)}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {ticket.startedAt
+            ? new Date(ticket.startedAt).toLocaleDateString()
+            : "—"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   // For in-progress cases, calculate elapsed time from start until now
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
