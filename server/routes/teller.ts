@@ -271,31 +271,44 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     [windowId],
   );
   const { rows } = await p.query(
-    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark
+    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
        FROM tickets
       WHERE window_id = $1 AND status = 'done' AND completed_at >= date_trunc('day', now())
       ORDER BY completed_at DESC
       LIMIT $2 OFFSET $3`,
     [windowId, limit, offset],
   );
-  return res.json({
-    items: rows.map((r) => ({
-      id: r.id,
-      service: r.service,
-      number: r.number,
-      code: r.code,
-      status: r.status,
-      windowId: r.window_id,
-      createdAt: Math.round(Number(r.created_at)),
-      startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
-      completedAt: r.completed_at
-        ? Math.round(Number(r.completed_at))
+
+  // Convert rows to Ticket objects
+  const tickets: Ticket[] = rows.map((r) => ({
+    id: r.id,
+    service: r.service,
+    number: r.number,
+    code: r.code,
+    status: r.status,
+    windowId: r.window_id,
+    createdAt: Math.round(Number(r.created_at)),
+    startedAt: r.started_at ? Math.round(Number(r.started_at)) : undefined,
+    completedAt: r.completed_at
+      ? Math.round(Number(r.completed_at))
+      : undefined,
+    notes: r.notes ?? undefined,
+    ownerName: r.owner_name ?? undefined,
+    woreda: r.woreda ?? undefined,
+    remark: r.remark ?? undefined,
+    serviceCategory: r.service_category ?? undefined,
+    selectedServices: Array.isArray(r.selected_services)
+      ? r.selected_services
+      : typeof r.selected_services === "string"
+        ? JSON.parse(r.selected_services)
         : undefined,
-      notes: r.notes ?? undefined,
-      ownerName: r.owner_name ?? undefined,
-      woreda: r.woreda ?? undefined,
-      remark: r.remark ?? undefined,
-    })),
+  }));
+
+  // Enrich tickets with service names
+  const enrichedTickets = await enrichMultipleTicketsWithServiceNames(tickets);
+
+  return res.json({
+    items: enrichedTickets,
     total: Number(countRes.rows[0]?.total || 0),
   });
 };
