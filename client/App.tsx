@@ -49,6 +49,7 @@ const App = () => (
             <Routes>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Index />} />
+                <Route path="/role-selector" element={<RoleSelector />} />
                 <Route element={<RequireAuth role="reception" />}>
                   <Route path="/reception" element={<Reception />} />
                 </Route>
