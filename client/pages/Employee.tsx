@@ -365,16 +365,19 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
               </div>
             )}
         </div>
-        <p className="text-xs text-muted-foreground">
-          {ticket.employeeStartedAt
-            ? new Date(ticket.employeeStartedAt).toLocaleTimeString()
-            : "—"}
-        </p>
-        {(ticket.proceededAt || ticket.completedAt) && (
+        {ticket.employeeStartedAt && (
+          <p className="text-xs text-muted-foreground">
+            {new Date(ticket.employeeStartedAt).toLocaleTimeString()}
+          </p>
+        )}
+        {!ticket.employeeStartedAt && (
+          <p className="text-xs text-muted-foreground">—</p>
+        )}
+        {ticket.employeeStartedAt && ticket.status === "done" && (
           <p className="text-xs text-muted-foreground">
             to{" "}
             {new Date(
-              ticket.proceededAt || ticket.completedAt || 0,
+              ticket.completedAt || 0,
             ).toLocaleTimeString()}
           </p>
         )}
