@@ -178,12 +178,12 @@ export default function Queue() {
               window,
               ticket: {
                 id: window.currentTicketId,
+                service: "S1",
                 code: window.currentTicketId,
                 status: "serving",
                 createdAt: 0,
                 number: 0,
-                ownerName: null,
-                selectedServices: [],
+                windowId: window.id,
               } as Ticket,
             };
           }
