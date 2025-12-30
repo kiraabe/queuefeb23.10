@@ -76,7 +76,7 @@ function toSummary(session: SessionRecord, now = Date.now()): SessionSummary {
   return {
     id: session.id,
     username: session.username,
-    role: session.role,
+    role: session.activeRole,
     windowId: session.windowId,
     createdAt: session.createdAt.getTime(),
     lastSeenAt: session.lastSeenAt.getTime(),
