@@ -190,52 +190,67 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
         </div>
       </div>
 
-      {/* Performance Details */}
+      {/* Performance Details - Workflow Chain */}
       {showDetails && performanceDetails.length > 0 && (
-        <div className="ml-0 sm:ml-4 space-y-2 border-l-2 border-blue-200 dark:border-blue-900 pl-4">
+        <div className="ml-0 sm:ml-4 space-y-3 border-l-2 border-blue-200 dark:border-blue-900 pl-4">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
-            Performance Breakdown
+            Workflow Chain
           </p>
-          {performanceDetails.map((perf) => (
-            <div
-              key={perf.id}
-              className="rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-3 text-xs"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">
-                    {perf.employeeName}
-                  </p>
-                  <p className="text-muted-foreground mt-1">
-                    <span className="font-medium">Started:</span>{" "}
-                    {perf.startedAt
-                      ? new Date(perf.startedAt).toLocaleTimeString()
-                      : "—"}
-                  </p>
-                  {perf.endedAt && (
-                    <p className="text-muted-foreground">
-                      <span className="font-medium">Ended:</span>{" "}
-                      {new Date(perf.endedAt).toLocaleTimeString()}
-                    </p>
-                  )}
-                  <p className="text-muted-foreground">
-                    <span className="font-medium">Status:</span>{" "}
-                    {perf.status === "completed"
-                      ? "✓ Completed"
-                      : perf.status === "proceeded"
-                        ? "→ Forwarded"
-                        : "⏳ In Progress"}
-                  </p>
+          {performanceDetails.map((perf, index) => {
+            const isLast = index === performanceDetails.length - 1;
+            const nextPerf = performanceDetails[index + 1];
+            return (
+              <div key={perf.id} className="space-y-2">
+                <div className="rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-3 text-xs">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">
+                        {perf.employeeName}
+                      </p>
+                      <p className="text-muted-foreground mt-1">
+                        <span className="font-medium">Started:</span>{" "}
+                        {perf.startedAt
+                          ? new Date(perf.startedAt).toLocaleTimeString()
+                          : "—"}
+                      </p>
+                      {perf.endedAt && (
+                        <p className="text-muted-foreground">
+                          <span className="font-medium">Ended:</span>{" "}
+                          {new Date(perf.endedAt).toLocaleTimeString()}
+                        </p>
+                      )}
+                      <p className="text-muted-foreground">
+                        <span className="font-medium">Status:</span>{" "}
+                        {perf.status === "completed"
+                          ? "✓ Completed"
+                          : perf.status === "proceeded"
+                            ? "→ Forwarded"
+                            : "⏳ In Progress"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-foreground">
+                        {formatDuration(perf.durationSeconds)}
+                      </p>
+                      <p className="text-muted-foreground text-xs">time spent</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-foreground">
-                    {formatDuration(perf.durationSeconds)}
-                  </p>
-                  <p className="text-muted-foreground text-xs">time spent</p>
-                </div>
+                {perf.status === "proceeded" && nextPerf && (
+                  <div className="flex items-center justify-center h-6">
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                        ↓
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        to
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
