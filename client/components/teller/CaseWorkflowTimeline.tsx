@@ -1,13 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { Ticket } from "@shared/api";
 import { apiFetch } from "@/lib/api";
-import { CheckCircle2, ArrowRight, Clock, User, Briefcase } from "lucide-react";
+import {
+  CheckCircle2,
+  ArrowRight,
+  Clock,
+  User,
+  Briefcase,
+  AlertCircle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EmployeeStep {
+  id: string;
   employeeName: string;
   jobTitle: string;
-  action: "Started" | "Proceeded" | "Completed";
+  status: "Started" | "Proceeded" | "Completed";
   startedAt: number;
   endedAt: number | null;
   durationSeconds: number | null;
@@ -15,9 +23,13 @@ interface EmployeeStep {
 
 interface CaseWorkflowTimelineProps {
   ticket: Ticket;
+  compact?: boolean;
 }
 
-export function CaseWorkflowTimeline({ ticket }: CaseWorkflowTimelineProps) {
+export function CaseWorkflowTimeline({
+  ticket,
+  compact = false,
+}: CaseWorkflowTimelineProps) {
   const { data: performanceData, isPending } = useQuery({
     queryKey: ["case-workflow", ticket.id],
     queryFn: async () => {
