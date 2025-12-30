@@ -604,7 +604,7 @@ export default function TellerWindow() {
     ).length;
     const inProgress = all.filter(
       (t) =>
-        (t.status === "serving") &&
+        t.status === "serving" &&
         t.windowId === windowId &&
         isWithin24Hours(t.createdAt),
     ).length;
@@ -1009,7 +1009,9 @@ export default function TellerWindow() {
                     <Play className="mr-2 h-4 w-4" /> Complete
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Mark current ticket as completed</TooltipContent>
+                <TooltipContent>
+                  Mark current ticket as completed
+                </TooltipContent>
               </Tooltip>
 
               {w.currentTicketId && jobTitlesQuery.isLoading && (
