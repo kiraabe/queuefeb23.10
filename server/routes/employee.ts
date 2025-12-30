@@ -552,23 +552,26 @@ export const employeeHistory: RequestHandler = async (req, res) => {
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
                 t.job_title_for_proceed`;
 
-    // Get all cases this employee started today (whether forwarded or completed)
+    // Get all cases this employee started OR worked on today (whether forwarded or completed)
+    // This includes:
+    // 1. Cases they initiated (started_by_user_id)
+    // 2. Cases they worked on (in employee_case_performance)
     const countRes = await p.query(
-      `SELECT COUNT(*)::int AS total
+      `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
-       WHERE t.started_by_user_id = $1
-         AND t.started_at IS NOT NULL
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
          AND t.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
     const { rows } = await p.query(
-      `SELECT ${selectTicketColumns}
+      `SELECT DISTINCT ON (t.id) ${selectTicketColumns}
        FROM tickets t
-       WHERE t.started_by_user_id = $1
-         AND t.started_at IS NOT NULL
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
          AND t.created_at >= date_trunc('day', now())
-       ORDER BY COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
+       ORDER BY t.id, COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset],
     );
