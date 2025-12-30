@@ -124,6 +124,8 @@ export function TicketSection({
 }
 
 function TicketRow({ ticket }: { ticket: Ticket }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
     return `Window ${windowId}`;
@@ -163,16 +165,33 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   };
 
   return (
-    <div className="rounded-lg border border-border/50 bg-background/50 p-3">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-semibold text-foreground">{ticket.code}</p>
-          <p className="text-sm text-muted-foreground">
-            {ticket.ownerName || "—"}
-          </p>
-        </div>
-        <span
-          className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+    <>
+      <div className="rounded-lg border border-border/50 bg-background/50 p-3">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="font-semibold text-foreground">{ticket.code}</p>
+            <p className="text-sm text-muted-foreground">
+              {ticket.ownerName || "—"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {ticket.status === "done" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="h-8 w-8 p-0"
+                aria-label={isExpanded ? "Collapse workflow" : "Expand workflow"}
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                />
+              </Button>
+            )}
+                <span
+              className={`inline-block rounded px-2 py-1 text-xs font-medium ${
             ticket.status === "done"
               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
               : ticket.status === "skipped"
@@ -182,11 +201,12 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
                   : ticket.status === "transferred"
                     ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
                     : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
-          }`}
-        >
-          {ticket.status}
-        </span>
-      </div>
+              }`}
+            >
+              {ticket.status}
+            </span>
+          </div>
+        </div>
 
       {ticket.status === "transferred" && (
         <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
@@ -260,11 +280,16 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           </p>
         </div>
       )}
-      {ticket.woreda && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          Woreda: {ticket.woreda}
-        </p>
+        {ticket.woreda && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Woreda: {ticket.woreda}
+          </p>
+        )}
+      </div>
+
+      {ticket.status === "done" && isExpanded && (
+        <CaseWorkflowTimeline ticket={ticket} />
       )}
-    </div>
+    </>
   );
 }
