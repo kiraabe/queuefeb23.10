@@ -4,8 +4,9 @@ import { apiFetch } from "@/lib/api";
 
 interface AuthContextValue {
   user: AuthUser | null | undefined; // undefined while loading
-  login: (username: string, password: string) => Promise<AuthUser>;
+  login: (username: string, password: string, role?: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
+  switchRole: (role: string) => Promise<AuthUser>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -22,10 +23,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      async login(username: string, password: string, mode?: string) {
+      async login(username: string, password: string, role?: string) {
         const res = await apiFetch<LoginResponse>("/api/auth/login", {
           method: "POST",
-          body: JSON.stringify({ username, password, mode }),
+          body: JSON.stringify({ username, password, role }),
         });
         setUser(res.user);
         return res.user;
@@ -35,6 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await apiFetch("/api/auth/logout", { method: "POST" });
         } catch {}
         setUser(null);
+      },
+      async switchRole(role: string) {
+        const res = await apiFetch<LoginResponse>("/api/auth/switch-role", {
+          method: "POST",
+          body: JSON.stringify({ role }),
+        });
+        setUser(res.user);
+        return res.user;
       },
     }),
     [user],
