@@ -431,6 +431,7 @@ export const login: RequestHandler = async (req, res) => {
 
   const user = toAuthUserFromRow(userRow);
   user.role = activeRole;
+  user.roles = userRow.roles;
   try {
     await logAudit({
       action: "auth.login",
@@ -449,7 +450,7 @@ export const login: RequestHandler = async (req, res) => {
   (req as any).auth = {
     id: session.userId,
     username: session.username,
-    role: session.role,
+    role: session.activeRole,
     windowId: session.windowId ?? null,
     sessionId: session.id,
   };
