@@ -95,13 +95,16 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
       .catch(() => {});
   }, [ticket.id]);
 
-  const duration = calculateDuration(
-    ticket.startedAt,
-    ticket.proceededAt || ticket.completedAt,
-  );
-
   const isProceed = ticket.proceededAt != null;
   const isComplete = ticket.completedAt != null;
+
+  // For completed cases, show total duration from initiation to completion
+  // For proceeded cases, show duration to the point it was forwarded
+  // For in-progress cases, show duration to the latest proceed time
+  const duration = calculateDuration(
+    ticket.startedAt,
+    isComplete ? ticket.completedAt : (ticket.proceededAt || ticket.completedAt),
+  );
   const status = isComplete
     ? "Completed"
     : isProceed
