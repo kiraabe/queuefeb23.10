@@ -693,10 +693,10 @@ export default function TellerWindow() {
         .filter(
           (t) =>
             t.status === "skipped" &&
-            t.windowId === windowId &&
-            isWithin24Hours(t.createdAt),
+            t.skippedByWindow === windowId &&
+            isWithin24Hours(t.skippedAt),
         )
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        .sort((a, b) => (b.skippedAt || 0) - (a.skippedAt || 0));
     }
     if (tab === "proceed") {
       // Show tickets that have been transferred but not yet completed
