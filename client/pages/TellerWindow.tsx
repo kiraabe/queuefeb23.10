@@ -712,7 +712,11 @@ export default function TellerWindow() {
         .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
     }
     // serving: show all tickets in serving status related to this window
-    // This includes: currently being served, transferred out, or transferred in
+    // This includes:
+    // - Tickets currently assigned to this window (windowId === selectedWindowId)
+    // - Tickets transferred FROM this window (transferredFromWindow === selectedWindowId)
+    // - Tickets transferred TO this window (transferredToWindow === selectedWindowId)
+    // This ensures transferred tickets remain visible in the Ongoing queue
     return all
       .filter(
         (t) =>
