@@ -180,7 +180,7 @@ export default function QueuePublic() {
   const hasLiveQueue = useMemo(() => {
     if (serving.length > 0) return true;
     if (waitingQueue.length > 0) return true;
-    if (display && (display.current || display.next || display.nextAfter))
+    if (display && (display.current.length > 0 || display.next || display.nextAfter))
       return true;
     return false;
   }, [display, serving, waitingQueue]);
