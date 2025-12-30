@@ -266,17 +266,21 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     });
   }
 
-  // default completed
+  // default completed - show tickets that were served/completed by this window OR transferred from this window
   const countRes = await p.query(
     `SELECT COUNT(*)::int AS total
        FROM tickets
-      WHERE window_id = $1 AND status = 'done' AND completed_at >= date_trunc('day', now())`,
+      WHERE status = 'done'
+        AND completed_at >= date_trunc('day', now())
+        AND (window_id = $1 OR transferred_from_window = $1)`,
     [windowId],
   );
   const { rows } = await p.query(
     `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
        FROM tickets
-      WHERE window_id = $1 AND status = 'done' AND completed_at >= date_trunc('day', now())
+      WHERE status = 'done'
+        AND completed_at >= date_trunc('day', now())
+        AND (window_id = $1 OR transferred_from_window = $1)
       ORDER BY completed_at DESC
       LIMIT $2 OFFSET $3`,
     [windowId, limit, offset],
