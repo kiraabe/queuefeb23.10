@@ -592,9 +592,9 @@ export function requireTellerForWindowParam(paramName: string): RequestHandler {
         .json({ error: "Invalid window id", message: "Invalid window id" });
     }
 
-    const isAdmin = result.session.role === "admin";
+    const isAdmin = result.session.activeRole === "admin";
     const isTellerForWindow =
-      result.session.role === "teller" && result.session.windowId === windowId;
+      result.session.activeRole === "teller" && result.session.windowId === windowId;
 
     if (!isAdmin && !isTellerForWindow) {
       return res.status(403).json({
@@ -609,7 +609,7 @@ export function requireTellerForWindowParam(paramName: string): RequestHandler {
     (req as any).auth = {
       id: result.session.userId,
       username: result.session.username,
-      role: result.session.role,
+      role: result.session.activeRole,
       windowId: result.session.windowId ?? null,
       sessionId: result.session.id,
     };
