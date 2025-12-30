@@ -176,7 +176,9 @@ function formatTicketResponse(r: any) {
       ? Math.round(Number(r.proceeded_at))
       : undefined,
     jobTitleForProceed: r.job_title_for_proceed ?? undefined,
-    employeeStartedAt: r.employee_started_at ? Math.round(Number(r.employee_started_at)) : undefined,
+    employeeStartedAt: r.employee_started_at
+      ? Math.round(Number(r.employee_started_at))
+      : undefined,
   };
 }
 

@@ -353,15 +353,17 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           <div className="text-sm font-semibold text-foreground">
             {formatDuration(duration)}
           </div>
-          {ticket.employeeStartedAt && !ticket.proceededAt && !ticket.completedAt && (
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">
-                (in progress
-              </span>
-              <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-xs text-muted-foreground">)</span>
-            </div>
-          )}
+          {ticket.employeeStartedAt &&
+            !ticket.proceededAt &&
+            !ticket.completedAt && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  (in progress
+                </span>
+                <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-xs text-muted-foreground">)</span>
+              </div>
+            )}
         </div>
         <p className="text-xs text-muted-foreground">
           {ticket.employeeStartedAt

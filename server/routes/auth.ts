@@ -591,14 +591,17 @@ export function requireRole(roles: UserRole[]): RequestHandler {
     const hasPermission = roles.includes(userRole);
 
     if (!hasPermission) {
-      console.warn(`[Auth] Access denied: user role '${userRole}' not in allowed roles [${roles.join(", ")}]`, {
-        userId: result.session.userId,
-        username: result.session.username,
-        userRole,
-        allowedRoles: roles,
-        path: req.path,
-        method: req.method,
-      });
+      console.warn(
+        `[Auth] Access denied: user role '${userRole}' not in allowed roles [${roles.join(", ")}]`,
+        {
+          userId: result.session.userId,
+          username: result.session.username,
+          userRole,
+          allowedRoles: roles,
+          path: req.path,
+          method: req.method,
+        },
+      );
       return res.status(403).json({
         error:
           "Access denied. You do not have permission to perform this action.",
