@@ -547,7 +547,7 @@ export function requireRole(roles: UserRole[]): RequestHandler {
     const result = await authenticateRequest(req, res, { touch: true });
     if (!result.ok) return respondWithAuthError(res, result);
 
-    const userRole = result.session.role;
+    const userRole = result.session.activeRole;
     const hasPermission = roles.includes(userRole);
 
     if (!hasPermission) {
@@ -573,7 +573,7 @@ export function requireRole(roles: UserRole[]): RequestHandler {
     (req as any).auth = {
       id: result.session.userId,
       username: result.session.username,
-      role: result.session.role,
+      role: result.session.activeRole,
       windowId: result.session.windowId ?? null,
       sessionId: result.session.id,
     };
