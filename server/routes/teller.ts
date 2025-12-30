@@ -42,7 +42,7 @@ export const tellerStats: RequestHandler = async (req, res) => {
     const { rows: avgRows } = await p.query(
       `SELECT AVG(EXTRACT(EPOCH FROM (completed_at - started_at))) AS avg_seconds
        FROM tickets
-      WHERE window_id = $1
+      WHERE (window_id = $1 OR transferred_from_window = $1)
         AND completed_at IS NOT NULL AND started_at IS NOT NULL
         AND completed_at >= date_trunc('day', now())`,
       [windowId],
