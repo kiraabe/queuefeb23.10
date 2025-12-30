@@ -115,7 +115,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
     const countRes = await p.query(
       `SELECT COUNT(*)::int AS total
        FROM tickets t
-       WHERE t.status = 'transferred'
+       WHERE (t.status = 'transferred' OR t.status = 'serving')
          AND t.transferred_to_user_id = $1
          AND t.created_at >= date_trunc('day', now())`,
       [userId],
@@ -125,7 +125,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
       `SELECT ${selectTicketColumns}
        FROM tickets t
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id AND ecp.employee_id = $1 AND ecp.status = 'in_progress'
-       WHERE t.status = 'transferred'
+       WHERE (t.status = 'transferred' OR t.status = 'serving')
          AND t.transferred_to_user_id = $1
          AND t.created_at >= date_trunc('day', now())
        ORDER BY t.transferred_at DESC
