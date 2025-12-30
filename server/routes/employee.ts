@@ -314,41 +314,57 @@ export const handleStartCase: RequestHandler = async (req, res) => {
     try {
       await client.query("BEGIN");
 
-      // Mark the case as started by this employee (begin time tracking)
-      // Only update if case is assigned to this employee, not yet started, and in received status
-      const startRes = await client.query(
-        `UPDATE tickets
-         SET started_at = now(),
-             started_by_user_id = $1
-         WHERE id = $2
-           AND transferred_to_user_id = $1
-           AND status = 'transferred'
-           AND started_at IS NULL
-         RETURNING id, service_category`,
-        [userId, caseId],
+      // Get the case to check if it exists and is assigned to this employee
+      const checkRes = await client.query(
+        `SELECT id, service_category, started_at
+         FROM tickets
+         WHERE id = $1
+           AND transferred_to_user_id = $2
+           AND status = 'transferred'`,
+        [caseId, userId],
       );
 
-      if (!startRes.rows.length) {
+      if (!checkRes.rows.length) {
         await client.query("ROLLBACK");
         return res.status(404).json({
-          error: "Case not found, not assigned to you, or already started",
+          error: "Case not found or not assigned to you",
         });
       }
 
-      // Record performance tracking entry for this employee
-      // Note: job_title_id can be NULL if ticket was transferred from window
-      // (service_category may contain service type, not job_title UUID)
-      const jobTitleId = startRes.rows[0].service_category;
-      const isValidUUID =
-        jobTitleId &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          jobTitleId,
+      const ticket = checkRes.rows[0];
+      let jobTitleId = ticket.service_category;
+
+      // Only the first employee to start the case sets the ticket.started_at
+      if (ticket.started_at === null) {
+        await client.query(
+          `UPDATE tickets
+           SET started_at = now(),
+               started_by_user_id = $1
+           WHERE id = $2`,
+          [userId, caseId],
         );
-      await client.query(
-        `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
-         VALUES ($1, $2, $3, now(), 'in_progress')`,
-        [caseId, userId, isValidUUID ? jobTitleId : null],
+      }
+
+      // Check if this employee already has a performance record in progress
+      const existingPerf = await client.query(
+        `SELECT id FROM employee_case_performance
+         WHERE ticket_id = $1 AND employee_id = $2 AND status = 'in_progress'`,
+        [caseId, userId],
       );
+
+      // Only create a performance record if one doesn't exist
+      if (existingPerf.rows.length === 0) {
+        const isValidUUID =
+          jobTitleId &&
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            jobTitleId,
+          );
+        await client.query(
+          `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, status)
+           VALUES ($1, $2, $3, now(), 'in_progress')`,
+          [caseId, userId, isValidUUID ? jobTitleId : null],
+        );
+      }
 
       await client.query("COMMIT");
       res.json({ success: true, caseId: caseId });
