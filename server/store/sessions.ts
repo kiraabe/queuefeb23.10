@@ -93,7 +93,7 @@ export function generateSessionToken(bytes = 48): string {
 export async function createUserSession(params: {
   userId: string;
   username: string;
-  role: UserRole;
+  activeRole: UserRole;
   windowId: number | null;
   jobTitleId?: string | null;
 }): Promise<{ token: string; session: SessionRecord }> {
@@ -106,7 +106,7 @@ export async function createUserSession(params: {
     `INSERT INTO user_sessions (
       user_id,
       username,
-      role,
+      active_role,
       window_id,
       job_title_id,
       token_hash,
@@ -114,11 +114,11 @@ export async function createUserSession(params: {
       last_seen_at,
       expires_at
     ) VALUES ($1, $2, $3, $4, $5, $6, now(), now(), $7)
-    RETURNING id, user_id, username, role, window_id, job_title_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason`,
+    RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason`,
     [
       params.userId,
       params.username,
-      params.role,
+      params.activeRole,
       params.windowId ?? null,
       params.jobTitleId ?? null,
       hash,
