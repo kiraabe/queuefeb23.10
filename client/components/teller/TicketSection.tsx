@@ -222,7 +222,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           </div>
         </div>
 
-        {ticket.status === "transferred" && (
+        {(ticket.transferredFromWindow || ticket.transferredToWindow) && (
           <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
