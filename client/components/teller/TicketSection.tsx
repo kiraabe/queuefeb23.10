@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Ticket } from "@shared/api";
-import { ChevronLeft, ChevronRight, ArrowRight, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Calendar, ChevronDown } from "lucide-react";
+import { CaseWorkflowTimeline } from "./CaseWorkflowTimeline";
 
 interface TicketSectionProps {
   items: Ticket[];
