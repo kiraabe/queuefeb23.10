@@ -39,6 +39,7 @@ import {
   me,
   requireRole,
   requireTellerForWindowParam,
+  switchRole,
 } from "./routes/auth";
 import { tellerStats, tellerTickets } from "./routes/teller";
 import {
