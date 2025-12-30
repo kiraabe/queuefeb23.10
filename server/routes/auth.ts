@@ -51,6 +51,7 @@ function toAuthUserFromRow(row: {
   id: string;
   username: string;
   role: UserRole;
+  roles?: UserRole[];
   window_id: number | null;
   full_name?: string | null;
   job_title_id?: string | null;
@@ -59,6 +60,7 @@ function toAuthUserFromRow(row: {
     id: row.id,
     username: row.username,
     role: row.role,
+    roles: row.roles,
     windowId: row.window_id ?? null,
     fullName: row.full_name ?? undefined,
     jobTitleId: row.job_title_id ?? undefined,
