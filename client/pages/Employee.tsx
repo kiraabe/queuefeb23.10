@@ -199,16 +199,42 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             Workflow Chain
           </p>
           {performanceDetails.map((perf, index) => {
-            const isLast = index === performanceDetails.length - 1;
+            const isFirst = index === 0;
+            const isCompleted = perf.status === "completed";
             const nextPerf = performanceDetails[index + 1];
+
+            const borderColor = isFirst
+              ? "border-green-200 dark:border-green-900"
+              : isCompleted
+                ? "border-purple-200 dark:border-purple-900"
+                : "border-blue-100 dark:border-blue-900";
+
+            const bgColor = isFirst
+              ? "bg-green-50 dark:bg-green-950/30"
+              : isCompleted
+                ? "bg-purple-50 dark:bg-purple-950/30"
+                : "bg-blue-50 dark:bg-blue-950/30";
+
             return (
               <div key={perf.id} className="space-y-2">
-                <div className="rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-3 text-xs">
+                <div className={`rounded-lg border ${borderColor} ${bgColor} p-3 text-xs`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className="font-medium text-foreground">
-                        {perf.employeeName}
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-foreground">
+                          {perf.employeeName}
+                        </p>
+                        {isFirst && (
+                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
+                            Initiated
+                          </Badge>
+                        )}
+                        {isCompleted && (
+                          <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 text-xs">
+                            Completed
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-muted-foreground mt-1">
                         <span className="font-medium">Started:</span>{" "}
                         {perf.startedAt
