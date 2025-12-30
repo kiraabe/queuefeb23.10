@@ -29,9 +29,10 @@ export const tellerStats: RequestHandler = async (req, res) => {
     );
     const { rows: inProgRows } = await p.query(
       `SELECT COUNT(*)::int AS c
-       FROM windows w
-       JOIN tickets t ON t.id = w.current_ticket_id
-      WHERE w.id = $1 AND t.status IN ('serving','transferred')`,
+       FROM tickets t
+      WHERE t.status IN ('serving','transferred')
+        AND (t.window_id = $1 OR t.transferred_from_window = $1 OR t.transferred_to_window = $1)
+        AND t.created_at >= date_trunc('day', now())`,
       [windowId],
     );
     // Get service categories for this window
