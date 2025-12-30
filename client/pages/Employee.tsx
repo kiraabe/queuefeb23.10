@@ -573,7 +573,7 @@ export default function Employee() {
     }
     // received (default)
     return tickets
-      .filter((t) => t.status === "transferred")
+      .filter((t) => t.status === "transferred" || t.status === "serving")
       .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
   }, [tickets, tab, historyQuery.data]);
 
