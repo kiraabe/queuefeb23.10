@@ -998,6 +998,18 @@ export default function TellerWindow() {
                 <TooltipContent>Skip current ticket</TooltipContent>
               </Tooltip>
 
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => complete.mutate()}
+                    disabled={complete.isPending || !w.currentTicketId}
+                  >
+                    <Play className="mr-2 h-4 w-4" /> Complete
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Mark current ticket as completed</TooltipContent>
+              </Tooltip>
+
               {w.currentTicketId && jobTitlesQuery.isLoading && (
                 <p className="text-xs text-muted-foreground">
                   Loading job titles...
