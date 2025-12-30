@@ -160,9 +160,15 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                   : "—"}
               </div>
               <div>
-                <span className="font-medium">Duration:</span>{" "}
-                {formatDuration(duration)}
+                <span className="font-medium">Total Duration:</span>{" "}
+                {formatDuration(totalDuration)}
               </div>
+              {sumEmployeesDuration && (
+                <div>
+                  <span className="font-medium">Employees Total:</span>{" "}
+                  {formatDuration(sumEmployeesDuration)}
+                </div>
+              )}
               {ticket.transferredToUserId && (
                 <div>
                   <span className="font-medium">
@@ -187,15 +193,29 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 text-right">
-          <div className="text-sm font-semibold text-foreground">
-            {formatDuration(duration)}
+          <div className="flex flex-col items-end gap-2">
+            <div>
+              <div className="text-sm font-semibold text-foreground">
+                {formatDuration(totalDuration)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isComplete ? "Total case time" : "Elapsed"}
+              </p>
+            </div>
+            {sumEmployeesDuration && sumEmployeesDuration !== totalDuration && (
+              <div className="border-t pt-2">
+                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                  {formatDuration(sumEmployeesDuration)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Employees time
+                </p>
+              </div>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
-            {isComplete ? "Total time" : "Elapsed"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {ticket.startedAt
-              ? new Date(ticket.startedAt).toLocaleDateString()
+            {ticket.createdAt
+              ? new Date(ticket.createdAt).toLocaleDateString()
               : "—"}
           </p>
           {performanceDetails.length > 0 && (
