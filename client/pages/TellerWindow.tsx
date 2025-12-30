@@ -604,7 +604,7 @@ export default function TellerWindow() {
     ).length;
     const inProgress = all.filter(
       (t) =>
-        (t.status === "serving" || t.status === "transferred") &&
+        (t.status === "serving") &&
         t.windowId === windowId &&
         isWithin24Hours(t.createdAt),
     ).length;
@@ -616,7 +616,7 @@ export default function TellerWindow() {
     ).length;
     const proceedToday = all.filter(
       (t) =>
-        t.status === "transferred" &&
+        t.status === "serving" &&
         (t.transferredToWindow === windowId ||
           t.transferredFromWindow === windowId) &&
         isWithin24Hours(t.transferredAt),
