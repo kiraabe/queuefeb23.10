@@ -261,6 +261,7 @@ export function createServer() {
   app.post("/api/auth/login", login);
   app.post("/api/auth/logout", logout);
   app.get("/api/auth/me", me);
+  app.post("/api/auth/switch-role", switchRole);
 
   // Queue/Teller API
   app.get("/api/events", sseHandler); // SSE
