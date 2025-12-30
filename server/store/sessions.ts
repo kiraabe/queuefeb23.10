@@ -58,7 +58,7 @@ function mapRow(row: any): SessionRecord {
     id: row.id,
     userId: row.user_id,
     username: row.username,
-    role: row.role,
+    activeRole: row.active_role,
     windowId: row.window_id ?? null,
     jobTitleId: row.job_title_id ?? null,
     tokenHash: row.token_hash,
