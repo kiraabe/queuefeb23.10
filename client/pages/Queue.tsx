@@ -168,13 +168,30 @@ export default function Queue() {
   const serving = useMemo(
     () =>
       windows
-        .map((window) =>
-          window.currentTicketId
-            ? { window, ticket: tickets[window.currentTicketId] }
-            : null,
-        )
-        .filter((entry): entry is { window: WindowState; ticket: Ticket } =>
-          Boolean(entry?.ticket),
+        .map((window) => {
+          if (!window.currentTicketId) return null;
+          const ticket = tickets[window.currentTicketId];
+          // Include the entry even if ticket object is still loading
+          // Use a fallback with just the ticket ID if the object isn't available yet
+          if (!ticket) {
+            return {
+              window,
+              ticket: {
+                id: window.currentTicketId,
+                code: window.currentTicketId,
+                status: "serving",
+                createdAt: 0,
+                number: 0,
+                ownerName: null,
+                selectedServices: [],
+              } as Ticket,
+            };
+          }
+          return { window, ticket };
+        })
+        .filter(
+          (entry): entry is { window: WindowState; ticket: Ticket } =>
+            Boolean(entry),
         ),
     [windows, tickets],
   );
