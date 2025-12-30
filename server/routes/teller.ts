@@ -62,9 +62,11 @@ export const tellerStats: RequestHandler = async (req, res) => {
     );
     const { rows: proceedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
-       FROM transfer_history th
-       JOIN tickets t ON t.id = th.ticket_id
-      WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())`,
+       FROM tickets t
+      WHERE t.status IN ('serving','transferred')
+        AND (t.transferred_from_window = $1 OR t.transferred_to_window = $1)
+        AND t.transferred_at IS NOT NULL
+        AND t.created_at >= date_trunc('day', now())`,
       [windowId],
     );
     const avg =
