@@ -383,18 +383,22 @@ export default function AdminDashboard() {
               </TabsList>
 
               <TabsContent value="current" className="space-y-4">
-                {display.current ? (
-                  <div className="rounded-lg border p-4">
-                    <p className="text-sm text-muted-foreground">
-                      Current Ticket
-                    </p>
-                    <p className="text-3xl font-bold text-green-600">
-                      {display.current.code}
-                    </p>
-                    <p className="mt-2 text-sm">
-                      Window: {display.current.windowId || "N/A"} | Service:{" "}
-                      {display.current.service}
-                    </p>
+                {display.current.length > 0 ? (
+                  <div className="space-y-3">
+                    {display.current.map((ticket) => (
+                      <div key={ticket.id} className="rounded-lg border p-4">
+                        <p className="text-sm text-muted-foreground">
+                          Now Serving
+                        </p>
+                        <p className="text-3xl font-bold text-green-600">
+                          {ticket.code}
+                        </p>
+                        <p className="mt-2 text-sm">
+                          Window: {ticket.windowId || "Employee"} | Service:{" "}
+                          {ticket.service}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="rounded-lg border p-4 text-center text-muted-foreground">
