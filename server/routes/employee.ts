@@ -79,21 +79,25 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
 
     if (tab === "completed") {
       const countRes = await p.query(
-        `SELECT COUNT(*)::int AS total
+        `SELECT COUNT(DISTINCT t.id)::int AS total
          FROM tickets t
+         LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
          WHERE t.status = 'done'
-           AND t.transferred_to_user_id = $1
-           AND t.completed_at >= date_trunc('day', now())`,
+           AND t.completed_at >= date_trunc('day', now())
+           AND (ecp.employee_id = $1 OR t.transferred_to_user_id = $1)`,
         [userId],
       );
 
       const { rows } = await p.query(
-        `SELECT ${selectTicketColumns}
+        `SELECT DISTINCT ON (t.id) ${selectTicketColumns}
          FROM tickets t
          LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id AND ecp.employee_id = $1 AND ecp.status = 'in_progress'
          WHERE t.status = 'done'
-           AND t.transferred_to_user_id = $1
            AND t.completed_at >= date_trunc('day', now())
+           AND EXISTS (
+             SELECT 1 FROM employee_case_performance ecp2
+             WHERE ecp2.ticket_id = t.id AND ecp2.employee_id = $1
+           )
          ORDER BY t.completed_at DESC
          LIMIT $2 OFFSET $3`,
         [userId, limit, offset],
