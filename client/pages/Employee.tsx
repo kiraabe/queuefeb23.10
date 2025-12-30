@@ -247,7 +247,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!ticket.startedAt || ticket.proceededAt || ticket.completedAt) {
+    if (!ticket.employeeStartedAt || ticket.proceededAt || ticket.completedAt) {
       setElapsedTime(null);
       return;
     }
@@ -255,23 +255,23 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     // Update elapsed time every second for in-progress cases
     const interval = setInterval(() => {
       const now = Date.now();
-      const elapsed = Math.round((now - ticket.startedAt!) / 1000);
+      const elapsed = Math.round((now - ticket.employeeStartedAt!) / 1000);
       setElapsedTime(elapsed);
     }, 1000);
 
     // Initial calculation
     const now = Date.now();
-    const elapsed = Math.round((now - ticket.startedAt) / 1000);
+    const elapsed = Math.round((now - ticket.employeeStartedAt) / 1000);
     setElapsedTime(elapsed);
 
     return () => clearInterval(interval);
-  }, [ticket.startedAt, ticket.proceededAt, ticket.completedAt]);
+  }, [ticket.employeeStartedAt, ticket.proceededAt, ticket.completedAt]);
 
   // Use elapsed time for in-progress, otherwise calculate from start to end
   const duration =
     elapsedTime ??
     calculateDuration(
-      ticket.startedAt,
+      ticket.employeeStartedAt,
       ticket.proceededAt || ticket.completedAt,
     );
 
@@ -313,7 +313,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   };
 
   const isReceived = ticket.status === "transferred";
-  const hasStarted = ticket.startedAt != null;
+  const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
 
   return (
