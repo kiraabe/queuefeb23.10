@@ -143,6 +143,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       skippedAt: r.skipped_at ? Math.round(Number(r.skipped_at)) : null,
       skippedByWindow: r.skipped_by_window ?? null,
       transferredFromWindow: r.transferred_from_window ?? undefined,
+      transferredToWindow: r.transferred_to_window ?? undefined,
       transferredAt: r.transferred_at
         ? Math.round(Number(r.transferred_at))
         : undefined,
