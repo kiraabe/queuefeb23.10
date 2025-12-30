@@ -165,36 +165,50 @@ export default function Queue() {
     if (ev.type === "display.updated") setDisplay(ev.payload as DisplayState);
   });
 
-  const serving = useMemo(
-    () =>
-      windows
-        .map((window) => {
-          if (!window.currentTicketId) return null;
-          const ticket = tickets[window.currentTicketId];
-          // Include the entry even if ticket object is still loading
-          // Use a fallback with just the ticket ID if the object isn't available yet
-          if (!ticket) {
-            return {
-              window,
-              ticket: {
-                id: window.currentTicketId,
-                service: "S1",
-                code: window.currentTicketId,
-                status: "serving",
-                createdAt: 0,
-                number: 0,
-                windowId: window.id,
-              } as Ticket,
-            };
-          }
-          return { window, ticket };
-        })
-        .filter(
-          (entry): entry is { window: WindowState; ticket: Ticket } =>
-            Boolean(entry),
-        ),
-    [windows, tickets],
-  );
+  const serving = useMemo(() => {
+    // Collect all serving tickets from windows and those proceeded to employees
+    const servingMap = new Map<string, { window: WindowState | null; ticket: Ticket }>();
+
+    // First, add tickets currently assigned to windows
+    windows.forEach((window) => {
+      if (!window.currentTicketId) return;
+      const ticket = tickets[window.currentTicketId];
+      // Include the entry even if ticket object is still loading
+      // Use a fallback with just the ticket ID if the object isn't available yet
+      if (!ticket) {
+        servingMap.set(window.currentTicketId, {
+          window,
+          ticket: {
+            id: window.currentTicketId,
+            service: "S1",
+            code: window.currentTicketId,
+            status: "serving",
+            createdAt: 0,
+            number: 0,
+            windowId: window.id,
+          } as Ticket,
+        });
+      } else {
+        servingMap.set(ticket.id, { window, ticket });
+      }
+    });
+
+    // Then, add all other tickets with 'serving' status that aren't already in the map
+    // These are tickets that have been proceeded to employees
+    Object.values(tickets).forEach((ticket) => {
+      if (
+        ticket.status === "serving" &&
+        !servingMap.has(ticket.id)
+      ) {
+        servingMap.set(ticket.id, {
+          window: null,
+          ticket,
+        });
+      }
+    });
+
+    return Array.from(servingMap.values());
+  }, [windows, tickets]);
 
   // Trigger blinking when a new ticket starts serving
   useEffect(() => {
