@@ -12,11 +12,11 @@ export const tellerStats: RequestHandler = async (req, res) => {
   try {
     const p = getPool();
     const { rows: servedRows } = await p.query(
-      `SELECT COUNT(*)::int AS c
+      `SELECT COUNT(DISTINCT id)::int AS c
        FROM tickets
       WHERE status = 'done'
         AND completed_at >= date_trunc('day', now())
-        AND (window_id = $1 OR transferred_from_window = $1)`,
+        AND (window_id = $1 OR transferred_from_window = $1 OR (transferred_to_user_id IS NOT NULL AND started_at IS NOT NULL AND window_id = $1))`,
       [windowId],
     );
     const { rows: skippedRows } = await p.query(
