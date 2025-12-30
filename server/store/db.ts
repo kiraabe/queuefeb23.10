@@ -1282,9 +1282,13 @@ export async function transferDb(
     }
 
     // Update ticket with transfer info
+    // When transferring to an employee directly (no target window), keep ticket in 'serving' status
+    // When transferring to a window, change to 'transferred' status
+    const newStatus = finalTargetWindowId ? 'transferred' : 'serving';
+
     // Reset started_at and started_by_user_id when transferring to an employee (new start)
     const tRes = await client.query(
-      `UPDATE tickets SET status='transferred', window_id=$1, transferred_from_window=$2, transferred_to_window=$3, transferred_to_user_id=$6, transferred_at=now(), started_at=NULL, started_by_user_id=NULL, proceeded_at=NULL, remark=$5 WHERE id=$4 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, transferred_to_window, transferred_to_user_id, extract(epoch from transferred_at)*1000 as transferred_at, remark;`,
+      `UPDATE tickets SET status=$7, window_id=$1, transferred_from_window=$2, transferred_to_window=$3, transferred_to_user_id=$6, transferred_at=now(), started_at=NULL, started_by_user_id=NULL, proceeded_at=now(), remark=$5 WHERE id=$4 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, transferred_to_window, transferred_to_user_id, extract(epoch from transferred_at)*1000 as transferred_at, remark;`,
       [
         finalTargetWindowId || null,
         windowId,
@@ -1292,6 +1296,7 @@ export async function transferDb(
         source.currentTicketId,
         remark,
         transferredToUserId,
+        newStatus,
       ],
     );
 
