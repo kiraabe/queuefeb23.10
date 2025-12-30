@@ -665,9 +665,25 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
       ticketCode: r.ticket_code,
     }));
 
+    // If ticketId is provided, calculate the sum of all employees' durations for that ticket
+    let sumEmployeesDurationSeconds: number | null = null;
+    if (ticketId) {
+      const sumRes = await p.query(
+        `SELECT SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))) as total_duration
+         FROM employee_case_performance ecp
+         WHERE ecp.ticket_id = $1
+           AND ecp.ended_at IS NOT NULL`,
+        [ticketId],
+      );
+      sumEmployeesDurationSeconds = sumRes.rows[0]?.total_duration
+        ? Math.round(Number(sumRes.rows[0].total_duration))
+        : null;
+    }
+
     res.json({
       items,
       total: Number(countRes.rows[0]?.total || 0),
+      sumEmployeesDurationSeconds,
     });
   } catch (error) {
     console.error("Failed to fetch performance metrics:", error);
