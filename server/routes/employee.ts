@@ -418,13 +418,14 @@ export const proceedCase: RequestHandler = async (req, res) => {
       await client.query("BEGIN");
 
       // Update ticket to transfer to next employee, record proceed time
+      // Keep ticket in 'serving' status so it remains in active queue
       const updateRes = await client.query(
         `UPDATE tickets
          SET transferred_to_user_id = $1,
              transferred_at = now(),
              proceeded_at = now(),
              job_title_for_proceed = $2,
-             status = 'transferred'
+             status = 'serving'
          WHERE id = $3 AND transferred_to_user_id = $4
          RETURNING id`,
         [nextEmployeeId, jobTitleId, caseId, userId],
