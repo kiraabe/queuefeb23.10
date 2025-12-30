@@ -98,7 +98,7 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
              SELECT 1 FROM employee_case_performance ecp2
              WHERE ecp2.ticket_id = t.id AND ecp2.employee_id = $1
            )
-         ORDER BY t.completed_at DESC
+         ORDER BY t.id, t.completed_at DESC
          LIMIT $2 OFFSET $3`,
         [userId, limit, offset],
       );
