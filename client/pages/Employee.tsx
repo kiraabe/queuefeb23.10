@@ -247,7 +247,9 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!ticket.employeeStartedAt || ticket.proceededAt || ticket.completedAt) {
+    // Only skip elapsed time if the case is completed (status = 'done')
+    // Don't skip if ticket.proceededAt is set from a previous employee
+    if (!ticket.employeeStartedAt || ticket.completedAt) {
       setElapsedTime(null);
       return;
     }
@@ -265,7 +267,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     setElapsedTime(elapsed);
 
     return () => clearInterval(interval);
-  }, [ticket.employeeStartedAt, ticket.proceededAt, ticket.completedAt]);
+  }, [ticket.employeeStartedAt, ticket.completedAt]);
 
   // Use elapsed time for in-progress, otherwise calculate from start to end
   const duration =
