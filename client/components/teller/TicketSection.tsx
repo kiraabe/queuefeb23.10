@@ -131,7 +131,8 @@ export function TicketSection({
 }
 
 function TicketRow({ ticket }: { ticket: Ticket }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Auto-expand completed tickets by default
+  const [isExpanded, setIsExpanded] = useState(ticket.status === "done");
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
