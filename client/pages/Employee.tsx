@@ -440,6 +440,7 @@ export default function Employee() {
     queryKey: ["employee-history"],
     queryFn: () => apiFetch<EmployeeTicketsResponse>("/api/employee/history"),
     refetchInterval: 10000,
+    enabled: !!user && user.role === "employee",
   });
 
   const usersQuery = useQuery({
