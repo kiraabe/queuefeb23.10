@@ -613,10 +613,12 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
         u.username,
         u.full_name,
-        t.code as ticket_code
+        t.code as ticket_code,
+        jt.name as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
+      LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
       WHERE ecp.employee_id = $1
     `;
 
@@ -652,6 +654,7 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
         ? Math.round(r.duration_seconds)
         : null,
       employeeName: r.full_name || r.username,
+      jobTitle: r.job_title_name || "No Title",
       ticketCode: r.ticket_code,
     }));
 
@@ -663,6 +666,70 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
     console.error("Failed to fetch performance metrics:", error);
     res.status(500).json({
       error: "Failed to fetch performance metrics. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+// Public endpoint for viewing case workflow (used by supervisors and tellers)
+export const caseWorkflow: RequestHandler = async (req, res) => {
+  const ticketId = req.query.ticketId as string | undefined;
+
+  if (!ticketId) {
+    return res.status(400).json({ error: "Missing ticketId parameter" });
+  }
+
+  const p = getPool();
+
+  try {
+    const query = `
+      SELECT
+        ecp.id,
+        ecp.ticket_id,
+        ecp.employee_id,
+        ecp.job_title_id,
+        extract(epoch from ecp.started_at)*1000 as started_at,
+        extract(epoch from ecp.ended_at)*1000 as ended_at,
+        ecp.status,
+        EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
+        u.username,
+        u.full_name,
+        t.code as ticket_code,
+        jt.name as job_title_name
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      LEFT JOIN tickets t ON ecp.ticket_id = t.id
+      LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+      WHERE ecp.ticket_id = $1
+      ORDER BY ecp.started_at ASC
+    `;
+
+    const { rows } = await p.query(query, [ticketId]);
+
+    const items = rows.map((r) => ({
+      id: r.id,
+      ticketId: r.ticket_id,
+      employeeId: r.employee_id,
+      jobTitleId: r.job_title_id,
+      startedAt: r.started_at ? Math.round(r.started_at) : null,
+      endedAt: r.ended_at ? Math.round(r.ended_at) : null,
+      status: r.status,
+      durationSeconds: r.duration_seconds
+        ? Math.round(r.duration_seconds)
+        : null,
+      employeeName: r.full_name || r.username || "Unknown",
+      jobTitle: r.job_title_name || "No Title",
+      ticketCode: r.ticket_code,
+    }));
+
+    res.json({
+      items,
+      total: items.length,
+    });
+  } catch (error) {
+    console.error("Failed to fetch case workflow:", error);
+    res.status(500).json({
+      error: "Failed to fetch case workflow. Please try again later.",
       details: error instanceof Error ? error.message : String(error),
     });
   }
