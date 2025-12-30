@@ -328,6 +328,9 @@ export function createServer() {
     completeCase,
   );
 
+  // Case workflow endpoint (public - for supervisors/tellers viewing completed case workflows)
+  app.get("/api/employee/case-workflow", caseWorkflow);
+
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
