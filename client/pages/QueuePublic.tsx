@@ -186,7 +186,7 @@ export default function QueuePublic() {
   }, [display, serving, waitingQueue]);
 
   const actionMessage =
-    serving.length > 0 || display?.current
+    serving.length > 0 || (display?.current.length ?? 0) > 0
       ? "Please proceed when called"
       : "Please proceed to waiting area";
 
