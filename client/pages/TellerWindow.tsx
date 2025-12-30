@@ -444,6 +444,30 @@ export default function TellerWindow() {
         e?.message || "An unexpected error occurred. Please try again later.",
       ),
   });
+  const complete = useMutation({
+    mutationFn: async () =>
+      apiFetch(`/api/windows/${windowId}/complete`, {
+        method: "POST",
+      }),
+    onSuccess: (data: any) => {
+      if (data?.ticket) {
+        toast.success(`Ticket ${data.ticket.code} completed successfully.`);
+        qc.invalidateQueries({
+          queryKey: ["teller-tickets", windowId],
+          exact: false,
+        }).catch(() => {});
+        qc.invalidateQueries({
+          queryKey: ["teller-stats", windowId],
+        }).catch(() => {});
+      } else {
+        toast.message("No active ticket to complete");
+      }
+    },
+    onError: (e: any) =>
+      toast.error(
+        e?.message || "An unexpected error occurred. Please try again later.",
+      ),
+  });
   const transfer = useMutation({
     mutationFn: async ({
       targetWindowId,
