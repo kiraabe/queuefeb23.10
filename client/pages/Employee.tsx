@@ -432,6 +432,7 @@ export default function Employee() {
         `/api/employee/tickets?tab=${encodeURIComponent(tab)}`,
       ),
     refetchInterval: 5000,
+    enabled: tab !== "history",
   });
 
   const historyQuery = useQuery({
