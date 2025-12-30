@@ -586,7 +586,19 @@ export function requireRole(roles: UserRole[]): RequestHandler {
   return async (req, res, next) => {
     const result = await authenticateRequest(req, res, { touch: true });
     if (!result.ok) return respondWithAuthError(res, result);
-    if (!roles.includes(result.session.role)) {
+
+    const userRole = result.session.role;
+    const hasPermission = roles.includes(userRole);
+
+    if (!hasPermission) {
+      console.warn(`[Auth] Access denied: user role '${userRole}' not in allowed roles [${roles.join(", ")}]`, {
+        userId: result.session.userId,
+        username: result.session.username,
+        userRole,
+        allowedRoles: roles,
+        path: req.path,
+        method: req.method,
+      });
       return res.status(403).json({
         error:
           "Access denied. You do not have permission to perform this action.",
