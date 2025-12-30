@@ -174,15 +174,21 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
 
   return (
     <>
-      <div className="rounded-lg border border-border/50 bg-background/50 p-3">
+      <div
+        className={`rounded-lg border p-3 transition-all ${
+          ticket.status === "done"
+            ? "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10"
+            : "border-border/50 bg-background/50"
+        }`}
+      >
         <div className="flex items-start justify-between">
-          <div>
+          <div className="flex-1">
             <p className="font-semibold text-foreground">{ticket.code}</p>
             <p className="text-sm text-muted-foreground">
               {ticket.ownerName || "—"}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {ticket.status === "done" && (
               <Button
                 variant="ghost"
@@ -201,16 +207,16 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
               </Button>
             )}
             <span
-              className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+              className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${
                 ticket.status === "done"
-                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                  ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-100"
                   : ticket.status === "skipped"
-                    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                    ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100"
                     : ticket.status === "serving"
-                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                      ? "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                       : ticket.status === "transferred"
-                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                        ? "bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
+                        : "bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
               }`}
             >
               {ticket.status}
