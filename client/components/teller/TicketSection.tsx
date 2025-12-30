@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import { CaseWorkflowTimeline } from "./CaseWorkflowTimeline";
 import { CompletedTicketSummary } from "./CompletedTicketSummary";
+import { ProcessFlowChart } from "./ProcessFlowChart";
+import { useQuery } from "@tanstack/react-query";
+import { apiFetch } from "@/lib/api";
 
 interface TicketSectionProps {
   items: Ticket[];
