@@ -711,12 +711,15 @@ export default function TellerWindow() {
         )
         .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
     }
-    // serving only
+    // serving: show all tickets in serving status related to this window
+    // This includes: currently being served, transferred out, or transferred in
     return all
       .filter(
         (t) =>
           t.status === "serving" &&
-          t.windowId === windowId &&
+          (t.windowId === windowId ||
+            t.transferredFromWindow === windowId ||
+            t.transferredToWindow === windowId) &&
           isWithin24Hours(t.createdAt),
       )
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
