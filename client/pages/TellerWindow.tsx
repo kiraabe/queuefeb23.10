@@ -699,10 +699,12 @@ export default function TellerWindow() {
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
     if (tab === "proceed") {
+      // Show tickets that have been transferred but not yet completed
+      // (either transferred from this window or transferred to this window)
       return all
         .filter(
           (t) =>
-            t.status === "transferred" &&
+            t.status === "serving" &&
             (t.transferredToWindow === windowId ||
               t.transferredFromWindow === windowId) &&
             isWithin24Hours(t.transferredAt),
