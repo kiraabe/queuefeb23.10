@@ -34,11 +34,23 @@ export const tellerStats: RequestHandler = async (req, res) => {
       WHERE w.id = $1 AND t.status IN ('serving','transferred')`,
       [windowId],
     );
-    const { rows: waitingRows } = await p.query(
-      `SELECT COUNT(*)::int AS c
-       FROM tickets
-      WHERE status = 'waiting'`,
+    // Get service categories for this window
+    const { rows: windowServicesRows } = await p.query(
+      `SELECT DISTINCT service_category_code FROM window_services WHERE window_id=$1`,
+      [windowId],
     );
+    const serviceCodes = windowServicesRows.map((r) => r.service_category_code);
+
+    // Count waiting tickets for this window's service categories
+    let waitingQuery = `SELECT COUNT(*)::int AS c FROM tickets WHERE status = 'waiting'`;
+    const waitingParams: any[] = [];
+
+    if (serviceCodes.length > 0) {
+      waitingQuery += ` AND service_category = ANY($1)`;
+      waitingParams.push(serviceCodes);
+    }
+
+    const { rows: waitingRows } = await p.query(waitingQuery, waitingParams);
     const { rows: avgRows } = await p.query(
       `SELECT AVG(EXTRACT(EPOCH FROM (completed_at - started_at))) AS avg_seconds
        FROM tickets
