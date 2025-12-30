@@ -126,73 +126,167 @@ export function CaseWorkflowTimeline({
     }
   };
 
+  const totalDuration = items.reduce((sum, item) => {
+    return sum + (item.durationSeconds || 0);
+  }, 0);
+
+  if (compact) {
+    // Compact view for inline display
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {items.map((step, index) => (
+            <div key={step.id} className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1">
+                <span className="text-xs font-medium text-foreground">
+                  {step.employeeName}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {formatTime(step.durationSeconds)}
+                </span>
+              </div>
+              {index < items.length - 1 && (
+                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Card className="mt-4 border-border/70 bg-card/80">
+    <Card className="mt-4 border-border/70 bg-gradient-to-br from-card via-card to-card/90">
       <CardHeader>
-        <CardTitle className="text-sm">Case Workflow</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Case Workflow Timeline</CardTitle>
+          <div className="rounded-full bg-primary/10 px-3 py-1">
+            <p className="text-xs font-semibold text-primary">
+              {items.length} step{items.length !== 1 ? "s" : ""} •{" "}
+              {formatTime(totalDuration)}
+            </p>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {items.map((step, index) => (
             <div key={step.id}>
               <div
-                className={`rounded-lg border-2 p-4 ${getActionColor(step.status)}`}
+                className={`rounded-lg border-2 p-4 transition-all hover:shadow-md ${getActionColor(
+                  step.status,
+                )}`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">{getActionIcon(step.status)}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">
-                          {step.employeeName || "Unknown Employee"}
-                        </p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                          <Briefcase className="h-3 w-3" />
-                          {step.jobTitle || "No Title"}
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 flex-shrink-0">
+                    {getActionIcon(step.status)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-foreground truncate">
+                            {step.employeeName || "Unknown Employee"}
+                          </p>
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${
+                              step.status === "Completed"
+                                ? "bg-green-200 text-green-900 dark:bg-green-900 dark:text-green-100"
+                                : step.status === "Proceeded"
+                                  ? "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-100"
+                                  : "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                            }`}
+                          >
+                            {step.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
+                          <Briefcase className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">
+                            {step.jobTitle || "No Title"}
+                          </span>
                         </p>
                       </div>
-                      <span
-                        className={`inline-block rounded px-2 py-1 text-xs font-medium whitespace-nowrap ml-2 ${
-                          step.status === "Completed"
-                            ? "bg-green-200 text-green-900 dark:bg-green-900 dark:text-green-100"
-                            : step.status === "Proceeded"
-                              ? "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-100"
-                              : "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                        }`}
-                      >
-                        {step.status}
-                      </span>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {formatTime(step.durationSeconds)}
-                        </span>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2 bg-background/40 rounded px-2 py-1.5">
+                        <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Duration
+                          </p>
+                          <p className="font-semibold text-foreground">
+                            {formatTime(step.durationSeconds)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right text-xs text-muted-foreground">
-                        {formatDateTime(step.startedAt)}
+                      <div className="flex items-center gap-2 bg-background/40 rounded px-2 py-1.5">
+                        <User className="h-4 w-4 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Started At
+                          </p>
+                          <p className="font-semibold text-foreground text-xs">
+                            {formatDateTime(step.startedAt)}
+                          </p>
+                        </div>
                       </div>
                     </div>
+
+                    {step.endedAt && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Ended at:{" "}
+                        <span className="font-medium text-foreground">
+                          {formatDateTime(step.endedAt)}
+                        </span>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {index < items.length - 1 && (
-                <div className="flex justify-center py-2">
-                  <ArrowRight className="h-5 w-5 rotate-90 text-muted-foreground" />
+                <div className="flex justify-center py-3">
+                  <div className="relative flex items-center">
+                    <ArrowRight className="h-5 w-5 rotate-90 text-primary/40" />
+                  </div>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-4 rounded-lg bg-muted/50 p-3">
-          <p className="text-xs text-muted-foreground">
-            <strong>Total participants:</strong> {items.length}{" "}
-            {items.length === 1 ? "employee" : "employees"}
-          </p>
+        <div className="mt-6 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Participants
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {items.length}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Total Duration
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {formatTime(totalDuration)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Case Status
+              </p>
+              <div className="flex items-center gap-1 mt-1">
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <span className="font-bold text-green-600 dark:text-green-400">
+                  Completed
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
