@@ -349,12 +349,19 @@ export const updateUser: RequestHandler = async (req, res) => {
       paramCount++;
     }
 
-    if (updates.length === 0) {
+    if (updates.length === 0 && role === undefined) {
+      // Get current role
+      const currentRoleRes = await p.query(
+        `SELECT role FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC LIMIT 1`,
+        [id],
+      );
+      const currentRole = currentRoleRes.rows[0]?.role || null;
+
       return res.json({
         user: {
           id: currentUser.id,
           username: currentUser.username,
-          role: currentUser.role,
+          role: currentRole,
           windowId: currentUser.window_id,
           disabled: currentUser.disabled,
           fullName: currentUser.full_name,
