@@ -1368,6 +1368,8 @@ export async function displayStateDb(): Promise<DisplayState> {
     client.release();
   }
 
+  // Get all tickets in "serving" status (includes window-bound and employee-proceeded tickets)
+  // Order by: window-bound tickets first (by window update time), then employee tickets (by proceed time, then started time)
   const currentRes = await p.query(
     `SELECT t.id,
             t.service,
@@ -1375,11 +1377,11 @@ export async function displayStateDb(): Promise<DisplayState> {
             t.status,
             t.window_id,
             extract(epoch from t.created_at)*1000 as created_at,
-            extract(epoch from w.updated_at)*1000 as updated_at
-       FROM windows w
-       JOIN tickets t ON t.id = w.current_ticket_id
+            extract(epoch from COALESCE(w.updated_at, t.proceeded_at, t.started_at, t.created_at))*1000 as updated_at
+       FROM tickets t
+       LEFT JOIN windows w ON t.id = w.current_ticket_id
        WHERE t.status = 'serving'
-       ORDER BY w.updated_at DESC
+       ORDER BY COALESCE(w.updated_at, t.proceeded_at, t.started_at, t.created_at) DESC
        LIMIT 1`,
   );
   const waitingRes = await p.query(
