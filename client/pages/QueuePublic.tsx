@@ -111,8 +111,9 @@ export default function QueuePublic() {
         return;
       }
 
+      const currentTicket = display?.current?.find((t) => t.id === ticketId);
       const fallbackCode =
-        (display?.current?.id === ticketId && display.current.code) ||
+        (currentTicket && currentTicket.code) ||
         (display?.next?.id === ticketId && display.next.code) ||
         (display?.nextAfter?.id === ticketId && display.nextAfter.code) ||
         display?.waiting.find((entry) => entry.id === ticketId)?.code;
