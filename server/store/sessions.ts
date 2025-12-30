@@ -207,7 +207,7 @@ export async function listSessions(
 ): Promise<SessionSummary[]> {
   const p = getPool();
   const { rows } = await p.query(
-    `SELECT id, user_id, username, role, window_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason
+    `SELECT id, user_id, username, role, window_id, job_title_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason
      FROM user_sessions
      ORDER BY last_seen_at DESC`,
   );
