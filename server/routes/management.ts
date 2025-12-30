@@ -31,30 +31,38 @@ export const listUsers: RequestHandler = async (req, res) => {
     const p = getPool();
     const jobTitleId = (req.query.jobTitleId as string) || null;
 
-    let query = `SELECT id, username, role, window_id, disabled, full_name, department, email, phone, job_title_id FROM users`;
+    let query = `SELECT u.id, u.username, u.window_id, u.disabled, u.full_name, u.department, u.email, u.phone, u.job_title_id,
+                        STRING_AGG(ur.role, ',') as roles
+                 FROM users u
+                 LEFT JOIN user_roles ur ON u.id = ur.user_id`;
     const params: any[] = [];
 
     if (jobTitleId) {
-      query += ` WHERE job_title_id = $1`;
+      query += ` WHERE u.job_title_id = $1`;
       params.push(jobTitleId);
     }
 
-    query += ` ORDER BY role, username`;
+    query += ` GROUP BY u.id, u.username, u.window_id, u.disabled, u.full_name, u.department, u.email, u.phone, u.job_title_id
+               ORDER BY u.username`;
 
     const { rows } = await p.query(query, params);
 
-    const users = rows.map((r) => ({
-      id: r.id,
-      username: r.username,
-      role: r.role,
-      windowId: r.window_id,
-      disabled: r.disabled,
-      fullName: r.full_name,
-      department: r.department,
-      email: r.email,
-      phone: r.phone,
-      jobTitleId: r.job_title_id,
-    }));
+    const users = rows.map((r) => {
+      const rolesArray = r.roles ? r.roles.split(',') : [];
+      return {
+        id: r.id,
+        username: r.username,
+        role: rolesArray[0] || null,
+        roles: rolesArray,
+        windowId: r.window_id,
+        disabled: r.disabled,
+        fullName: r.full_name,
+        department: r.department,
+        email: r.email,
+        phone: r.phone,
+        jobTitleId: r.job_title_id,
+      };
+    });
 
     if (jobTitleId) {
       console.log(
