@@ -208,6 +208,26 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
     );
+    // Migrate from old 'role' column to new 'active_role' column
+    try {
+      const checkRoleColumn = await p.query(
+        `SELECT column_name FROM information_schema.columns
+         WHERE table_name='user_sessions' AND column_name='role'`,
+      );
+      if (checkRoleColumn.rows.length > 0) {
+        // Old role column exists, migrate data
+        await p.query(
+          `UPDATE user_sessions SET active_role = role WHERE active_role IS NULL AND role IS NOT NULL;`,
+        );
+        // Drop the old role column
+        await p.query(`ALTER TABLE user_sessions DROP COLUMN IF EXISTS role;`);
+      }
+    } catch (err) {
+      console.log(
+        "User sessions role migration skipped (already removed or error):",
+        err?.message,
+      );
+    }
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)`,
     );
