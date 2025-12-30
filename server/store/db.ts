@@ -1282,9 +1282,9 @@ export async function transferDb(
     }
 
     // Update ticket with transfer info
-    // When transferring to an employee directly (no target window), keep ticket in 'serving' status
-    // When transferring to a window, change to 'transferred' status
-    const newStatus = finalTargetWindowId ? "transferred" : "serving";
+    // Always keep ticket in 'serving' status until it's completed
+    // This ensures the ticket remains visible in the Ongoing queue regardless of transfers
+    const newStatus = "serving";
 
     // Reset started_at and started_by_user_id when transferring to an employee (new start)
     const tRes = await client.query(
