@@ -38,7 +38,7 @@ export interface SessionRecord {
   id: string;
   userId: string;
   username: string;
-  role: UserRole;
+  activeRole: UserRole;
   windowId: number | null;
   jobTitleId: string | null;
   tokenHash: string;
