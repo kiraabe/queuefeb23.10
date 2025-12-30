@@ -1204,7 +1204,11 @@ export async function transferDb(
       } else {
         // Employee transfer without window - check if user exists
         const userCheckRes = await client.query(
-          `SELECT id, full_name, role, username FROM users WHERE id=$1 LIMIT 1`,
+          `SELECT u.id, u.full_name, u.username, ur.role FROM users u
+           LEFT JOIN user_roles ur ON u.id = ur.user_id
+           WHERE u.id=$1
+           ORDER BY ur.is_primary DESC NULLS LAST
+           LIMIT 1`,
           [targetUserId],
         );
 
@@ -1220,7 +1224,7 @@ export async function transferDb(
 
         // Accept any role except 'admin' and 'reception' (they typically don't handle tickets)
         const restrictedRoles = ["admin", "reception"];
-        if (restrictedRoles.includes(targetUser.role)) {
+        if (targetUser.role && restrictedRoles.includes(targetUser.role)) {
           console.error(
             `[Transfer] Invalid role for user ${targetUser.username}: ${targetUser.role}`,
           );
@@ -1247,9 +1251,12 @@ export async function transferDb(
       }
       finalTargetWindowId = targetWindowId;
 
-      // Get the user assigned to the target window
+      // Get the user assigned to the target window with 'teller' role
       const userRes = await client.query(
-        `SELECT id FROM users WHERE window_id=$1 AND role='teller' LIMIT 1`,
+        `SELECT u.id FROM users u
+         INNER JOIN user_roles ur ON u.id = ur.user_id
+         WHERE u.window_id=$1 AND ur.role='teller'
+         LIMIT 1`,
         [targetWindowId],
       );
       transferredToUserId = userRes.rows[0]?.id || null;
