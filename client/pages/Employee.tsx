@@ -269,13 +269,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     return () => clearInterval(interval);
   }, [ticket.employeeStartedAt, ticket.completedAt]);
 
-  // Use elapsed time for in-progress, otherwise calculate from start to end
+  // Use elapsed time for in-progress, only calculate from start to end for completed cases
   const duration =
     elapsedTime ??
-    calculateDuration(
-      ticket.employeeStartedAt,
-      ticket.proceededAt || ticket.completedAt,
-    );
+    (ticket.status === "done"
+      ? calculateDuration(ticket.employeeStartedAt, ticket.completedAt)
+      : null);
 
   const statusColor =
     ticket.status === "done"
