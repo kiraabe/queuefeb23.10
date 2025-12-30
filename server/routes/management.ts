@@ -159,7 +159,7 @@ export const createUser: RequestHandler = async (req, res) => {
     const { rows } = await p.query(
       `INSERT INTO users (id, username, password_hash, window_id, disabled, full_name, department, email, phone, job_title_id)
        VALUES ($1, $2, $3, $4, false, $5, $6, $7, $8, $9)
-       RETURNING id, username, window_id, full_name, department, email, phone, job_title_id`,
+       RETURNING id, username, window_id, disabled, full_name, department, email, phone, job_title_id`,
       [
         userId,
         usernameTrimmed,
@@ -517,7 +517,9 @@ export const listWindows: RequestHandler = async (_req, res) => {
     const { rows } = await p.query(
       `SELECT w.id, w.name, COUNT(u.id)::int as teller_count
        FROM windows w
-       LEFT JOIN users u ON w.id = u.window_id AND u.role = 'teller'
+       LEFT JOIN users u ON w.id = u.window_id
+       LEFT JOIN user_roles ur ON u.id = ur.user_id AND ur.role = 'teller'
+       WHERE ur.role IS NOT NULL OR u.id IS NULL
        GROUP BY w.id, w.name
        ORDER BY w.id`,
     );
@@ -740,7 +742,11 @@ export const assignTellerToWindow: RequestHandler = async (req, res) => {
 
     // Verify user is a teller
     const userRes = await p.query(
-      `SELECT id, role, window_id FROM users WHERE id = $1`,
+      `SELECT u.id, u.window_id, ur.role FROM users u
+       LEFT JOIN user_roles ur ON u.id = ur.user_id
+       WHERE u.id = $1
+       ORDER BY ur.is_primary DESC NULLS LAST
+       LIMIT 1`,
       [userId],
     );
     if (!userRes.rows.length) {
@@ -767,7 +773,7 @@ export const assignTellerToWindow: RequestHandler = async (req, res) => {
 
     // Update user window assignment
     const { rows } = await p.query(
-      `UPDATE users SET window_id = $1 WHERE id = $2 RETURNING id, username, role, window_id`,
+      `UPDATE users SET window_id = $1 WHERE id = $2 RETURNING id, username, window_id`,
       [windowId || null, userId],
     );
 
@@ -776,6 +782,13 @@ export const assignTellerToWindow: RequestHandler = async (req, res) => {
     }
 
     const updatedUser = rows[0];
+    // Get role from user_roles
+    const roleRes = await p.query(
+      `SELECT role FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC LIMIT 1`,
+      [userId],
+    );
+    const userRole = roleRes.rows[0]?.role || null;
+
     const auth = (req as any).auth;
     await logAudit({
       action: "teller.assigned",
@@ -790,7 +803,7 @@ export const assignTellerToWindow: RequestHandler = async (req, res) => {
       user: {
         id: updatedUser.id,
         username: updatedUser.username,
-        role: updatedUser.role,
+        role: userRole,
         windowId: updatedUser.window_id,
       },
       message: "Teller assigned successfully",
@@ -830,7 +843,10 @@ export const resetWindowPassword: RequestHandler = async (req, res) => {
 
     // Check if window user exists (teller must be assigned first)
     const userRes = await p.query(
-      `SELECT id FROM users WHERE window_id = $1 AND role = 'teller' LIMIT 1`,
+      `SELECT u.id FROM users u
+       INNER JOIN user_roles ur ON u.id = ur.user_id
+       WHERE u.window_id = $1 AND ur.role = 'teller'
+       LIMIT 1`,
       [id],
     );
 
@@ -890,7 +906,11 @@ export const resetUserPassword: RequestHandler = async (req, res) => {
 
     // Check if user exists
     const userRes = await p.query(
-      `SELECT id, username, role FROM users WHERE id = $1`,
+      `SELECT u.id, u.username, ur.role FROM users u
+       LEFT JOIN user_roles ur ON u.id = ur.user_id
+       WHERE u.id = $1
+       ORDER BY ur.is_primary DESC NULLS LAST
+       LIMIT 1`,
       [userId],
     );
 
@@ -899,9 +919,10 @@ export const resetUserPassword: RequestHandler = async (req, res) => {
     }
 
     const user = userRes.rows[0];
+    const userRole = user.role || "user";
 
     // Generate new password
-    const newPassword = `${user.role}_${user.username}_${Date.now()}`;
+    const newPassword = `${userRole}_${user.username}_${Date.now()}`;
     const passwordHash = hashPassword(newPassword);
 
     // Update user password
