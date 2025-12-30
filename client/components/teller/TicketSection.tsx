@@ -137,6 +137,44 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   // Auto-expand completed tickets by default
   const [isExpanded, setIsExpanded] = useState(ticket.status === "done");
 
+  // Fetch workflow data for completed tickets
+  const { data: performanceData } = useQuery({
+    queryKey: ["case-workflow-process", ticket.id],
+    queryFn: async () => {
+      const response = await apiFetch(
+        `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
+      );
+      return response;
+    },
+    enabled: ticket.status === "done",
+  });
+
+  // Convert performance data to process steps
+  const processSteps = useMemo(() => {
+    if (!performanceData?.items) return [];
+
+    const formatTime = (seconds: number | null) => {
+      if (!seconds) return "—";
+      if (seconds < 60) return `${Math.round(seconds)}s`;
+      if (seconds < 3600) {
+        const minutes = Math.round(seconds / 60);
+        return `${minutes}m`;
+      }
+      const hours = Math.round(seconds / 3600);
+      const minutes = Math.round((seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    };
+
+    return performanceData.items.map((item: any, index: number) => ({
+      id: item.id,
+      number: index + 1,
+      employeeName: item.employeeName || "Unknown",
+      action: item.status === "completed" ? "Completed" : item.status === "proceeded" ? "Proceeded" : "Started",
+      duration: formatTime(item.durationSeconds),
+      durationSeconds: item.durationSeconds,
+    }));
+  }, [performanceData]);
+
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
     return `Window ${windowId}`;
