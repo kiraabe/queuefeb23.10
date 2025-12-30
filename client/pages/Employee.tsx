@@ -103,7 +103,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   // For in-progress cases, show duration to the latest proceed time
   const duration = calculateDuration(
     ticket.startedAt,
-    isComplete ? ticket.completedAt : (ticket.proceededAt || ticket.completedAt),
+    isComplete ? ticket.completedAt : ticket.proceededAt || ticket.completedAt,
   );
   const status = isComplete
     ? "Completed"
@@ -223,7 +223,9 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
 
             return (
               <div key={perf.id} className="space-y-2">
-                <div className={`rounded-lg border ${borderColor} ${bgColor} p-3 text-xs`}>
+                <div
+                  className={`rounded-lg border ${borderColor} ${bgColor} p-3 text-xs`}
+                >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -266,7 +268,9 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                       <p className="font-semibold text-foreground">
                         {formatDuration(perf.durationSeconds)}
                       </p>
-                      <p className="text-muted-foreground text-xs">time spent</p>
+                      <p className="text-muted-foreground text-xs">
+                        time spent
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -276,9 +280,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                       <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                         ↓
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        to
-                      </span>
+                      <span className="text-xs text-muted-foreground">to</span>
                     </div>
                   </div>
                 )}
