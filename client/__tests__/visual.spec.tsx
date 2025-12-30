@@ -65,7 +65,7 @@ beforeEach(() => {
       return new Response(
         JSON.stringify({
           state: {
-            current: null,
+            current: [],
             next: { id: "t2", code: "002", createdAt: Date.now() },
             nextAfter: { id: "t3", code: "003", createdAt: Date.now() },
             waiting: [
