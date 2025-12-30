@@ -335,7 +335,7 @@ export const handleStartCase: RequestHandler = async (req, res) => {
       let jobTitleId = ticket.service_category;
 
       // Only the first employee to start the case sets the ticket.started_at
-      if (ticket.started_at === null) {
+      if (!ticket.started_at) {
         await client.query(
           `UPDATE tickets
            SET started_at = now(),
