@@ -167,7 +167,10 @@ export default function Queue() {
 
   const serving = useMemo(() => {
     // Collect all serving tickets from windows and those proceeded to employees
-    const servingMap = new Map<string, { window: WindowState | null; ticket: Ticket }>();
+    const servingMap = new Map<
+      string,
+      { window: WindowState | null; ticket: Ticket }
+    >();
 
     // First, add tickets currently assigned to windows
     windows.forEach((window) => {
@@ -196,10 +199,7 @@ export default function Queue() {
     // Then, add all other tickets with 'serving' status that aren't already in the map
     // These are tickets that have been proceeded to employees
     Object.values(tickets).forEach((ticket) => {
-      if (
-        ticket.status === "serving" &&
-        !servingMap.has(ticket.id)
-      ) {
+      if (ticket.status === "serving" && !servingMap.has(ticket.id)) {
         servingMap.set(ticket.id, {
           window: null,
           ticket,
@@ -273,7 +273,10 @@ export default function Queue() {
   const hasLiveQueue = useMemo(() => {
     if (serving.length > 0) return true;
     if (waitingQueue.length > 0) return true;
-    if (display && (display.current.length > 0 || display.next || display.nextAfter))
+    if (
+      display &&
+      (display.current.length > 0 || display.next || display.nextAfter)
+    )
       return true;
     return false;
   }, [display, serving, waitingQueue]);
