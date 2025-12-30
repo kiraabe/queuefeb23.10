@@ -281,14 +281,8 @@ export const updateUser: RequestHandler = async (req, res) => {
       paramCount++;
     }
 
-    if (role !== undefined && role !== currentUser.role) {
-      if (!["reception", "teller", "admin", "employee"].includes(role)) {
-        return res.status(400).json({ error: "Invalid role" });
-      }
-      updates.push(`role = $${paramCount}`);
-      values.push(role);
-      paramCount++;
-    }
+    // Role changes are handled separately in user_roles table
+    // Skip role from direct user table updates
 
     if (windowId !== undefined && currentUser.role === "teller") {
       updates.push(`window_id = $${paramCount}`);
