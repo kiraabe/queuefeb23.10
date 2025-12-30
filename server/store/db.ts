@@ -147,6 +147,10 @@ export async function initDb() {
     created_at timestamptz not null default now(),
     unique(user_id, role)
   );`);
+    // Add is_primary column if it doesn't exist (for existing installations)
+    await p.query(
+      `ALTER TABLE user_roles ADD COLUMN IF NOT EXISTS is_primary boolean DEFAULT false;`,
+    );
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id)`,
     );
