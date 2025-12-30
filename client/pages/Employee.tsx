@@ -563,11 +563,6 @@ export default function Employee() {
   }, [user?.jobTitleId, jobTitlesQuery.data]);
 
   const tabItems = useMemo(() => {
-    if (tab === "completed") {
-      return tickets
-        .filter((t) => t.status === "done")
-        .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
-    }
     if (tab === "history") {
       const historyTickets = historyQuery.data?.items || [];
       return historyTickets.sort((a, b) => {
@@ -576,7 +571,7 @@ export default function Employee() {
         return bTime - aTime;
       });
     }
-    // received
+    // received (default)
     return tickets
       .filter((t) => t.status === "transferred")
       .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
