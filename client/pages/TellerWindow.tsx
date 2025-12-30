@@ -684,9 +684,9 @@ export default function TellerWindow() {
           (t) =>
             t.status === "done" &&
             (t.windowId === windowId || t.transferredFromWindow === windowId) &&
-            isWithin24Hours(t.createdAt),
+            isWithin24Hours(t.completedAt),
         )
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
     }
     if (tab === "skipped") {
       return all
