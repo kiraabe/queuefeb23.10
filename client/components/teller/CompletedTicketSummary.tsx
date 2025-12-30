@@ -25,7 +25,11 @@ interface CompletedTicketSummaryProps {
 export function CompletedTicketSummary({
   ticket,
 }: CompletedTicketSummaryProps) {
-  const { data: performanceData, isPending, isError } = useQuery({
+  const {
+    data: performanceData,
+    isPending,
+    isError,
+  } = useQuery({
     queryKey: ["case-workflow-summary", ticket.id],
     queryFn: async () => {
       const response = await apiFetch(

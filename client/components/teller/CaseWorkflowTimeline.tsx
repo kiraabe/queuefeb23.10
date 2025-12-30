@@ -79,7 +79,8 @@ export function CaseWorkflowTimeline({
                   No employee workflow data available
                 </p>
                 <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                  This case was completed directly without going through the employee workflow.
+                  This case was completed directly without going through the
+                  employee workflow.
                   {ticket.completedAt && (
                     <>
                       <br />

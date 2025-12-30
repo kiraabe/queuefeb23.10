@@ -169,7 +169,12 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
       id: item.id,
       number: index + 1,
       employeeName: item.employeeName || "Unknown",
-      action: item.status === "completed" ? "Completed" : item.status === "proceeded" ? "Proceeded" : "Started",
+      action:
+        item.status === "completed"
+          ? "Completed"
+          : item.status === "proceeded"
+            ? "Proceeded"
+            : "Started",
       duration: formatTime(item.durationSeconds),
       durationSeconds: item.durationSeconds,
     }));
