@@ -370,12 +370,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             ? new Date(ticket.employeeStartedAt).toLocaleTimeString()
             : "—"}
         </p>
-        {isReceived && ticket.employeeStartedAt && elapsedTime !== null && elapsedTime < 0 && (
-          <p className="text-xs text-muted-foreground">
-            (Awaiting next action)
-          </p>
-        )}
-        {!isReceived && (ticket.proceededAt || ticket.completedAt) && (
+        {(ticket.proceededAt || ticket.completedAt) && (
           <p className="text-xs text-muted-foreground">
             to{" "}
             {new Date(
