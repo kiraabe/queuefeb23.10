@@ -566,12 +566,16 @@ export const employeeHistory: RequestHandler = async (req, res) => {
     );
 
     const { rows } = await p.query(
-      `SELECT DISTINCT ON (t.id) ${selectTicketColumns}
-       FROM tickets t
-       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
-       WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
-         AND t.created_at >= date_trunc('day', now())
-       ORDER BY t.id, COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
+      `SELECT ${selectTicketColumns}
+       FROM (
+         SELECT DISTINCT t.id
+         FROM tickets t
+         LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+         WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
+           AND t.created_at >= date_trunc('day', now())
+       ) distinct_tickets
+       JOIN tickets t ON t.id = distinct_tickets.id
+       ORDER BY COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
        LIMIT $2 OFFSET $3`,
       [userId, limit, offset],
     );
