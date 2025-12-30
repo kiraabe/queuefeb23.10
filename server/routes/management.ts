@@ -144,14 +144,17 @@ export const createUser: RequestHandler = async (req, res) => {
     const passwordHash = hashPassword(finalPassword);
     const p = getPool();
 
+    const userId = crypto.randomUUID();
+
+    // Insert user without role column
     const { rows } = await p.query(
-      `INSERT INTO users (id, username, password_hash, role, window_id, disabled, full_name, department, email, phone, job_title_id)
-       VALUES (gen_random_uuid(), $1, $2, $3, $4, false, $5, $6, $7, $8, $9)
-       RETURNING id, username, role, window_id, full_name, department, email, phone, job_title_id`,
+      `INSERT INTO users (id, username, password_hash, window_id, disabled, full_name, department, email, phone, job_title_id)
+       VALUES ($1, $2, $3, $4, false, $5, $6, $7, $8, $9)
+       RETURNING id, username, window_id, full_name, department, email, phone, job_title_id`,
       [
+        userId,
         usernameTrimmed,
         passwordHash,
-        role,
         windowId && role === "teller" ? windowId : null,
         fullName || null,
         department || null,
@@ -166,6 +169,14 @@ export const createUser: RequestHandler = async (req, res) => {
     }
 
     const user = rows[0];
+
+    // Insert role into user_roles table
+    await p.query(
+      `INSERT INTO user_roles (user_id, role, is_primary)
+       VALUES ($1, $2, true)`,
+      [userId, role],
+    );
+
     const auth = (req as any).auth;
     await logAudit({
       action: "user.created",
@@ -179,7 +190,7 @@ export const createUser: RequestHandler = async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        role: user.role,
+        role: role,
         windowId: user.window_id,
         fullName: user.full_name,
         department: user.department,
