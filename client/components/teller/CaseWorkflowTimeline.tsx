@@ -1,13 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Ticket } from "@shared/api";
 import { apiFetch } from "@/lib/api";
-import {
-  CheckCircle2,
-  ArrowRight,
-  Clock,
-  User,
-  Briefcase,
-} from "lucide-react";
+import { CheckCircle2, ArrowRight, Clock, User, Briefcase } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EmployeeStep {
@@ -28,7 +22,7 @@ export function CaseWorkflowTimeline({ ticket }: CaseWorkflowTimelineProps) {
     queryKey: ["case-workflow", ticket.id],
     queryFn: async () => {
       const response = await apiFetch(
-        `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`
+        `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
       );
       return response;
     },
@@ -47,9 +41,7 @@ export function CaseWorkflowTimeline({ ticket }: CaseWorkflowTimelineProps) {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-4">
-            <p className="text-sm text-muted-foreground">
-              Loading workflow...
-            </p>
+            <p className="text-sm text-muted-foreground">Loading workflow...</p>
           </div>
         </CardContent>
       </Card>

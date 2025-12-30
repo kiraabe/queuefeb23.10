@@ -2,7 +2,13 @@ import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Ticket } from "@shared/api";
-import { ChevronLeft, ChevronRight, ArrowRight, Calendar, ChevronDown } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Calendar,
+  ChevronDown,
+} from "lucide-react";
 import { CaseWorkflowTimeline } from "./CaseWorkflowTimeline";
 
 interface TicketSectionProps {
@@ -181,7 +187,9 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="h-8 w-8 p-0"
-                aria-label={isExpanded ? "Collapse workflow" : "Expand workflow"}
+                aria-label={
+                  isExpanded ? "Collapse workflow" : "Expand workflow"
+                }
               >
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
@@ -190,17 +198,17 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
                 />
               </Button>
             )}
-                <span
+            <span
               className={`inline-block rounded px-2 py-1 text-xs font-medium ${
-            ticket.status === "done"
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-              : ticket.status === "skipped"
-                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                : ticket.status === "serving"
-                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
-                  : ticket.status === "transferred"
-                    ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
-                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                ticket.status === "done"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                  : ticket.status === "skipped"
+                    ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                    : ticket.status === "serving"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                      : ticket.status === "transferred"
+                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
               }`}
             >
               {ticket.status}
@@ -208,78 +216,78 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           </div>
         </div>
 
-      {ticket.status === "transferred" && (
-        <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
-              Transfer Info
-            </span>
-          </div>
-          <div className="mt-2 flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground font-medium">
-              {ticket.transferredFromWindow
-                ? getWindowName(ticket.transferredFromWindow)
-                : "—"}
-            </span>
-            <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            <span className="text-muted-foreground font-medium">
-              {ticket.transferredToWindow
-                ? getWindowName(ticket.transferredToWindow)
-                : "—"}
-            </span>
-          </div>
-          {ticket.transferredAt && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-              <Calendar className="h-3 w-3" />
-              <span>{formatDate(ticket.transferredAt)}</span>
+        {ticket.status === "transferred" && (
+          <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                Transfer Info
+              </span>
             </div>
-          )}
-          {ticket.remark && extractReason(ticket.remark) && (
-            <div className="mt-2 pt-2 border-t border-purple-200 dark:border-purple-800">
-              <p className="text-xs font-medium text-purple-700 dark:text-purple-300">
-                Transfer Reason
-              </p>
-              <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
-                {extractReason(ticket.remark)}
-              </p>
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground font-medium">
+                {ticket.transferredFromWindow
+                  ? getWindowName(ticket.transferredFromWindow)
+                  : "—"}
+              </span>
+              <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <span className="text-muted-foreground font-medium">
+                {ticket.transferredToWindow
+                  ? getWindowName(ticket.transferredToWindow)
+                  : "—"}
+              </span>
             </div>
-          )}
-        </div>
-      )}
+            {ticket.transferredAt && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                <Calendar className="h-3 w-3" />
+                <span>{formatDate(ticket.transferredAt)}</span>
+              </div>
+            )}
+            {ticket.remark && extractReason(ticket.remark) && (
+              <div className="mt-2 pt-2 border-t border-purple-200 dark:border-purple-800">
+                <p className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                  Transfer Reason
+                </p>
+                <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
+                  {extractReason(ticket.remark)}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
-      {ticket.selectedServices && ticket.selectedServices.length > 0 && (
-        <div className="mt-2 rounded bg-blue-50/50 p-2 dark:bg-blue-950/20">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
-            Selected Services
-          </p>
-          <ul className="mt-1 space-y-1">
-            {ticket.selectedServices.map((serviceName, index) => (
-              <li
-                key={index}
-                className="text-xs text-blue-600 dark:text-blue-400"
-              >
-                • {serviceName}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {ticket.selectedServices && ticket.selectedServices.length > 0 && (
+          <div className="mt-2 rounded bg-blue-50/50 p-2 dark:bg-blue-950/20">
+            <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+              Selected Services
+            </p>
+            <ul className="mt-1 space-y-1">
+              {ticket.selectedServices.map((serviceName, index) => (
+                <li
+                  key={index}
+                  className="text-xs text-blue-600 dark:text-blue-400"
+                >
+                  • {serviceName}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {ticket.notes && (
-        <p className="mt-2 text-sm text-muted-foreground">
-          Notes: {ticket.notes}
-        </p>
-      )}
-      {ticket.status === "skipped" && ticket.remark && (
-        <div className="mt-2 rounded bg-red-50/50 p-2 dark:bg-red-950/20">
-          <p className="text-xs font-medium text-red-700 dark:text-red-300">
-            Skip Reason
+        {ticket.notes && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Notes: {ticket.notes}
           </p>
-          <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-            {extractSkipReason(ticket.remark) || "No reason provided"}
-          </p>
-        </div>
-      )}
+        )}
+        {ticket.status === "skipped" && ticket.remark && (
+          <div className="mt-2 rounded bg-red-50/50 p-2 dark:bg-red-950/20">
+            <p className="text-xs font-medium text-red-700 dark:text-red-300">
+              Skip Reason
+            </p>
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+              {extractSkipReason(ticket.remark) || "No reason provided"}
+            </p>
+          </div>
+        )}
         {ticket.woreda && (
           <p className="mt-1 text-xs text-muted-foreground">
             Woreda: {ticket.woreda}
