@@ -284,10 +284,18 @@ export const updateUser: RequestHandler = async (req, res) => {
     // Role changes are handled separately in user_roles table
     // Skip role from direct user table updates
 
-    if (windowId !== undefined && currentUser.role === "teller") {
-      updates.push(`window_id = $${paramCount}`);
-      values.push(windowId || null);
-      paramCount++;
+    if (windowId !== undefined) {
+      // Only allow window assignment for users with teller role
+      const userRolesRes = await p.query(
+        `SELECT role FROM user_roles WHERE user_id = $1`,
+        [id],
+      );
+      const userRoles = userRolesRes.rows.map((r) => r.role);
+      if (userRoles.includes("teller")) {
+        updates.push(`window_id = $${paramCount}`);
+        values.push(windowId || null);
+        paramCount++;
+      }
     }
 
     if (disabled !== undefined) {
