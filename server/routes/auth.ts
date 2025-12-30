@@ -617,6 +617,79 @@ export function requireTellerForWindowParam(paramName: string): RequestHandler {
   };
 }
 
+export const switchRole: RequestHandler = async (req, res) => {
+  const cookies = parseCookies(req.headers.cookie || "");
+  const token = cookies[SESSION_COOKIE];
+  if (!token)
+    return res.status(401).json({
+      error: "Not authenticated",
+      message: "Please sign in first.",
+      code: "NO_SESSION",
+    });
+
+  const session = await findSessionByToken(token);
+  if (!session || session.revokedAt) {
+    res.setHeader("Set-Cookie", buildSessionClearCookie());
+    return res.json({
+      error: "Session invalid",
+      message: "Your session has expired. Please sign in again.",
+      code: "SESSION_INVALIDATED",
+    });
+  }
+
+  const body = (req.body || {}) as { role?: string };
+  const desiredRole = (body.role || "").trim() as UserRole;
+
+  if (!desiredRole) {
+    return res.status(400).json({
+      error: "Missing role",
+      message: "Please specify a role to switch to.",
+    });
+  }
+
+  if (!["reception", "teller", "admin", "employee"].includes(desiredRole)) {
+    return res.status(400).json({
+      error: "Invalid role",
+      message: "The specified role is not valid.",
+    });
+  }
+
+  // Get user's available roles from the database
+  const p = getPool();
+  const { rows } = await p.query(
+    `SELECT role FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC`,
+    [session.userId],
+  );
+
+  const availableRoles = rows.map((r) => r.role as UserRole);
+
+  if (!availableRoles.includes(desiredRole)) {
+    return res.status(403).json({
+      error: "Access denied",
+      message: `You do not have permission to access the ${desiredRole} role.`,
+      code: "UNAUTHORIZED",
+    });
+  }
+
+  // Update the session's active role
+  await p.query(
+    `UPDATE user_sessions SET active_role = $2 WHERE id = $1`,
+    [session.id, desiredRole],
+  );
+
+  // Fetch the updated session
+  const updatedSession = await findSessionByToken(token);
+  if (!updatedSession) {
+    return res.status(500).json({
+      error: "Failed to switch role",
+      message: "Could not update your session.",
+    });
+  }
+
+  const user = toAuthUserFromSession(updatedSession);
+  res.json({ user, message: `Switched to ${desiredRole} role` });
+};
+
 export const listSessionsHandler: RequestHandler = async (_req, res) => {
   const sessions = await listSessions();
   const payload: ListSessionsResponse = { sessions };
