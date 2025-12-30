@@ -660,7 +660,7 @@ export default function Employee() {
           <CardHeader>
             <CardTitle>Cases</CardTitle>
             <CardDescription>
-              View your received and completed cases for today
+              View your received cases and case history
             </CardDescription>
           </CardHeader>
           <CardContent>
