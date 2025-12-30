@@ -126,7 +126,6 @@ export async function initDb() {
     id uuid primary key,
     username text not null unique,
     password_hash text not null,
-    role text not null check (role in ('reception','teller','admin','employee')),
     window_id int,
     full_name text,
     department text,
@@ -138,6 +137,40 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS disabled boolean DEFAULT false;`,
     );
+
+    // Create user_roles junction table to support multiple roles per user
+    await p.query(`CREATE TABLE IF NOT EXISTS user_roles (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null references users(id) on delete cascade,
+    role text not null check (role in ('reception','teller','admin','employee')),
+    is_primary boolean default false,
+    created_at timestamptz not null default now(),
+    unique(user_id, role)
+  );`);
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id)`,
+    );
+
+    // Migrate existing users with role to user_roles table
+    // First, check if users still have the role column
+    try {
+      const result = await p.query(
+        `SELECT column_name FROM information_schema.columns
+         WHERE table_name='users' AND column_name='role'`,
+      );
+      if (result.rows.length > 0) {
+        // Column exists, migrate data
+        await p.query(`
+          INSERT INTO user_roles (user_id, role, is_primary)
+          SELECT id, role, true FROM users WHERE role IS NOT NULL
+          ON CONFLICT (user_id, role) DO NOTHING;
+        `);
+        // Drop the old role column after migration
+        await p.query(`ALTER TABLE users DROP COLUMN IF EXISTS role;`);
+      }
+    } catch (err) {
+      console.log("Role column migration skipped (already removed or error):", err?.message);
+    }
     // Add teller info columns if they don't exist
     await p.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text;`);
     await p.query(
