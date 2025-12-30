@@ -228,6 +228,17 @@ export async function initDb() {
         err?.message,
       );
     }
+    // Ensure active_role is NOT NULL
+    try {
+      await p.query(
+        `ALTER TABLE user_sessions ALTER COLUMN active_role SET NOT NULL;`,
+      );
+    } catch (err) {
+      console.log(
+        "Setting active_role NOT NULL constraint skipped:",
+        err?.message,
+      );
+    }
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_user_sessions_token_hash ON user_sessions(token_hash)`,
     );
