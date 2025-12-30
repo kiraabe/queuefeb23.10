@@ -81,7 +81,23 @@ export function CaseWorkflowTimeline({
   const formatDateTime = (timestamp: number) => {
     if (!timestamp) return "—";
     const date = new Date(timestamp);
-    return date.toLocaleTimeString();
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  const formatFullDateTime = (timestamp: number) => {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   const getActionColor = (action: string) => {
