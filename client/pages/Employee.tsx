@@ -376,10 +376,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         )}
         {ticket.employeeStartedAt && ticket.status === "done" && (
           <p className="text-xs text-muted-foreground">
-            to{" "}
-            {new Date(
-              ticket.completedAt || 0,
-            ).toLocaleTimeString()}
+            to {new Date(ticket.completedAt || 0).toLocaleTimeString()}
           </p>
         )}
         {isReceived && (
