@@ -360,7 +360,7 @@ export const updateUser: RequestHandler = async (req, res) => {
     }
 
     values.push(id);
-    const query = `UPDATE users SET ${updates.join(", ")} WHERE id = $${paramCount} RETURNING id, username, role, window_id, disabled, full_name, department, email, phone, job_title_id`;
+    const query = `UPDATE users SET ${updates.join(", ")} WHERE id = $${paramCount} RETURNING id, username, window_id, disabled, full_name, department, email, phone, job_title_id`;
 
     const { rows } = await p.query(query, values);
     if (!rows.length) {
@@ -368,6 +368,45 @@ export const updateUser: RequestHandler = async (req, res) => {
     }
 
     const user = rows[0];
+
+    // Handle role changes separately in user_roles table
+    let userRole: string | null = null;
+    if (role !== undefined && !["reception", "teller", "admin", "employee"].includes(role)) {
+      return res.status(400).json({ error: "Invalid role" });
+    }
+
+    if (role !== undefined) {
+      // Update role in user_roles table
+      // First get current role
+      const currentRoleRes = await p.query(
+        `SELECT role FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC LIMIT 1`,
+        [id],
+      );
+      const currentRole = currentRoleRes.rows[0]?.role;
+
+      if (currentRole !== role) {
+        // Delete old primary role and set new one
+        await p.query(
+          `DELETE FROM user_roles WHERE user_id = $1 AND role = $2`,
+          [id, currentRole],
+        );
+        await p.query(
+          `INSERT INTO user_roles (user_id, role, is_primary)
+           VALUES ($1, $2, true)
+           ON CONFLICT (user_id, role) DO UPDATE SET is_primary = true`,
+          [id, role],
+        );
+      }
+      userRole = role;
+    } else {
+      // Get current role if not updating
+      const currentRoleRes = await p.query(
+        `SELECT role FROM user_roles WHERE user_id = $1 ORDER BY is_primary DESC LIMIT 1`,
+        [id],
+      );
+      userRole = currentRoleRes.rows[0]?.role || null;
+    }
+
     const auth = (req as any).auth;
     await logAudit({
       action: "user.updated",
@@ -381,7 +420,7 @@ export const updateUser: RequestHandler = async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        role: user.role,
+        role: userRole,
         windowId: user.window_id,
         disabled: user.disabled,
         fullName: user.full_name,
