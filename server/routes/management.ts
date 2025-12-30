@@ -145,7 +145,7 @@ export const createUser: RequestHandler = async (req, res) => {
     const passwordHash = hashPassword(finalPassword);
     const p = getPool();
 
-    const userId = crypto.randomUUID();
+    const userId = randomUUID();
 
     // Insert user without role column
     const { rows } = await p.query(
