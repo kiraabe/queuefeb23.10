@@ -695,7 +695,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         u.username,
         u.full_name,
         t.code as ticket_code,
-        jt.name as job_title_name
+        COALESCE(jt.name_english, jt.name_amharic, 'No Title') as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
