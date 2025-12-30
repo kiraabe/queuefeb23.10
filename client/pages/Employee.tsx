@@ -144,9 +144,9 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
               </div>
               <div>
                 <span className="font-medium">Ended:</span>{" "}
-                {ticket.proceededAt || ticket.completedAt
+                {ticket.completedAt || ticket.proceededAt
                   ? new Date(
-                      ticket.proceededAt || ticket.completedAt || 0,
+                      ticket.completedAt || ticket.proceededAt || 0,
                     ).toLocaleTimeString()
                   : "—"}
               </div>
