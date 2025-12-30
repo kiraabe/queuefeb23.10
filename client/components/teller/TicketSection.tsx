@@ -301,6 +301,11 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             Woreda: {ticket.woreda}
           </p>
         )}
+
+        {/* Show summary for completed tickets when not expanded */}
+        {ticket.status === "done" && !isExpanded && (
+          <CompletedTicketSummary ticket={ticket} />
+        )}
       </div>
 
       {ticket.status === "done" && isExpanded && (
