@@ -25,10 +25,10 @@ interface CaseWorkflowTimelineProps {
 
 export function CaseWorkflowTimeline({ ticket }: CaseWorkflowTimelineProps) {
   const { data: performanceData, isPending } = useQuery({
-    queryKey: ["case-performance", ticket.id],
+    queryKey: ["case-workflow", ticket.id],
     queryFn: async () => {
       const response = await apiFetch(
-        `/api/employee/performance?ticketId=${encodeURIComponent(ticket.id)}`
+        `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`
       );
       return response;
     },
