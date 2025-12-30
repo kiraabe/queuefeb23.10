@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Ticket } from "@shared/api";
+import type { Ticket } from "@shared/api";
 import { apiFetch } from "@/lib/api";
 import {
   ArrowRight,
