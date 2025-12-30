@@ -214,9 +214,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
                     ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100"
                     : ticket.status === "serving"
                       ? "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
-                      : ticket.status === "transferred"
-                        ? "bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
-                        : "bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                      : "bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
               }`}
             >
               {ticket.status}
