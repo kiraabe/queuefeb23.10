@@ -184,7 +184,7 @@ export async function initDb() {
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     username text not null,
-    role text not null check (role in ('reception','teller','admin','employee')),
+    active_role text not null check (active_role in ('reception','teller','admin','employee')),
     window_id int,
     job_title_id uuid,
     token_hash text not null unique,
