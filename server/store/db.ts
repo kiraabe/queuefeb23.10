@@ -1965,17 +1965,44 @@ export async function getUserByWindow(windowId: number): Promise<{
   username: string;
   password_hash: string;
   role: "reception" | "teller" | "admin" | "employee";
+  roles: ("reception" | "teller" | "admin" | "employee")[];
   window_id: number | null;
   disabled?: boolean | null;
   full_name?: string | null;
   job_title_id?: string | null;
 } | null> {
   try {
-    const { rows } = await getPool().query(
-      `SELECT id, username, password_hash, role, window_id, disabled, full_name, job_title_id FROM users WHERE window_id=$1 LIMIT 1`,
+    const p = getPool();
+    const { rows } = await p.query(
+      `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id
+       FROM users u
+       WHERE u.window_id=$1 LIMIT 1`,
       [windowId],
     );
-    return rows[0] || null;
+
+    if (!rows[0]) return null;
+
+    const user = rows[0];
+    // Fetch all roles for this user
+    const rolesRes = await p.query(
+      `SELECT role, is_primary FROM user_roles WHERE user_id=$1 ORDER BY is_primary DESC, created_at ASC`,
+      [user.id],
+    );
+
+    const roles = rolesRes.rows.map((r) => r.role);
+    const primaryRole = rolesRes.rows.find((r) => r.is_primary)?.role || roles[0] || null;
+
+    return {
+      id: user.id,
+      username: user.username,
+      password_hash: user.password_hash,
+      role: primaryRole,
+      roles,
+      window_id: user.window_id || null,
+      disabled: user.disabled,
+      full_name: user.full_name,
+      job_title_id: user.job_title_id,
+    };
   } catch (error) {
     throw error;
   }
