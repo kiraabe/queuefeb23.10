@@ -1378,7 +1378,7 @@ export async function displayStateDb(): Promise<DisplayState> {
             extract(epoch from w.updated_at)*1000 as updated_at
        FROM windows w
        JOIN tickets t ON t.id = w.current_ticket_id
-       WHERE t.status IN ('serving','transferred')
+       WHERE t.status = 'serving'
        ORDER BY w.updated_at DESC
        LIMIT 1`,
   );
