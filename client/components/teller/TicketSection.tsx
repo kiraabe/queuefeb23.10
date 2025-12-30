@@ -342,12 +342,19 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
         )}
 
         {/* Show summary for completed tickets when not expanded */}
-        {/* Show summary or timeline for completed tickets */}
-        {ticket.status === "done" && (
-          <>
-            {!isExpanded && <CompletedTicketSummary ticket={ticket} />}
-            {isExpanded && <CaseWorkflowTimeline ticket={ticket} />}
-          </>
+        {/* Show process flow chart for completed tickets */}
+        {ticket.status === "done" && processSteps.length > 0 && (
+          <ProcessFlowChart ticket={ticket} steps={processSteps} />
+        )}
+
+        {/* Show summary or timeline for completed tickets without workflow data */}
+        {ticket.status === "done" && processSteps.length === 0 && (
+          <CompletedTicketSummary ticket={ticket} />
+        )}
+
+        {/* Show detailed timeline when expanded */}
+        {ticket.status === "done" && isExpanded && (
+          <CaseWorkflowTimeline ticket={ticket} />
         )}
       </div>
     </>
