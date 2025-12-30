@@ -325,7 +325,7 @@ export const handleStartCase: RequestHandler = async (req, res) => {
          FROM tickets
          WHERE id = $1
            AND transferred_to_user_id = $2
-           AND status = 'transferred'`,
+           AND (status = 'transferred' OR status = 'serving')`,
         [caseId, userId],
       );
 
