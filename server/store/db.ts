@@ -201,7 +201,10 @@ export async function initDb() {
     revoked_at timestamptz,
     revoke_reason text
   );`);
-    // Add job_title_id column if it doesn't exist (for existing installations)
+    // Add missing columns if they don't exist (for existing installations)
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS active_role text CHECK (active_role in ('reception','teller','admin','employee'));`,
+    );
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
     );
