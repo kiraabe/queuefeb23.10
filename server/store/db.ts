@@ -322,11 +322,16 @@ export async function initDb() {
     ticket_id uuid not null references tickets(id) on delete cascade,
     employee_id uuid not null references users(id) on delete cascade,
     job_title_id uuid references job_title(id) on delete set null,
-    started_at timestamptz not null,
+    started_at timestamptz,
     ended_at timestamptz,
     status text check (status in ('in_progress', 'completed', 'proceeded')),
     created_at timestamptz not null default now()
   );`);
+
+    // Alter column to allow NULL for started_at (for cases where performance tracking hasn't started yet)
+    await p.query(
+      `ALTER TABLE employee_case_performance ALTER COLUMN started_at DROP NOT NULL;`,
+    ).catch(() => {});
 
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_employee_case_performance_ticket ON employee_case_performance(ticket_id)`,
