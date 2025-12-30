@@ -49,7 +49,7 @@ export function CaseWorkflowTimeline({
     return (
       <Card className="mt-4 border-border/70 bg-card/80">
         <CardHeader>
-          <CardTitle className="text-sm">Case Workflow</CardTitle>
+          <CardTitle className="text-sm">Case Workflow Timeline</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-4">
@@ -63,7 +63,39 @@ export function CaseWorkflowTimeline({
   const items = performanceData?.items || [];
 
   if (!items || items.length === 0) {
-    return null;
+    return (
+      <Card className="mt-4 border-border/70 bg-card/80">
+        <CardHeader>
+          <CardTitle className="text-sm">Case Workflow Timeline</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/50 p-4">
+            <div className="flex items-start gap-3">
+              <div className="text-amber-600 dark:text-amber-400 mt-0.5">
+                <AlertCircle className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                  No employee workflow data available
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                  This case was completed directly without going through the employee workflow.
+                  {ticket.completedAt && (
+                    <>
+                      <br />
+                      Completed on:{" "}
+                      <span className="font-semibold">
+                        {new Date(ticket.completedAt).toLocaleString()}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const formatTime = (seconds: number | null) => {
