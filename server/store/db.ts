@@ -1381,8 +1381,7 @@ export async function displayStateDb(): Promise<DisplayState> {
        FROM tickets t
        LEFT JOIN windows w ON t.id = w.current_ticket_id
        WHERE t.status = 'serving'
-       ORDER BY COALESCE(w.updated_at, t.proceeded_at, t.started_at, t.created_at) DESC
-       LIMIT 1`,
+       ORDER BY COALESCE(w.updated_at, t.proceeded_at, t.started_at, t.created_at) DESC`,
   );
   const waitingRes = await p.query(
     `SELECT id,
@@ -1409,7 +1408,7 @@ export async function displayStateDb(): Promise<DisplayState> {
         : undefined,
   });
 
-  const current = currentRes.rowCount ? mapRow(currentRes.rows[0]) : null;
+  const current = currentRes.rows.map(mapRow);
   const waitingTickets = waitingRes.rows.map(mapRow);
   const [next, nextAfter, ...rest] = waitingTickets;
 
