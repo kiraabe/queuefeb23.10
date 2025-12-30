@@ -151,9 +151,11 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                 <span className="font-medium">Duration:</span>{" "}
                 {formatDuration(duration)}
               </div>
-              {isProceed && ticket.transferredToUserId && (
+              {ticket.transferredToUserId && (
                 <div>
-                  <span className="font-medium">Forwarded To:</span>{" "}
+                  <span className="font-medium">
+                    {isProceed ? "Forwarded To:" : "Last Forwarded To:"}
+                  </span>{" "}
                   {userMap?.get(ticket.transferredToUserId) ||
                     ticket.transferredToUserId}
                 </div>
