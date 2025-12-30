@@ -63,7 +63,7 @@ export interface DisplayTicket {
 }
 
 export interface DisplayState {
-  current: DisplayTicket | null;
+  current: DisplayTicket[]; // All tickets currently being served (includes window-bound and employee-proceeded)
   next: DisplayTicket | null;
   nextAfter: DisplayTicket | null;
   waiting: DisplayTicket[];
