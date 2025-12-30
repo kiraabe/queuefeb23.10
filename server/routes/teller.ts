@@ -290,22 +290,29 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     });
   }
 
-  // default completed - show tickets that were served/completed by this window OR transferred from this window
+  // default completed - show tickets that were:
+  // 1. Served/completed by this window (window_id = $1)
+  // 2. Transferred FROM this window (transferred_from_window = $1)
+  // 3. Transferred TO employees from this window and then completed (transferred_from_window = $1 through window history)
   const countRes = await p.query(
-    `SELECT COUNT(*)::int AS total
-       FROM tickets
-      WHERE status = 'done'
-        AND completed_at >= date_trunc('day', now())
-        AND (window_id = $1 OR transferred_from_window = $1)`,
+    `SELECT COUNT(DISTINCT t.id)::int AS total
+       FROM tickets t
+      WHERE t.status = 'done'
+        AND t.completed_at >= date_trunc('day', now())
+        AND (t.window_id = $1
+          OR t.transferred_from_window = $1
+          OR (t.transferred_to_user_id IS NOT NULL AND t.started_at IS NOT NULL AND t.window_id = $1))`,
     [windowId],
   );
   const { rows } = await p.query(
-    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
-       FROM tickets
-      WHERE status = 'done'
-        AND completed_at >= date_trunc('day', now())
-        AND (window_id = $1 OR transferred_from_window = $1)
-      ORDER BY completed_at DESC
+    `SELECT DISTINCT ON (t.id) id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
+       FROM tickets t
+      WHERE t.status = 'done'
+        AND t.completed_at >= date_trunc('day', now())
+        AND (t.window_id = $1
+          OR t.transferred_from_window = $1
+          OR (t.transferred_to_user_id IS NOT NULL AND t.started_at IS NOT NULL AND t.window_id = $1))
+      ORDER BY t.id, t.completed_at DESC
       LIMIT $2 OFFSET $3`,
     [windowId, limit, offset],
   );
