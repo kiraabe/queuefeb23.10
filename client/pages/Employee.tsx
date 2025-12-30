@@ -433,7 +433,7 @@ export default function Employee() {
         `/api/employee/tickets?tab=${encodeURIComponent(tab)}`,
       ),
     refetchInterval: 5000,
-    enabled: tab !== "history",
+    enabled: !!user && user.role === "employee" && tab !== "history",
   });
 
   const historyQuery = useQuery({
