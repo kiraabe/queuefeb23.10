@@ -265,10 +265,11 @@ export const login: RequestHandler = async (req, res) => {
   const body = (req.body || {}) as LoginRequest & {
     otp?: string;
     mode?: string;
+    role?: string;
   };
   const input = (body.username || "").trim();
   const password = ensurePassword(body.password);
-  const mode = (body.mode || "").trim();
+  const desiredRole = (body.role || "").trim();
 
   if (!input || !password)
     return res.status(400).json({
@@ -281,28 +282,11 @@ export const login: RequestHandler = async (req, res) => {
   const windowId = Number(input);
   const isWindowInput = Number.isInteger(windowId) && windowId >= 1;
 
-  // Validate mode matches input type
-  if (mode === "window" && !isWindowInput) {
-    return res.status(401).json({
-      error: "Invalid window number",
-      message: "Window login requires a valid window number.",
-      code: "INVALID_CREDENTIALS",
-    });
-  }
-
-  if ((mode === "reception" || mode === "admin") && isWindowInput) {
-    return res.status(401).json({
-      error: "Invalid credentials",
-      message: `Invalid username or password.`,
-      code: "INVALID_CREDENTIALS",
-    });
-  }
-
   let userRow;
   let loginKey: string;
   let isWindowLogin = false;
 
-  if (mode === "window" || (isWindowInput && !mode)) {
+  if (isWindowInput) {
     isWindowLogin = true;
     console.log("🔐 Window login attempt:", {
       windowId,
@@ -321,7 +305,6 @@ export const login: RequestHandler = async (req, res) => {
   } else {
     console.log("🔐 User login attempt:", {
       username: input,
-      mode,
       passwordLength: password?.length,
     });
     loginKey = `user_${input}`;
@@ -379,37 +362,6 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Validate role matches login mode
-  if (mode === "window" && userRow.role !== "teller") {
-    const c = incrementAttempt(req, loginKey);
-    if (c >= 10) lockUser(loginKey, 15);
-    return res.status(401).json({
-      error: "Invalid window or password",
-      message: "Invalid window or password.",
-      code: "INVALID_CREDENTIALS",
-    });
-  }
-
-  if (mode === "reception" && userRow.role !== "reception") {
-    const c = incrementAttempt(req, loginKey);
-    if (c >= 10) lockUser(loginKey, 15);
-    return res.status(401).json({
-      error: "Invalid username or password",
-      message: "Invalid username or password.",
-      code: "INVALID_CREDENTIALS",
-    });
-  }
-
-  if (mode === "admin" && userRow.role !== "admin") {
-    const c = incrementAttempt(req, loginKey);
-    if (c >= 10) lockUser(loginKey, 15);
-    return res.status(401).json({
-      error: "Invalid username or password",
-      message: "Invalid username or password.",
-      code: "INVALID_CREDENTIALS",
-    });
-  }
-
   if (userRow.disabled) {
     const accountType = isWindowLogin ? "window" : userRow.role;
     return res.status(403).json({
@@ -456,12 +408,19 @@ export const login: RequestHandler = async (req, res) => {
     }
   }
 
+  // Determine the active role to use for this session
+  // If desiredRole is specified and user has it, use it. Otherwise, use primary role.
+  let activeRole = userRow.role;
+  if (desiredRole && userRow.roles?.includes(desiredRole as any)) {
+    activeRole = desiredRole as any;
+  }
+
   // Success: rotate sessions by revoking previous
   await revokeSessionsForUser(userRow.id, "conflict");
   const { token, session } = await createUserSession({
     userId: userRow.id,
     username: userRow.username,
-    role: userRow.role,
+    activeRole: activeRole,
     windowId: userRow.window_id ?? null,
     jobTitleId: userRow.job_title_id ?? null,
   });
@@ -469,6 +428,7 @@ export const login: RequestHandler = async (req, res) => {
   res.setHeader("Set-Cookie", buildSessionCookie(token));
 
   const user = toAuthUserFromRow(userRow);
+  user.role = activeRole;
   try {
     await logAudit({
       action: "auth.login",
