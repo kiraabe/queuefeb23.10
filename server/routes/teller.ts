@@ -107,6 +107,12 @@ export const tellerTickets: RequestHandler = async (req, res) => {
   const p = getPool();
 
   if (tab === "serving") {
+    // Show all tickets in 'serving' or 'transferred' status related to this window
+    // This includes:
+    // - Tickets currently assigned to this window (window_id = this window)
+    // - Tickets transferred FROM this window (transferred_from_window = this window)
+    // - Tickets transferred TO this window (transferred_to_window = this window)
+    // This ensures transferred tickets remain visible in the Ongoing queue
     const countRes = await p.query(
       `SELECT COUNT(*)::int AS total
          FROM tickets t
