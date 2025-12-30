@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import { getPool, isDbEnabled, listJobTitles } from "../store/db";
 import { hashPassword } from "../utils/auth";
 import { logAudit } from "../store/db";
+import { randomUUID } from "node:crypto";
 
 // Job Title Management
 
