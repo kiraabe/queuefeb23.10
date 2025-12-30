@@ -20,6 +20,7 @@ import Track from "./pages/Track";
 import Login from "./pages/Login";
 import TellerWindow from "./pages/TellerWindow";
 import Admin from "./pages/Admin";
+import RoleSelector from "./pages/RoleSelector";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
