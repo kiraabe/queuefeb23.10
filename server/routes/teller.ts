@@ -293,26 +293,24 @@ export const tellerTickets: RequestHandler = async (req, res) => {
   // default completed - show tickets that were:
   // 1. Served/completed by this window (window_id = $1)
   // 2. Transferred FROM this window (transferred_from_window = $1)
-  // 3. Transferred TO employees from this window and then completed (transferred_from_window = $1 through window history)
+  // 3. Originally from this window but transferred to employees (window_id = $1 with transferred_to_user_id)
   const countRes = await p.query(
-    `SELECT COUNT(DISTINCT t.id)::int AS total
+    `SELECT COUNT(*)::int AS total
        FROM tickets t
       WHERE t.status = 'done'
         AND t.completed_at >= date_trunc('day', now())
         AND (t.window_id = $1
-          OR t.transferred_from_window = $1
-          OR (t.transferred_to_user_id IS NOT NULL AND t.started_at IS NOT NULL AND t.window_id = $1))`,
+          OR t.transferred_from_window = $1)`,
     [windowId],
   );
   const { rows } = await p.query(
-    `SELECT DISTINCT ON (t.id) id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
+    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
        FROM tickets t
       WHERE t.status = 'done'
         AND t.completed_at >= date_trunc('day', now())
         AND (t.window_id = $1
-          OR t.transferred_from_window = $1
-          OR (t.transferred_to_user_id IS NOT NULL AND t.started_at IS NOT NULL AND t.window_id = $1))
-      ORDER BY t.id, t.completed_at DESC
+          OR t.transferred_from_window = $1)
+      ORDER BY t.completed_at DESC
       LIMIT $2 OFFSET $3`,
     [windowId, limit, offset],
   );
