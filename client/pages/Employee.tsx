@@ -672,7 +672,6 @@ export default function Employee() {
             <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList>
                 <TabsTrigger value="received">Received Cases</TabsTrigger>
-                <TabsTrigger value="completed">Completed Cases</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
               </TabsList>
 
