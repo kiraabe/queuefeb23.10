@@ -358,7 +358,7 @@ export function createServer() {
   );
   app.get(
     "/api/admin/job-titles",
-    requireRole(["admin", "employee"]),
+    requireRole(["admin", "employee", "teller"]),
     listJobTitlesHandler,
   );
   app.get(
