@@ -37,18 +37,24 @@ export default function Login() {
     setPending(true);
     try {
       const user = await login(u, p);
-      const to =
-        params.get("redirect") ||
-        (user.role === "admin"
-          ? "/admin"
-          : user.role === "teller" && user.windowId
-            ? `/teller/${user.windowId}`
-            : user.role === "reception"
-              ? "/reception"
-              : user.role === "employee"
-                ? "/employee"
-                : "/");
-      navigate(to);
+
+      // If user has multiple roles, redirect to role selector
+      if (user.roles && user.roles.length > 1) {
+        navigate("/role-selector");
+      } else {
+        const to =
+          params.get("redirect") ||
+          (user.role === "admin"
+            ? "/admin"
+            : user.role === "teller" && user.windowId
+              ? `/teller/${user.windowId}`
+              : user.role === "reception"
+                ? "/reception"
+                : user.role === "employee"
+                  ? "/employee"
+                  : "/");
+        navigate(to);
+      }
     } catch (e: any) {
       setError(
         e?.message || "An unexpected error occurred. Please try again later.",
