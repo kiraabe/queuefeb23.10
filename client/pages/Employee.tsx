@@ -80,29 +80,38 @@ interface PerformanceMetric {
   durationSeconds: number | null;
 }
 
+interface PerformanceMetricsResponse {
+  items: PerformanceMetric[];
+  sumEmployeesDurationSeconds?: number | null;
+}
+
 const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   const [performanceDetails, setPerformanceDetails] = useState<
     PerformanceMetric[]
   >([]);
+  const [sumEmployeesDuration, setSumEmployeesDuration] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     // Fetch performance metrics for this ticket
-    apiFetch<{ items: PerformanceMetric[] }>(
+    apiFetch<PerformanceMetricsResponse>(
       `/api/employee/performance?ticketId=${ticket.id}`,
     )
-      .then((data) => setPerformanceDetails(data.items))
+      .then((data) => {
+        setPerformanceDetails(data.items);
+        setSumEmployeesDuration(data.sumEmployeesDurationSeconds || null);
+      })
       .catch(() => {});
   }, [ticket.id]);
 
   const isProceed = ticket.proceededAt != null;
   const isComplete = ticket.completedAt != null;
 
-  // For completed cases, show total duration from initiation to completion
+  // For completed cases, show total duration from creation to completion (initiation to final)
   // For proceeded cases, show duration to the point it was forwarded
   // For in-progress cases, show duration to the latest proceed time
-  const duration = calculateDuration(
-    ticket.startedAt,
+  const totalDuration = calculateDuration(
+    ticket.createdAt,
     isComplete ? ticket.completedAt : ticket.proceededAt || ticket.completedAt,
   );
   const status = isComplete
