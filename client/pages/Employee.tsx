@@ -89,7 +89,9 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   const [performanceDetails, setPerformanceDetails] = useState<
     PerformanceMetric[]
   >([]);
-  const [sumEmployeesDuration, setSumEmployeesDuration] = useState<number | null>(null);
+  const [sumEmployeesDuration, setSumEmployeesDuration] = useState<
+    number | null
+  >(null);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -207,9 +209,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                 <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {formatDuration(sumEmployeesDuration)}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Employees time
-                </p>
+                <p className="text-xs text-muted-foreground">Employees time</p>
               </div>
             )}
           </div>
