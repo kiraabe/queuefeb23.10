@@ -15,8 +15,8 @@ export const tellerStats: RequestHandler = async (req, res) => {
       `SELECT COUNT(*)::int AS c
        FROM tickets
       WHERE status = 'done'
-        AND window_id = $1
-        AND completed_at >= date_trunc('day', now())`,
+        AND completed_at >= date_trunc('day', now())
+        AND (window_id = $1 OR transferred_from_window = $1)`,
       [windowId],
     );
     const { rows: skippedRows } = await p.query(
