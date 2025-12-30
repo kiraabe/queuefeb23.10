@@ -10,6 +10,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { CaseWorkflowTimeline } from "./CaseWorkflowTimeline";
+import { CompletedTicketSummary } from "./CompletedTicketSummary";
 
 interface TicketSectionProps {
   items: Ticket[];
