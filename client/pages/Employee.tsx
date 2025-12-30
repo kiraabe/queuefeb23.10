@@ -182,6 +182,9 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
             {formatDuration(duration)}
           </div>
           <p className="text-xs text-muted-foreground">
+            {isComplete ? "Total time" : "Elapsed"}
+          </p>
+          <p className="text-xs text-muted-foreground">
             {ticket.startedAt
               ? new Date(ticket.startedAt).toLocaleDateString()
               : "—"}
