@@ -683,7 +683,7 @@ export default function TellerWindow() {
         .filter(
           (t) =>
             t.status === "done" &&
-            t.windowId === windowId &&
+            (t.windowId === windowId || t.transferredFromWindow === windowId) &&
             isWithin24Hours(t.createdAt),
         )
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
