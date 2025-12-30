@@ -385,7 +385,7 @@ export default function Queue() {
                       <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
                         {serving.map(({ window, ticket }) => (
                           <div
-                            key={window.id}
+                            key={ticket.id}
                             className="flex items-center justify-between rounded-xl bg-card/80 p-3"
                           >
                             <span
@@ -399,7 +399,7 @@ export default function Queue() {
                               {ticket.code}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              {window.name}
+                              {window?.name || "Employee"}
                             </span>
                           </div>
                         ))}
@@ -527,7 +527,7 @@ export default function Queue() {
                       <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
                         {serving.map(({ window, ticket }) => (
                           <div
-                            key={window.id}
+                            key={ticket.id}
                             className="flex items-center justify-between rounded-xl bg-card/80 p-3"
                           >
                             <span
@@ -541,7 +541,7 @@ export default function Queue() {
                               {ticket.code}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              {window.name}
+                              {window?.name || "Employee"}
                             </span>
                           </div>
                         ))}
