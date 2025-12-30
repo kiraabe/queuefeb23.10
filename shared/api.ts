@@ -161,6 +161,7 @@ export interface AuthUser {
   id: string;
   username: string;
   role: UserRole;
+  roles?: UserRole[]; // all available roles for this user
   windowId?: number | null; // set for tellers
   fullName?: string; // full name of the user, primarily for tellers
   jobTitleId?: string | null; // job title for employees
