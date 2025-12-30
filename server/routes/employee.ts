@@ -206,13 +206,14 @@ export const employeeStats: RequestHandler = async (req, res) => {
       [userId],
     );
 
-    // Count completed tickets today (transferred to this employee and completed)
+    // Count completed tickets today (completed by this employee or where they participated)
     const { rows: completedRows } = await p.query(
-      `SELECT COUNT(*)::int AS c
+      `SELECT COUNT(DISTINCT t.id)::int AS c
        FROM tickets t
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status = 'done'
-         AND t.transferred_to_user_id = $1
-         AND t.completed_at >= date_trunc('day', now())`,
+         AND t.completed_at >= date_trunc('day', now())
+         AND ecp.employee_id = $1`,
       [userId],
     );
 
