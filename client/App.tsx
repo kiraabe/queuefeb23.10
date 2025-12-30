@@ -34,7 +34,8 @@ function TellerHomeRedirect() {
     return <Navigate to={`/teller/${user.windowId}`} replace />;
   if (user.role === "admin") return <Teller />;
   // If user has multiple roles and is on this page, redirect to role selector
-  if (user.roles && user.roles.length > 1) return <Navigate to="/role-selector" replace />;
+  if (user.roles && user.roles.length > 1)
+    return <Navigate to="/role-selector" replace />;
   return <Navigate to="/" replace />;
 }
 

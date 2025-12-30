@@ -48,7 +48,7 @@ export const listUsers: RequestHandler = async (req, res) => {
     const { rows } = await p.query(query, params);
 
     const users = rows.map((r) => {
-      const rolesArray = r.roles ? r.roles.split(',') : [];
+      const rolesArray = r.roles ? r.roles.split(",") : [];
       return {
         id: r.id,
         username: r.username,
@@ -386,7 +386,10 @@ export const updateUser: RequestHandler = async (req, res) => {
 
     // Handle role changes separately in user_roles table
     let userRole: string | null = null;
-    if (role !== undefined && !["reception", "teller", "admin", "employee"].includes(role)) {
+    if (
+      role !== undefined &&
+      !["reception", "teller", "admin", "employee"].includes(role)
+    ) {
       return res.status(400).json({ error: "Invalid role" });
     }
 

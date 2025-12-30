@@ -597,7 +597,8 @@ export function requireTellerForWindowParam(paramName: string): RequestHandler {
 
     const isAdmin = result.session.activeRole === "admin";
     const isTellerForWindow =
-      result.session.activeRole === "teller" && result.session.windowId === windowId;
+      result.session.activeRole === "teller" &&
+      result.session.windowId === windowId;
 
     if (!isAdmin && !isTellerForWindow) {
       return res.status(403).json({
@@ -675,10 +676,10 @@ export const switchRole: RequestHandler = async (req, res) => {
   }
 
   // Update the session's active role
-  await p.query(
-    `UPDATE user_sessions SET active_role = $2 WHERE id = $1`,
-    [session.id, desiredRole],
-  );
+  await p.query(`UPDATE user_sessions SET active_role = $2 WHERE id = $1`, [
+    session.id,
+    desiredRole,
+  ]);
 
   // Fetch the updated session
   const updatedSession = await findSessionByToken(token);

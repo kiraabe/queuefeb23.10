@@ -3,13 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  KeyRound,
-  Building2,
-  Users,
-  UserCheck,
-  LogOut,
-} from "lucide-react";
+import { KeyRound, Building2, Users, UserCheck, LogOut } from "lucide-react";
 
 const roleConfig = {
   admin: {
@@ -44,7 +38,8 @@ export default function RoleSelector() {
       const role = user.role;
       if (role === "admin") navigate("/admin");
       else if (role === "reception") navigate("/reception");
-      else if (role === "teller" && user.windowId) navigate(`/teller/${user.windowId}`);
+      else if (role === "teller" && user.windowId)
+        navigate(`/teller/${user.windowId}`);
       else if (role === "employee") navigate("/employee");
       else navigate("/");
     }
@@ -63,7 +58,8 @@ export default function RoleSelector() {
       const config = roleConfig[role as keyof typeof roleConfig];
       if (role === "admin") navigate("/admin");
       else if (role === "reception") navigate("/reception");
-      else if (role === "teller" && user.windowId) navigate(`/teller/${user.windowId}`);
+      else if (role === "teller" && user.windowId)
+        navigate(`/teller/${user.windowId}`);
       else if (role === "employee") navigate("/employee");
       else navigate("/");
     } else {
@@ -73,7 +69,8 @@ export default function RoleSelector() {
         // Navigate after switching
         if (role === "admin") navigate("/admin");
         else if (role === "reception") navigate("/reception");
-        else if (role === "teller" && user.windowId) navigate(`/teller/${user.windowId}`);
+        else if (role === "teller" && user.windowId)
+          navigate(`/teller/${user.windowId}`);
         else if (role === "employee") navigate("/employee");
         else navigate("/");
       } catch (error) {
@@ -91,9 +88,12 @@ export default function RoleSelector() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome, {user.fullName || user.username}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Welcome, {user.fullName || user.username}
+          </h1>
           <p className="text-muted-foreground mt-2">
-            You have access to {availableRoles.length} role{availableRoles.length !== 1 ? "s" : ""}. Select one to continue.
+            You have access to {availableRoles.length} role
+            {availableRoles.length !== 1 ? "s" : ""}. Select one to continue.
           </p>
         </div>
 
@@ -107,27 +107,37 @@ export default function RoleSelector() {
               <Card
                 key={role}
                 className={`cursor-pointer transition-all hover:shadow-lg ${
-                  isActive ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                  isActive
+                    ? "border-primary bg-primary/5"
+                    : "hover:border-primary/50"
                 }`}
                 onClick={() => handleRoleSelect(role)}
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${isActive ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                      <div
+                        className={`p-2 rounded-lg ${isActive ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                      >
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
-                        <CardTitle className="text-base">{config.label}</CardTitle>
+                        <CardTitle className="text-base">
+                          {config.label}
+                        </CardTitle>
                         {isActive && (
-                          <p className="text-xs text-primary font-semibold">Currently selected</p>
+                          <p className="text-xs text-primary font-semibold">
+                            Currently selected
+                          </p>
                         )}
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{config.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {config.description}
+                  </p>
                 </CardContent>
               </Card>
             );
@@ -135,11 +145,7 @@ export default function RoleSelector() {
         </div>
 
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />
             Sign Out
           </Button>

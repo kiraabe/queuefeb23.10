@@ -4,7 +4,11 @@ import { apiFetch } from "@/lib/api";
 
 interface AuthContextValue {
   user: AuthUser | null | undefined; // undefined while loading
-  login: (username: string, password: string, role?: string) => Promise<AuthUser>;
+  login: (
+    username: string,
+    password: string,
+    role?: string,
+  ) => Promise<AuthUser>;
   logout: () => Promise<void>;
   switchRole: (role: string) => Promise<AuthUser>;
 }

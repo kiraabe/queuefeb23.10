@@ -169,7 +169,10 @@ export async function initDb() {
         await p.query(`ALTER TABLE users DROP COLUMN IF EXISTS role;`);
       }
     } catch (err) {
-      console.log("Role column migration skipped (already removed or error):", err?.message);
+      console.log(
+        "Role column migration skipped (already removed or error):",
+        err?.message,
+      );
     }
     // Add teller info columns if they don't exist
     await p.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text;`);
@@ -1942,7 +1945,8 @@ export async function getUserByUsername(username: string): Promise<{
     );
 
     const roles = rolesRes.rows.map((r) => r.role);
-    const primaryRole = rolesRes.rows.find((r) => r.is_primary)?.role || roles[0] || null;
+    const primaryRole =
+      rolesRes.rows.find((r) => r.is_primary)?.role || roles[0] || null;
 
     return {
       id: user.id,
@@ -1990,7 +1994,8 @@ export async function getUserByWindow(windowId: number): Promise<{
     );
 
     const roles = rolesRes.rows.map((r) => r.role);
-    const primaryRole = rolesRes.rows.find((r) => r.is_primary)?.role || roles[0] || null;
+    const primaryRole =
+      rolesRes.rows.find((r) => r.is_primary)?.role || roles[0] || null;
 
     return {
       id: user.id,
