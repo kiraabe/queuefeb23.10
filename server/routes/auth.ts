@@ -519,7 +519,7 @@ export const logout: RequestHandler = async (req, res) => {
           action: "auth.logout",
           userId: session.userId,
           username: session.username,
-          role: session.role,
+          role: session.activeRole,
           windowId: session.windowId ?? null,
         });
       } else {
