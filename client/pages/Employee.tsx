@@ -423,6 +423,7 @@ export default function Employee() {
     queryKey: ["employee-stats"],
     queryFn: () => apiFetch<EmployeeStats>("/api/employee/stats"),
     refetchInterval: 10000,
+    enabled: !!user,
   });
 
   const ticketsQuery = useQuery({
