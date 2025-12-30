@@ -353,7 +353,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           <div className="text-sm font-semibold text-foreground">
             {formatDuration(duration)}
           </div>
-          {ticket.startedAt && !ticket.proceededAt && !ticket.completedAt && (
+          {ticket.employeeStartedAt && !ticket.proceededAt && !ticket.completedAt && (
             <div className="flex items-center gap-1">
               <span className="text-xs text-muted-foreground">
                 (in progress
@@ -364,8 +364,8 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          {ticket.startedAt
-            ? new Date(ticket.startedAt).toLocaleTimeString()
+          {ticket.employeeStartedAt
+            ? new Date(ticket.employeeStartedAt).toLocaleTimeString()
             : "—"}
         </p>
         {(ticket.proceededAt || ticket.completedAt) && (
