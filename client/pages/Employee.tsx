@@ -481,6 +481,8 @@ export default function Employee() {
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month">(
     "today"
   );
+  const [historyPage, setHistoryPage] = useState(1);
+  const itemsPerPage = 10;
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<"proceed" | null>(null);
