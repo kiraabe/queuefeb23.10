@@ -774,42 +774,6 @@ export default function TellerWindow() {
             {stats.skippedToday ?? 0}
           </div>
         </Card>
-        <Card
-          className={`border-border/60 bg-card/90 p-4 ${
-            stats.avgHandlingSecondsToday != null &&
-            stats.avgHandlingSecondsToday > 1800
-              ? "border-red-500/50 bg-red-500/10"
-              : ""
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="text-xs uppercase text-muted-foreground">
-              Average Handling Time
-            </div>
-            {stats.avgHandlingSecondsToday != null &&
-              stats.avgHandlingSecondsToday > 1800 && (
-                <AlertCircle className="h-4 w-4 text-red-600" />
-              )}
-          </div>
-          <div
-            className={`mt-1 text-2xl font-semibold ${
-              stats.avgHandlingSecondsToday != null &&
-              stats.avgHandlingSecondsToday > 1800
-                ? "text-red-600"
-                : ""
-            }`}
-          >
-            {stats.avgHandlingSecondsToday != null
-              ? (() => {
-                  const s = Math.round(stats.avgHandlingSecondsToday || 0);
-                  if (s < 60) return `${s} sec`;
-                  const m = Math.floor(s / 60);
-                  const r = s % 60;
-                  return r === 0 ? `${m} min` : `${m} min ${r} sec`;
-                })()
-              : "—"}
-          </div>
-        </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
             Currently Serving
