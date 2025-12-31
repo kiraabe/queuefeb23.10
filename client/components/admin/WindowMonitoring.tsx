@@ -322,22 +322,6 @@ export default function WindowMonitoring() {
                   </div>
                 </div>
 
-                {/* Transfer Details */}
-                {(transferredFrom > 0 || transferredTo > 0) && (
-                  <div className="space-y-2 border-t pt-3 text-xs">
-                    {transferredFrom > 0 && (
-                      <p className="text-muted-foreground">
-                        → Sent to other windows: {transferredFrom}
-                      </p>
-                    )}
-                    {transferredTo > 0 && (
-                      <p className="text-muted-foreground">
-                        ← Received from other windows: {transferredTo}
-                      </p>
-                    )}
-                  </div>
-                )}
-
                 {/* Last Update */}
                 <div className="border-t pt-3 text-xs text-muted-foreground">
                   Last updated: {getLastUpdateDuration(window.updatedAt)}
