@@ -149,7 +149,13 @@ export function TicketSection({
   );
 }
 
-function TicketRow({ ticket }: { ticket: Ticket }) {
+function TicketRow({
+  ticket,
+  userMap,
+}: {
+  ticket: Ticket;
+  userMap: Map<string, string>;
+}) {
   // Auto-expand completed tickets by default
   const [isExpanded, setIsExpanded] = useState(ticket.status === "done");
 
@@ -163,18 +169,6 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
       return response;
     },
     enabled: ticket.status === "done",
-  });
-
-  // Fetch user information for transferred-to employee
-  const { data: transferredToUser } = useQuery({
-    queryKey: ["user-info", ticket.transferredToUserId],
-    queryFn: async () => {
-      const response = await apiFetch(
-        `/api/admin/users?userId=${encodeURIComponent(ticket.transferredToUserId!)}`,
-      );
-      return response;
-    },
-    enabled: !!ticket.transferredToUserId,
   });
 
   // Convert performance data to process steps
