@@ -136,11 +136,14 @@ export default function EmployeePerformanceDashboard() {
       }));
 
       // Find highest performer
-      const highestPerformer = employeeList.reduce((prev, current) =>
-        (current.casesCompleted || 0) > (prev.casesCompleted || 0)
-          ? current
-          : prev
-      );
+      const highestPerformer =
+        employeeList.length > 0
+          ? employeeList.reduce((prev, current) =>
+              (current.casesCompleted || 0) > (prev.casesCompleted || 0)
+                ? current
+                : prev
+            )
+          : null;
 
       setMetrics({
         employees: employeeList,
@@ -161,7 +164,7 @@ export default function EmployeePerformanceDashboard() {
                   100
               ) / 100
             : null,
-          highestPerformer: highestPerformer.totalCasesStarted > 0 ? highestPerformer : null,
+          highestPerformer: highestPerformer && highestPerformer.totalCasesStarted > 0 ? highestPerformer : null,
         },
       });
     } catch (err) {
