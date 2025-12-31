@@ -186,6 +186,7 @@ export default function TellerWindow() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
     null,
   );
+  const [tellerFullName, setTellerFullName] = useState<string | null>(null);
   const pushTransferMessage = (msg: string) =>
     setTransferMessages((m) => [msg, ...m].slice(0, 6));
 
