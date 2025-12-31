@@ -266,7 +266,12 @@ export default function CaseWorkflowTracker() {
         </CardHeader>
 
         <CardContent className="pt-6 pb-6">
-          <Accordion type="single" collapsible defaultValue="flow" className="w-full">
+          <Accordion
+            type="single"
+            collapsible
+            defaultValue="flow"
+            className="w-full"
+          >
             <AccordionItem value="flow" className="border-none">
               <AccordionTrigger className="text-base font-semibold text-blue-900 dark:text-blue-100 hover:text-blue-700 dark:hover:text-blue-300 px-0">
                 Horizontal Process Flow Visualization
@@ -279,122 +284,128 @@ export default function CaseWorkflowTracker() {
                       <div className="space-y-6">
                         {/* Flow Diagram */}
                         <div className="flex items-start gap-2 pb-4">
-                  {workflow.items.map((step, index) => (
-                    <div
-                      key={step.id}
-                      className="flex items-start gap-2 flex-shrink-0"
-                    >
-                      {/* Step Node */}
-                      <div className="flex flex-col items-center">
-                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
-                          {index + 1}
-                        </div>
-                        <div className="mt-3 rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50 p-3 min-w-48 hover:shadow-md transition-shadow">
-                          <div className="space-y-2">
-                            {/* Employee Info */}
-                            <div className="space-y-1">
-                              <p className="font-bold text-sm text-foreground line-clamp-2">
-                                {step.employeeName}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {step.jobTitle || 'N/A'}
-                              </p>
-                            </div>
-
-                            {/* Status Badge */}
-                            <Badge
-                              className={`inline-flex items-center gap-1 text-xs ${getStatusColor(step.status)}`}
+                          {workflow.items.map((step, index) => (
+                            <div
+                              key={step.id}
+                              className="flex items-start gap-2 flex-shrink-0"
                             >
-                              <CheckCircle2 className="h-3 w-3" />
-                              {getStatusLabel(step.status)}
-                            </Badge>
+                              {/* Step Node */}
+                              <div className="flex flex-col items-center">
+                                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
+                                  {index + 1}
+                                </div>
+                                <div className="mt-3 rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50 p-3 min-w-48 hover:shadow-md transition-shadow">
+                                  <div className="space-y-2">
+                                    {/* Employee Info */}
+                                    <div className="space-y-1">
+                                      <p className="font-bold text-sm text-foreground line-clamp-2">
+                                        {step.employeeName}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {step.jobTitle || "N/A"}
+                                      </p>
+                                    </div>
 
-                            {/* Timeline */}
-                            <div className="border-t border-blue-200 dark:border-blue-800 pt-2 space-y-1 text-xs">
-                              {step.startedAt && (
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                  <span className="text-muted-foreground">
-                                    {format(
-                                      new Date(step.startedAt),
-                                      "HH:mm:ss",
-                                    )}
-                                  </span>
+                                    {/* Status Badge */}
+                                    <Badge
+                                      className={`inline-flex items-center gap-1 text-xs ${getStatusColor(step.status)}`}
+                                    >
+                                      <CheckCircle2 className="h-3 w-3" />
+                                      {getStatusLabel(step.status)}
+                                    </Badge>
+
+                                    {/* Timeline */}
+                                    <div className="border-t border-blue-200 dark:border-blue-800 pt-2 space-y-1 text-xs">
+                                      {step.startedAt && (
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                          <span className="text-muted-foreground">
+                                            {format(
+                                              new Date(step.startedAt),
+                                              "HH:mm:ss",
+                                            )}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div className="font-semibold text-blue-600 dark:text-blue-400">
+                                        {formatSeconds(step.durationSeconds)}
+                                      </div>
+                                      {step.endedAt && (
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                          <span className="text-muted-foreground">
+                                            {format(
+                                              new Date(step.endedAt),
+                                              "HH:mm:ss",
+                                            )}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              )}
-                              <div className="font-semibold text-blue-600 dark:text-blue-400">
-                                {formatSeconds(step.durationSeconds)}
                               </div>
-                              {step.endedAt && (
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                  <span className="text-muted-foreground">
-                                    {format(new Date(step.endedAt), "HH:mm:ss")}
-                                  </span>
+
+                              {/* Arrow to next step */}
+                              {index < workflow.items.length - 1 && (
+                                <div className="flex items-center justify-center px-2 mt-7">
+                                  <ArrowRight className="h-6 w-6 text-blue-400 dark:text-blue-500 flex-shrink-0" />
                                 </div>
                               )}
+                            </div>
+                          ))}
+
+                          {/* Final Completion Node */}
+                          <div className="flex items-start gap-2 flex-shrink-0 ml-2">
+                            <div className="flex flex-col items-center">
+                              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
+                                <CheckCircle2 className="h-8 w-8" />
+                              </div>
+                              <div className="mt-3 rounded-lg border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/50 p-3 min-w-48">
+                                <p className="font-bold text-sm text-foreground">
+                                  Complete
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Total Time:
+                                </p>
+                                <p className="font-bold text-green-600 dark:text-green-400 text-sm">
+                                  {formatSeconds(workflow.totalDuration)}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Arrow to next step */}
-                      {index < workflow.items.length - 1 && (
-                        <div className="flex items-center justify-center px-2 mt-7">
-                          <ArrowRight className="h-6 w-6 text-blue-400 dark:text-blue-500 flex-shrink-0" />
+                        {/* Summary Stats */}
+                        <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Total Employees
+                            </p>
+                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                              {
+                                new Set(workflow.items.map((i) => i.employeeId))
+                                  .size
+                              }
+                            </p>
+                          </div>
+                          <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Total Process Time
+                            </p>
+                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                              {formatSeconds(workflow.totalDuration)}
+                            </p>
+                          </div>
+                          <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                              Process Steps
+                            </p>
+                            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                              {workflow.items.length}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Final Completion Node */}
-                  <div className="flex items-start gap-2 flex-shrink-0 ml-2">
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
-                        <CheckCircle2 className="h-8 w-8" />
-                      </div>
-                      <div className="mt-3 rounded-lg border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/50 p-3 min-w-48">
-                        <p className="font-bold text-sm text-foreground">
-                          Complete
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Total Time:
-                        </p>
-                        <p className="font-bold text-green-600 dark:text-green-400 text-sm">
-                          {formatSeconds(workflow.totalDuration)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Summary Stats */}
-                <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Total Employees
-                    </p>
-                    <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-                      {new Set(workflow.items.map((i) => i.employeeId)).size}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Total Process Time
-                    </p>
-                    <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                      {formatSeconds(workflow.totalDuration)}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Process Steps
-                    </p>
-                    <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-                      {workflow.items.length}
-                    </p>
-                  </div>
-                </div>
                       </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">

@@ -744,8 +744,14 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     // Enrich selected services with names (convert IDs to service names)
     let enrichedServices: string[] | undefined = undefined;
-    if (rows.length > 0 && rows[0].selected_services && rows[0].service_category) {
-      const selectedServiceIds = parseSelectedServices(rows[0].selected_services);
+    if (
+      rows.length > 0 &&
+      rows[0].selected_services &&
+      rows[0].service_category
+    ) {
+      const selectedServiceIds = parseSelectedServices(
+        rows[0].selected_services,
+      );
       if (selectedServiceIds && selectedServiceIds.length > 0) {
         try {
           // Create a temporary ticket object for enrichment
@@ -755,7 +761,9 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
           } as any;
 
           // Enrich with service names
-          const enrichedTickets = await enrichMultipleTicketsWithServiceNames([tempTicket]);
+          const enrichedTickets = await enrichMultipleTicketsWithServiceNames([
+            tempTicket,
+          ]);
           enrichedServices = enrichedTickets[0]?.selectedServices;
         } catch (enrichError) {
           console.warn("Failed to enrich services with names:", enrichError);
