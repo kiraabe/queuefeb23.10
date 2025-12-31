@@ -95,7 +95,7 @@ export default function ServiceCategoryAnalytics() {
       const categoryMap = new Map<string, ServiceCategoryStats>();
 
       for (const ticket of reportData.allTickets) {
-        const category = ticket.category || "Uncategorized";
+        const category = ticket.service || "Uncategorized";
 
         if (!categoryMap.has(category)) {
           categoryMap.set(category, {
