@@ -911,13 +911,26 @@ export default function TellerWindow() {
                   } sm:min-w-0`}
                 >
                   <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                    <StickyNote className="h-3.5 w-3.5" /> Notes
+                    <Layers className="h-3.5 w-3.5" /> Services
                   </div>
-                  <p className="line-clamp-2 whitespace-pre-wrap text-sm">
-                    {w.currentTicketId && (currentTicket?.notes ?? "")
-                      ? currentTicket?.notes
-                      : "—"}
-                  </p>
+                  {Array.isArray(currentTicket?.selectedServices) &&
+                  currentTicket?.selectedServices.length > 0 ? (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {currentTicket?.selectedServices.map(
+                        (serviceName, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs font-medium"
+                          >
+                            {serviceName}
+                          </Badge>
+                        ),
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm font-medium">—</p>
+                  )}
                 </div>
               </div>
             </section>
