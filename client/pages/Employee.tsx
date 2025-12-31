@@ -540,6 +540,11 @@ export default function Employee() {
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 
+  // Reset history page when time period changes
+  useEffect(() => {
+    setHistoryPage(1);
+  }, [timePeriod]);
+
   const handleCaseCompleted = () => {
     ticketsQuery.refetch();
   };
