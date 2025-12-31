@@ -35,6 +35,7 @@ export function CaseActionDialog({
   caseId,
   action,
   onSuccess,
+  currentUserId,
 }: CaseActionDialogProps) {
   const [selectedJobTitle, setSelectedJobTitle] = useState<string>("");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
