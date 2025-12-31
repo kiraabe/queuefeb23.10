@@ -20,7 +20,6 @@ import {
   MapPin,
   StickyNote,
   Layers,
-  AlertCircle,
 } from "lucide-react";
 import { TicketSection } from "@/components/teller/TicketSection";
 import { ProceedHandoffDialog } from "@/components/teller/ProceedHandoffDialog";
