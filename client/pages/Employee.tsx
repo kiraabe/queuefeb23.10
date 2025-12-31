@@ -484,6 +484,11 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             )}
           </div>
         )}
+        {!isReceived && (
+          <div className="text-xs text-muted-foreground mt-2">
+            [Debug: isReceived={isReceived ? "true" : "false"}, transferredToUserId={ticket.transferredToUserId}]
+          </div>
+        )}
       </div>
     </div>
   );
