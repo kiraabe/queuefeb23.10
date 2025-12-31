@@ -14,6 +14,7 @@ import { CompletedTicketSummary } from "./CompletedTicketSummary";
 import { ProcessFlowChart } from "./ProcessFlowChart";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
+import type { ListUsersResponse } from "@shared/api";
 
 interface TicketSectionProps {
   items: Ticket[];
