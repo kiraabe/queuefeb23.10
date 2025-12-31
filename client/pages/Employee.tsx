@@ -320,6 +320,18 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   // For in-progress cases, calculate elapsed time from start until now
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("TicketRow debug:", {
+      ticketId: ticket.id,
+      code: ticket.code,
+      transferredToUserId: ticket.transferredToUserId,
+      employeeStartedAt: ticket.employeeStartedAt,
+      completedAt: ticket.completedAt,
+      proceededAt: ticket.proceededAt,
+    });
+  }, [ticket]);
+
   useEffect(() => {
     // Only skip elapsed time if the case is completed (status = 'done')
     // Don't skip if ticket.proceededAt is set from a previous employee
