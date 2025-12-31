@@ -71,8 +71,14 @@ export default function TicketManagement() {
         const ticketDate = new Date(t.createdAt).toDateString();
         return ticketDate === today;
       }).length,
-      waiting: ticketList.filter((t) => t.status === "waiting").length,
-      serving: ticketList.filter((t) => t.status === "serving").length,
+      waiting: ticketList.filter((t) => {
+        const ticketDate = new Date(t.createdAt).toDateString();
+        return ticketDate === today && t.status === "waiting";
+      }).length,
+      serving: ticketList.filter((t) => {
+        const ticketDate = new Date(t.createdAt).toDateString();
+        return ticketDate === today && t.status === "serving";
+      }).length,
       done: ticketList.filter((t) => {
         const ticketDate = new Date(t.createdAt).toDateString();
         return ticketDate === today && t.status === "done";
