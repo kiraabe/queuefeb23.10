@@ -602,9 +602,8 @@ export default function Employee() {
       });
     }
     // received (default)
-    // Filter out cases that have been proceeded (forwarded to another employee)
     return tickets
-      .filter((t) => (t.status === "transferred" || t.status === "serving") && !t.proceededAt)
+      .filter((t) => t.status === "transferred" || t.status === "serving")
       .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
   }, [tickets, tab, historyQuery.data]);
 
