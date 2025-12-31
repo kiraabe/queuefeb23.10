@@ -88,6 +88,16 @@ export default function WindowMonitoring() {
 
       const waitingForWindow = ticketList.filter((t) => t.status === "waiting");
 
+      const totalCasesHandled = servedByWindow.length + skippedByWindow.length;
+      const completionRate =
+        totalCasesHandled > 0
+          ? Math.round((servedByWindow.length / totalCasesHandled) * 100)
+          : 0;
+      const skippedRate =
+        totalCasesHandled > 0
+          ? Math.round((skippedByWindow.length / totalCasesHandled) * 100)
+          : 0;
+
       return {
         window,
         currentTicket,
@@ -97,6 +107,10 @@ export default function WindowMonitoring() {
         transferredTo: transferredToWindow.length,
         avgServiceTime,
         waitingInQueue: waitingForWindow.length,
+        totalCasesHandled,
+        completionRate,
+        skippedRate,
+        activeEmployees: window.tellerUsername ? 1 : 0,
       };
     });
   }, [windows, tickets]);
