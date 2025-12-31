@@ -466,13 +466,13 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             to {new Date(ticket.completedAt || 0).toLocaleTimeString()}
           </p>
         )}
-        {isReceived && !isCompleted && !hasProceeded && (
+        {isReceived && (
           <div className="flex gap-2 mt-2">
             {!hasStarted ? (
               <Button size="sm" onClick={handleStart}>
                 Start
               </Button>
-            ) : (
+            ) : !isCompleted && !hasProceeded ? (
               <>
                 <Button size="sm" onClick={handleProceed} variant="outline">
                   Proceed
@@ -481,12 +481,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                   Complete
                 </Button>
               </>
-            )}
-          </div>
-        )}
-        {!isReceived && (
-          <div className="text-xs text-muted-foreground mt-2">
-            [Debug: isReceived={isReceived ? "true" : "false"}, transferredToUserId={ticket.transferredToUserId}]
+            ) : null}
           </div>
         )}
       </div>
