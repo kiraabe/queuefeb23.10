@@ -299,6 +299,70 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
     const summary = summaryRes.rows[0] || {};
     const reportDate = new Date(today);
 
+    // Get employee case performance data for today
+    const employeePerfRes = await p.query(
+      `SELECT
+        ecp.employee_id,
+        u.full_name,
+        u.username,
+        COUNT(DISTINCT ecp.id) as total_cases_started,
+        COUNT(DISTINCT CASE WHEN ecp.status = 'completed' THEN ecp.id END) as cases_completed,
+        COUNT(DISTINCT CASE WHEN ecp.status = 'proceeded' THEN ecp.id END) as cases_proceeded,
+        ROUND(AVG(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as avg_case_time,
+        ROUND(SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as total_time_spent
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      LEFT JOIN tickets t ON ecp.ticket_id = t.id
+      WHERE t.created_at >= $1
+      GROUP BY ecp.employee_id, u.full_name, u.username
+      ORDER BY cases_completed DESC`,
+      [todayStr],
+    );
+
+    // Get case workflow details (employee case performance by employee)
+    const caseWorkflowRes = await p.query(
+      `SELECT
+        ecp.id,
+        ecp.employee_id,
+        u.full_name,
+        u.username,
+        ecp.ticket_id,
+        t.code as ticket_code,
+        t.service,
+        extract(epoch from ecp.started_at)*1000 as started_at,
+        extract(epoch from ecp.ended_at)*1000 as ended_at,
+        ecp.status,
+        EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
+        jt.name_english as job_title_name
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      LEFT JOIN tickets t ON ecp.ticket_id = t.id
+      LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+      WHERE t.created_at >= $1
+      ORDER BY ecp.started_at ASC`,
+      [todayStr],
+    );
+
+    // Get category performance data (services grouped by category)
+    const categoryPerfRes = await p.query(
+      `SELECT
+        sc.id as category_id,
+        sc.name as category_name,
+        s.id as service_id,
+        s.name as service_name,
+        COUNT(DISTINCT t.id) as total_tickets,
+        COUNT(DISTINCT CASE WHEN t.status = 'done' THEN t.id END) as served,
+        COUNT(DISTINCT CASE WHEN t.status = 'skipped' THEN t.id END) as skipped,
+        COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
+        ROUND(AVG(CASE WHEN t.status = 'done' THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+      FROM service_categories sc
+      LEFT JOIN services s ON sc.id = s.category_id
+      LEFT JOIN tickets t ON s.id = t.service AND t.created_at >= $1
+      GROUP BY sc.id, sc.name, s.id, s.name
+      ORDER BY sc.name, s.name`,
+      [todayStr],
+    );
+
     const report = {
       reportDate: reportDate.toISOString().split("T")[0],
       generatedAt: new Date().toISOString(),
@@ -354,6 +418,54 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
         transfersTo: Number(r.transfers_to || 0),
         averageServiceTime: r.avg_service_time || null,
       })),
+      employeePerformance: employeePerfRes.rows.map((r: any) => ({
+        employeeId: r.employee_id,
+        employeeName: r.full_name || r.username || "Unknown",
+        totalCasesStarted: Number(r.total_cases_started || 0),
+        casesCompleted: Number(r.cases_completed || 0),
+        casesProceed: Number(r.cases_proceeded || 0),
+        averageCaseTime: r.avg_case_time || null,
+        totalTimeSpent: r.total_time_spent || null,
+      })),
+      caseWorkflow: caseWorkflowRes.rows.map((r: any) => ({
+        caseId: r.id,
+        employeeId: r.employee_id,
+        employeeName: r.full_name || r.username || "Unknown",
+        ticketId: r.ticket_id,
+        ticketCode: r.ticket_code,
+        service: r.service,
+        jobTitle: r.job_title_name || "N/A",
+        startedAt: r.started_at ? Math.round(Number(r.started_at)) : null,
+        endedAt: r.ended_at ? Math.round(Number(r.ended_at)) : null,
+        status: r.status,
+        durationSeconds: r.duration_seconds ? Math.round(Number(r.duration_seconds)) : null,
+      })),
+      categoryPerformance: categoryPerfRes.rows.reduce((acc: any, r: any) => {
+        const existingCat = acc.find((c: any) => c.categoryId === r.category_id);
+        if (existingCat) {
+          existingCat.services.push({
+            serviceId: r.service_id,
+            serviceName: r.service_name,
+            totalTickets: Number(r.total_tickets || 0),
+          });
+        } else {
+          acc.push({
+            categoryId: r.category_id,
+            categoryName: r.category_name,
+            totalTickets: Number(r.total_tickets || 0),
+            served: Number(r.served || 0),
+            skipped: Number(r.skipped || 0),
+            transferred: Number(r.transferred || 0),
+            averageServiceTime: r.avg_service_time || null,
+            services: r.service_id ? [{
+              serviceId: r.service_id,
+              serviceName: r.service_name,
+              totalTickets: Number(r.total_tickets || 0),
+            }] : [],
+          });
+        }
+        return acc;
+      }, []),
     };
 
     res.json(report);
