@@ -343,23 +343,19 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
       [todayStr],
     );
 
-    // Get category performance data (services grouped by category)
+    // Get category performance data (aggregate by service)
     const categoryPerfRes = await p.query(
       `SELECT
-        sc.id as category_id,
-        sc.name as category_name,
-        s.id as service_id,
-        s.name as service_name,
+        t.service as service_name,
         COUNT(DISTINCT t.id) as total_tickets,
         COUNT(DISTINCT CASE WHEN t.status = 'done' THEN t.id END) as served,
         COUNT(DISTINCT CASE WHEN t.status = 'skipped' THEN t.id END) as skipped,
         COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
         ROUND(AVG(CASE WHEN t.status = 'done' THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
-      FROM service_categories sc
-      LEFT JOIN services s ON sc.id = s.category_id
-      LEFT JOIN tickets t ON s.id = t.service AND t.created_at >= $1
-      GROUP BY sc.id, sc.name, s.id, s.name
-      ORDER BY sc.name, s.name`,
+      FROM tickets t
+      WHERE t.created_at >= $1
+      GROUP BY t.service
+      ORDER BY total_tickets DESC`,
       [todayStr],
     );
 
