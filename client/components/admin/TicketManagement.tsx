@@ -325,20 +325,21 @@ export default function TicketManagement() {
                       </div>
 
                       {/* Selected Services */}
-                      {ticket.selectedServices && ticket.selectedServices.length > 0 && (
-                        <div className="border-t pt-2">
-                          <p className="text-xs text-muted-foreground mb-2">
-                            Selected Services
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {ticket.selectedServices.map((service, index) => (
-                              <Badge key={index} variant="secondary">
-                                {service}
-                              </Badge>
-                            ))}
+                      {ticket.selectedServices &&
+                        ticket.selectedServices.length > 0 && (
+                          <div className="border-t pt-2">
+                            <p className="text-xs text-muted-foreground mb-2">
+                              Selected Services
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {ticket.selectedServices.map((service, index) => (
+                                <Badge key={index} variant="secondary">
+                                  {service}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* Notes */}
                       {(ticket.notes || ticket.remark) && (

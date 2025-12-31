@@ -563,7 +563,9 @@ export default function TellerWindow() {
   // Fetch teller full name from API if not available from user
   useEffect(() => {
     if (!tellerFullName && w?.tellerId) {
-      apiFetch<{ users: Array<{ id: string; username: string; fullName?: string }> }>("/api/admin/users")
+      apiFetch<{
+        users: Array<{ id: string; username: string; fullName?: string }>;
+      }>("/api/admin/users")
         .then((response) => {
           const teller = response.users?.find((u) => u.id === w.tellerId);
           if (teller?.fullName) {
