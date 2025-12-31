@@ -254,7 +254,7 @@ export default function CaseWorkflowTracker() {
                             variant="outline"
                             className="bg-white dark:bg-background text-xs"
                           >
-                            {service}
+                            {typeof service === 'string' ? service : JSON.stringify(service)}
                           </Badge>
                         ),
                       )}
@@ -262,19 +262,23 @@ export default function CaseWorkflowTracker() {
                   </div>
                 )}
             </div>
-            <CardDescription className="text-base">
-              Horizontal process flow visualization
-            </CardDescription>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-8 pb-8 overflow-x-auto">
-          <div className="space-y-8 min-w-max">
-            {/* Horizontal Process Flow */}
-            {workflow.items.length > 0 ? (
-              <div className="space-y-6">
-                {/* Flow Diagram */}
-                <div className="flex items-start gap-2 pb-4">
+        <CardContent className="pt-6 pb-6">
+          <Accordion type="single" collapsible defaultValue="flow" className="w-full">
+            <AccordionItem value="flow" className="border-none">
+              <AccordionTrigger className="text-base font-semibold text-blue-900 dark:text-blue-100 hover:text-blue-700 dark:hover:text-blue-300 px-0">
+                Horizontal Process Flow Visualization
+              </AccordionTrigger>
+              <AccordionContent className="pt-6 pb-4">
+                <div className="overflow-x-auto">
+                  <div className="space-y-8 min-w-max">
+                    {/* Horizontal Process Flow */}
+                    {workflow.items.length > 0 ? (
+                      <div className="space-y-6">
+                        {/* Flow Diagram */}
+                        <div className="flex items-start gap-2 pb-4">
                   {workflow.items.map((step, index) => (
                     <div
                       key={step.id}
@@ -293,7 +297,7 @@ export default function CaseWorkflowTracker() {
                                 {step.employeeName}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {step.jobTitle}
+                                {step.jobTitle && step.jobTitle !== 'No Title' ? step.jobTitle : 'Service Officer'}
                               </p>
                             </div>
 
@@ -391,13 +395,17 @@ export default function CaseWorkflowTracker() {
                     </p>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No workflow steps found for this case
-              </div>
-            )}
-          </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No workflow steps found for this case
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
     </div>
