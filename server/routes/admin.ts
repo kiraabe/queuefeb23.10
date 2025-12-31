@@ -250,7 +250,7 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
       [todayStr],
     );
 
-    // Get window statistics with assigned teller (show teller who served tickets today or current session)
+    // Get window statistics with assigned teller (show teller who served tickets today or is assigned to window)
     const windowStatsRes = await p.query(
       `SELECT
         w.id,
@@ -261,10 +261,8 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
            JOIN tickets t ON ecp.ticket_id = t.id
            WHERE t.window_id = w.id AND t.created_at >= $1::timestamptz
            ORDER BY ecp.ended_at DESC LIMIT 1),
-          (SELECT u.username FROM user_sessions us
-           JOIN users u ON us.user_id = u.id
-           WHERE us.window_id = w.id
-           ORDER BY us.last_seen_at DESC LIMIT 1),
+          (SELECT u.username FROM users u
+           WHERE u.window_id = w.id LIMIT 1),
           'Unassigned'
         ) as teller_name,
         COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz THEN t.id END) as served,
