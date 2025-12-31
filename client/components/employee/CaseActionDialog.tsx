@@ -26,6 +26,7 @@ interface CaseActionDialogProps {
   caseId: string;
   action: "proceed" | null;
   onSuccess?: () => void;
+  currentUserId?: string;
 }
 
 export function CaseActionDialog({
