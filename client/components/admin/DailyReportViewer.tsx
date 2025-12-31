@@ -341,12 +341,15 @@ export default function DailyReportViewer() {
           )
         : 0;
     lines.push(`Completion Rate (%),${completionRate}`);
-    lines.push(
-      `Skip Rate (%)`,
-      Math.round(
-        (report.summary.skipped / Math.max(report.summary.totalTicketsCreated, 1)) * 100,
-      ),
-    );
+    const skipRate =
+      report.summary.totalTicketsCreated > 0
+        ? Math.round(
+            (report.summary.skipped /
+              Math.max(report.summary.totalTicketsCreated, 1)) *
+              100,
+          )
+        : 0;
+    lines.push(`Skip Rate (%),${skipRate}`);
     lines.push("");
 
     lines.push("EMPLOYEE PERFORMANCE DETAILS");
