@@ -38,50 +38,34 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full gap-1 grid-cols-3 sm:grid-cols-4 lg:grid-cols-11 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="employees" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Employees</span>
-            </TabsTrigger>
-            <TabsTrigger value="workflow" className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Workflow</span>
-            </TabsTrigger>
-            <TabsTrigger value="cases" className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Cases</span>
-            </TabsTrigger>
-            <TabsTrigger value="services" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Services</span>
+              <span className="hidden sm:inline">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger value="employment" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Employment</span>
+              <span className="hidden sm:inline">Employment</span>
             </TabsTrigger>
             <TabsTrigger value="sessions" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Sessions</span>
+              <span className="hidden sm:inline">Sessions</span>
             </TabsTrigger>
             <TabsTrigger value="tickets" className="flex items-center gap-2">
               <Ticket className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Tickets</span>
+              <span className="hidden sm:inline">Tickets</span>
             </TabsTrigger>
             <TabsTrigger value="windows" className="flex items-center gap-2">
               <MonitorPlay className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Windows</span>
+              <span className="hidden sm:inline">Windows</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Settings</span>
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline text-xs">Profile</span>
+              <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
           </TabsList>
 
