@@ -466,14 +466,14 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             to {new Date(ticket.completedAt || 0).toLocaleTimeString()}
           </p>
         )}
-        {ticket && !hasProceeded && (
+        {ticket && (
           <div className="flex gap-2 mt-2">
-            {isReceived && !hasStarted && !isCompleted && (
+            {isReceived && !hasStarted && !isCompleted && !hasProceeded && (
               <Button size="sm" onClick={handleStart}>
                 Start
               </Button>
             )}
-            {isReceived && hasStarted && !isCompleted && (
+            {isReceived && hasStarted && !isCompleted && !hasProceeded && (
               <>
                 <Button size="sm" onClick={handleProceed} variant="outline">
                   Proceed
