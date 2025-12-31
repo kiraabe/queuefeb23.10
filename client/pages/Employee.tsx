@@ -25,7 +25,7 @@ import type {
 interface EmployeeStats {
   receivedToday: number;
   completedToday: number;
-  avgProcessingSecondsToday: number | null;
+  proceedToday: number;
 }
 
 interface EmployeeTicketsResponse {
