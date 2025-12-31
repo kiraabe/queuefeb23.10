@@ -221,9 +221,11 @@ export default function WindowMonitoring() {
             currentTicket,
             servedToday,
             skippedToday,
-            transferredFrom,
-            transferredTo,
+            totalCasesHandled,
+            completionRate,
+            skippedRate,
             avgServiceTime,
+            activeEmployees,
           }) => (
             <Card key={window.id} className="overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 pb-3 dark:from-gray-900 dark:to-gray-800">
