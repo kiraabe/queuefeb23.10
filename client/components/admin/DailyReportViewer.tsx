@@ -447,6 +447,112 @@ export default function DailyReportViewer() {
               </Table>
             </TabsContent>
 
+            <TabsContent value="employees">
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Employee performance metrics based on case workflow data
+                </p>
+                {report.allTickets.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    No employee data available
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border p-4">
+                      <h4 className="font-semibold mb-3">Service Time Distribution</h4>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart
+                          data={[
+                            {
+                              name: "Today",
+                              avg: report.summary.averageServiceTime || 0,
+                            },
+                          ]}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey="avg" fill="#3b82f6" name="Avg Time (sec)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Average service time: {report.summary.averageServiceTime}s per ticket
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="services">
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Service category performance and distribution
+                </p>
+                {report.allTickets.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    No service data available
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {(() => {
+                      const serviceMap = new Map<string, { total: number; served: number }>();
+                      for (const ticket of report.allTickets) {
+                        const service = ticket.service || "Uncategorized";
+                        if (!serviceMap.has(service)) {
+                          serviceMap.set(service, { total: 0, served: 0 });
+                        }
+                        const stat = serviceMap.get(service)!;
+                        stat.total++;
+                        if (ticket.status === "done") {
+                          stat.served++;
+                        }
+                      }
+                      const services = Array.from(serviceMap.entries())
+                        .map(([name, stats]) => ({
+                          name,
+                          ...stats,
+                          rate: Math.round((stats.served / stats.total) * 100),
+                        }))
+                        .sort((a, b) => b.total - a.total);
+
+                      return (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Service</TableHead>
+                              <TableHead className="text-right">Total</TableHead>
+                              <TableHead className="text-right">Served</TableHead>
+                              <TableHead className="text-right">Completion Rate</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {services.map((service) => (
+                              <TableRow key={service.name}>
+                                <TableCell className="font-medium">
+                                  {service.name}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {service.total}
+                                </TableCell>
+                                <TableCell className="text-right text-green-600 font-medium">
+                                  {service.served}
+                                </TableCell>
+                                <TableCell className="text-right font-semibold">
+                                  {service.rate}%
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             <TabsContent value="skipped">
               {report.skipped.length === 0 ? (
                 <p className="text-muted-foreground py-4">
