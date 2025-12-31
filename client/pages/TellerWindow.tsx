@@ -815,10 +815,15 @@ export default function TellerWindow() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background font-display text-sm">
                   {w.id}
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
                   <span className="font-display text-xl font-semibold tracking-tight">
                     {w.name}
                   </span>
+                  {user?.fullName && (
+                    <span className="text-sm font-medium text-foreground">
+                      {user.fullName}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     {new Date(w.updatedAt).toLocaleTimeString()}
                   </span>
