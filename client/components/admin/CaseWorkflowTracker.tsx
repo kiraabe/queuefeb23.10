@@ -16,6 +16,12 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 interface WorkflowEntry {
   id: string;
