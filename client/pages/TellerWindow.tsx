@@ -560,6 +560,22 @@ export default function TellerWindow() {
 
   const w = windowQuery.data;
 
+  // Fetch teller full name from API if not available from user
+  useEffect(() => {
+    if (!tellerFullName && w?.tellerId) {
+      apiFetch<{ users: Array<{ id: string; username: string; fullName?: string }> }>("/api/admin/users")
+        .then((response) => {
+          const teller = response.users?.find((u) => u.id === w.tellerId);
+          if (teller?.fullName) {
+            setTellerFullName(teller.fullName);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch teller details:", error);
+        });
+    }
+  }, [w?.tellerId, tellerFullName]);
+
   // derive current ticket from SSE cache first, then ticketsQuery
   const currentTicket = useMemo(() => {
     if (!w?.currentTicketId) return null;
