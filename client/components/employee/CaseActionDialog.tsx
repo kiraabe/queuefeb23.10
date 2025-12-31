@@ -55,7 +55,9 @@ export function CaseActionDialog({
 
   const jobTitles = jobTitlesQuery.data?.jobTitles || [];
   const allEmployees =
-    usersQuery.data?.users.filter((u) => u.role === "employee") || [];
+    usersQuery.data?.users.filter(
+      (u) => u.role === "employee" && u.id !== currentUserId,
+    ) || [];
 
   // Filter employees by selected job title
   const filteredEmployees = selectedJobTitle
