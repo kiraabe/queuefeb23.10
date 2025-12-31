@@ -149,6 +149,18 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
     enabled: ticket.status === "done",
   });
 
+  // Fetch user information for transferred-to employee
+  const { data: transferredToUser } = useQuery({
+    queryKey: ["user-info", ticket.transferredToUserId],
+    queryFn: async () => {
+      const response = await apiFetch(
+        `/api/admin/users?userId=${encodeURIComponent(ticket.transferredToUserId!)}`,
+      );
+      return response;
+    },
+    enabled: !!ticket.transferredToUserId,
+  });
+
   // Convert performance data to process steps
   const processSteps = useMemo(() => {
     if (!performanceData?.items) return [];
