@@ -235,6 +235,13 @@ export default function TellerWindow() {
     loadWindowServices();
   }, [windowId]);
 
+  // Load teller full name from logged-in user
+  useEffect(() => {
+    if (user?.fullName) {
+      setTellerFullName(user.fullName);
+    }
+  }, [user?.fullName]);
+
   // Reset tab selection and clear ticket data every 24 hours when tickets reset
   useEffect(() => {
     const now = new Date();
