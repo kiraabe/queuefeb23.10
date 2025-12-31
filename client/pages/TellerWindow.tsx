@@ -827,9 +827,9 @@ export default function TellerWindow() {
                   <span className="font-display text-xl font-semibold tracking-tight">
                     {w.name}
                   </span>
-                  {user?.fullName && (
+                  {tellerFullName && (
                     <span className="text-sm font-medium text-foreground">
-                      {user.fullName}
+                      {tellerFullName}
                     </span>
                   )}
                   <span className="text-xs text-muted-foreground">
