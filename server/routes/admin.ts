@@ -438,7 +438,9 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
         startedAt: r.started_at ? Math.round(Number(r.started_at)) : null,
         endedAt: r.ended_at ? Math.round(Number(r.ended_at)) : null,
         status: r.status,
-        durationSeconds: r.duration_seconds ? Math.round(Number(r.duration_seconds)) : null,
+        durationSeconds: r.duration_seconds
+          ? Math.round(Number(r.duration_seconds))
+          : null,
       })),
       categoryPerformance: categoryPerfRes.rows.map((r: any) => ({
         categoryName: r.service_name || "Uncategorized",

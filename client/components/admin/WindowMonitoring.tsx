@@ -303,11 +303,15 @@ export default function WindowMonitoring() {
                     <p className="font-bold text-orange-600">{skippedToday}</p>
                   </div>
                   <div className="space-y-1 rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Completion Rate</p>
+                    <p className="text-xs text-muted-foreground">
+                      Completion Rate
+                    </p>
                     <p className="font-bold text-blue-600">{completionRate}%</p>
                   </div>
                   <div className="space-y-1 rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Skipped Rate</p>
+                    <p className="text-xs text-muted-foreground">
+                      Skipped Rate
+                    </p>
                     <p className="font-bold text-red-600">{skippedRate}%</p>
                   </div>
                   <div className="space-y-1 rounded border p-2">
