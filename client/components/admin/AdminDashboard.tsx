@@ -29,6 +29,10 @@ import type {
 } from "@shared/api";
 import { format } from "date-fns";
 import DailyReportViewer from "./DailyReportViewer";
+import EmployeePerformanceDashboard from "./EmployeePerformanceDashboard";
+import CaseWorkflowTracker from "./CaseWorkflowTracker";
+import EmployeeCaseQueue from "./EmployeeCaseQueue";
+import ServiceCategoryAnalytics from "./ServiceCategoryAnalytics";
 
 interface DashboardStats {
   totalWaiting: number;
