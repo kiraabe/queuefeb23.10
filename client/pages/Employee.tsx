@@ -387,9 +387,10 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     }
   };
 
-  const isReceived = ticket.transferredToUserId != null;
+  const isReceived = ticket.transferredToUserId != null && ticket.status !== "done";
   const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
+  const isCompleted = ticket.completedAt != null;
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
@@ -453,7 +454,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             to {new Date(ticket.completedAt || 0).toLocaleTimeString()}
           </p>
         )}
-        {isReceived && (
+        {isReceived && !isCompleted && !hasProceeded && (
           <div className="flex gap-2 mt-2">
             {!hasStarted ? (
               <Button size="sm" onClick={handleStart}>
@@ -546,6 +547,7 @@ export default function Employee() {
   }, [timePeriod]);
 
   const handleCaseCompleted = () => {
+    // Refetch immediately to update the UI
     ticketsQuery.refetch();
   };
 
