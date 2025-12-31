@@ -841,13 +841,8 @@ export default function TellerWindow() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="font-display text-xl font-semibold tracking-tight">
-                    {w.name}
+                    {tellerFullName ? `${tellerFullName} - ${w.name}` : w.name}
                   </span>
-                  {tellerFullName && (
-                    <span className="text-sm font-medium text-foreground">
-                      {tellerFullName}
-                    </span>
-                  )}
                   <span className="text-xs text-muted-foreground">
                     {new Date(w.updatedAt).toLocaleTimeString()}
                   </span>
