@@ -15,9 +15,6 @@ import {
   Settings,
   User,
   Briefcase,
-  TrendingUp,
-  Search,
-  Zap,
 } from "lucide-react";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import SessionManagement from "@/components/admin/SessionManagement";
@@ -26,10 +23,6 @@ import AdminWindows from "@/components/admin/AdminWindows";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import EmploymentManagement from "@/components/admin/EmploymentManagement";
-import EmployeePerformanceDashboard from "@/components/admin/EmployeePerformanceDashboard";
-import CaseWorkflowTracker from "@/components/admin/CaseWorkflowTracker";
-import EmployeeCaseQueue from "@/components/admin/EmployeeCaseQueue";
-import ServiceCategoryAnalytics from "@/components/admin/ServiceCategoryAnalytics";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
