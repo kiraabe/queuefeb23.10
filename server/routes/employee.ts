@@ -730,11 +730,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         t.code as ticket_code,
         t.service_category,
         t.selected_services,
-        COALESCE(jt.name_english, jt.name_amharic, 'No Title') as job_title_name
+        COALESCE(jt.name_english, jt.name_amharic, jt2.name_english, jt2.name_amharic, 'N/A') as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+      LEFT JOIN job_title jt2 ON u.job_title_id = jt2.id
       WHERE ecp.ticket_id = $1
       ORDER BY ecp.started_at ASC
     `;
