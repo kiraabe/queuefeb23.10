@@ -323,6 +323,69 @@ export default function DailyReportViewer() {
         `${t.ticketCode},${t.service},${t.ticketNumber},${createdDate},${transferDate},${t.fromWindowName || `Window ${t.fromWindow}`},${t.toWindowName || `Window ${t.toWindow}`},"${remark}"`,
       );
     });
+    lines.push("");
+
+    lines.push("ADVANCED ANALYTICS");
+    lines.push("Metric,Value");
+    lines.push(`Total Tickets Created,${report.summary.totalTicketsCreated}`);
+    lines.push(`Total Served,${report.summary.served}`);
+    lines.push(`Total Skipped,${report.summary.skipped}`);
+    lines.push(`Total Transferred,${report.summary.transferred}`);
+    lines.push(
+      `Average Service Time (seconds),${report.summary.averageServiceTime ?? "N/A"}`,
+    );
+    const completionRate =
+      report.summary.totalTicketsCreated > 0
+        ? Math.round(
+            (report.summary.served / report.summary.totalTicketsCreated) * 100,
+          )
+        : 0;
+    lines.push(`Completion Rate (%),${completionRate}`);
+    lines.push(
+      `Skip Rate (%)`,
+      Math.round(
+        (report.summary.skipped / Math.max(report.summary.totalTicketsCreated, 1)) * 100,
+      ),
+    );
+    lines.push("");
+
+    lines.push("EMPLOYEE PERFORMANCE DETAILS");
+    lines.push(
+      "Employee Name,Total Cases Started,Cases Completed,Cases Proceeded,Average Case Time (seconds),Total Time Spent (seconds)",
+    );
+    report.employeePerformance.forEach((e) => {
+      lines.push(
+        `${e.employeeName},${e.totalCasesStarted},${e.casesCompleted},${e.casesProceed},${e.averageCaseTime ?? "N/A"},${e.totalTimeSpent ?? "N/A"}`,
+      );
+    });
+    lines.push("");
+
+    lines.push("CATEGORY PERFORMANCE DETAILS");
+    lines.push(
+      "Category Name,Total Tickets,Served,Skipped,Transferred,Average Service Time (seconds)",
+    );
+    report.categoryPerformance.forEach((c) => {
+      lines.push(
+        `${c.categoryName},${c.totalTickets},${c.served},${c.skipped},${c.transferred},${c.averageServiceTime ?? "N/A"}`,
+      );
+    });
+    lines.push("");
+
+    lines.push("CASE WORKFLOW");
+    lines.push(
+      "Employee Name,Job Title,Ticket Code,Service,Status,Started At,Ended At,Duration (seconds)",
+    );
+    report.caseWorkflow.forEach((c) => {
+      const startedDate = c.startedAt
+        ? format(new Date(c.startedAt), "yyyy-MM-dd HH:mm:ss")
+        : "N/A";
+      const endedDate = c.endedAt
+        ? format(new Date(c.endedAt), "yyyy-MM-dd HH:mm:ss")
+        : "N/A";
+      lines.push(
+        `${c.employeeName},${c.jobTitle},${c.ticketCode},${c.service},${c.status},${startedDate},${endedDate},${c.durationSeconds ?? "N/A"}`,
+      );
+    });
 
     const csv = lines.join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
