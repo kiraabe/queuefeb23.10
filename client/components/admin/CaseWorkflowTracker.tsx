@@ -297,7 +297,7 @@ export default function CaseWorkflowTracker() {
                                 {step.employeeName}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {step.jobTitle && step.jobTitle !== 'No Title' ? step.jobTitle : 'Service Officer'}
+                                {step.jobTitle || 'N/A'}
                               </p>
                             </div>
 
