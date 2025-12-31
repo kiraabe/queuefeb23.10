@@ -741,12 +741,34 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     const { rows } = await p.query(query, [ticketId]);
 
+    // Enrich selected services with names (convert IDs to service names)
+    let enrichedServices: string[] | undefined = undefined;
+    if (rows.length > 0 && rows[0].selected_services && rows[0].service_category) {
+      const selectedServiceIds = parseSelectedServices(rows[0].selected_services);
+      if (selectedServiceIds && selectedServiceIds.length > 0) {
+        try {
+          // Create a temporary ticket object for enrichment
+          const tempTicket = {
+            selectedServices: selectedServiceIds,
+            serviceCategory: rows[0].service_category,
+          } as any;
+
+          // Enrich with service names
+          const enrichedTickets = await enrichMultipleTicketsWithServiceNames([tempTicket]);
+          enrichedServices = enrichedTickets[0]?.selectedServices;
+        } catch (enrichError) {
+          console.warn("Failed to enrich services with names:", enrichError);
+          enrichedServices = selectedServiceIds; // Fallback to IDs if enrichment fails
+        }
+      }
+    }
+
     const ticketInfo =
       rows.length > 0
         ? {
             ticketCode: rows[0].ticket_code,
             serviceCategory: rows[0].service_category,
-            selectedServices: parseSelectedServices(rows[0].selected_services),
+            selectedServices: enrichedServices,
           }
         : null;
 
@@ -762,7 +784,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         ? Math.round(r.duration_seconds)
         : null,
       employeeName: r.full_name || r.username || "Unknown",
-      jobTitle: r.job_title_name || "No Title",
+      jobTitle: r.job_title_name,
       ticketCode: r.ticket_code,
     }));
 
@@ -774,7 +796,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to fetch case workflow:", error);
     res.status(500).json({
-      error: "Failed to fetch case workflow. Please try again later.",
+      error: "Failed to fetch case workflow. Please take away later.",
       details: error instanceof Error ? error.message : String(error),
     });
   }
