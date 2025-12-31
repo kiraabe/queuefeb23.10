@@ -89,7 +89,7 @@ export function TicketSection({
           <>
             <div className="space-y-3">
               {items.map((ticket) => (
-                <TicketRow key={ticket.id} ticket={ticket} />
+                <TicketRow key={ticket.id} ticket={ticket} userMap={userMap} />
               ))}
             </div>
 
