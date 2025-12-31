@@ -96,6 +96,22 @@ export default function Admin() {
             <AdminDashboard />
           </TabsContent>
 
+          <TabsContent value="employees" className="space-y-4">
+            <EmployeePerformanceDashboard />
+          </TabsContent>
+
+          <TabsContent value="workflow" className="space-y-4">
+            <CaseWorkflowTracker />
+          </TabsContent>
+
+          <TabsContent value="cases" className="space-y-4">
+            <EmployeeCaseQueue />
+          </TabsContent>
+
+          <TabsContent value="services" className="space-y-4">
+            <ServiceCategoryAnalytics />
+          </TabsContent>
+
           <TabsContent value="employment" className="space-y-4">
             <EmploymentManagement />
           </TabsContent>
