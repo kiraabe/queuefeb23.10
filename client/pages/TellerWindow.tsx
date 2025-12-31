@@ -18,7 +18,6 @@ import {
   Dot,
   User,
   MapPin,
-  StickyNote,
   Layers,
 } from "lucide-react";
 import { TicketSection } from "@/components/teller/TicketSection";
