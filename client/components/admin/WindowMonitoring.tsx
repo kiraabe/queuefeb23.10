@@ -59,7 +59,7 @@ export default function WindowMonitoring() {
       });
 
       const servedByWindow = todayTickets.filter(
-        (t) => t.status === "done" && t.windowId === window.id,
+        (t) => t.status === "done" && (t.windowId === window.id || t.transferredFromWindow === window.id),
       );
       const skippedByWindow = todayTickets.filter(
         (t) => t.status === "skipped" && t.skippedByWindow === window.id,
