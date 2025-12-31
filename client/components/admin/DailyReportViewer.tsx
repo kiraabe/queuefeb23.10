@@ -86,6 +86,42 @@ interface DailyReport {
     transfersTo: number;
     averageServiceTime: number | null;
   }>;
+  employeePerformance: Array<{
+    employeeId: string;
+    employeeName: string;
+    totalCasesStarted: number;
+    casesCompleted: number;
+    casesProceed: number;
+    averageCaseTime: number | null;
+    totalTimeSpent: number | null;
+  }>;
+  caseWorkflow: Array<{
+    caseId: string;
+    employeeId: string;
+    employeeName: string;
+    ticketId: string;
+    ticketCode: string;
+    service: string;
+    jobTitle: string;
+    startedAt: number | null;
+    endedAt: number | null;
+    status: string;
+    durationSeconds: number | null;
+  }>;
+  categoryPerformance: Array<{
+    categoryId: string;
+    categoryName: string;
+    totalTickets: number;
+    served: number;
+    skipped: number;
+    transferred: number;
+    averageServiceTime: number | null;
+    services: Array<{
+      serviceId: string;
+      serviceName: string;
+      totalTickets: number;
+    }>;
+  }>;
 }
 
 export default function DailyReportViewer() {
