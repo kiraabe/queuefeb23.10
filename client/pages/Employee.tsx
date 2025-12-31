@@ -742,15 +742,63 @@ export default function Employee() {
                     No case history yet
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {tabItems.map((ticket) => (
-                      <CaseHistoryRow
-                        key={ticket.id}
-                        ticket={ticket}
-                        userMap={userMap}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      {tabItems.map((ticket) => (
+                        <CaseHistoryRow
+                          key={ticket.id}
+                          ticket={ticket}
+                          userMap={userMap}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {historyQuery.data && historyQuery.data.total > 0 && (
+                      <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                        <p className="text-sm text-muted-foreground">
+                          Showing {(historyPage - 1) * itemsPerPage + 1} to{" "}
+                          {Math.min(
+                            historyPage * itemsPerPage,
+                            historyQuery.data.total
+                          )}{" "}
+                          of {historyQuery.data.total} cases
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
+                            disabled={historyPage === 1}
+                          >
+                            Previous
+                          </Button>
+                          <div className="flex items-center gap-2 px-3 py-1 border rounded-md">
+                            <span className="text-sm font-medium">
+                              {historyPage}
+                            </span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setHistoryPage((p) =>
+                                Math.ceil(historyQuery.data!.total / itemsPerPage) > p
+                                  ? p + 1
+                                  : p
+                              )
+                            }
+                            disabled={
+                              historyPage >=
+                              Math.ceil(historyQuery.data!.total / itemsPerPage)
+                            }
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </TabsContent>
             </Tabs>
