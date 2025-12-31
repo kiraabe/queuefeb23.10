@@ -468,12 +468,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         )}
         {ticket && (
           <div className="flex gap-2 mt-2">
-            {isReceived && !hasStarted && !isCompleted && !hasProceeded && (
+            {isReceived && !hasStarted && !isCompleted && (
               <Button size="sm" onClick={handleStart}>
                 Start
               </Button>
             )}
-            {isReceived && hasStarted && !isCompleted && !hasProceeded && (
+            {isReceived && hasStarted && !isCompleted && (
               <>
                 <Button size="sm" onClick={handleProceed} variant="outline">
                   Proceed
