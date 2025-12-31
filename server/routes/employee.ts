@@ -728,6 +728,8 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         u.username,
         u.full_name,
         t.code as ticket_code,
+        t.service_category,
+        t.selected_services,
         COALESCE(jt.name_english, jt.name_amharic, 'No Title') as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
@@ -738,6 +740,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     `;
 
     const { rows } = await p.query(query, [ticketId]);
+
+    const ticketInfo = rows.length > 0 ? {
+      ticketCode: rows[0].ticket_code,
+      serviceCategory: rows[0].service_category,
+      selectedServices: parseSelectedServices(rows[0].selected_services),
+    } : null;
 
     const items = rows.map((r) => ({
       id: r.id,
@@ -757,6 +765,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     res.json({
       items,
+      ticketInfo,
       total: items.length,
     });
   } catch (error) {
