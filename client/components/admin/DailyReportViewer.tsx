@@ -17,8 +17,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, Download, RefreshCw } from "lucide-react";
+import { AlertCircle, Download, RefreshCw, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 interface DailyReport {
   reportDate: string;
