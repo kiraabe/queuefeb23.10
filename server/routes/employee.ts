@@ -537,10 +537,22 @@ export const employeeHistory: RequestHandler = async (req, res) => {
 
   const limit = Math.min(Math.max(Number(req.query.limit || 100), 1), 500);
   const offset = Math.max(Number(req.query.offset || 0), 0);
+  const timePeriod = (req.query.timePeriod || "today") as
+    | "today"
+    | "week"
+    | "month";
 
   const p = getPool();
 
   try {
+    // Determine the date threshold based on time period
+    let dateThreshold = "date_trunc('day', now())"; // default: today
+    if (timePeriod === "week") {
+      dateThreshold = "date_trunc('week', now())";
+    } else if (timePeriod === "month") {
+      dateThreshold = "date_trunc('month', now())";
+    }
+
     // Build the ticket selection query
     const selectTicketColumns = `t.id, t.service, t.number, t.code, t.status, t.window_id,
                 extract(epoch from t.created_at)*1000 as created_at,
@@ -553,7 +565,7 @@ export const employeeHistory: RequestHandler = async (req, res) => {
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
                 t.job_title_for_proceed`;
 
-    // Get all cases this employee started OR worked on today (whether forwarded or completed)
+    // Get all cases this employee started OR worked on within the selected time period
     // This includes:
     // 1. Cases they initiated (started_by_user_id)
     // 2. Cases they worked on (in employee_case_performance)
@@ -562,7 +574,7 @@ export const employeeHistory: RequestHandler = async (req, res) => {
        FROM tickets t
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
-         AND t.created_at >= date_trunc('day', now())`,
+         AND t.created_at >= ${dateThreshold}`,
       [userId],
     );
 
@@ -573,7 +585,7 @@ export const employeeHistory: RequestHandler = async (req, res) => {
          FROM tickets t
          LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
          WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
-           AND t.created_at >= date_trunc('day', now())
+           AND t.created_at >= ${dateThreshold}
        ) distinct_tickets
        JOIN tickets t ON t.id = distinct_tickets.id
        ORDER BY COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
