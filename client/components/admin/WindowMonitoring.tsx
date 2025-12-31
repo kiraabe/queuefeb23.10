@@ -296,22 +296,28 @@ export default function WindowMonitoring() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="space-y-1 rounded border p-2">
                     <p className="text-xs text-muted-foreground">Served</p>
-                    <p className="font-bold">{servedToday}</p>
+                    <p className="font-bold text-green-600">{servedToday}</p>
                   </div>
                   <div className="space-y-1 rounded border p-2">
                     <p className="text-xs text-muted-foreground">Skipped</p>
                     <p className="font-bold text-orange-600">{skippedToday}</p>
                   </div>
                   <div className="space-y-1 rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Completion Rate</p>
+                    <p className="font-bold text-blue-600">{completionRate}%</p>
+                  </div>
+                  <div className="space-y-1 rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Skipped Rate</p>
+                    <p className="font-bold text-red-600">{skippedRate}%</p>
+                  </div>
+                  <div className="space-y-1 rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Total Cases</p>
+                    <p className="font-bold">{totalCasesHandled}</p>
+                  </div>
+                  <div className="space-y-1 rounded border p-2">
                     <p className="text-xs text-muted-foreground">Avg Service</p>
                     <p className="font-bold">
                       {avgServiceTime ? `${avgServiceTime}s` : "N/A"}
-                    </p>
-                  </div>
-                  <div className="space-y-1 rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Transfers</p>
-                    <p className="font-bold text-purple-600">
-                      {transferredFrom + transferredTo}
                     </p>
                   </div>
                 </div>
