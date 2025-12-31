@@ -29,6 +29,21 @@ export function TicketSection({
 }: TicketSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Fetch all users for transfer info display
+  const { data: usersData } = useQuery({
+    queryKey: ["all-users-for-tickets"],
+    queryFn: () => apiFetch<ListUsersResponse>("/api/admin/users"),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const userMap = useMemo(() => {
+    const map = new Map<string, string>();
+    usersData?.users.forEach((user) => {
+      map.set(user.id, user.fullName || user.username);
+    });
+    return map;
+  }, [usersData]);
+
   // Reset page to 1 when items change significantly
   useEffect(() => {
     setCurrentPage(1);
