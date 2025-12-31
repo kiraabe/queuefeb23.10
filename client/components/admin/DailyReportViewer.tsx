@@ -49,6 +49,7 @@ interface DailyReport {
     windowName: string | null;
     createdAt: number;
     completedAt: number | null;
+    category?: string;
   }>;
   skipped: Array<{
     ticketId: string;
