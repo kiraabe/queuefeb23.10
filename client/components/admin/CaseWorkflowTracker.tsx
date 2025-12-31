@@ -59,7 +59,7 @@ export default function CaseWorkflowTracker() {
   const [searchTicket, setSearchTicket] = useState("");
   const [workflows, setWorkflows] = useState<CaseWorkflow[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<CaseWorkflow | null>(
-    null
+    null,
   );
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,16 +76,14 @@ export default function CaseWorkflowTracker() {
       setError(null);
 
       // Search for the ticket first
-      const ticketSearchRes = await fetch(
-        `/api/admin/daily-report`
-      );
+      const ticketSearchRes = await fetch(`/api/admin/daily-report`);
       const reportData = await ticketSearchRes.json();
 
       // Find matching ticket
       const matchingTicket = reportData.allTickets.find(
         (t: any) =>
           t.ticketCode.toLowerCase() === searchTicket.toLowerCase() ||
-          t.ticketId.toLowerCase() === searchTicket.toLowerCase()
+          t.ticketId.toLowerCase() === searchTicket.toLowerCase(),
       );
 
       if (!matchingTicket) {
@@ -95,7 +93,7 @@ export default function CaseWorkflowTracker() {
 
       // Get the workflow for this ticket
       const workflowRes = await fetch(
-        `/api/employee/case-workflow?ticketId=${matchingTicket.ticketId}`
+        `/api/employee/case-workflow?ticketId=${matchingTicket.ticketId}`,
       );
 
       if (!workflowRes.ok) {
@@ -141,7 +139,7 @@ export default function CaseWorkflowTracker() {
   };
 
   const getStatusColor = (
-    status: "in_progress" | "proceeded" | "completed"
+    status: "in_progress" | "proceeded" | "completed",
   ) => {
     switch (status) {
       case "in_progress":
@@ -155,7 +153,9 @@ export default function CaseWorkflowTracker() {
     }
   };
 
-  const getStatusLabel = (status: "in_progress" | "proceeded" | "completed") => {
+  const getStatusLabel = (
+    status: "in_progress" | "proceeded" | "completed",
+  ) => {
     switch (status) {
       case "in_progress":
         return "In Progress";
@@ -214,7 +214,9 @@ export default function CaseWorkflowTracker() {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Case Workflow: {selectedWorkflow?.ticketCode}</DialogTitle>
+            <DialogTitle>
+              Case Workflow: {selectedWorkflow?.ticketCode}
+            </DialogTitle>
             <DialogDescription>
               Complete workflow history for this case
             </DialogDescription>
@@ -271,7 +273,7 @@ export default function CaseWorkflowTracker() {
                                     {entry.startedAt
                                       ? format(
                                           new Date(entry.startedAt),
-                                          "HH:mm:ss"
+                                          "HH:mm:ss",
                                         )
                                       : "N/A"}
                                   </span>

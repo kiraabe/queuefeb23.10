@@ -470,7 +470,9 @@ export default function AdminDashboard() {
 
       {/* Divider */}
       <div className="border-t pt-8">
-        <h2 className="text-2xl font-bold tracking-tight mb-6">Advanced Analytics</h2>
+        <h2 className="text-2xl font-bold tracking-tight mb-6">
+          Advanced Analytics
+        </h2>
       </div>
 
       {/* Employee Performance Dashboard Section */}

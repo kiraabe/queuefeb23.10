@@ -459,7 +459,9 @@ export default function DailyReportViewer() {
                 ) : (
                   <div className="space-y-4">
                     <div className="rounded-lg border p-4">
-                      <h4 className="font-semibold mb-3">Service Time Distribution</h4>
+                      <h4 className="font-semibold mb-3">
+                        Service Time Distribution
+                      </h4>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart
                           data={[
@@ -473,12 +475,17 @@ export default function DailyReportViewer() {
                           <XAxis dataKey="name" />
                           <YAxis />
                           <Tooltip />
-                          <Bar dataKey="avg" fill="#3b82f6" name="Avg Time (sec)" />
+                          <Bar
+                            dataKey="avg"
+                            fill="#3b82f6"
+                            name="Avg Time (sec)"
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      Average service time: {report.summary.averageServiceTime}s per ticket
+                      Average service time: {report.summary.averageServiceTime}s
+                      per ticket
                     </p>
                   </div>
                 )}
@@ -497,7 +504,10 @@ export default function DailyReportViewer() {
                 ) : (
                   <div className="space-y-4">
                     {(() => {
-                      const serviceMap = new Map<string, { total: number; served: number }>();
+                      const serviceMap = new Map<
+                        string,
+                        { total: number; served: number }
+                      >();
                       for (const ticket of report.allTickets) {
                         const service = ticket.service || "Uncategorized";
                         if (!serviceMap.has(service)) {
@@ -522,9 +532,15 @@ export default function DailyReportViewer() {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Service</TableHead>
-                              <TableHead className="text-right">Total</TableHead>
-                              <TableHead className="text-right">Served</TableHead>
-                              <TableHead className="text-right">Completion Rate</TableHead>
+                              <TableHead className="text-right">
+                                Total
+                              </TableHead>
+                              <TableHead className="text-right">
+                                Served
+                              </TableHead>
+                              <TableHead className="text-right">
+                                Completion Rate
+                              </TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>

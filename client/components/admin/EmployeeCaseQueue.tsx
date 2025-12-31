@@ -80,7 +80,7 @@ export default function EmployeeCaseQueue() {
         // Get case workflow to see which employees worked on this case
         try {
           const workflowRes = await fetch(
-            `/api/employee/case-workflow?ticketId=${ticket.ticketId}`
+            `/api/employee/case-workflow?ticketId=${ticket.ticketId}`,
           );
           if (workflowRes.ok) {
             const workflowData = await workflowRes.json();
@@ -125,15 +125,25 @@ export default function EmployeeCaseQueue() {
 
                 // Categorize by status
                 if (ticket.status === "done") {
-                  if (!empData.completedCases.find((t) => t.id === ticket.ticketId)) {
+                  if (
+                    !empData.completedCases.find(
+                      (t) => t.id === ticket.ticketId,
+                    )
+                  ) {
                     empData.completedCases.push(formattedTicket);
                   }
                 } else if (ticket.status === "transferred") {
-                  if (!empData.forwardedCases.find((t) => t.id === ticket.ticketId)) {
+                  if (
+                    !empData.forwardedCases.find(
+                      (t) => t.id === ticket.ticketId,
+                    )
+                  ) {
                     empData.forwardedCases.push(formattedTicket);
                   }
                 } else {
-                  if (!empData.receivedCases.find((t) => t.id === ticket.ticketId)) {
+                  if (
+                    !empData.receivedCases.find((t) => t.id === ticket.ticketId)
+                  ) {
                     empData.receivedCases.push(formattedTicket);
                   }
                 }
@@ -146,13 +156,16 @@ export default function EmployeeCaseQueue() {
             }
           }
         } catch (e) {
-          console.warn(`Failed to fetch workflow for ticket ${ticket.ticketId}`);
+          console.warn(
+            `Failed to fetch workflow for ticket ${ticket.ticketId}`,
+          );
         }
       }
 
       // Calculate average case times
-      const employees = Array.from(employeeMap.values())
-        .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+      const employees = Array.from(employeeMap.values()).sort((a, b) =>
+        a.employeeName.localeCompare(b.employeeName),
+      );
 
       setEmployeesData(employees);
     } catch (err) {
@@ -189,7 +202,13 @@ export default function EmployeeCaseQueue() {
     }
   };
 
-  const TicketRow = ({ ticket, employeeId }: { ticket: Ticket; employeeId: string }) => (
+  const TicketRow = ({
+    ticket,
+    employeeId,
+  }: {
+    ticket: Ticket;
+    employeeId: string;
+  }) => (
     <TableRow key={ticket.id}>
       <TableCell className="font-medium">{ticket.code}</TableCell>
       <TableCell>{ticket.service}</TableCell>
@@ -284,7 +303,10 @@ export default function EmployeeCaseQueue() {
                 <HourglassIcon className="h-4 w-4 text-orange-500" />
               </div>
               <p className="text-3xl font-bold">
-                {employeesData.reduce((sum, e) => sum + e.stats.totalReceived, 0)}
+                {employeesData.reduce(
+                  (sum, e) => sum + e.stats.totalReceived,
+                  0,
+                )}
               </p>
               <p className="text-xs text-muted-foreground">handled</p>
             </div>
@@ -301,7 +323,10 @@ export default function EmployeeCaseQueue() {
                 <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
               <p className="text-3xl font-bold">
-                {employeesData.reduce((sum, e) => sum + e.stats.totalCompleted, 0)}
+                {employeesData.reduce(
+                  (sum, e) => sum + e.stats.totalCompleted,
+                  0,
+                )}
               </p>
               <p className="text-xs text-muted-foreground">cases</p>
             </div>
@@ -316,7 +341,9 @@ export default function EmployeeCaseQueue() {
             className="cursor-pointer hover:bg-muted/50 transition-colors"
             onClick={() =>
               setExpandedEmployee(
-                expandedEmployee === employee.employeeId ? null : employee.employeeId
+                expandedEmployee === employee.employeeId
+                  ? null
+                  : employee.employeeId,
               )
             }
           >

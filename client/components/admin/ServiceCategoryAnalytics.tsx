@@ -30,7 +30,13 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { AlertCircle, TrendingUp, Clock, CheckCircle, Users } from "lucide-react";
+import {
+  AlertCircle,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  Users,
+} from "lucide-react";
 
 interface ServiceCategoryStats {
   category: string;
@@ -131,7 +137,10 @@ export default function ServiceCategoryAnalytics() {
       const topCategory = categories.length > 0 ? categories[0] : null;
 
       // Calculate overall stats
-      const totalTickets = categories.reduce((sum, cat) => sum + cat.totalTickets, 0);
+      const totalTickets = categories.reduce(
+        (sum, cat) => sum + cat.totalTickets,
+        0,
+      );
       const totalServed = categories.reduce((sum, cat) => sum + cat.served, 0);
       const overallCompletionRate =
         totalTickets > 0 ? Math.round((totalServed / totalTickets) * 100) : 0;
@@ -176,9 +185,7 @@ export default function ServiceCategoryAnalytics() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">
-              Loading analytics data...
-            </p>
+            <p className="text-muted-foreground">Loading analytics data...</p>
           </div>
         </CardContent>
       </Card>
@@ -208,9 +215,7 @@ export default function ServiceCategoryAnalytics() {
           <CardTitle>Service Category Analytics</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            No analytics data available
-          </p>
+          <p className="text-muted-foreground">No analytics data available</p>
         </CardContent>
       </Card>
     );
@@ -363,7 +368,11 @@ export default function ServiceCategoryAnalytics() {
                   <Legend />
                   <Bar dataKey="served" fill="#22c55e" name="Served" />
                   <Bar dataKey="skipped" fill="#f59e0b" name="Skipped" />
-                  <Bar dataKey="transferred" fill="#3b82f6" name="Transferred" />
+                  <Bar
+                    dataKey="transferred"
+                    fill="#3b82f6"
+                    name="Transferred"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -394,7 +403,9 @@ export default function ServiceCategoryAnalytics() {
                     <TableHead className="text-right">Served</TableHead>
                     <TableHead className="text-right">Skipped</TableHead>
                     <TableHead className="text-right">Transferred</TableHead>
-                    <TableHead className="text-right">Completion Rate</TableHead>
+                    <TableHead className="text-right">
+                      Completion Rate
+                    </TableHead>
                     <TableHead className="text-right">Avg Time</TableHead>
                   </TableRow>
                 </TableHeader>

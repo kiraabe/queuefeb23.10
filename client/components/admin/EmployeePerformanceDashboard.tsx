@@ -84,7 +84,7 @@ export default function EmployeePerformanceDashboard() {
         // Get case workflow for this ticket to find employees who worked on it
         try {
           const workflowRes = await fetch(
-            `/api/employee/case-workflow?ticketId=${ticket.ticketId}`
+            `/api/employee/case-workflow?ticketId=${ticket.ticketId}`,
           );
           if (workflowRes.ok) {
             const workflowData = await workflowRes.json();
@@ -118,7 +118,9 @@ export default function EmployeePerformanceDashboard() {
             }
           }
         } catch (e) {
-          console.warn(`Failed to fetch workflow for ticket ${ticket.ticketId}`);
+          console.warn(
+            `Failed to fetch workflow for ticket ${ticket.ticketId}`,
+          );
         }
       }
 
@@ -127,7 +129,7 @@ export default function EmployeePerformanceDashboard() {
         ...emp,
         averageCaseTime: emp.totalCasesStarted
           ? Math.round(
-              ((emp.totalTimeSpent || 0) / emp.totalCasesStarted) * 100
+              ((emp.totalTimeSpent || 0) / emp.totalCasesStarted) * 100,
             ) / 100
           : null,
         averageServiceTime: emp.totalTimeSpent
@@ -141,7 +143,7 @@ export default function EmployeePerformanceDashboard() {
           ? employeeList.reduce((prev, current) =>
               (current.casesCompleted || 0) > (prev.casesCompleted || 0)
                 ? current
-                : prev
+                : prev,
             )
           : null;
 
@@ -152,19 +154,22 @@ export default function EmployeePerformanceDashboard() {
           totalEmployees: employeeList.length,
           totalCasesProcessed: employeeList.reduce(
             (sum, emp) => sum + emp.totalCasesStarted,
-            0
+            0,
           ),
           averageCompletionTime: employeeList.length
             ? Math.round(
                 (employeeList.reduce(
                   (sum, emp) => sum + (emp.averageCaseTime || 0),
-                  0
+                  0,
                 ) /
                   employeeList.length) *
-                  100
+                  100,
               ) / 100
             : null,
-          highestPerformer: highestPerformer && highestPerformer.totalCasesStarted > 0 ? highestPerformer : null,
+          highestPerformer:
+            highestPerformer && highestPerformer.totalCasesStarted > 0
+              ? highestPerformer
+              : null,
         },
       });
     } catch (err) {
