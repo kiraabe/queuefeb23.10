@@ -700,6 +700,30 @@ export default function Employee() {
               </TabsContent>
 
               <TabsContent value="history" className="space-y-4 mt-4">
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    variant={timePeriod === "today" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTimePeriod("today")}
+                  >
+                    Today
+                  </Button>
+                  <Button
+                    variant={timePeriod === "week" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTimePeriod("week")}
+                  >
+                    This Week
+                  </Button>
+                  <Button
+                    variant={timePeriod === "month" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTimePeriod("month")}
+                  >
+                    This Month
+                  </Button>
+                </div>
+
                 {historyQuery.isPending ? (
                   <div className="text-center py-8 text-muted-foreground">
                     Loading case history...
