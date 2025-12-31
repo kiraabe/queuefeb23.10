@@ -95,27 +95,41 @@ export default function CaseWorkflowTracker() {
         setLoading(true);
         setError(null);
 
-        // Fetch the daily report to get all tickets
+        // Fetch the daily report to get all tickets and their workflow data
         const reportRes = await apiFetch<any>("/api/admin/daily-report");
+        const caseWorkflow = reportRes.caseWorkflow || [];
         const allTickets = reportRes.allTickets || [];
 
-        // Filter for completed tickets with workflow history
-        const completedTickets = allTickets.filter(
-          (t: any) => t.status === "done" && t.employeeStartedAt, // Only show tickets that have been processed
-        );
-
-        // Take the most recent completed ticket
-        if (completedTickets.length === 0) {
+        // Filter for tickets with completed workflow entries
+        if (caseWorkflow.length === 0) {
           setError("No completed cases found in the system yet");
           setWorkflows([]);
           return;
         }
 
-        const mostRecentTicket = completedTickets[0];
+        // Get unique ticket IDs from workflow data, sorted by most recent
+        const uniqueTickets = new Map<string, any>();
+        caseWorkflow.forEach((entry: any) => {
+          if (!uniqueTickets.has(entry.ticketId)) {
+            uniqueTickets.set(entry.ticketId, {
+              ticketId: entry.ticketId,
+              ticketCode: entry.ticketCode,
+              service: entry.service,
+            });
+          }
+        });
 
-        // Fetch workflow for this ticket
+        // Find the most recent completed ticket with workflow data
+        const ticketWithWorkflow = Array.from(uniqueTickets.values())[0];
+        if (!ticketWithWorkflow) {
+          setError("No completed cases found in the system yet");
+          setWorkflows([]);
+          return;
+        }
+
+        // Fetch workflow details for this ticket
         const workflowRes = await apiFetch<any>(
-          `/api/employee/case-workflow?ticketId=${mostRecentTicket.ticketId}`,
+          `/api/employee/case-workflow?ticketId=${ticketWithWorkflow.ticketId}`,
         );
 
         // Calculate total duration
@@ -129,8 +143,8 @@ export default function CaseWorkflowTracker() {
         }
 
         const workflow: CaseWorkflow = {
-          ticketId: mostRecentTicket.ticketId,
-          ticketCode: mostRecentTicket.ticketCode,
+          ticketId: ticketWithWorkflow.ticketId,
+          ticketCode: ticketWithWorkflow.ticketCode,
           ticketInfo: workflowRes.ticketInfo,
           items: workflowRes.items || [],
           totalDuration,
