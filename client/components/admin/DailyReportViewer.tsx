@@ -366,9 +366,11 @@ export default function DailyReportViewer() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="summary">Summary</TabsTrigger>
               <TabsTrigger value="windows">Windows</TabsTrigger>
+              <TabsTrigger value="employees">Employees</TabsTrigger>
+              <TabsTrigger value="services">Services</TabsTrigger>
               <TabsTrigger value="skipped">Skipped</TabsTrigger>
               <TabsTrigger value="transfers">Transfers</TabsTrigger>
             </TabsList>
