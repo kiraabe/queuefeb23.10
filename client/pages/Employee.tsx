@@ -818,6 +818,7 @@ export default function Employee() {
         caseId={selectedCaseId || ""}
         action={selectedAction}
         onSuccess={handleCaseCompleted}
+        currentUserId={user?.id}
       />
     </div>
   );
