@@ -561,12 +561,15 @@ export const employeeHistory: RequestHandler = async (req, res) => {
     // This includes:
     // 1. Cases they initiated (started_by_user_id)
     // 2. Cases they worked on (in employee_case_performance)
+    // Include cases where creation, completion, or proceed happened within the time period
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
-         AND t.created_at >= ${dateThreshold}`,
+         AND (t.created_at >= ${dateThreshold}
+              OR t.completed_at >= ${dateThreshold}
+              OR t.proceeded_at >= ${dateThreshold})`,
       [userId],
     );
 
@@ -577,7 +580,9 @@ export const employeeHistory: RequestHandler = async (req, res) => {
          FROM tickets t
          LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
          WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
-           AND t.created_at >= ${dateThreshold}
+           AND (t.created_at >= ${dateThreshold}
+                OR t.completed_at >= ${dateThreshold}
+                OR t.proceeded_at >= ${dateThreshold})
        ) distinct_tickets
        JOIN tickets t ON t.id = distinct_tickets.id
        ORDER BY COALESCE(t.proceeded_at, t.completed_at, t.started_at) DESC
