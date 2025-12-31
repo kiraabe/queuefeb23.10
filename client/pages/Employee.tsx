@@ -387,7 +387,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     }
   };
 
-  const isReceived = ticket.transferredToUserId != null && ticket.status !== "done";
+  const isReceived = ticket.transferredToUserId != null;
   const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
   const isCompleted = ticket.completedAt != null;
