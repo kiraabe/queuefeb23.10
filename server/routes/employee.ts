@@ -741,11 +741,14 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     const { rows } = await p.query(query, [ticketId]);
 
-    const ticketInfo = rows.length > 0 ? {
-      ticketCode: rows[0].ticket_code,
-      serviceCategory: rows[0].service_category,
-      selectedServices: parseSelectedServices(rows[0].selected_services),
-    } : null;
+    const ticketInfo =
+      rows.length > 0
+        ? {
+            ticketCode: rows[0].ticket_code,
+            serviceCategory: rows[0].service_category,
+            selectedServices: parseSelectedServices(rows[0].selected_services),
+          }
+        : null;
 
     const items = rows.map((r) => ({
       id: r.id,

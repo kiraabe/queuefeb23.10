@@ -58,9 +58,7 @@ const formatSeconds = (seconds: number | null) => {
   return `${mins}m ${secs}s`;
 };
 
-const getStatusColor = (
-  status: "in_progress" | "proceeded" | "completed",
-) => {
+const getStatusColor = (status: "in_progress" | "proceeded" | "completed") => {
   switch (status) {
     case "completed":
       return "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300";
@@ -73,9 +71,7 @@ const getStatusColor = (
   }
 };
 
-const getStatusLabel = (
-  status: "in_progress" | "proceeded" | "completed",
-) => {
+const getStatusLabel = (status: "in_progress" | "proceeded" | "completed") => {
   switch (status) {
     case "in_progress":
       return "In Progress";
@@ -105,9 +101,7 @@ export default function CaseWorkflowTracker() {
 
         // Filter for completed tickets with workflow history
         const completedTickets = allTickets.filter(
-          (t: any) =>
-            t.status === "done" &&
-            t.employeeStartedAt, // Only show tickets that have been processed
+          (t: any) => t.status === "done" && t.employeeStartedAt, // Only show tickets that have been processed
         );
 
         // Take the most recent completed ticket
@@ -262,7 +256,10 @@ export default function CaseWorkflowTracker() {
                 {/* Flow Diagram */}
                 <div className="flex items-start gap-2 pb-4">
                   {workflow.items.map((step, index) => (
-                    <div key={step.id} className="flex items-start gap-2 flex-shrink-0">
+                    <div
+                      key={step.id}
+                      className="flex items-start gap-2 flex-shrink-0"
+                    >
                       {/* Step Node */}
                       <div className="flex flex-col items-center">
                         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
@@ -294,7 +291,10 @@ export default function CaseWorkflowTracker() {
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                   <span className="text-muted-foreground">
-                                    {format(new Date(step.startedAt), "HH:mm:ss")}
+                                    {format(
+                                      new Date(step.startedAt),
+                                      "HH:mm:ss",
+                                    )}
                                   </span>
                                 </div>
                               )}
