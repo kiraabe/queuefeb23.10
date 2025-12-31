@@ -217,29 +217,21 @@ export const employeeStats: RequestHandler = async (req, res) => {
       [userId],
     );
 
-    // Calculate average processing time per employee using employee_case_performance records
-    // This ensures accurate per-employee time tracking even when cases are forwarded between employees
-    const { rows: avgRows } = await p.query(
-      `SELECT AVG(
-         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))
-       ) AS avg_seconds
-       FROM employee_case_performance ecp
+    // Count proceeded tickets today (cases forwarded by this employee)
+    const { rows: proceedRows } = await p.query(
+      `SELECT COUNT(DISTINCT t.id)::int AS c
+       FROM tickets t
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE ecp.employee_id = $1
-         AND ecp.ended_at IS NOT NULL
-         AND ecp.status IN ('completed', 'proceeded')
+         AND ecp.status = 'proceeded'
          AND ecp.created_at >= date_trunc('day', now())`,
       [userId],
     );
 
-    const avg =
-      avgRows[0]?.avg_seconds != null
-        ? Math.round(Number(avgRows[0].avg_seconds))
-        : null;
-
     res.json({
       receivedToday: Number(receivedRows[0]?.c || 0),
       completedToday: Number(completedRows[0]?.c || 0),
-      avgProcessingSecondsToday: avg,
+      proceedToday: Number(proceedRows[0]?.c || 0),
     });
   } catch (error) {
     console.error("Failed to fetch employee stats:", error);
