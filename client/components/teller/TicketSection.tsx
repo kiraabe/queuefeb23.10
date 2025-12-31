@@ -307,8 +307,8 @@ function TicketRow({
               <span className="text-muted-foreground font-medium">
                 {ticket.transferredToWindow
                   ? getWindowName(ticket.transferredToWindow)
-                  : ticket.transferredToUserId && transferredToUser?.users?.[0]
-                    ? transferredToUser.users[0].fullName || transferredToUser.users[0].username
+                  : ticket.transferredToUserId
+                    ? userMap.get(ticket.transferredToUserId) || "—"
                     : "—"}
               </span>
             </div>
