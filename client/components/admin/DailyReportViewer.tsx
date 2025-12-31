@@ -109,18 +109,12 @@ interface DailyReport {
     durationSeconds: number | null;
   }>;
   categoryPerformance: Array<{
-    categoryId: string;
     categoryName: string;
     totalTickets: number;
     served: number;
     skipped: number;
     transferred: number;
     averageServiceTime: number | null;
-    services: Array<{
-      serviceId: string;
-      serviceName: string;
-      totalTickets: number;
-    }>;
   }>;
 }
 
