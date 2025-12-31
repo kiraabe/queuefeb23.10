@@ -235,12 +235,39 @@ export default function TellerWindow() {
     loadWindowServices();
   }, [windowId]);
 
-  // Load teller full name from logged-in user
+  // Load teller full name from logged-in user or from API
   useEffect(() => {
     if (user?.fullName) {
       setTellerFullName(user.fullName);
     }
   }, [user?.fullName]);
+
+  // Fetch teller full name from API if not available from user
+  const tellerQuery = useQuery({
+    queryKey: ["teller", windowId],
+    queryFn: async () => {
+      try {
+        const response = await apiFetch<{ users: Array<{ id: string; username: string; fullName?: string }> }>("/api/admin/users");
+        return response.users || [];
+      } catch {
+        return [];
+      }
+    },
+    enabled: !tellerFullName,
+  });
+
+  useEffect(() => {
+    if (!tellerFullName && tellerQuery.data && tellerQuery.data.length > 0) {
+      // Find teller for this window
+      const windowQueryData = windowQuery.data;
+      if (windowQueryData?.tellerId) {
+        const teller = tellerQuery.data.find((u) => u.id === windowQueryData.tellerId);
+        if (teller?.fullName) {
+          setTellerFullName(teller.fullName);
+        }
+      }
+    }
+  }, [tellerQuery.data, tellerFullName, windowQuery.data?.tellerId]);
 
   // Reset tab selection and clear ticket data every 24 hours when tickets reset
   useEffect(() => {
