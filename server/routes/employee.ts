@@ -796,7 +796,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to fetch case workflow:", error);
     res.status(500).json({
-      error: "Failed to fetch case workflow. Please take away later.",
+      error: "Failed to fetch case workflow. Please try again later.",
       details: error instanceof Error ? error.message : String(error),
     });
   }
