@@ -254,7 +254,7 @@ export default function CaseWorkflowTracker() {
                             variant="outline"
                             className="bg-white dark:bg-background text-xs"
                           >
-                            {typeof service === 'string' ? service : JSON.stringify(service)}
+                            {service}
                           </Badge>
                         ),
                       )}
