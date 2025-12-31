@@ -657,15 +657,15 @@ export default function Employee() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Avg. Processing Time
+                Cases Proceeded
               </CardTitle>
-              <Zap className="h-4 w-4 text-amber-600 dark:text-amber-300" />
+              <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-300" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatDuration(stats?.avgProcessingSecondsToday)}
+                {stats?.proceedToday ?? 0}
               </div>
-              <p className="text-xs text-muted-foreground">Per case</p>
+              <p className="text-xs text-muted-foreground">Today</p>
             </CardContent>
           </Card>
         </div>
