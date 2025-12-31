@@ -517,11 +517,13 @@ export default function Employee() {
   });
 
   const historyQuery = useQuery({
-    queryKey: ["employee-history", timePeriod],
-    queryFn: () =>
-      apiFetch<EmployeeTicketsResponse>(
-        `/api/employee/history?timePeriod=${encodeURIComponent(timePeriod)}`
-      ),
+    queryKey: ["employee-history", timePeriod, historyPage],
+    queryFn: () => {
+      const offset = (historyPage - 1) * itemsPerPage;
+      return apiFetch<EmployeeTicketsResponse>(
+        `/api/employee/history?timePeriod=${encodeURIComponent(timePeriod)}&limit=${itemsPerPage}&offset=${offset}`
+      );
+    },
     refetchInterval: 10000,
     enabled: !!user && user.role === "employee",
   });
