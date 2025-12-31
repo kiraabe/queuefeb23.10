@@ -436,32 +436,14 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
         status: r.status,
         durationSeconds: r.duration_seconds ? Math.round(Number(r.duration_seconds)) : null,
       })),
-      categoryPerformance: categoryPerfRes.rows.reduce((acc: any, r: any) => {
-        const existingCat = acc.find((c: any) => c.categoryId === r.category_id);
-        if (existingCat) {
-          existingCat.services.push({
-            serviceId: r.service_id,
-            serviceName: r.service_name,
-            totalTickets: Number(r.total_tickets || 0),
-          });
-        } else {
-          acc.push({
-            categoryId: r.category_id,
-            categoryName: r.category_name,
-            totalTickets: Number(r.total_tickets || 0),
-            served: Number(r.served || 0),
-            skipped: Number(r.skipped || 0),
-            transferred: Number(r.transferred || 0),
-            averageServiceTime: r.avg_service_time || null,
-            services: r.service_id ? [{
-              serviceId: r.service_id,
-              serviceName: r.service_name,
-              totalTickets: Number(r.total_tickets || 0),
-            }] : [],
-          });
-        }
-        return acc;
-      }, []),
+      categoryPerformance: categoryPerfRes.rows.map((r: any) => ({
+        categoryName: r.service_name || "Uncategorized",
+        totalTickets: Number(r.total_tickets || 0),
+        served: Number(r.served || 0),
+        skipped: Number(r.skipped || 0),
+        transferred: Number(r.transferred || 0),
+        averageServiceTime: r.avg_service_time || null,
+      })),
     };
 
     res.json(report);
