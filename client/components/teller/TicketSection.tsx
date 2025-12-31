@@ -280,7 +280,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           </div>
         </div>
 
-        {(ticket.transferredFromWindow || ticket.transferredToWindow) && (
+        {(ticket.transferredFromWindow || ticket.transferredToWindow || ticket.transferredToUserId) && (
           <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
@@ -297,7 +297,9 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
               <span className="text-muted-foreground font-medium">
                 {ticket.transferredToWindow
                   ? getWindowName(ticket.transferredToWindow)
-                  : "—"}
+                  : ticket.transferredToUserId && transferredToUser?.users?.[0]
+                    ? transferredToUser.users[0].fullName || transferredToUser.users[0].username
+                    : "—"}
               </span>
             </div>
             {ticket.transferredAt && (
