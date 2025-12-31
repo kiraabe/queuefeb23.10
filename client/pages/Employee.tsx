@@ -479,7 +479,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
 export default function Employee() {
   const [tab, setTab] = useState<string>("received");
   const [timePeriod, setTimePeriod] = useState<"today" | "week" | "month">(
-    "today"
+    "today",
   );
   const [historyPage, setHistoryPage] = useState(1);
   const itemsPerPage = 10;
@@ -521,7 +521,7 @@ export default function Employee() {
     queryFn: () => {
       const offset = (historyPage - 1) * itemsPerPage;
       return apiFetch<EmployeeTicketsResponse>(
-        `/api/employee/history?timePeriod=${encodeURIComponent(timePeriod)}&limit=${itemsPerPage}&offset=${offset}`
+        `/api/employee/history?timePeriod=${encodeURIComponent(timePeriod)}&limit=${itemsPerPage}&offset=${offset}`,
       );
     },
     refetchInterval: 10000,
@@ -760,7 +760,7 @@ export default function Employee() {
                           Showing {(historyPage - 1) * itemsPerPage + 1} to{" "}
                           {Math.min(
                             historyPage * itemsPerPage,
-                            historyQuery.data.total
+                            historyQuery.data.total,
                           )}{" "}
                           of {historyQuery.data.total} cases
                         </p>
@@ -768,7 +768,9 @@ export default function Employee() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
+                            onClick={() =>
+                              setHistoryPage((p) => Math.max(1, p - 1))
+                            }
                             disabled={historyPage === 1}
                           >
                             Previous
@@ -783,9 +785,11 @@ export default function Employee() {
                             size="sm"
                             onClick={() =>
                               setHistoryPage((p) =>
-                                Math.ceil(historyQuery.data!.total / itemsPerPage) > p
+                                Math.ceil(
+                                  historyQuery.data!.total / itemsPerPage,
+                                ) > p
                                   ? p + 1
-                                  : p
+                                  : p,
                               )
                             }
                             disabled={
