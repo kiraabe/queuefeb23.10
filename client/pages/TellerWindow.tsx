@@ -756,7 +756,7 @@ export default function TellerWindow() {
       </div>
 
       {/* Stats summary */}
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
             Customers Served Today
