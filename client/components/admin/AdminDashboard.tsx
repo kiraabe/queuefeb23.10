@@ -467,6 +467,23 @@ export default function AdminDashboard() {
 
       {/* Daily Report */}
       <DailyReportViewer />
+
+      {/* Divider */}
+      <div className="border-t pt-8">
+        <h2 className="text-2xl font-bold tracking-tight mb-6">Advanced Analytics</h2>
+      </div>
+
+      {/* Employee Performance Dashboard Section */}
+      <EmployeePerformanceDashboard />
+
+      {/* Service Category Analytics Section */}
+      <ServiceCategoryAnalytics />
+
+      {/* Employee Case Queue Section */}
+      <EmployeeCaseQueue />
+
+      {/* Case Workflow Tracker Section */}
+      <CaseWorkflowTracker />
     </div>
   );
 }
