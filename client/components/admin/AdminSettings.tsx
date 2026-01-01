@@ -25,12 +25,9 @@ import type {
 } from "@shared/api";
 
 export default function AdminSettings() {
-  const [activeTab, setActiveTab] = useState("queue");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
 
   // Queue Settings
   const [queueSettings, setQueueSettings] = useState({
