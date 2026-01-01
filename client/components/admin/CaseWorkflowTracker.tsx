@@ -7,12 +7,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
   ArrowRight,
   User,
   Clock,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
@@ -50,6 +53,8 @@ interface CaseWorkflow {
   items: WorkflowEntry[];
   totalDuration: number | null;
 }
+
+type Timeframe = "today" | "week" | "month";
 
 const formatSeconds = (seconds: number | null) => {
   if (seconds === null || seconds === 0) return "N/A";
