@@ -340,6 +340,7 @@ export function createServer() {
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
+  app.post("/api/admin/seed-test-data", requireRole(["admin"]), seedTestData);
   app.get(
     "/api/admin/queue-settings",
     requireRole(["admin"]),
