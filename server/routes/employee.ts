@@ -810,3 +810,176 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Endpoint for listing completed case workflows with pagination and timeframe filtering
+export const listCaseWorkflows: RequestHandler = async (req, res) => {
+  const timeframe = (req.query.timeframe || "today") as "today" | "week" | "month";
+  const limit = Math.min(Math.max(Number(req.query.limit || 10), 1), 100);
+  const offset = Math.max(Number(req.query.offset || 0), 0);
+
+  const p = getPool();
+
+  try {
+    // Determine the date threshold based on timeframe
+    let dateThreshold = "date_trunc('day', now())"; // default: today
+    if (timeframe === "week") {
+      dateThreshold = "date_trunc('week', now())";
+    } else if (timeframe === "month") {
+      dateThreshold = "date_trunc('month', now())";
+    }
+
+    // Get count of completed cases with at least one workflow entry
+    const countRes = await p.query(
+      `SELECT COUNT(DISTINCT t.id)::int AS total
+       FROM tickets t
+       JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       WHERE t.status = 'done'
+         AND t.completed_at >= ${dateThreshold}`,
+    );
+
+    // Get list of distinct completed ticket IDs (paginated)
+    const ticketRes = await p.query(
+      `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at
+       FROM tickets t
+       JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       WHERE t.status = 'done'
+         AND t.completed_at >= ${dateThreshold}
+       ORDER BY t.id, t.completed_at DESC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    );
+
+    const ticketIds = ticketRes.rows.map((row) => row.id);
+
+    if (ticketIds.length === 0) {
+      return res.json({
+        items: [],
+        total: Number(countRes.rows[0]?.total || 0),
+      });
+    }
+
+    // Fetch workflow entries for all tickets in this page
+    const workflowRes = await p.query(
+      `SELECT
+         ecp.id,
+         ecp.ticket_id,
+         ecp.employee_id,
+         ecp.job_title_id,
+         extract(epoch from ecp.started_at)*1000 as started_at,
+         extract(epoch from ecp.ended_at)*1000 as ended_at,
+         ecp.status,
+         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
+         u.username,
+         u.full_name,
+         t.code as ticket_code,
+         t.service_category,
+         t.selected_services,
+         COALESCE(jt.name_english, jt.name_amharic, jt2.name_english, jt2.name_amharic, 'N/A') as job_title_name
+       FROM employee_case_performance ecp
+       LEFT JOIN users u ON ecp.employee_id = u.id
+       LEFT JOIN tickets t ON ecp.ticket_id = t.id
+       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+       LEFT JOIN job_title jt2 ON u.job_title_id = jt2.id
+       WHERE ecp.ticket_id = ANY($1)
+       ORDER BY ecp.ticket_id, ecp.started_at ASC`,
+      [ticketIds],
+    );
+
+    // Group workflow entries by ticket
+    const workflowsByTicket = new Map<string, any[]>();
+    workflowRes.rows.forEach((row) => {
+      if (!workflowsByTicket.has(row.ticket_id)) {
+        workflowsByTicket.set(row.ticket_id, []);
+      }
+      workflowsByTicket.get(row.ticket_id)!.push(row);
+    });
+
+    // Build response items with workflows grouped by ticket
+    const items = await Promise.all(
+      ticketIds.map(async (ticketId) => {
+        const workflowRows = workflowsByTicket.get(ticketId) || [];
+
+        // Enrich selected services with names
+        let enrichedServices: string[] | undefined = undefined;
+        if (
+          workflowRows.length > 0 &&
+          workflowRows[0].selected_services &&
+          workflowRows[0].service_category
+        ) {
+          const selectedServiceIds = parseSelectedServices(
+            workflowRows[0].selected_services,
+          );
+          if (selectedServiceIds && selectedServiceIds.length > 0) {
+            try {
+              const tempTicket = {
+                selectedServices: selectedServiceIds,
+                serviceCategory: workflowRows[0].service_category,
+              } as any;
+
+              const enrichedTickets =
+                await enrichMultipleTicketsWithServiceNames([tempTicket]);
+              enrichedServices = enrichedTickets[0]?.selectedServices;
+            } catch (enrichError) {
+              console.warn("Failed to enrich services with names:", enrichError);
+              enrichedServices = selectedServiceIds;
+            }
+          }
+        }
+
+        const ticketInfo =
+          workflowRows.length > 0
+            ? {
+                ticketCode: workflowRows[0].ticket_code,
+                serviceCategory: workflowRows[0].service_category,
+                selectedServices: enrichedServices,
+              }
+            : null;
+
+        const workflowItems = workflowRows.map((r) => ({
+          id: r.id,
+          ticketId: r.ticket_id,
+          employeeId: r.employee_id,
+          jobTitleId: r.job_title_id,
+          startedAt: r.started_at ? Math.round(r.started_at) : null,
+          endedAt: r.ended_at ? Math.round(r.ended_at) : null,
+          status: r.status,
+          durationSeconds: r.duration_seconds
+            ? Math.round(r.duration_seconds)
+            : null,
+          employeeName: r.full_name || r.username || "Unknown",
+          jobTitle: r.job_title_name,
+          ticketCode: r.ticket_code,
+        }));
+
+        // Calculate total duration
+        let totalDuration = null;
+        if (workflowItems.length > 0) {
+          const first = workflowItems[0];
+          const last = workflowItems[workflowItems.length - 1];
+          if (first.startedAt && last.endedAt) {
+            totalDuration = (last.endedAt - first.startedAt) / 1000;
+          }
+        }
+
+        return {
+          ticketId,
+          ticketCode: ticketInfo?.ticketCode,
+          ticketInfo,
+          items: workflowItems,
+          totalDuration,
+        };
+      }),
+    );
+
+    res.json({
+      items,
+      total: Number(countRes.rows[0]?.total || 0),
+    });
+  } catch (error) {
+    console.error("Failed to fetch case workflows:", error);
+    res.status(500).json({
+      error: "Failed to fetch case workflows. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
