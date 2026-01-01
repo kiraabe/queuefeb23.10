@@ -138,49 +138,26 @@ export default function CaseWorkflowTracker() {
     fetchWorkflows();
   }, [timeframe, currentPage]);
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            Loading process flow diagram...
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const canGoPrevious = currentPage > 1;
+  const canGoNext = currentPage < totalPages;
 
-  if (error) {
-    return (
-      <Card className="border-amber-200 dark:border-amber-900">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3 text-amber-800 dark:text-amber-200">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">{error}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Process flow will display once cases are completed
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handleTimeframeChange = (newTimeframe: Timeframe) => {
+    setTimeframe(newTimeframe);
+    setCurrentPage(1);
+  };
 
-  if (!workflows[0]) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            No process flow data available
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handlePreviousPage = () => {
+    if (canGoPrevious) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
-  const workflow = workflows[0];
+  const handleNextPage = () => {
+    if (canGoNext) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <div className="space-y-6 w-full">
