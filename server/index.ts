@@ -5,6 +5,7 @@ import { getPool } from "./store/db";
 import { handleDemo } from "./routes/demo";
 import {
   clearDemo,
+  seedTestData,
   getQueueSettings,
   updateQueueSettings,
   getDailyReport,
