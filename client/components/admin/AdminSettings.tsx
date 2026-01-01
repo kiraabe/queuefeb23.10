@@ -105,6 +105,63 @@ export default function AdminSettings() {
     }
   };
 
+  const handleSeedTestData = async () => {
+    if (!confirm("Create test data with completed workflows? This will add 4 sample cases.")) {
+      return;
+    }
+    setIsSeeding(true);
+    try {
+      const response = await fetch("/api/admin/seed-test-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to seed test data");
+      }
+      const data = await response.json();
+      toast.success(data.message || "Test data created successfully");
+    } catch (error) {
+      console.error("Failed to seed test data", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to seed test data",
+      );
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  const handleClearDemo = async () => {
+    if (!confirm("Clear all demo data? This will delete all tickets and reset counters.")) {
+      return;
+    }
+    setIsClearing(true);
+    try {
+      const response = await fetch("/api/admin/clear-demo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to clear demo data");
+      }
+      toast.success("All demo data cleared successfully");
+    } catch (error) {
+      console.error("Failed to clear demo data", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to clear demo data",
+      );
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {unsavedChanges && (
