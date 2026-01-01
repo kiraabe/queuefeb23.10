@@ -99,6 +99,10 @@ export default function CaseWorkflowTracker() {
   const [workflows, setWorkflows] = useState<CaseWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [timeframe, setTimeframe] = useState<Timeframe>("today");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     const fetchWorkflows = async () => {
@@ -106,62 +110,18 @@ export default function CaseWorkflowTracker() {
         setLoading(true);
         setError(null);
 
-        // Fetch the daily report to get all tickets and their workflow data
-        const reportRes = await apiFetch<any>("/api/admin/daily-report");
-        const caseWorkflow = reportRes.caseWorkflow || [];
-        const allTickets = reportRes.allTickets || [];
-
-        // Filter for tickets with completed workflow entries
-        if (caseWorkflow.length === 0) {
-          setError("No completed cases found in the system yet");
-          setWorkflows([]);
-          return;
-        }
-
-        // Get unique ticket IDs from workflow data, sorted by most recent
-        const uniqueTickets = new Map<string, any>();
-        caseWorkflow.forEach((entry: any) => {
-          if (!uniqueTickets.has(entry.ticketId)) {
-            uniqueTickets.set(entry.ticketId, {
-              ticketId: entry.ticketId,
-              ticketCode: entry.ticketCode,
-              service: entry.service,
-            });
-          }
-        });
-
-        // Find the most recent completed ticket with workflow data
-        const ticketWithWorkflow = Array.from(uniqueTickets.values())[0];
-        if (!ticketWithWorkflow) {
-          setError("No completed cases found in the system yet");
-          setWorkflows([]);
-          return;
-        }
-
-        // Fetch workflow details for this ticket
-        const workflowRes = await apiFetch<any>(
-          `/api/employee/case-workflow?ticketId=${ticketWithWorkflow.ticketId}`,
+        const offset = (currentPage - 1) * itemsPerPage;
+        const workflowsRes = await apiFetch<any>(
+          `/api/employee/case-workflows?timeframe=${timeframe}&limit=${itemsPerPage}&offset=${offset}`,
         );
 
-        // Calculate total duration
-        let totalDuration = null;
-        if (workflowRes.items && workflowRes.items.length > 0) {
-          const first = workflowRes.items[0];
-          const last = workflowRes.items[workflowRes.items.length - 1];
-          if (first.startedAt && last.endedAt) {
-            totalDuration = (last.endedAt - first.startedAt) / 1000;
-          }
+        if (workflowsRes.items && workflowsRes.items.length > 0) {
+          setWorkflows(workflowsRes.items);
+          setTotalItems(workflowsRes.total || 0);
+        } else {
+          setError("No completed cases found for this timeframe");
+          setWorkflows([]);
         }
-
-        const workflow: CaseWorkflow = {
-          ticketId: ticketWithWorkflow.ticketId,
-          ticketCode: ticketWithWorkflow.ticketCode,
-          ticketInfo: workflowRes.ticketInfo,
-          items: workflowRes.items || [],
-          totalDuration,
-        };
-
-        setWorkflows([workflow]);
       } catch (err) {
         console.error("Failed to fetch workflows:", err);
         setError(
@@ -176,7 +136,7 @@ export default function CaseWorkflowTracker() {
     };
 
     fetchWorkflows();
-  }, []);
+  }, [timeframe, currentPage]);
 
   if (loading) {
     return (
