@@ -761,8 +761,8 @@ export default function TellerWindow() {
     <div className="container py-10">
       <div className="mb-6">
         <h1 className="mb-2 font-display text-3xl font-semibold">
-          {user?.fullName
-            ? `${user.fullName} – Window ${windowId}`
+          {tellerFullName
+            ? `${tellerFullName} – Window ${windowId}`
             : `Window ${windowId}`}
         </h1>
         {windowServiceNames.length > 0 && (
