@@ -173,7 +173,12 @@ export default function AdminSettings() {
         </Alert>
       )}
 
-      <Tabs value="queue" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="queue">Queue Settings</TabsTrigger>
+          <TabsTrigger value="data">Data Management</TabsTrigger>
+        </TabsList>
+
         {/* Queue Settings */}
         <TabsContent value="queue">
           <Card>
