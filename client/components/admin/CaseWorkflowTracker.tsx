@@ -169,7 +169,8 @@ export default function CaseWorkflowTracker() {
                 Process Flow Section
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
-                View completed case workflows with timeframe filter and pagination
+                View completed case workflows with timeframe filter and
+                pagination
               </CardDescription>
             </div>
           </div>
@@ -241,7 +242,8 @@ export default function CaseWorkflowTracker() {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                      Ticket {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
+                      Ticket{" "}
+                      {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
                     </CardTitle>
                     {workflow.ticketInfo?.serviceCategory && (
                       <div className="flex items-center gap-2">
@@ -344,7 +346,9 @@ export default function CaseWorkflowTracker() {
                                               </div>
                                             )}
                                             <div className="font-semibold text-blue-600 dark:text-blue-400">
-                                              {formatSeconds(step.durationSeconds)}
+                                              {formatSeconds(
+                                                step.durationSeconds,
+                                              )}
                                             </div>
                                             {step.endedAt && (
                                               <div className="flex items-center gap-1">
@@ -400,8 +404,9 @@ export default function CaseWorkflowTracker() {
                                   </p>
                                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                                     {
-                                      new Set(workflow.items.map((i) => i.employeeId))
-                                        .size
+                                      new Set(
+                                        workflow.items.map((i) => i.employeeId),
+                                      ).size
                                     }
                                   </p>
                                 </div>
@@ -442,9 +447,10 @@ export default function CaseWorkflowTracker() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} -{" "}
-                  {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
-                  {totalItems === 1 ? "case" : "cases"}
+                  Showing{" "}
+                  {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} -{" "}
+                  {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                  {totalItems} {totalItems === 1 ? "case" : "cases"}
                 </div>
                 <div className="flex gap-2">
                   <Button

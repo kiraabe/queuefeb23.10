@@ -179,9 +179,7 @@ export default function AdminSettings() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="fifo">
-                  First-In-First-Out (FIFO)
-                </SelectItem>
+                <SelectItem value="fifo">First-In-First-Out (FIFO)</SelectItem>
                 <SelectItem value="priority">
                   Priority-Based (Future)
                 </SelectItem>

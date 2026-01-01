@@ -813,7 +813,10 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
 // Endpoint for listing completed case workflows with pagination and timeframe filtering
 export const listCaseWorkflows: RequestHandler = async (req, res) => {
-  const timeframe = (req.query.timeframe || "today") as "today" | "week" | "month";
+  const timeframe = (req.query.timeframe || "today") as
+    | "today"
+    | "week"
+    | "month";
   const limit = Math.min(Math.max(Number(req.query.limit || 10), 1), 100);
   const offset = Math.max(Number(req.query.offset || 0), 0);
 
@@ -920,7 +923,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
                 await enrichMultipleTicketsWithServiceNames([tempTicket]);
               enrichedServices = enrichedTickets[0]?.selectedServices;
             } catch (enrichError) {
-              console.warn("Failed to enrich services with names:", enrichError);
+              console.warn(
+                "Failed to enrich services with names:",
+                enrichError,
+              );
               enrichedServices = selectedServiceIds;
             }
           }
