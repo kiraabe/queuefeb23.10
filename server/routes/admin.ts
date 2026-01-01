@@ -50,6 +50,140 @@ export const clearDemo: RequestHandler = async (_req, res) => {
   }
 };
 
+export const seedTestData: RequestHandler = async (_req, res) => {
+  if (!isDbEnabled) return res.status(400).json({ error: "DB not enabled" });
+  const p = getPool();
+  const client = await p.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Get a few users to assign as employees
+    const usersRes = await client.query(
+      `SELECT id, job_title_id FROM users WHERE role = 'employee' LIMIT 3`,
+    );
+    const employees = usersRes.rows;
+
+    if (employees.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: "No employees found. Please create employee users first.",
+      });
+    }
+
+    // Get service categories
+    const categoriesRes = await client.query(
+      `SELECT id FROM service_categories LIMIT 1`,
+    );
+    const category = categoriesRes.rows[0];
+
+    if (!category) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: "No service categories found.",
+      });
+    }
+
+    // Create completed tickets with workflows for different timeframes
+    const testCases = [
+      {
+        name: "Today Case 1",
+        daysAgo: 0,
+        hoursAgo: 2,
+      },
+      {
+        name: "Today Case 2",
+        daysAgo: 0,
+        hoursAgo: 4,
+      },
+      {
+        name: "This Week Case",
+        daysAgo: 3,
+        hoursAgo: 0,
+      },
+      {
+        name: "This Month Case",
+        daysAgo: 15,
+        hoursAgo: 0,
+      },
+    ];
+
+    const createdTickets = [];
+
+    for (const testCase of testCases) {
+      const createdAt = new Date();
+      createdAt.setDate(createdAt.getDate() - testCase.daysAgo);
+      createdAt.setHours(createdAt.getHours() - testCase.hoursAgo);
+
+      const completedAt = new Date(createdAt);
+      completedAt.setHours(completedAt.getHours() + 1);
+
+      // Create a test ticket
+      const ticketId = (await import("node:crypto")).randomUUID();
+      const number = Math.floor(Math.random() * 1000);
+      const code = `TST-${number}`;
+
+      await client.query(
+        `INSERT INTO tickets (id, code, number, service, status, created_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category)
+         VALUES ($1, $2, $3, 'general', 'done', $4, $5, $6, $7, $8, $9)`,
+        [
+          ticketId,
+          code,
+          number,
+          createdAt,
+          completedAt,
+          employees[0].id,
+          employees[0].id,
+          `Customer ${number}`,
+          category.id,
+        ],
+      );
+
+      // Create workflow entries for this ticket (one per employee)
+      let stepStartTime = createdAt;
+      for (let i = 0; i < employees.length; i++) {
+        const stepEndTime = new Date(stepStartTime);
+        stepEndTime.setMinutes(stepEndTime.getMinutes() + (i + 1) * 5);
+
+        await client.query(
+          `INSERT INTO employee_case_performance (ticket_id, employee_id, job_title_id, started_at, ended_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            ticketId,
+            employees[i].id,
+            employees[i].job_title_id,
+            stepStartTime,
+            stepEndTime,
+            i === employees.length - 1 ? "completed" : "proceeded",
+          ],
+        );
+
+        stepStartTime = new Date(stepEndTime);
+      }
+
+      createdTickets.push({ id: ticketId, code, name: testCase.name });
+    }
+
+    await client.query("COMMIT");
+    res.json({
+      ok: true,
+      message: "Test data created successfully",
+      ticketsCreated: createdTickets.length,
+      tickets: createdTickets,
+    });
+  } catch (e) {
+    try {
+      await client.query("ROLLBACK");
+    } catch {}
+    console.error("Failed to seed test data", e);
+    res.status(500).json({
+      error: "Failed to seed test data",
+      details: e instanceof Error ? e.message : String(e),
+    });
+  } finally {
+    client.release();
+  }
+};
+
 export const getQueueSettings: RequestHandler = async (_req, res) => {
   if (!isDbEnabled) {
     return res.status(200).json({
