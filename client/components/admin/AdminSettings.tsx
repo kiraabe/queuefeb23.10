@@ -301,6 +301,80 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Data Management */}
+        <TabsContent value="data" className="space-y-4">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Use these tools to manage test data for development and testing purposes.
+            </AlertDescription>
+          </Alert>
+
+          {/* Seed Test Data */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                Seed Test Data
+              </CardTitle>
+              <CardDescription>
+                Create sample completed cases with workflows for different timeframes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                This will create 4 sample completed cases with employee workflows:
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
+                <li>2 cases completed today</li>
+                <li>1 case completed this week</li>
+                <li>1 case completed this month</li>
+              </ul>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Note: Requires at least one employee user to exist in the system.
+              </p>
+              <Button
+                onClick={handleSeedTestData}
+                disabled={isSeeding}
+                className="gap-2"
+              >
+                <Database className="h-4 w-4" />
+                {isSeeding ? "Creating test data..." : "Create Test Data"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Clear Demo Data */}
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <Trash2 className="h-5 w-5" />
+                Clear Demo Data
+              </CardTitle>
+              <CardDescription>
+                Delete all tickets and reset counters
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  This action is irreversible. All tickets will be permanently deleted.
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={handleClearDemo}
+                disabled={isClearing}
+                variant="destructive"
+                className="gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                {isClearing ? "Clearing..." : "Clear All Data"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
