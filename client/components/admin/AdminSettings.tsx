@@ -112,209 +112,125 @@ export default function AdminSettings() {
         </Alert>
       )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="queue">Queue Settings</TabsTrigger>
-          <TabsTrigger value="data">Data Management</TabsTrigger>
-        </TabsList>
+      <Card>
+        <CardHeader>
+          <CardTitle>Queue Configuration</CardTitle>
+          <CardDescription>
+            Configure how the queue system operates
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Max Tickets Per Day */}
+          <div className="space-y-2">
+            <Label htmlFor="maxTickets">Maximum Tickets Per Day</Label>
+            <Input
+              id="maxTickets"
+              type="number"
+              value={queueSettings.maxTicketsPerDay}
+              onChange={(e) => {
+                setQueueSettings({
+                  ...queueSettings,
+                  maxTicketsPerDay: parseInt(e.target.value),
+                });
+                setUnsavedChanges(true);
+              }}
+              min={1}
+              max={1000}
+            />
+            <p className="text-xs text-muted-foreground">
+              Limit new tickets when this threshold is reached
+            </p>
+          </div>
 
-        {/* Queue Settings */}
-        <TabsContent value="queue">
-          <Card>
-            <CardHeader>
-              <CardTitle>Queue Configuration</CardTitle>
-              <CardDescription>
-                Configure how the queue system operates
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Max Tickets Per Day */}
-              <div className="space-y-2">
-                <Label htmlFor="maxTickets">Maximum Tickets Per Day</Label>
-                <Input
-                  id="maxTickets"
-                  type="number"
-                  value={queueSettings.maxTicketsPerDay}
-                  onChange={(e) => {
-                    setQueueSettings({
-                      ...queueSettings,
-                      maxTicketsPerDay: parseInt(e.target.value),
-                    });
-                    setUnsavedChanges(true);
-                  }}
-                  min={1}
-                  max={1000}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Limit new tickets when this threshold is reached
-                </p>
-              </div>
+          {/* Daily Reset Time */}
+          <div className="space-y-2">
+            <Label htmlFor="resetTime">Daily Reset Time (UTC)</Label>
+            <Input
+              id="resetTime"
+              type="time"
+              value={queueSettings.dailyResetTime}
+              onChange={(e) => {
+                setQueueSettings({
+                  ...queueSettings,
+                  dailyResetTime: e.target.value,
+                });
+                setUnsavedChanges(true);
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Time when queue counters reset daily
+            </p>
+          </div>
 
-              {/* Daily Reset Time */}
-              <div className="space-y-2">
-                <Label htmlFor="resetTime">Daily Reset Time (UTC)</Label>
-                <Input
-                  id="resetTime"
-                  type="time"
-                  value={queueSettings.dailyResetTime}
-                  onChange={(e) => {
-                    setQueueSettings({
-                      ...queueSettings,
-                      dailyResetTime: e.target.value,
-                    });
-                    setUnsavedChanges(true);
-                  }}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Time when queue counters reset daily
-                </p>
-              </div>
+          {/* FIFO Mode */}
+          <div className="space-y-2">
+            <Label>Queue Behavior</Label>
+            <Select
+              value={queueSettings.fifoMode ? "fifo" : "priority"}
+              onValueChange={(value) => {
+                setQueueSettings({
+                  ...queueSettings,
+                  fifoMode: value === "fifo",
+                });
+                setUnsavedChanges(true);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fifo">
+                  First-In-First-Out (FIFO)
+                </SelectItem>
+                <SelectItem value="priority">
+                  Priority-Based (Future)
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              How customers are selected to be served
+            </p>
+          </div>
 
-              {/* FIFO Mode */}
-              <div className="space-y-2">
-                <Label>Queue Behavior</Label>
-                <Select
-                  value={queueSettings.fifoMode ? "fifo" : "priority"}
-                  onValueChange={(value) => {
-                    setQueueSettings({
-                      ...queueSettings,
-                      fifoMode: value === "fifo",
-                    });
-                    setUnsavedChanges(true);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fifo">
-                      First-In-First-Out (FIFO)
-                    </SelectItem>
-                    <SelectItem value="priority">
-                      Priority-Based (Future)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  How customers are selected to be served
-                </p>
-              </div>
-
-              {/* Enable Transfers */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Allow Ticket Transfers</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Allow staff to transfer tickets between windows
-                  </p>
-                </div>
-                <Select
-                  value={
-                    queueSettings.enableTicketTransfers ? "enabled" : "disabled"
-                  }
-                  onValueChange={(value) => {
-                    setQueueSettings({
-                      ...queueSettings,
-                      enableTicketTransfers: value === "enabled",
-                    });
-                    setUnsavedChanges(true);
-                  }}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="enabled">Enabled</SelectItem>
-                    <SelectItem value="disabled">Disabled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                onClick={handleSaveSettings}
-                disabled={!unsavedChanges || isSaving || isLoading}
-              >
-                <Save className="mr-2 h-4 w-4" />
-                {isSaving ? "Saving..." : "Save Queue Settings"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Data Management */}
-        <TabsContent value="data" className="space-y-4">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Use these tools to manage test data for development and testing purposes.
-            </AlertDescription>
-          </Alert>
-
-          {/* Seed Test Data */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Database className="h-5 w-5" />
-                Seed Test Data
-              </CardTitle>
-              <CardDescription>
-                Create sample completed cases with workflows for different timeframes
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                This will create 4 sample completed cases with employee workflows:
+          {/* Enable Transfers */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Allow Ticket Transfers</Label>
+              <p className="text-xs text-muted-foreground">
+                Allow staff to transfer tickets between windows
               </p>
-              <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
-                <li>2 cases completed today</li>
-                <li>1 case completed this week</li>
-                <li>1 case completed this month</li>
-              </ul>
-              <p className="text-sm text-amber-600 dark:text-amber-400">
-                Note: Requires at least one employee user to exist in the system.
-              </p>
-              <Button
-                onClick={handleSeedTestData}
-                disabled={isSeeding}
-                className="gap-2"
-              >
-                <Database className="h-4 w-4" />
-                {isSeeding ? "Creating test data..." : "Create Test Data"}
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+            <Select
+              value={
+                queueSettings.enableTicketTransfers ? "enabled" : "disabled"
+              }
+              onValueChange={(value) => {
+                setQueueSettings({
+                  ...queueSettings,
+                  enableTicketTransfers: value === "enabled",
+                });
+                setUnsavedChanges(true);
+              }}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="enabled">Enabled</SelectItem>
+                <SelectItem value="disabled">Disabled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          {/* Clear Demo Data */}
-          <Card className="border-destructive/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <Trash2 className="h-5 w-5" />
-                Clear Demo Data
-              </CardTitle>
-              <CardDescription>
-                Delete all tickets and reset counters
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  This action is irreversible. All tickets will be permanently deleted.
-                </AlertDescription>
-              </Alert>
-              <Button
-                onClick={handleClearDemo}
-                disabled={isClearing}
-                variant="destructive"
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                {isClearing ? "Clearing..." : "Clear All Data"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <Button
+            onClick={handleSaveSettings}
+            disabled={!unsavedChanges || isSaving || isLoading}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? "Saving..." : "Save Queue Settings"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
