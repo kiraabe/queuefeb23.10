@@ -1553,7 +1553,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
     return { ticket: t, positionInQueue: null, estimatedWaitSeconds: null };
   const posRes = await p.query(
     `SELECT COUNT(*) AS ahead FROM tickets
-     WHERE status='waiting' AND created_at < (SELECT created_at FROM tickets WHERE id=$1)`,
+     WHERE status='waiting' AND created_at < (SELECT created_at FROM tickets WHERE id=$1) AND status != 'waiting_archive'`,
     [t.id],
   );
   const ahead = Number(posRes.rows[0].ahead || 0);
