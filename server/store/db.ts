@@ -133,6 +133,25 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS archived_by_user_id uuid REFERENCES users(id) ON DELETE SET NULL;`,
     );
+    // Backfill archived_by_user_id for tickets that were already marked as retrieved but don't have archived_by_user_id
+    // This handles tickets retrieved before the archived_by_user_id column was added
+    // We get the archiver_id from the audit log if available, otherwise use the current user
+    try {
+      await p.query(`
+        UPDATE tickets
+        SET archived_by_user_id = (
+          SELECT user_id FROM audit_logs
+          WHERE action = 'ticket_retrieved'
+          AND details->>'ticketId' = tickets.id
+          ORDER BY created_at DESC
+          LIMIT 1
+        )
+        WHERE documents_fetched = true
+        AND archived_by_user_id IS NULL
+      `);
+    } catch {
+      // Backfill failed, continue - this is optional for historical data
+    }
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS internal_notes text;`,
     );
