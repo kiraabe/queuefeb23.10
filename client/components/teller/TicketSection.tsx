@@ -91,7 +91,12 @@ export function TicketSection({
           <>
             <div className="space-y-3">
               {items.map((ticket) => (
-                <TicketRow key={ticket.id} ticket={ticket} userMap={userMap} />
+                <TicketRow
+                  key={ticket.id}
+                  ticket={ticket}
+                  userMap={userMap}
+                  currentWindowId={currentWindowId}
+                />
               ))}
             </div>
 
