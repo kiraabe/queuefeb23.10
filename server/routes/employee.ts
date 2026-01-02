@@ -948,6 +948,14 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       }
     });
 
+    // Group teller entries by ticket
+    const tellerByTicket = new Map<string, any>();
+    tellerRes.rows.forEach((row) => {
+      if (row.ticket_id) {
+        tellerByTicket.set(row.ticket_id, row);
+      }
+    });
+
     // Build response items with workflows grouped by ticket
     const items = await Promise.all(
       ticketIds.map(async (ticketId) => {
