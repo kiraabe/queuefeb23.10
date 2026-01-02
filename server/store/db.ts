@@ -184,6 +184,38 @@ export async function initDb() {
         err?.message,
       );
     }
+
+    // Fix existing users without roles in user_roles table
+    try {
+      const usersWithoutRoles = await p.query(`
+        SELECT u.id, u.username FROM users u
+        WHERE NOT EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id)
+        LIMIT 100
+      `);
+
+      if (usersWithoutRoles.rows.length > 0) {
+        console.log(`Found ${usersWithoutRoles.rows.length} users without roles, assigning defaults...`);
+        for (const user of usersWithoutRoles.rows) {
+          // Assign admin role to 'admin' user, employee role to others
+          const defaultRole = user.username === 'admin' ? 'admin' : 'employee';
+          try {
+            await p.query(
+              `INSERT INTO user_roles (user_id, role, is_primary) VALUES ($1, $2, true)
+               ON CONFLICT (user_id, role) DO NOTHING`,
+              [user.id, defaultRole]
+            );
+            console.log(`  ✓ Assigned '${defaultRole}' role to user '${user.username}'`);
+          } catch (roleErr) {
+            console.log(`  ✗ Failed to assign role to user '${user.username}':`, (roleErr as any)?.message);
+          }
+        }
+      }
+    } catch (err) {
+      console.log(
+        "User roles migration skipped:",
+        err?.message,
+      );
+    }
     // Add teller info columns if they don't exist
     await p.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text;`);
     await p.query(
