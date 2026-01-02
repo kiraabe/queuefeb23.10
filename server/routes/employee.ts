@@ -1010,14 +1010,24 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             ticketId: ticketId,
             employeeId: archiverData.archived_by_user_id,
             jobTitleId: null,
-            startedAt: archiverData.started_at ? Math.round(archiverData.started_at) : null,
-            endedAt: archiverData.ended_at ? Math.round(archiverData.ended_at) : null,
+            startedAt: archiverData.started_at
+              ? Math.round(archiverData.started_at)
+              : null,
+            endedAt: archiverData.ended_at
+              ? Math.round(archiverData.ended_at)
+              : null,
             status: "completed",
             durationSeconds: archiverData.duration_seconds
               ? Math.round(archiverData.duration_seconds)
               : null,
-            employeeName: archiverData.full_name || archiverData.username || "Unknown Archiever",
-            jobTitle: archiverData.name_english || archiverData.name_amharic || "Archiever",
+            employeeName:
+              archiverData.full_name ||
+              archiverData.username ||
+              "Unknown Archiever",
+            jobTitle:
+              archiverData.name_english ||
+              archiverData.name_amharic ||
+              "Archiever",
             ticketCode: ticketId,
             isArchiever: true,
           });
@@ -1031,14 +1041,20 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             ticketId: ticketId,
             employeeId: tellerData.user_id,
             jobTitleId: null,
-            startedAt: tellerData.created_at ? Math.round(tellerData.created_at) : null,
-            endedAt: tellerData.started_at ? Math.round(tellerData.started_at) : null,
+            startedAt: tellerData.created_at
+              ? Math.round(tellerData.created_at)
+              : null,
+            endedAt: tellerData.started_at
+              ? Math.round(tellerData.started_at)
+              : null,
             status: "completed",
             durationSeconds: tellerData.duration_seconds
               ? Math.round(tellerData.duration_seconds)
               : null,
-            employeeName: tellerData.full_name || tellerData.username || "Unknown Teller",
-            jobTitle: tellerData.name_english || tellerData.name_amharic || "Teller",
+            employeeName:
+              tellerData.full_name || tellerData.username || "Unknown Teller",
+            jobTitle:
+              tellerData.name_english || tellerData.name_amharic || "Teller",
             ticketCode: ticketId,
             isTeller: true,
           });

@@ -157,7 +157,8 @@ export function ArchivedTicketsHistory() {
       toast.success(`Ticket ${ticketCode} marked as archived`);
       refetch();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to archive ticket";
+      const message =
+        error instanceof Error ? error.message : "Failed to archive ticket";
       console.error("Error archiving ticket:", message);
       toast.error(message);
     } finally {

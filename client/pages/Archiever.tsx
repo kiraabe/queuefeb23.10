@@ -27,7 +27,7 @@ export default function Archiever() {
     queryFn: async () => {
       const response = await fetch("/api/admin/job-titles");
       if (!response.ok) throw new Error("Failed to fetch job titles");
-      const result = await response.json() as { jobTitles: JobTitle[] };
+      const result = (await response.json()) as { jobTitles: JobTitle[] };
       return result.jobTitles;
     },
     enabled: !!user?.jobTitleId,
