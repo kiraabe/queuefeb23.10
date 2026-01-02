@@ -970,23 +970,50 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
               }
             : null;
 
-        const workflowItems = workflowRows.map((r) => ({
-          id: r.id,
-          ticketId: r.ticket_id,
-          employeeId: r.employee_id,
-          jobTitleId: r.job_title_id,
-          startedAt: r.started_at ? Math.round(r.started_at) : null,
-          endedAt: r.ended_at ? Math.round(r.ended_at) : null,
-          status: r.status,
-          durationSeconds: r.duration_seconds
-            ? Math.round(r.duration_seconds)
-            : null,
-          employeeName: r.full_name || r.username || "Unknown",
-          jobTitle: r.job_title_name,
-          ticketCode: r.ticket_code,
-        }));
+        const workflowItems: any[] = [];
 
-        // Calculate total duration
+        // Add archiever step first if available
+        const archiverData = archiverByTicket.get(ticketId);
+        if (archiverData && archiverData.started_at && archiverData.ended_at) {
+          workflowItems.push({
+            id: `archiver-${ticketId}`,
+            ticketId: ticketId,
+            employeeId: archiverData.archived_by_user_id,
+            jobTitleId: null,
+            startedAt: archiverData.started_at ? Math.round(archiverData.started_at) : null,
+            endedAt: archiverData.ended_at ? Math.round(archiverData.ended_at) : null,
+            status: "completed",
+            durationSeconds: archiverData.duration_seconds
+              ? Math.round(archiverData.duration_seconds)
+              : null,
+            employeeName: archiverData.full_name || archiverData.username || "Unknown Archiever",
+            jobTitle: archiverData.name_english || archiverData.name_amharic || "Archiever",
+            ticketCode: ticketId,
+            isArchiever: true,
+          });
+        }
+
+        // Add employee workflow steps
+        workflowRows.forEach((r) => {
+          workflowItems.push({
+            id: r.id,
+            ticketId: r.ticket_id,
+            employeeId: r.employee_id,
+            jobTitleId: r.job_title_id,
+            startedAt: r.started_at ? Math.round(r.started_at) : null,
+            endedAt: r.ended_at ? Math.round(r.ended_at) : null,
+            status: r.status,
+            durationSeconds: r.duration_seconds
+              ? Math.round(r.duration_seconds)
+              : null,
+            employeeName: r.full_name || r.username || "Unknown",
+            jobTitle: r.job_title_name,
+            ticketCode: r.ticket_code,
+            isArchiever: false,
+          });
+        });
+
+        // Calculate total duration from first step to last step
         let totalDuration = null;
         if (workflowItems.length > 0) {
           const first = workflowItems[0];
