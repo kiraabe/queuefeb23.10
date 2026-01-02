@@ -2073,23 +2073,32 @@ export async function getUserByWindow(windowId: number): Promise<{
 export async function createUser(params: {
   username: string;
   password_hash: string;
-  role: "reception" | "teller" | "admin" | "employee";
+  role: "reception" | "teller" | "admin" | "employee" | "archiever";
   window_id?: number | null;
   disabled?: boolean | null;
   job_title_id?: string | null;
 }): Promise<void> {
   try {
     const p = getPool();
+    const userId = crypto.randomUUID();
+
+    // Insert user without role column (now in user_roles table)
     await p.query(
-      `INSERT INTO users (id, username, password_hash, role, window_id, disabled, job_title_id) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)`,
+      `INSERT INTO users (id, username, password_hash, window_id, disabled, job_title_id) VALUES ($1, $2, $3, $4, $5, $6)`,
       [
+        userId,
         params.username,
         params.password_hash,
-        params.role,
         params.window_id ?? null,
         params.disabled ?? false,
         params.job_title_id ?? null,
       ],
+    );
+
+    // Insert role into user_roles table
+    await p.query(
+      `INSERT INTO user_roles (user_id, role, is_primary) VALUES ($1, $2, true)`,
+      [userId, params.role],
     );
   } catch (error) {
     throw error;
