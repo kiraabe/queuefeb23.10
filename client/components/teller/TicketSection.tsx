@@ -255,7 +255,7 @@ function TicketRow({
     }
 
     return steps;
-  }, [performanceData, currentWindowId]);
+  }, [performanceData, currentWindowId, ticket.startedAt, ticket.transferredAt]);
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
