@@ -81,7 +81,7 @@ export function ArchivedTicketsHistory() {
 
   // Calculate stats - only include tickets with both start and retrieved timestamps
   const validTickets = tickets.filter(
-    (t) => t.archiverStartedAt && t.retrievedAt && t.processingTime,
+    (t) => t.archiverStartedAt && t.retrievedAt && t.processingTime !== null,
   );
   const stats = {
     total: tickets.length,
@@ -96,7 +96,7 @@ export function ArchivedTicketsHistory() {
             validTickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
               validTickets.length,
           )
-        : 0,
+        : null,
   };
 
   const handleBackToArchive = async (ticketId: string, ticketCode: string) => {
