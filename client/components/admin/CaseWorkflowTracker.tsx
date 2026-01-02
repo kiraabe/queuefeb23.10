@@ -314,14 +314,18 @@ export default function CaseWorkflowTracker() {
                                       <div className={`flex items-center justify-center w-14 h-14 rounded-full text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950 ${
                                         step.isArchiever
                                           ? "bg-gradient-to-br from-amber-500 to-amber-600"
-                                          : "bg-gradient-to-br from-blue-500 to-blue-600"
+                                          : step.isTeller
+                                            ? "bg-gradient-to-br from-cyan-500 to-cyan-600"
+                                            : "bg-gradient-to-br from-blue-500 to-blue-600"
                                       }`}>
                                         {index + 1}
                                       </div>
                                       <div className={`mt-3 rounded-lg border-2 p-3 min-w-48 hover:shadow-md transition-shadow ${
                                         step.isArchiever
                                           ? "border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50"
-                                          : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50"
+                                          : step.isTeller
+                                            ? "border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/50"
+                                            : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50"
                                       }`}>
                                         <div className="space-y-2">
                                           {/* Employee Info */}
