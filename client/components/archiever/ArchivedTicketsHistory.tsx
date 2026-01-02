@@ -131,8 +131,14 @@ export function ArchivedTicketsHistory() {
     return `${hours}h ${mins}m`;
   };
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = (timestamp: number | null) => {
+    if (!timestamp) return "N/A";
     return new Date(timestamp).toLocaleString();
+  };
+
+  const formatTime24Hour = (timestamp: number | null) => {
+    if (!timestamp) return "N/A";
+    return new Date(timestamp).toLocaleTimeString();
   };
 
   return (
