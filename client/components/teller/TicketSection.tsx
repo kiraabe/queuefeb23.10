@@ -298,146 +298,153 @@ function TicketRow({
   return (
     <>
       <div
-        className={`rounded-lg border p-3 transition-all ${
+        className={`rounded-lg border transition-all ${
           ticket.status === "done"
             ? "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10"
             : "border-border/50 bg-background/50"
         }`}
       >
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="font-semibold text-foreground">{ticket.code}</p>
-            <p className="text-sm text-muted-foreground">
-              {ticket.ownerName || "—"}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {ticket.status === "done" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="h-8 w-8 p-0"
-                aria-label={
-                  isExpanded ? "Collapse workflow" : "Expand workflow"
-                }
+        {/* Accordion header - always visible */}
+        <div className="p-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="font-semibold text-foreground">{ticket.code}</p>
+              <p className="text-sm text-muted-foreground">
+                {ticket.ownerName || "—"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {ticket.status === "done" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="h-8 w-8 p-0"
+                  aria-label={
+                    isExpanded ? "Collapse ticket details" : "Expand ticket details"
+                  }
+                >
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
+                </Button>
+              )}
+              <span
+                className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${
+                  ticket.status === "done"
+                    ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-100"
+                    : ticket.status === "skipped"
+                      ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100"
+                      : ticket.status === "serving"
+                        ? "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                        : "bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                }`}
               >
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
-                    isExpanded ? "rotate-180" : ""
-                  }`}
-                />
-              </Button>
-            )}
-            <span
-              className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${
-                ticket.status === "done"
-                  ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-100"
-                  : ticket.status === "skipped"
-                    ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100"
-                    : ticket.status === "serving"
-                      ? "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
-                      : "bg-gray-200 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
-              }`}
-            >
-              {ticket.status}
-            </span>
+                {ticket.status}
+              </span>
+            </div>
           </div>
         </div>
 
-        {(ticket.transferredFromWindow ||
-          ticket.transferredToWindow ||
-          ticket.transferredToUserId) && (
-          <div className="mt-3 rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
-                Transfer Info
-              </span>
-            </div>
-            <div className="mt-2 flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground font-medium">
-                {ticket.transferredFromWindow
-                  ? getWindowName(ticket.transferredFromWindow)
-                  : "—"}
-              </span>
-              <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              <span className="text-muted-foreground font-medium">
-                {ticket.transferredToWindow
-                  ? getWindowName(ticket.transferredToWindow)
-                  : ticket.transferredToUserId
-                    ? userMap.get(ticket.transferredToUserId) || "—"
-                    : "—"}
-              </span>
-            </div>
-            {ticket.transferredAt && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                <Calendar className="h-3 w-3" />
-                <span>{formatDate(ticket.transferredAt)}</span>
+        {/* Accordion content - shown when expanded */}
+        {isExpanded && (
+          <div className="border-t border-current/10 px-3 pb-3 pt-3 space-y-3">
+            {(ticket.transferredFromWindow ||
+              ticket.transferredToWindow ||
+              ticket.transferredToUserId) && (
+              <div className="rounded bg-purple-50/50 p-2 dark:bg-purple-950/20">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                    Transfer Info
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground font-medium">
+                    {ticket.transferredFromWindow
+                      ? getWindowName(ticket.transferredFromWindow)
+                      : "—"}
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-muted-foreground font-medium">
+                    {ticket.transferredToWindow
+                      ? getWindowName(ticket.transferredToWindow)
+                      : ticket.transferredToUserId
+                        ? userMap.get(ticket.transferredToUserId) || "—"
+                        : "—"}
+                  </span>
+                </div>
+                {ticket.transferredAt && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                    <Calendar className="h-3 w-3" />
+                    <span>{formatDate(ticket.transferredAt)}</span>
+                  </div>
+                )}
+                {ticket.remark && extractReason(ticket.remark) && (
+                  <div className="mt-2 pt-2 border-t border-purple-200 dark:border-purple-800">
+                    <p className="text-xs font-medium text-purple-700 dark:text-purple-300">
+                      Transfer Reason
+                    </p>
+                    <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
+                      {extractReason(ticket.remark)}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
-            {ticket.remark && extractReason(ticket.remark) && (
-              <div className="mt-2 pt-2 border-t border-purple-200 dark:border-purple-800">
-                <p className="text-xs font-medium text-purple-700 dark:text-purple-300">
-                  Transfer Reason
+
+            {ticket.selectedServices && ticket.selectedServices.length > 0 && (
+              <div className="rounded bg-blue-50/50 p-2 dark:bg-blue-950/20">
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                  Selected Services
                 </p>
-                <p className="mt-1 text-xs text-purple-600 dark:text-purple-400">
-                  {extractReason(ticket.remark)}
+                <ul className="mt-1 space-y-1">
+                  {ticket.selectedServices.map((serviceName, index) => (
+                    <li
+                      key={index}
+                      className="text-xs text-blue-600 dark:text-blue-400"
+                    >
+                      • {serviceName}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {ticket.notes && (
+              <p className="text-sm text-muted-foreground">
+                Notes: {ticket.notes}
+              </p>
+            )}
+            {ticket.status === "skipped" && ticket.remark && (
+              <div className="rounded bg-red-50/50 p-2 dark:bg-red-950/20">
+                <p className="text-xs font-medium text-red-700 dark:text-red-300">
+                  Skip Reason
+                </p>
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                  {extractSkipReason(ticket.remark) || "No reason provided"}
                 </p>
               </div>
             )}
-          </div>
-        )}
-
-        {ticket.selectedServices && ticket.selectedServices.length > 0 && (
-          <div className="mt-2 rounded bg-blue-50/50 p-2 dark:bg-blue-950/20">
-            <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
-              Selected Services
-            </p>
-            <ul className="mt-1 space-y-1">
-              {ticket.selectedServices.map((serviceName, index) => (
-                <li
-                  key={index}
-                  className="text-xs text-blue-600 dark:text-blue-400"
-                >
-                  • {serviceName}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {ticket.notes && (
-          <p className="mt-2 text-sm text-muted-foreground">
-            Notes: {ticket.notes}
-          </p>
-        )}
-        {ticket.status === "skipped" && ticket.remark && (
-          <div className="mt-2 rounded bg-red-50/50 p-2 dark:bg-red-950/20">
-            <p className="text-xs font-medium text-red-700 dark:text-red-300">
-              Skip Reason
-            </p>
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-              {extractSkipReason(ticket.remark) || "No reason provided"}
-            </p>
-          </div>
-        )}
-        {ticket.woreda && (
-          <p className="mt-1 text-xs text-muted-foreground">
-            Woreda: {ticket.woreda}
-          </p>
-        )}
-
-        {/* Show summary for completed tickets when not expanded */}
-        {/* Show process flow chart for completed tickets */}
-        {ticket.status === "done" && (
-          <>
-            {processSteps.length > 0 ? (
-              <ProcessFlowChart ticket={ticket} steps={processSteps} />
-            ) : (
-              <CompletedTicketSummary ticket={ticket} />
+            {ticket.woreda && (
+              <p className="text-xs text-muted-foreground">
+                Woreda: {ticket.woreda}
+              </p>
             )}
-            {isExpanded && <CaseWorkflowTimeline ticket={ticket} />}
-          </>
+
+            {/* Process flow chart for completed tickets */}
+            {ticket.status === "done" && (
+              <>
+                {processSteps.length > 0 ? (
+                  <ProcessFlowChart ticket={ticket} steps={processSteps} />
+                ) : (
+                  <CompletedTicketSummary ticket={ticket} />
+                )}
+                <CaseWorkflowTimeline ticket={ticket} />
+              </>
+            )}
+          </div>
         )}
       </div>
     </>
