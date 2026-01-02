@@ -19,6 +19,7 @@ import {
   User,
   MapPin,
   Layers,
+  FileText,
 } from "lucide-react";
 import { TicketSection } from "@/components/teller/TicketSection";
 import { ProceedHandoffDialog } from "@/components/teller/ProceedHandoffDialog";
