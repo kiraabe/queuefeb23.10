@@ -1,7 +1,48 @@
 import { RequestHandler } from "express";
 import { getPool, logAudit } from "../store/db";
 
-// Get all tickets waiting for documents to be fetched
+// Get all tickets in global queue waiting for document retrieval
+export const getGlobalQueue: RequestHandler = async (req, res) => {
+  try {
+    const pool = getPool();
+    const result = await pool.query(
+      `SELECT id, code, service, number, owner_name, woreda, created_at,
+              status, documents_fetched, archiver_id, archiver_started_at,
+              service_category
+       FROM tickets
+       WHERE documents_fetched = false
+       ORDER BY created_at ASC`,
+    );
+
+    const tickets = result.rows.map((row, index) => ({
+      id: row.id,
+      code: row.code,
+      service: row.service,
+      number: row.number,
+      ownerName: row.owner_name,
+      woreda: row.woreda,
+      createdAt: new Date(row.created_at).getTime(),
+      status: row.status,
+      documentsFetched: row.documents_fetched,
+      serviceCategory: row.service_category,
+      archiverStartedAt: row.archiver_started_at
+        ? new Date(row.archiver_started_at).getTime()
+        : null,
+      isLocked: !!row.archiver_id,
+      queuePosition: index + 1,
+      waitDuration: Math.floor(
+        (Date.now() - new Date(row.created_at).getTime()) / 1000 / 60,
+      ), // minutes
+    }));
+
+    res.json({ tickets });
+  } catch (error) {
+    console.error("Error fetching global queue:", error);
+    res.status(500).json({ error: "Failed to fetch global queue" });
+  }
+};
+
+// Get all tickets waiting for documents to be fetched (legacy endpoint)
 export const getWaitingDocumentsDb: RequestHandler = async (req, res) => {
   try {
     const pool = getPool();
