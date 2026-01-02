@@ -342,6 +342,23 @@ export function createServer() {
   app.get("/api/employee/case-workflow", caseWorkflow);
   app.get("/api/employee/case-workflows", listCaseWorkflows);
 
+  // Archiever API
+  app.get(
+    "/api/archiever/documents",
+    requireRole(["archiever"]),
+    getWaitingDocumentsDb,
+  );
+  app.post(
+    "/api/archiever/documents/:ticketId/fetch",
+    requireRole(["archiever"]),
+    markDocumentsFetched,
+  );
+  app.get(
+    "/api/archiever/documents/:ticketId/status",
+    requireRole(["archiever"]),
+    getDocumentStatus,
+  );
+
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
