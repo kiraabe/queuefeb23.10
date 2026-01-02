@@ -39,6 +39,7 @@ interface ArchivedTicket {
 
 export function ArchivedTicketsHistory() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [timeFilter, setTimeFilter] = useState<"all" | "today" | "week">("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [archivedTickets, setArchivedTickets] = useState<Set<string>>(
     new Set(),
