@@ -90,11 +90,11 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
 
   // Mark retrieved mutation
   const { mutate: markRetrieved, isPending: isMarking } = useMutation({
-    mutationFn: async (overrideValidation: boolean = false) => {
+    mutationFn: async (overrideValidation?: boolean) => {
       const response = await fetch(`/api/archiever/tickets/${ticketId}/retrieved`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
-        body: JSON.stringify({ overrideValidation }),
+        body: JSON.stringify({ overrideValidation: overrideValidation || false }),
       });
       if (!response.ok) {
         const error = await response.json();
