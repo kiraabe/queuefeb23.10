@@ -560,8 +560,9 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
   try {
     const pool = getPool();
     const userId = (req as any).auth?.id;
+    const userRole = (req as any).auth?.role;
 
-    // Get tickets retrieved by this archiver or all if admin
+    // Check if user is admin
     let query = `
       SELECT id, code, service, number, owner_name, service_category,
              created_at, archiver_started_at, documents_fetched_at
@@ -569,13 +570,14 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
       WHERE documents_fetched = true
     `;
 
-    if (userId) {
+    // Filter by current user only if not admin
+    if (userId && userRole !== "admin") {
       query += ` AND archived_by_user_id = $1`;
     }
 
     query += ` ORDER BY documents_fetched_at DESC LIMIT 100`;
 
-    const result = await pool.query(query, userId ? [userId] : []);
+    const result = await pool.query(query, userId && userRole !== "admin" ? [userId] : []);
 
     const tickets = result.rows.map((row) => ({
       id: row.id,
