@@ -342,9 +342,10 @@ export const callNext: RequestHandler = async (req, res) => {
 
     const result = await callNextForWindowDb(windowId);
     if (!result.ticket) {
-      const message = result.waitingCount === 0
-        ? "No waiting customers"
-        : "No customers waiting in the queue for this service type";
+      const message =
+        result.waitingCount === 0
+          ? "No waiting customers"
+          : "No customers waiting in the queue for this service type";
       return res.status(200).json({ message });
     }
 

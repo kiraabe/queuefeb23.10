@@ -176,11 +176,9 @@ export const startTicket: RequestHandler = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res
-        .status(400)
-        .json({
-          error: "Could not claim ticket - it may already be retrieved",
-        });
+      return res.status(400).json({
+        error: "Could not claim ticket - it may already be retrieved",
+      });
     }
 
     const ticket = result.rows[0];
