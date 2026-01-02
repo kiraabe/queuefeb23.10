@@ -810,7 +810,7 @@ export default function TellerWindow() {
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Waiting (Global)
+            Waiting
           </div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.waiting ?? 0}
