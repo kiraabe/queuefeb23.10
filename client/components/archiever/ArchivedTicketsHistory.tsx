@@ -262,12 +262,39 @@ export function ArchivedTicketsHistory() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input
-            placeholder="Search by ticket code, customer name, or service..."
-            value={searchTerm}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="max-w-md"
-          />
+          <div className="space-y-3">
+            <Input
+              placeholder="Search by ticket code, customer name, or service..."
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="max-w-md"
+            />
+
+            {/* Time Filter Buttons */}
+            <div className="flex gap-2">
+              <Button
+                variant={timeFilter === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleTimeFilterChange("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={timeFilter === "today" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleTimeFilterChange("today")}
+              >
+                Today
+              </Button>
+              <Button
+                variant={timeFilter === "week" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleTimeFilterChange("week")}
+              >
+                This Week
+              </Button>
+            </div>
+          </div>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
