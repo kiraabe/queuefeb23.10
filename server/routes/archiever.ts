@@ -82,8 +82,8 @@ export const getWaitingDocumentsDb: RequestHandler = async (req, res) => {
 export const markDocumentsFetched: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId) {
       return res.status(400).json({ error: "Ticket ID is required" });
@@ -135,8 +135,8 @@ export const markDocumentsFetched: RequestHandler = async (req, res) => {
 export const startTicket: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId || !userId) {
       return res
@@ -217,7 +217,7 @@ export const startTicket: RequestHandler = async (req, res) => {
 export const getTicketDetails: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id;
 
     if (!ticketId) {
       return res.status(400).json({ error: "Ticket ID is required" });
@@ -276,8 +276,8 @@ export const addInternalNotes: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { notes } = req.body;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId || !notes) {
       return res
@@ -334,8 +334,8 @@ export const updateDocumentChecklist: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { documentName, status } = req.body;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId || !documentName || !status) {
       return res
@@ -397,8 +397,8 @@ export const updateDocumentChecklist: RequestHandler = async (req, res) => {
 export const markTicketRetrieved: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId || !userId) {
       return res
@@ -502,8 +502,8 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
 export const releaseTicket: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const userId = (req as any).user?.id;
-    const username = (req as any).user?.username;
+    const userId = (req as any).auth?.id;
+    const username = (req as any).auth?.username;
 
     if (!ticketId || !userId) {
       return res
@@ -560,7 +560,7 @@ export const releaseTicket: RequestHandler = async (req, res) => {
 export const getArchivedHistory: RequestHandler = async (req, res) => {
   try {
     const pool = getPool();
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id;
 
     // Get tickets retrieved by this archiver or all if admin
     let query = `
