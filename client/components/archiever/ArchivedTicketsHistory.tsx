@@ -239,39 +239,110 @@ export function ArchivedTicketsHistory() {
           ) : (
             <>
               <div className="space-y-3">
-                {paginatedTickets.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Ticket Code
-                        </p>
-                        <p className="text-lg font-bold text-blue-600">
-                          {ticket.code}
-                        </p>
+                {paginatedTickets.map((ticket) => {
+                  const isArchived =
+                    archivedTickets.has(ticket.id) ||
+                    !!ticket.manuallyArchivedAt;
+
+                  return (
+                    <div
+                      key={ticket.id}
+                      className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                    >
+                      {/* Main content grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start md:items-center mb-3 md:mb-0">
+                        {/* Ticket Code */}
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Ticket Details
+                          </p>
+                          <div className="flex flex-col gap-1">
+                            <p className="text-lg font-bold text-blue-600">
+                              {ticket.code}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {ticket.ownerName || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Service Category */}
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Service Category
+                          </p>
+                          <p className="font-medium text-sm">
+                            {ticket.serviceCategory || "N/A"}
+                          </p>
+                        </div>
+
+                        {/* Start Time */}
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Start Time
+                          </p>
+                          <p className="text-sm">
+                            {formatTime24Hour(ticket.archiverStartedAt)}
+                          </p>
+                        </div>
+
+                        {/* Retrieved Time */}
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Retrieved Time
+                          </p>
+                          <p className="text-sm">
+                            {formatTime24Hour(ticket.retrievedAt)}
+                          </p>
+                        </div>
+
+                        {/* Back To Archive Button & Archived Timestamp */}
+                        <div className="flex flex-col gap-2 pt-2 md:pt-0">
+                          {isArchived ? (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                disabled
+                                className="w-full"
+                              >
+                                <Check className="h-4 w-4 mr-2" />
+                                Archived
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleBackToArchive(ticket.id, ticket.code)
+                              }
+                              disabled={archivingTicket === ticket.id}
+                              className="w-full"
+                            >
+                              {archivingTicket === ticket.id ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Archiving...
+                                </>
+                              ) : (
+                                <>
+                                  <Archive className="h-4 w-4 mr-2" />
+                                  Back To Archive
+                                </>
+                              )}
+                            </Button>
+                          )}
+                          {ticket.manuallyArchivedAt && (
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(ticket.manuallyArchivedAt)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Customer
-                        </p>
-                        <p className="font-medium">{ticket.ownerName}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Service</p>
-                        <p className="font-medium text-sm">{ticket.service}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Retrieved Time
-                        </p>
-                        <p className="text-sm">
-                          {new Date(ticket.retrievedAt).toLocaleTimeString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
+
+                      {/* Processing Time - shown below on mobile */}
+                      <div className="md:hidden mt-3 pt-3 border-t flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="text-xs text-muted-foreground">
@@ -283,13 +354,8 @@ export function ArchivedTicketsHistory() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Timestamp on separate row for mobile */}
-                    <div className="md:hidden mt-3 pt-3 border-t text-xs text-muted-foreground">
-                      <p>Retrieved: {formatDate(ticket.retrievedAt)}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Pagination Controls */}
