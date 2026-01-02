@@ -131,6 +131,9 @@ export async function initDb() {
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS archiver_started_at timestamptz;`,
     );
     await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS archived_by_user_id uuid REFERENCES users(id) ON DELETE SET NULL;`,
+    );
+    await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS internal_notes text;`,
     );
     await p.query(
