@@ -38,6 +38,7 @@ interface WorkflowEntry {
   jobTitle: string;
   ticketCode: string;
   isArchiever?: boolean;
+  isTeller?: boolean;
 }
 
 interface TicketInfo {
