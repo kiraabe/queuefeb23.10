@@ -106,7 +106,7 @@ export const markDocumentsFetched: RequestHandler = async (req, res) => {
     const ticket = result.rows[0];
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "documents_fetched",
       userId,
       username,
