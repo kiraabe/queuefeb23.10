@@ -13,7 +13,7 @@ export interface Ticket {
   service: ServiceType;
   number: number; // incremental per service
   code: string; // e.g. S1-015
-  status: "waiting" | "serving" | "done" | "skipped" | "transferred";
+  status: "waiting" | "serving" | "done" | "skipped" | "transferred" | "waiting_archive";
   windowId: number | null;
   createdAt: number;
   startedAt?: number | null; // when serving started
