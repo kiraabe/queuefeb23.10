@@ -123,6 +123,22 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS documents_fetched_at timestamptz;`,
     );
+    // Archiver workflow columns
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS archiver_id uuid REFERENCES users(id) ON DELETE SET NULL;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS archiver_started_at timestamptz;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS internal_notes text;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS document_checklist jsonb;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS required_documents jsonb;`,
+    );
     await p.query(`CREATE TABLE IF NOT EXISTS service_counters (
     service text primary key,
     next_number int not null,
