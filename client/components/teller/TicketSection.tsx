@@ -173,7 +173,10 @@ function TicketRow({
 
   // Convert performance data to process steps
   const processSteps = useMemo(() => {
-    if (!performanceData?.items) return [];
+    // The API returns { items: [{ ticketId, ticketCode, items: [workflow steps], ... }] }
+    // For a single ticket query, we get items[0].items which contains the workflow steps
+    const workflowItems = performanceData?.items?.[0]?.items;
+    if (!workflowItems || workflowItems.length === 0) return [];
 
     const formatTime = (seconds: number | null) => {
       if (!seconds) return "—";
@@ -187,7 +190,7 @@ function TicketRow({
       return `${hours}h ${minutes}m`;
     };
 
-    return performanceData.items.map((item: any, index: number) => ({
+    return workflowItems.map((item: any, index: number) => ({
       id: item.id,
       number: index + 1,
       employeeName: item.employeeName || "Unknown",
