@@ -54,7 +54,7 @@ export default function EmploymentManagement() {
   const [jobTitles, setJobTitles] = useState<JobTitle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState<
-    "all" | "reception" | "teller" | "admin"
+    "all" | "reception" | "teller" | "admin" | "employee" | "archiever"
   >("all");
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,7 +69,7 @@ export default function EmploymentManagement() {
   const [editingJobTitleId, setEditingJobTitleId] = useState("");
   const [editingWindowId, setEditingWindowId] = useState<number | null>(null);
   const [editingRole, setEditingRole] = useState<
-    "reception" | "teller" | "admin" | "employee"
+    "reception" | "teller" | "admin" | "employee" | "archiever"
   >("teller");
   const [editingDisabled, setEditingDisabled] = useState(false);
 
@@ -86,7 +86,7 @@ export default function EmploymentManagement() {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState<
-    "reception" | "teller" | "admin" | "employee"
+    "reception" | "teller" | "admin" | "employee" | "archiever"
   >("teller");
   const [newFullName, setNewFullName] = useState("");
   const [newDepartment, setNewDepartment] = useState("");
@@ -412,7 +412,7 @@ export default function EmploymentManagement() {
 
   // Reset to page 1 when filter changes
   const handleRoleFilterChange = (
-    role: "all" | "reception" | "teller" | "admin",
+    role: "all" | "reception" | "teller" | "admin" | "employee" | "archiever",
   ) => {
     setRoleFilter(role);
     setCurrentPage(1);
@@ -446,8 +446,8 @@ export default function EmploymentManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
-            {(["all", "reception", "teller", "admin", "employee"] as const).map(
+          <div className="flex flex-wrap gap-2">
+            {(["all", "reception", "teller", "admin", "employee", "archiever"] as const).map(
               (role) => (
                 <Button
                   key={role}
@@ -492,7 +492,7 @@ export default function EmploymentManagement() {
                 <Select
                   value={newRole}
                   onValueChange={(value) =>
-                    setNewRole(value as "reception" | "teller" | "admin")
+                    setNewRole(value as "reception" | "teller" | "admin" | "employee" | "archiever")
                   }
                   disabled={isLoading}
                 >
@@ -503,6 +503,7 @@ export default function EmploymentManagement() {
                     <SelectItem value="reception">Reception</SelectItem>
                     <SelectItem value="teller">Teller</SelectItem>
                     <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="archiever">Archiever</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
@@ -695,7 +696,8 @@ export default function EmploymentManagement() {
                                       | "reception"
                                       | "teller"
                                       | "admin"
-                                      | "employee",
+                                      | "employee"
+                                      | "archiever",
                                   )
                                 }
                                 disabled={isLoading}
@@ -710,6 +712,9 @@ export default function EmploymentManagement() {
                                   <SelectItem value="teller">Teller</SelectItem>
                                   <SelectItem value="employee">
                                     Employee
+                                  </SelectItem>
+                                  <SelectItem value="archiever">
+                                    Archiever
                                   </SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
