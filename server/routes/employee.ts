@@ -909,6 +909,28 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       [ticketIds],
     );
 
+    // Fetch teller information for all tickets
+    const tellerRes = await p.query(
+      `SELECT
+         t.id as ticket_id,
+         t.window_id,
+         extract(epoch from t.created_at)*1000 as created_at,
+         extract(epoch from t.started_at)*1000 as started_at,
+         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds,
+         u.id as user_id,
+         u.full_name,
+         u.username,
+         jt.name_english,
+         jt.name_amharic
+       FROM tickets t
+       LEFT JOIN users u ON u.window_id = t.window_id AND u.role = 'teller'
+       LEFT JOIN job_title jt ON u.job_title_id = jt.id
+       WHERE t.id = ANY($1)
+         AND t.window_id IS NOT NULL
+         AND t.started_at IS NOT NULL`,
+      [ticketIds],
+    );
+
     // Group workflow entries by ticket
     const workflowsByTicket = new Map<string, any[]>();
     workflowRes.rows.forEach((row) => {
