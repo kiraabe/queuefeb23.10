@@ -40,6 +40,9 @@ export interface Ticket {
   employeeStartedAt?: number | null; // when the current employee started working on this case (from employee_case_performance)
   // Auto-expiration field
   expiredAt?: number | null;
+  // Document tracking for archiever
+  documentsFetched?: boolean;
+  documentsFetchedAt?: number | null;
 }
 
 export interface WindowState {
@@ -156,7 +159,7 @@ export interface TicketStatusResponse {
 }
 
 // Auth
-export type UserRole = "reception" | "teller" | "admin" | "employee";
+export type UserRole = "reception" | "teller" | "admin" | "employee" | "archiever";
 export interface AuthUser {
   id: string;
   username: string;
