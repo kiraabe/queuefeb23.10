@@ -130,7 +130,19 @@ export function ArchivedTicketsHistory() {
 
   const formatTime = (minutes: number | null) => {
     if (minutes === null) return "N/A";
-    if (minutes < 60) return `${minutes.toFixed(1)}m`;
+
+    // Less than 1 minute - show in seconds
+    if (minutes < 1) {
+      const seconds = Math.round(minutes * 60);
+      return `${seconds}s`;
+    }
+
+    // Less than 60 minutes - show in minutes
+    if (minutes < 60) {
+      return `${minutes.toFixed(1)}m`;
+    }
+
+    // 60 minutes or more - show in hours and minutes
     const hours = Math.floor(minutes / 60);
     const mins = Math.round(minutes % 60);
     return `${hours}h ${mins}m`;
