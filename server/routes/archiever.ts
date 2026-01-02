@@ -445,7 +445,7 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
     }
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "ticket_retrieved",
       userId,
       username,
