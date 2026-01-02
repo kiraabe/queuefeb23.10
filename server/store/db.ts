@@ -157,6 +157,29 @@ export async function initDb() {
     } catch {
       // Backfill failed, continue - this is optional for historical data
     }
+    // Backfill archiver_started_at from ticket_started audit logs for tickets with NULL archiver_started_at
+    // This ensures processing time can be calculated for historical tickets
+    try {
+      await p.query(`
+        UPDATE tickets t
+        SET archiver_started_at = (
+          SELECT created_at FROM audit_logs
+          WHERE action = 'ticket_started'
+          AND (details::jsonb->>'ticketId')::text = t.id::text
+          ORDER BY created_at ASC
+          LIMIT 1
+        )
+        WHERE documents_fetched = true
+        AND archiver_started_at IS NULL
+        AND EXISTS (
+          SELECT 1 FROM audit_logs
+          WHERE action = 'ticket_started'
+          AND (details::jsonb->>'ticketId')::text = t.id::text
+        )
+      `);
+    } catch {
+      // Backfill failed, continue - this is optional for historical data
+    }
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS internal_notes text;`,
     );
