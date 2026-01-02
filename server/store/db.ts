@@ -189,6 +189,9 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS required_documents jsonb;`,
     );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS manually_archived_at timestamptz;`,
+    );
     await p.query(`CREATE TABLE IF NOT EXISTS service_counters (
     service text primary key,
     next_number int not null,
