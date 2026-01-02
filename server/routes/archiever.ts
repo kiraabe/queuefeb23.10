@@ -455,14 +455,16 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
     }
 
     // Update ticket: mark as retrieved and clear archiver lock
+    // Change status from waiting_archive to waiting so it appears in service-specific queue for tellers
     const result = await pool.query(
       `UPDATE tickets
-       SET documents_fetched = true,
+       SET status = 'waiting',
+           documents_fetched = true,
            documents_fetched_at = now(),
            archiver_id = NULL,
            archiver_started_at = NULL
        WHERE id = $1
-       RETURNING id, code, service_category, documents_fetched, documents_fetched_at`,
+       RETURNING id, code, service_category, status, documents_fetched, documents_fetched_at`,
       [ticketId],
     );
 
