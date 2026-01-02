@@ -910,6 +910,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     );
 
     // Fetch teller information for all tickets
+    // Find the user who was logged in at the window when the ticket was being served
     const tellerRes = await p.query(
       `SELECT
          t.id as ticket_id,
@@ -923,11 +924,16 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
          jt.name_english,
          jt.name_amharic
        FROM tickets t
-       LEFT JOIN users u ON t.started_by_user_id = u.id
+       LEFT JOIN user_sessions us ON us.window_id = t.window_id
+         AND us.active_role = 'teller'
+         AND us.created_at <= t.started_at
+         AND (us.revoked_at IS NULL OR us.revoked_at >= t.started_at)
+       LEFT JOIN users u ON us.user_id = u.id
        LEFT JOIN job_title jt ON u.job_title_id = jt.id
        WHERE t.id = ANY($1)
-         AND t.started_by_user_id IS NOT NULL
-         AND t.started_at IS NOT NULL`,
+         AND t.window_id IS NOT NULL
+         AND t.started_at IS NOT NULL
+       QUALIFY ROW_NUMBER() OVER (PARTITION BY t.id ORDER BY us.created_at DESC) = 1`,
       [ticketIds],
     );
 
