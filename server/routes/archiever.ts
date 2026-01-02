@@ -138,7 +138,9 @@ export const startTicket: RequestHandler = async (req, res) => {
     const username = (req as any).user?.username;
 
     if (!ticketId || !userId) {
-      return res.status(400).json({ error: "Ticket ID and user ID are required" });
+      return res
+        .status(400)
+        .json({ error: "Ticket ID and user ID are required" });
     }
 
     const pool = getPool();
@@ -153,8 +155,13 @@ export const startTicket: RequestHandler = async (req, res) => {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
-    if (checkResult.rows[0].archiver_id && checkResult.rows[0].archiver_id !== userId) {
-      return res.status(409).json({ error: "Ticket is already claimed by another archiver" });
+    if (
+      checkResult.rows[0].archiver_id &&
+      checkResult.rows[0].archiver_id !== userId
+    ) {
+      return res
+        .status(409)
+        .json({ error: "Ticket is already claimed by another archiver" });
     }
 
     // Lock ticket for this archiver
@@ -168,7 +175,11 @@ export const startTicket: RequestHandler = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: "Could not claim ticket - it may already be retrieved" });
+      return res
+        .status(400)
+        .json({
+          error: "Could not claim ticket - it may already be retrieved",
+        });
     }
 
     const ticket = result.rows[0];
@@ -229,7 +240,9 @@ export const getTicketDetails: RequestHandler = async (req, res) => {
 
     // Check if current user has access
     if (ticket.archiver_id && ticket.archiver_id !== userId) {
-      return res.status(403).json({ error: "You do not have access to this ticket" });
+      return res
+        .status(403)
+        .json({ error: "You do not have access to this ticket" });
     }
 
     res.json({
@@ -266,7 +279,9 @@ export const addInternalNotes: RequestHandler = async (req, res) => {
     const username = (req as any).user?.username;
 
     if (!ticketId || !notes) {
-      return res.status(400).json({ error: "Ticket ID and notes are required" });
+      return res
+        .status(400)
+        .json({ error: "Ticket ID and notes are required" });
     }
 
     const pool = getPool();
@@ -282,7 +297,9 @@ export const addInternalNotes: RequestHandler = async (req, res) => {
     }
 
     if (checkResult.rows[0].archiver_id !== userId) {
-      return res.status(403).json({ error: "You do not have access to this ticket" });
+      return res
+        .status(403)
+        .json({ error: "You do not have access to this ticket" });
     }
 
     const result = await pool.query(
@@ -320,7 +337,9 @@ export const updateDocumentChecklist: RequestHandler = async (req, res) => {
     const username = (req as any).user?.username;
 
     if (!ticketId || !documentName || !status) {
-      return res.status(400).json({ error: "Ticket ID, document name, and status are required" });
+      return res
+        .status(400)
+        .json({ error: "Ticket ID, document name, and status are required" });
     }
 
     const pool = getPool();
@@ -336,7 +355,9 @@ export const updateDocumentChecklist: RequestHandler = async (req, res) => {
     }
 
     if (checkResult.rows[0].archiver_id !== userId) {
-      return res.status(403).json({ error: "You do not have access to this ticket" });
+      return res
+        .status(403)
+        .json({ error: "You do not have access to this ticket" });
     }
 
     const currentChecklist = checkResult.rows[0].document_checklist || {};
@@ -379,7 +400,9 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
     const username = (req as any).user?.username;
 
     if (!ticketId || !userId) {
-      return res.status(400).json({ error: "Ticket ID and user ID are required" });
+      return res
+        .status(400)
+        .json({ error: "Ticket ID and user ID are required" });
     }
 
     const pool = getPool();
@@ -400,7 +423,9 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
 
     // Check if user is the one who claimed it
     if (ticket.archiver_id !== userId) {
-      return res.status(403).json({ error: "You do not have access to this ticket" });
+      return res
+        .status(403)
+        .json({ error: "You do not have access to this ticket" });
     }
 
     // Check if all required documents are verified
@@ -422,8 +447,8 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
         return res.status(400).json({
           error: "Not all required documents have been verified",
           missingDocuments: requiredDocs.filter(
-            doc => !checklist[doc] || checklist[doc].status !== "verified"
-          )
+            (doc) => !checklist[doc] || checklist[doc].status !== "verified",
+          ),
         });
       }
     }
@@ -478,7 +503,9 @@ export const releaseTicket: RequestHandler = async (req, res) => {
     const username = (req as any).user?.username;
 
     if (!ticketId || !userId) {
-      return res.status(400).json({ error: "Ticket ID and user ID are required" });
+      return res
+        .status(400)
+        .json({ error: "Ticket ID and user ID are required" });
     }
 
     const pool = getPool();
@@ -494,7 +521,9 @@ export const releaseTicket: RequestHandler = async (req, res) => {
     }
 
     if (checkResult.rows[0].archiver_id !== userId) {
-      return res.status(403).json({ error: "You do not have access to this ticket" });
+      return res
+        .status(403)
+        .json({ error: "You do not have access to this ticket" });
     }
 
     // Release the lock
@@ -560,11 +589,15 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
       retrievedAt: row.documents_fetched_at
         ? new Date(row.documents_fetched_at).getTime()
         : null,
-      processingTime: row.archiver_started_at && row.documents_fetched_at
-        ? Math.floor(
-            (new Date(row.documents_fetched_at).getTime() - new Date(row.archiver_started_at).getTime()) / 1000 / 60
-          ) // minutes
-        : null,
+      processingTime:
+        row.archiver_started_at && row.documents_fetched_at
+          ? Math.floor(
+              (new Date(row.documents_fetched_at).getTime() -
+                new Date(row.archiver_started_at).getTime()) /
+                1000 /
+                60,
+            ) // minutes
+          : null,
     }));
 
     res.json({ tickets });

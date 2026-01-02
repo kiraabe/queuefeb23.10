@@ -8,8 +8,12 @@ import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHi
 import { Card } from "@/components/ui/card";
 
 export default function Archiever() {
-  const [selectedTicketId, setSelectedTicketId] = useState<string | undefined>();
-  const [selectedTicketCode, setSelectedTicketCode] = useState<string | undefined>();
+  const [selectedTicketId, setSelectedTicketId] = useState<
+    string | undefined
+  >();
+  const [selectedTicketCode, setSelectedTicketCode] = useState<
+    string | undefined
+  >();
   const [activeTab, setActiveTab] = useState("queue");
 
   const handleTicketSelected = (ticketId: string, ticketCode: string) => {
@@ -31,9 +35,7 @@ export default function Archiever() {
   };
 
   return (
-    <ConsoleShell
-      title="Archiver Interface"
-    >
+    <ConsoleShell title="Archiver Interface">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main content area - 3 columns */}
         <div className="lg:col-span-3">
@@ -96,21 +98,28 @@ export default function Archiever() {
         <Card className="p-4 bg-blue-50 border-blue-200">
           <h3 className="font-semibold text-blue-900 mb-2">1️⃣ Global Queue</h3>
           <p className="text-blue-800">
-            Browse all newly created tickets waiting for document retrieval. Click "Start" to claim a ticket.
+            Browse all newly created tickets waiting for document retrieval.
+            Click "Start" to claim a ticket.
           </p>
         </Card>
 
         <Card className="p-4 bg-purple-50 border-purple-200">
-          <h3 className="font-semibold text-purple-900 mb-2">2️⃣ Active Workspace</h3>
+          <h3 className="font-semibold text-purple-900 mb-2">
+            2️⃣ Active Workspace
+          </h3>
           <p className="text-purple-800">
-            Work on claimed tickets. Verify documents from the checklist and add internal notes.
+            Work on claimed tickets. Verify documents from the checklist and add
+            internal notes.
           </p>
         </Card>
 
         <Card className="p-4 bg-green-50 border-green-200">
-          <h3 className="font-semibold text-green-900 mb-2">3️⃣ Retrieved Status</h3>
+          <h3 className="font-semibold text-green-900 mb-2">
+            3️⃣ Retrieved Status
+          </h3>
           <p className="text-green-800">
-            Click "Retrieved" to move the ticket to its service-specific queue. Tellers can then call the customer.
+            Click "Retrieved" to move the ticket to its service-specific queue.
+            Tellers can then call the customer.
           </p>
         </Card>
       </div>
@@ -120,7 +129,9 @@ export default function Archiever() {
         <h3 className="font-semibold mb-3">🔐 Archiver Role Restrictions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Archiver CAN:</h4>
+            <h4 className="font-medium text-green-700 mb-2">
+              ✅ Archiver CAN:
+            </h4>
             <ul className="space-y-1 text-gray-700">
               <li>• Claim tickets from Global repository</li>
               <li>• Prepare and verify documents</li>
@@ -129,7 +140,9 @@ export default function Archiever() {
             </ul>
           </div>
           <div>
-            <h4 className="font-medium text-red-700 mb-2">❌ Archiver CANNOT:</h4>
+            <h4 className="font-medium text-red-700 mb-2">
+              ❌ Archiver CANNOT:
+            </h4>
             <ul className="space-y-1 text-gray-700">
               <li>• Call or serve customers</li>
               <li>• See teller windows</li>

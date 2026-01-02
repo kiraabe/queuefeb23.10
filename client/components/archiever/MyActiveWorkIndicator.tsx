@@ -1,5 +1,11 @@
 import { AlertCircle, Clock, Pause, Play, X } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -56,20 +62,24 @@ export function MyActiveWorkIndicator({
   }
 
   return (
-    <Card className={cn(
-      "border-2 transition-colors",
-      isPaused ? "border-yellow-400 bg-yellow-50" : "border-green-400 bg-green-50"
-    )}>
+    <Card
+      className={cn(
+        "border-2 transition-colors",
+        isPaused
+          ? "border-yellow-400 bg-yellow-50"
+          : "border-green-400 bg-green-50",
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={cn(
-              "h-3 w-3 rounded-full animate-pulse",
-              isPaused ? "bg-yellow-500" : "bg-green-500"
-            )} />
-            <CardTitle className="text-base">
-              Currently Processing
-            </CardTitle>
+            <div
+              className={cn(
+                "h-3 w-3 rounded-full animate-pulse",
+                isPaused ? "bg-yellow-500" : "bg-green-500",
+              )}
+            />
+            <CardTitle className="text-base">Currently Processing</CardTitle>
           </div>
           <Badge variant={isPaused ? "secondary" : "default"}>
             {isPaused ? "Paused" : "Active"}
@@ -86,7 +96,9 @@ export function MyActiveWorkIndicator({
           <Clock className="h-5 w-5 text-green-600 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs text-muted-foreground">Elapsed Time</p>
-            <p className="text-lg font-semibold text-green-700">{elapsedTime}</p>
+            <p className="text-lg font-semibold text-green-700">
+              {elapsedTime}
+            </p>
           </div>
         </div>
 
@@ -109,17 +121,14 @@ export function MyActiveWorkIndicator({
               </>
             )}
           </Button>
-          <Button
-            onClick={onClear}
-            variant="ghost"
-            size="sm"
-          >
+          <Button onClick={onClear} variant="ghost" size="sm">
             <X className="h-4 w-4" />
           </Button>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Note: Other archivists cannot claim this ticket while you're working on it
+          Note: Other archivists cannot claim this ticket while you're working
+          on it
         </p>
       </CardContent>
     </Card>

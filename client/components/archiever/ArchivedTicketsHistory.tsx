@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, AlertCircle, Archive, Clock } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -35,13 +41,13 @@ export function ArchivedTicketsHistory() {
   });
 
   const tickets = data?.tickets ?? [];
-  
+
   // Filter tickets based on search term
   const filteredTickets = tickets.filter(
     (ticket) =>
       ticket.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.service.toLowerCase().includes(searchTerm.toLowerCase())
+      ticket.service.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const stats = {
@@ -51,12 +57,13 @@ export function ArchivedTicketsHistory() {
       const retrieved = new Date(t.retrievedAt);
       return retrieved.toDateString() === today.toDateString();
     }).length,
-    avgTime: tickets.length > 0
-      ? Math.round(
-          tickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
-            tickets.filter((t) => t.processingTime).length
-        )
-      : 0,
+    avgTime:
+      tickets.length > 0
+        ? Math.round(
+            tickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
+              tickets.filter((t) => t.processingTime).length,
+          )
+        : 0,
   };
 
   const formatTime = (minutes: number | null) => {
@@ -83,7 +90,9 @@ export function ArchivedTicketsHistory() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
+            <div className="text-3xl font-bold text-blue-600">
+              {stats.total}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Tickets processed by archivers
             </p>
@@ -97,7 +106,9 @@ export function ArchivedTicketsHistory() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">{stats.today}</div>
+            <div className="text-3xl font-bold text-green-600">
+              {stats.today}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Completed retrieval operations
             </p>
@@ -172,8 +183,12 @@ export function ArchivedTicketsHistory() {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                     <div>
-                      <p className="text-xs text-muted-foreground">Ticket Code</p>
-                      <p className="text-lg font-bold text-blue-600">{ticket.code}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Ticket Code
+                      </p>
+                      <p className="text-lg font-bold text-blue-600">
+                        {ticket.code}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Customer</p>
@@ -184,7 +199,9 @@ export function ArchivedTicketsHistory() {
                       <p className="font-medium text-sm">{ticket.service}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Retrieved Time</p>
+                      <p className="text-xs text-muted-foreground">
+                        Retrieved Time
+                      </p>
                       <p className="text-sm">
                         {new Date(ticket.retrievedAt).toLocaleTimeString()}
                       </p>
@@ -192,7 +209,9 @@ export function ArchivedTicketsHistory() {
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Processing Time</p>
+                        <p className="text-xs text-muted-foreground">
+                          Processing Time
+                        </p>
                         <p className="font-semibold text-sm">
                           {formatTime(ticket.processingTime)}
                         </p>

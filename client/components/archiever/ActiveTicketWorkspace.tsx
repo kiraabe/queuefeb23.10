@@ -1,6 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, AlertCircle, Check, X, Clock, User, MapPin, Tag } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Loader2,
+  AlertCircle,
+  Check,
+  X,
+  Clock,
+  User,
+  MapPin,
+  Tag,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +46,11 @@ interface ActiveTicketWorkspaceProps {
   onReleaseTicket?: () => void;
 }
 
-export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTicket }: ActiveTicketWorkspaceProps) {
+export function ActiveTicketWorkspace({
+  ticketId,
+  onTicketRetrieved,
+  onReleaseTicket,
+}: ActiveTicketWorkspaceProps) {
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState("");
   const [processingTime, setProcessingTime] = useState("0m");
@@ -40,7 +59,9 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
   const { data, isLoading, error } = useQuery({
     queryKey: ["archiever-ticket-details", ticketId],
     queryFn: async () => {
-      const response = await fetch(`/api/archiever/tickets/${ticketId}/details`);
+      const response = await fetch(
+        `/api/archiever/tickets/${ticketId}/details`,
+      );
       if (!response.ok) throw new Error("Failed to fetch ticket details");
       return response.json() as Promise<{ ticket: TicketDetails }>;
     },
@@ -53,14 +74,19 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
     mutationFn: async (notesText: string) => {
       const response = await fetch(`/api/archiever/tickets/${ticketId}/notes`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: JSON.stringify({ notes: notesText }),
       });
       if (!response.ok) throw new Error("Failed to add notes");
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["archiever-ticket-details", ticketId] });
+      queryClient.invalidateQueries({
+        queryKey: ["archiever-ticket-details", ticketId],
+      });
       toast.success("Notes saved");
     },
     onError: () => {
@@ -69,33 +95,54 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
   });
 
   // Update document checklist mutation
-  const { mutate: updateDocument, isPending: isUpdatingDocument } = useMutation({
-    mutationFn: async (documentData: { documentName: string; status: string }) => {
-      const response = await fetch(`/api/archiever/tickets/${ticketId}/document-checklist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
-        body: JSON.stringify(documentData),
-      });
-      if (!response.ok) throw new Error("Failed to update document");
-      return response.json();
+  const { mutate: updateDocument, isPending: isUpdatingDocument } = useMutation(
+    {
+      mutationFn: async (documentData: {
+        documentName: string;
+        status: string;
+      }) => {
+        const response = await fetch(
+          `/api/archiever/tickets/${ticketId}/document-checklist`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify(documentData),
+          },
+        );
+        if (!response.ok) throw new Error("Failed to update document");
+        return response.json();
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["archiever-ticket-details", ticketId],
+        });
+        toast.success("Document status updated");
+      },
+      onError: () => {
+        toast.error("Failed to update document");
+      },
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["archiever-ticket-details", ticketId] });
-      toast.success("Document status updated");
-    },
-    onError: () => {
-      toast.error("Failed to update document");
-    },
-  });
+  );
 
   // Mark retrieved mutation
   const { mutate: markRetrieved, isPending: isMarking } = useMutation({
     mutationFn: async (overrideValidation?: boolean) => {
-      const response = await fetch(`/api/archiever/tickets/${ticketId}/retrieved`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
-        body: JSON.stringify({ overrideValidation: overrideValidation || false }),
-      });
+      const response = await fetch(
+        `/api/archiever/tickets/${ticketId}/retrieved`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          body: JSON.stringify({
+            overrideValidation: overrideValidation || false,
+          }),
+        },
+      );
       if (!response.ok) {
         const error = await response.json();
         throw error;
@@ -104,7 +151,9 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiever-global-queue"] });
-      queryClient.invalidateQueries({ queryKey: ["archiever-ticket-details", ticketId] });
+      queryClient.invalidateQueries({
+        queryKey: ["archiever-ticket-details", ticketId],
+      });
       toast.success("Ticket moved to service-specific repository");
       onTicketRetrieved?.();
     },
@@ -120,16 +169,21 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
   // Release ticket mutation
   const { mutate: releaseTicket, isPending: isReleasing } = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/archiever/tickets/${ticketId}/release`, {
-        method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-      });
+      const response = await fetch(
+        `/api/archiever/tickets/${ticketId}/release`,
+        {
+          method: "POST",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        },
+      );
       if (!response.ok) throw new Error("Failed to release ticket");
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["archiever-global-queue"] });
-      queryClient.invalidateQueries({ queryKey: ["archiever-ticket-details", ticketId] });
+      queryClient.invalidateQueries({
+        queryKey: ["archiever-ticket-details", ticketId],
+      });
       toast.success("Ticket released back to global queue");
       onReleaseTicket?.();
     },
@@ -201,7 +255,7 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
   }
 
   const verifiedCount = Object.values(ticket.documentChecklist).filter(
-    (doc) => doc.status === "verified"
+    (doc) => doc.status === "verified",
   ).length;
   const totalRequired = ticket.requiredDocuments.length;
   const allVerified = verifiedCount === totalRequired && totalRequired > 0;
@@ -290,7 +344,8 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
           ) : (
             <div className="space-y-3">
               {ticket.requiredDocuments.map((doc) => {
-                const status = ticket.documentChecklist[doc]?.status || "pending";
+                const status =
+                  ticket.documentChecklist[doc]?.status || "pending";
                 return (
                   <div
                     key={doc}
@@ -298,14 +353,18 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
                       "flex items-center justify-between p-3 rounded-lg border",
                       status === "verified"
                         ? "border-green-200 bg-green-50"
-                        : "border-gray-200 bg-white"
+                        : "border-gray-200 bg-white",
                     )}
                   >
                     <div>
                       <p className="font-medium text-sm">{doc}</p>
                       {status === "verified" && (
                         <p className="text-xs text-green-600">
-                          Verified at {new Date(ticket.documentChecklist[doc]?.verifiedAt || Date.now()).toLocaleTimeString()}
+                          Verified at{" "}
+                          {new Date(
+                            ticket.documentChecklist[doc]?.verifiedAt ||
+                              Date.now(),
+                          ).toLocaleTimeString()}
                         </p>
                       )}
                     </div>
@@ -313,7 +372,8 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
                       onClick={() =>
                         updateDocument({
                           documentName: doc,
-                          status: status === "verified" ? "pending" : "verified",
+                          status:
+                            status === "verified" ? "pending" : "verified",
                         })
                       }
                       disabled={isUpdatingDocument}
@@ -346,10 +406,10 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
       {/* Internal Notes */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Internal Notes (Archiver Only)</CardTitle>
-          <CardDescription>
-            Not visible to customer
-          </CardDescription>
+          <CardTitle className="text-base">
+            Internal Notes (Archiver Only)
+          </CardTitle>
+          <CardDescription>Not visible to customer</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Textarea
