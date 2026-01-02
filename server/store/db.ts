@@ -2312,6 +2312,21 @@ export async function callNextForWindowDb(windowId: number) {
 
     // If no service restrictions, use global FIFO
     if (allowedCategories.length === 0) {
+      // First, check the count of waiting tickets
+      const countRes = await client.query(
+        `SELECT COUNT(*) as count FROM tickets WHERE status='waiting';`,
+      );
+      const waitingCount = Number(countRes.rows[0]?.count || 0);
+
+      if (waitingCount === 0) {
+        await client.query("COMMIT");
+        return {
+          window: await getWindow(client, windowId),
+          ticket: null as any,
+          waitingCount: 0,
+        };
+      }
+
       const nextRes = await client.query(
         `SELECT id FROM tickets WHERE status='waiting' ORDER BY created_at, number LIMIT 1 FOR UPDATE SKIP LOCKED;`,
       );
@@ -2337,8 +2352,24 @@ export async function callNextForWindowDb(windowId: number) {
       return { window, ticket };
     }
 
-    // Select next ticket from allowed service categories, maintaining FIFO
+    // First, check the count of waiting tickets for allowed service categories
     const placeholders = allowedCategories.map((_, i) => `$${i + 1}`).join(",");
+    const countRes = await client.query(
+      `SELECT COUNT(*) as count FROM tickets WHERE service_category IN (${placeholders}) AND status='waiting';`,
+      allowedCategories,
+    );
+    const waitingCount = Number(countRes.rows[0]?.count || 0);
+
+    if (waitingCount === 0) {
+      await client.query("COMMIT");
+      return {
+        window: await getWindow(client, windowId),
+        ticket: null as any,
+        waitingCount: 0,
+      };
+    }
+
+    // Select next ticket from allowed service categories, maintaining FIFO
     const nextRes = await client.query(
       `SELECT id FROM tickets WHERE service_category IN (${placeholders}) AND status='waiting' ORDER BY created_at, number LIMIT 1 FOR UPDATE SKIP LOCKED;`,
       allowedCategories,
