@@ -99,12 +99,12 @@ export function MyActiveWorkIndicator({
           >
             {isPaused ? (
               <>
-                <PlayCircle className="h-4 w-4 mr-2" />
+                <Play className="h-4 w-4 mr-2" />
                 Resume
               </>
             ) : (
               <>
-                <Pause2 className="h-4 w-4 mr-2" />
+                <Pause className="h-4 w-4 mr-2" />
                 Pause Timer
               </>
             )}
