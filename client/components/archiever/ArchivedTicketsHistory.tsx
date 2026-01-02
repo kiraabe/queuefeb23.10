@@ -6,6 +6,7 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+  Check,
 } from "lucide-react";
 import {
   Card,
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ArchivedTicket {
   id: string;
@@ -29,8 +31,9 @@ interface ArchivedTicket {
   ownerName: string;
   serviceCategory: string;
   createdAt: number;
-  archiverStartedAt: number;
-  retrievedAt: number;
+  archiverStartedAt: number | null;
+  retrievedAt: number | null;
+  manuallyArchivedAt: number | null;
   processingTime: number | null; // minutes
 }
 
