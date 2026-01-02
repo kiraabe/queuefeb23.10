@@ -336,6 +336,11 @@ export default function CaseWorkflowTracker() {
                                                   Archiver
                                                 </Badge>
                                               )}
+                                              {step.isTeller && (
+                                                <Badge className="bg-cyan-600 text-white text-xs">
+                                                  Teller
+                                                </Badge>
+                                              )}
                                               <p className="font-bold text-sm text-foreground line-clamp-2">
                                                 {step.employeeName}
                                               </p>
