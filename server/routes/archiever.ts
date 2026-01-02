@@ -10,7 +10,8 @@ export const getGlobalQueue: RequestHandler = async (req, res) => {
               status, documents_fetched, archiver_id, archiver_started_at,
               service_category
        FROM tickets
-       WHERE documents_fetched = false
+       WHERE status = 'waiting_archive'
+       AND DATE(created_at AT TIME ZONE 'UTC') = CURRENT_DATE AT TIME ZONE 'UTC'
        ORDER BY created_at ASC`,
     );
 
