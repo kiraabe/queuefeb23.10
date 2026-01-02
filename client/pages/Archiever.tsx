@@ -35,21 +35,22 @@ export default function Archiever() {
 
   // Update header title when user or job titles change
   useEffect(() => {
-    if (user?.fullName || user?.jobTitleId) {
-      let title = "Archiver Interface";
-      if (user.fullName) {
-        title = user.fullName;
-        if (user.jobTitleId && jobTitles) {
-          const jobTitle = jobTitles.find((jt) => jt.id === user.jobTitleId);
-          if (jobTitle) {
-            const jobTitleName =
-              jobTitle.nameEnglish || jobTitle.nameAmharic || "No Title";
-            title = `${user.fullName} · ${jobTitleName}`;
-          }
+    let title = "Archiver Interface";
+
+    if (user?.fullName) {
+      title = user.fullName;
+
+      if (user.jobTitleId && jobTitles && jobTitles.length > 0) {
+        const jobTitle = jobTitles.find((jt) => jt.id === user.jobTitleId);
+        if (jobTitle) {
+          const jobTitleName =
+            jobTitle.nameEnglish || jobTitle.nameAmharic || "No Title";
+          title = `${user.fullName} - ${jobTitleName}`;
         }
       }
-      setHeaderTitle(title);
     }
+
+    setHeaderTitle(title);
   }, [user, jobTitles]);
 
   const handleTicketSelected = (ticketId: string, ticketCode: string) => {
