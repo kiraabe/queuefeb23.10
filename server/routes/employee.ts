@@ -764,43 +764,55 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     );
 
     // Fetch teller information for this ticket
-    const tellerRes = await p.query(
+    // Get the ticket's basic info first
+    const ticketTellerRes = await p.query(
       `SELECT
          t.id as ticket_id,
          t.window_id,
          extract(epoch from t.created_at)*1000 as created_at,
          extract(epoch from t.started_at)*1000 as started_at,
-         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds,
-         u.id as user_id,
-         u.full_name,
-         u.username,
-         jt.name_english,
-         jt.name_amharic
+         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds
        FROM tickets t
-       LEFT JOIN (
-         SELECT DISTINCT ON (window_id, ticket_id) *
-         FROM (
-           SELECT
-             us.user_id,
-             us.window_id,
-             us.created_at,
-             t.id as ticket_id
-           FROM user_sessions us
-           JOIN tickets t ON t.window_id = us.window_id
-             AND us.active_role = 'teller'
-             AND us.created_at <= t.started_at
-             AND (us.revoked_at IS NULL OR us.revoked_at >= t.started_at)
-           WHERE t.id = $1
-         ) subq
-         ORDER BY window_id, ticket_id, created_at DESC
-       ) us ON t.id = us.ticket_id
-       LEFT JOIN users u ON us.user_id = u.id
-       LEFT JOIN job_title jt ON u.job_title_id = jt.id
        WHERE t.id = $1
          AND t.window_id IS NOT NULL
          AND t.started_at IS NOT NULL`,
       [ticketId],
     );
+
+    // Then get the user who was logged in at that window during that time
+    let tellerRes = { rows: [] };
+    if (ticketTellerRes.rows.length > 0) {
+      const ticketData = ticketTellerRes.rows[0];
+      tellerRes = await p.query(
+        `SELECT
+           us.user_id,
+           u.full_name,
+           u.username,
+           jt.name_english,
+           jt.name_amharic
+         FROM user_sessions us
+         LEFT JOIN users u ON us.user_id = u.id
+         LEFT JOIN job_title jt ON u.job_title_id = jt.id
+         WHERE us.window_id = $1
+           AND us.active_role = 'teller'
+           AND us.created_at <= to_timestamp($2 / 1000)
+           AND (us.revoked_at IS NULL OR us.revoked_at >= to_timestamp($2 / 1000))
+         ORDER BY us.created_at DESC
+         LIMIT 1`,
+        [$1, ticketData.started_at],
+      );
+
+      // Merge the ticket data with the user session data
+      if (tellerRes.rows.length > 0) {
+        tellerRes.rows[0] = {
+          ...ticketData,
+          ...tellerRes.rows[0],
+        };
+      } else {
+        // No user session found, but we still want to record the teller step
+        tellerRes.rows = [ticketData];
+      }
+    }
 
     // Get ticket info for service enrichment
     const ticketRes = await p.query(
