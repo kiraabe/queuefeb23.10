@@ -33,7 +33,6 @@ export default function Archiever() {
   return (
     <ConsoleShell
       title="Archiver Interface"
-      description="Manage document retrieval workflow - Global Queue → Active Workspace → Service Queues"
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main content area - 3 columns */}
