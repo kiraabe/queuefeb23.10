@@ -37,6 +37,7 @@ interface WorkflowEntry {
   employeeName: string;
   jobTitle: string;
   ticketCode: string;
+  isArchiever?: boolean;
 }
 
 interface TicketInfo {
