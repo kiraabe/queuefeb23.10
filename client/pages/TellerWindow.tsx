@@ -903,9 +903,7 @@ export default function TellerWindow() {
               {currentTicket && (
                 <div className="mb-4 flex flex-wrap gap-2">
                   {currentTicket.documentsFetched ? (
-                    <Badge
-                      className="flex items-center gap-1.5 bg-green-100 text-green-800 hover:bg-green-100"
-                    >
+                    <Badge className="flex items-center gap-1.5 bg-green-100 text-green-800 hover:bg-green-100">
                       <FileText className="h-3.5 w-3.5" />
                       Documents Ready
                     </Badge>

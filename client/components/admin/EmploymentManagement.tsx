@@ -447,23 +447,30 @@ export default function EmploymentManagement() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {(["all", "reception", "teller", "admin", "employee", "archiever"] as const).map(
-              (role) => (
-                <Button
-                  key={role}
-                  variant={roleFilter === role ? "default" : "outline"}
-                  onClick={() => handleRoleFilterChange(role)}
-                  className="capitalize"
-                >
-                  {role === "all" ? "All Employees" : role}
-                  {role !== "all" && (
-                    <span className="ml-1 text-xs font-normal">
-                      ({users.filter((u) => u.role === role).length})
-                    </span>
-                  )}
-                </Button>
-              ),
-            )}
+            {(
+              [
+                "all",
+                "reception",
+                "teller",
+                "admin",
+                "employee",
+                "archiever",
+              ] as const
+            ).map((role) => (
+              <Button
+                key={role}
+                variant={roleFilter === role ? "default" : "outline"}
+                onClick={() => handleRoleFilterChange(role)}
+                className="capitalize"
+              >
+                {role === "all" ? "All Employees" : role}
+                {role !== "all" && (
+                  <span className="ml-1 text-xs font-normal">
+                    ({users.filter((u) => u.role === role).length})
+                  </span>
+                )}
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -492,7 +499,14 @@ export default function EmploymentManagement() {
                 <Select
                   value={newRole}
                   onValueChange={(value) =>
-                    setNewRole(value as "reception" | "teller" | "admin" | "employee" | "archiever")
+                    setNewRole(
+                      value as
+                        | "reception"
+                        | "teller"
+                        | "admin"
+                        | "employee"
+                        | "archiever",
+                    )
                   }
                   disabled={isLoading}
                 >

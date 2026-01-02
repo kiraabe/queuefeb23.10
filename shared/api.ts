@@ -159,7 +159,12 @@ export interface TicketStatusResponse {
 }
 
 // Auth
-export type UserRole = "reception" | "teller" | "admin" | "employee" | "archiever";
+export type UserRole =
+  | "reception"
+  | "teller"
+  | "admin"
+  | "employee"
+  | "archiever";
 export interface AuthUser {
   id: string;
   username: string;

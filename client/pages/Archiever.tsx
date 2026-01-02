@@ -29,7 +29,9 @@ interface WaitingTicket {
 
 export default function Archiever() {
   const queryClient = useQueryClient();
-  const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set());
+  const [selectedTickets, setSelectedTickets] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Fetch waiting documents
   const { data, isLoading, error } = useQuery({
@@ -62,7 +64,9 @@ export default function Archiever() {
         newSet.delete(data.ticket.id);
         return newSet;
       });
-      toast.success(`Documents marked as fetched for ticket ${data.ticket.code}`);
+      toast.success(
+        `Documents marked as fetched for ticket ${data.ticket.code}`,
+      );
     },
     onError: () => {
       toast.error("Failed to mark documents as fetched");
@@ -97,7 +101,10 @@ export default function Archiever() {
   };
 
   return (
-    <ConsoleShell title="Archiever Dashboard" description="Manage document fetching for customer tickets">
+    <ConsoleShell
+      title="Archiever Dashboard"
+      description="Manage document fetching for customer tickets"
+    >
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -108,7 +115,9 @@ export default function Archiever() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{pendingDocuments.length}</div>
+              <div className="text-3xl font-bold">
+                {pendingDocuments.length}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Tickets pending document fetch
               </p>
@@ -122,7 +131,9 @@ export default function Archiever() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{fetchedDocuments.length}</div>
+              <div className="text-3xl font-bold">
+                {fetchedDocuments.length}
+              </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Completed document pickups
               </p>
@@ -214,9 +225,7 @@ export default function Archiever() {
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {ticket.ownerName && (
-                            <>
-                              Customer: {ticket.ownerName} •{" "}
-                            </>
+                            <>Customer: {ticket.ownerName} • </>
                           )}
                           Service: {ticket.service}
                           {ticket.woreda && ` • ${ticket.woreda}`}
@@ -271,9 +280,7 @@ export default function Archiever() {
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {ticket.ownerName && (
-                            <>
-                              Customer: {ticket.ownerName} •{" "}
-                            </>
+                            <>Customer: {ticket.ownerName} • </>
                           )}
                           Service: {ticket.service}
                           {ticket.woreda && ` • ${ticket.woreda}`}
@@ -281,7 +288,9 @@ export default function Archiever() {
                         {ticket.documentsFetchedAt && (
                           <p className="text-xs text-green-600">
                             Fetched:{" "}
-                            {new Date(ticket.documentsFetchedAt).toLocaleString()}
+                            {new Date(
+                              ticket.documentsFetchedAt,
+                            ).toLocaleString()}
                           </p>
                         )}
                       </div>

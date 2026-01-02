@@ -55,7 +55,7 @@ export const markDocumentsFetched: RequestHandler = async (req, res) => {
        SET documents_fetched = true, documents_fetched_at = now()
        WHERE id = $1
        RETURNING id, code, documents_fetched, documents_fetched_at`,
-      [ticketId]
+      [ticketId],
     );
 
     if (result.rows.length === 0) {
@@ -103,7 +103,7 @@ export const getDocumentStatus: RequestHandler = async (req, res) => {
       `SELECT id, code, documents_fetched, documents_fetched_at
        FROM tickets
        WHERE id = $1`,
-      [ticketId]
+      [ticketId],
     );
 
     if (result.rows.length === 0) {

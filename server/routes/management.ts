@@ -100,7 +100,9 @@ export const createUser: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Username is required" });
     }
 
-    if (!["reception", "teller", "admin", "employee", "archiever"].includes(role)) {
+    if (
+      !["reception", "teller", "admin", "employee", "archiever"].includes(role)
+    ) {
       return res.status(400).json({ error: "Invalid role" });
     }
 
