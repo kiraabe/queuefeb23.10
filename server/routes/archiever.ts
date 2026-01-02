@@ -294,7 +294,7 @@ export const addInternalNotes: RequestHandler = async (req, res) => {
     );
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "internal_notes_added",
       userId,
       username,
