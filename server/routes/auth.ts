@@ -419,10 +419,14 @@ export const login: RequestHandler = async (req, res) => {
 
   // Validate that user has at least one role
   if (!activeRole) {
-    console.error("User has no roles assigned:", { userId: userRow.id, username: userRow.username });
+    console.error("User has no roles assigned:", {
+      userId: userRow.id,
+      username: userRow.username,
+    });
     return res.status(500).json({
       error: "User configuration error",
-      message: "User account is not properly configured. Please contact the administrator.",
+      message:
+        "User account is not properly configured. Please contact the administrator.",
       code: "USER_CONFIG_ERROR",
     });
   }

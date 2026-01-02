@@ -176,10 +176,7 @@ export async function initDb() {
       `);
       console.log("✓ Updated user_roles check constraint to include all roles");
     } catch (err) {
-      console.log(
-        "Constraint update skipped:",
-        (err as any)?.message,
-      );
+      console.log("Constraint update skipped:", (err as any)?.message);
     }
 
     // Migrate existing users with role to user_roles table
@@ -215,27 +212,31 @@ export async function initDb() {
       `);
 
       if (usersWithoutRoles.rows.length > 0) {
-        console.log(`Found ${usersWithoutRoles.rows.length} users without roles, assigning defaults...`);
+        console.log(
+          `Found ${usersWithoutRoles.rows.length} users without roles, assigning defaults...`,
+        );
         for (const user of usersWithoutRoles.rows) {
           // Assign admin role to 'admin' user, employee role to others
-          const defaultRole = user.username === 'admin' ? 'admin' : 'employee';
+          const defaultRole = user.username === "admin" ? "admin" : "employee";
           try {
             await p.query(
               `INSERT INTO user_roles (user_id, role, is_primary) VALUES ($1, $2, true)
                ON CONFLICT (user_id, role) DO NOTHING`,
-              [user.id, defaultRole]
+              [user.id, defaultRole],
             );
-            console.log(`  ✓ Assigned '${defaultRole}' role to user '${user.username}'`);
+            console.log(
+              `  ✓ Assigned '${defaultRole}' role to user '${user.username}'`,
+            );
           } catch (roleErr) {
-            console.log(`  ✗ Failed to assign role to user '${user.username}':`, (roleErr as any)?.message);
+            console.log(
+              `  ✗ Failed to assign role to user '${user.username}':`,
+              (roleErr as any)?.message,
+            );
           }
         }
       }
     } catch (err) {
-      console.log(
-        "User roles migration skipped:",
-        err?.message,
-      );
+      console.log("User roles migration skipped:", err?.message);
     }
     // Add teller info columns if they don't exist
     await p.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name text;`);
@@ -273,7 +274,9 @@ export async function initDb() {
         ADD CONSTRAINT user_sessions_active_role_check
         CHECK (active_role in ('reception','teller','admin','employee','archiever'));
       `);
-      console.log("✓ Updated user_sessions check constraint to include all roles");
+      console.log(
+        "✓ Updated user_sessions check constraint to include all roles",
+      );
     } catch (err) {
       console.log(
         "User sessions constraint update skipped:",
