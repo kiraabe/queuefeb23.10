@@ -354,7 +354,7 @@ export const updateDocumentChecklist: RequestHandler = async (req, res) => {
     );
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "document_verified",
       userId,
       username,
