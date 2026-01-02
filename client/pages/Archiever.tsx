@@ -93,65 +93,6 @@ export default function Archiever() {
         </div>
       </div>
 
-      {/* Information Footer */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-        <Card className="p-4 bg-blue-50 border-blue-200">
-          <h3 className="font-semibold text-blue-900 mb-2">1️⃣ Global Queue</h3>
-          <p className="text-blue-800">
-            Browse all newly created tickets waiting for document retrieval.
-            Click "Start" to claim a ticket.
-          </p>
-        </Card>
-
-        <Card className="p-4 bg-purple-50 border-purple-200">
-          <h3 className="font-semibold text-purple-900 mb-2">
-            2️⃣ Active Workspace
-          </h3>
-          <p className="text-purple-800">
-            Work on claimed tickets. Verify documents from the checklist and add
-            internal notes.
-          </p>
-        </Card>
-
-        <Card className="p-4 bg-green-50 border-green-200">
-          <h3 className="font-semibold text-green-900 mb-2">
-            3️⃣ Retrieved Status
-          </h3>
-          <p className="text-green-800">
-            Click "Retrieved" to move the ticket to its service-specific queue.
-            Tellers can then call the customer.
-          </p>
-        </Card>
-      </div>
-
-      {/* Role Restrictions Info */}
-      <Card className="mt-6 p-4 border-gray-300">
-        <h3 className="font-semibold mb-3">🔐 Archiver Role Restrictions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <h4 className="font-medium text-green-700 mb-2">
-              ✅ Archiver CAN:
-            </h4>
-            <ul className="space-y-1 text-gray-700">
-              <li>• Claim tickets from Global repository</li>
-              <li>• Prepare and verify documents</li>
-              <li>• Add internal notes</li>
-              <li>• Release tickets to service queues</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-medium text-red-700 mb-2">
-              ❌ Archiver CANNOT:
-            </h4>
-            <ul className="space-y-1 text-gray-700">
-              <li>• Call or serve customers</li>
-              <li>• See teller windows</li>
-              <li>• Complete cases</li>
-              <li>• Transfer to employees</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </ConsoleShell>
   );
 }
