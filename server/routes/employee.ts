@@ -918,6 +918,14 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       workflowsByTicket.get(row.ticket_id)!.push(row);
     });
 
+    // Group archiever entries by ticket
+    const archiverByTicket = new Map<string, any>();
+    archiverRes.rows.forEach((row) => {
+      if (row.ticket_id) {
+        archiverByTicket.set(row.ticket_id, row);
+      }
+    });
+
     // Build response items with workflows grouped by ticket
     const items = await Promise.all(
       ticketIds.map(async (ticketId) => {
