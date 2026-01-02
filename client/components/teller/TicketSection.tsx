@@ -27,6 +27,7 @@ export function TicketSection({
   items: allItems,
   title,
   pageSize,
+  currentWindowId,
 }: TicketSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
