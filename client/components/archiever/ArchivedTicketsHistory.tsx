@@ -255,7 +255,7 @@ export function ArchivedTicketsHistory() {
                       className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
                     >
                       {/* Main content grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start md:items-center mb-3 md:mb-0">
+                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-start md:items-center mb-3 md:mb-0">
                         {/* Ticket Code */}
                         <div>
                           <p className="text-xs text-muted-foreground">
