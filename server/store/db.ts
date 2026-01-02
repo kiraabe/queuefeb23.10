@@ -161,6 +161,27 @@ export async function initDb() {
       `CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id)`,
     );
 
+    // Fix check constraint to include all roles including 'archiever'
+    try {
+      // Drop old constraint if it exists and is missing 'archiever'
+      await p.query(`
+        ALTER TABLE user_roles
+        DROP CONSTRAINT IF EXISTS user_roles_role_check;
+      `);
+      // Add new constraint with all valid roles
+      await p.query(`
+        ALTER TABLE user_roles
+        ADD CONSTRAINT user_roles_role_check
+        CHECK (role in ('reception','teller','admin','employee','archiever'));
+      `);
+      console.log("✓ Updated user_roles check constraint to include all roles");
+    } catch (err) {
+      console.log(
+        "Constraint update skipped:",
+        (err as any)?.message,
+      );
+    }
+
     // Migrate existing users with role to user_roles table
     // First, check if users still have the role column
     try {
