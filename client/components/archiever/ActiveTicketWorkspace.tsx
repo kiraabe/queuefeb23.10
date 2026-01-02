@@ -381,7 +381,7 @@ export function ActiveTicketWorkspace({ ticketId, onTicketRetrieved, onReleaseTi
         <Button
           onClick={() => {
             if (allVerified) {
-              markRetrieved();
+              markRetrieved(false);
             } else {
               markRetrieved(true);
             }
