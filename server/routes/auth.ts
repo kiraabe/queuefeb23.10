@@ -651,7 +651,7 @@ export const switchRole: RequestHandler = async (req, res) => {
     });
   }
 
-  if (!["reception", "teller", "admin", "employee"].includes(desiredRole)) {
+  if (!["reception", "teller", "admin", "employee", "archiever"].includes(desiredRole)) {
     return res.status(400).json({
       error: "Invalid role",
       message: "The specified role is not valid.",
