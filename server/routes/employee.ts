@@ -783,6 +783,8 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     let tellerRes = { rows: [] };
     if (ticketTellerRes.rows.length > 0) {
       const ticketData = ticketTellerRes.rows[0];
+      // Convert milliseconds to seconds for PostgreSQL's to_timestamp
+      const startedAtSeconds = ticketData.started_at / 1000;
       const userRes = await p.query(
         `SELECT
            us.user_id,
@@ -795,11 +797,11 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
          LEFT JOIN job_title jt ON u.job_title_id = jt.id
          WHERE us.window_id = $1
            AND us.active_role = 'teller'
-           AND us.created_at <= to_timestamp($2 / 1000)
-           AND (us.revoked_at IS NULL OR us.revoked_at >= to_timestamp($2 / 1000))
+           AND us.created_at <= to_timestamp($2)
+           AND (us.revoked_at IS NULL OR us.revoked_at >= to_timestamp($2))
          ORDER BY us.created_at DESC
          LIMIT 1`,
-        [ticketData.window_id, ticketData.started_at],
+        [ticketData.window_id, startedAtSeconds],
       );
 
       // Merge the ticket data with the user session data
