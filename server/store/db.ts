@@ -117,6 +117,12 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS transferred_to_user_id uuid REFERENCES users(id) ON DELETE SET NULL;`,
     );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS documents_fetched boolean DEFAULT false;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS documents_fetched_at timestamptz;`,
+    );
     await p.query(`CREATE TABLE IF NOT EXISTS service_counters (
     service text primary key,
     next_number int not null,
