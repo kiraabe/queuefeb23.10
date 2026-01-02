@@ -164,7 +164,7 @@ export function ArchivedTicketsHistory() {
           <Input
             placeholder="Search by ticket code, customer name, or service..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="max-w-md"
           />
 
@@ -190,8 +190,9 @@ export function ArchivedTicketsHistory() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {filteredTickets.map((ticket) => (
+            <>
+              <div className="space-y-3">
+                {paginatedTickets.map((ticket) => (
                 <div
                   key={ticket.id}
                   className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
@@ -240,7 +241,40 @@ export function ArchivedTicketsHistory() {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t pt-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {Math.min(endIndex, filteredTickets.length)} of {filteredTickets.length} tickets
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    <div className="text-sm font-medium">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
