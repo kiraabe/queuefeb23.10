@@ -408,6 +408,11 @@ export function createServer() {
     requireRole(["archiever"]),
     getArchivedHistory,
   );
+  app.post(
+    "/api/archiever/tickets/:ticketId/manually-archive",
+    requireRole(["archiever"]),
+    manuallyArchiveTicket,
+  );
 
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
