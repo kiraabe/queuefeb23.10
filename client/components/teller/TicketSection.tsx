@@ -221,7 +221,7 @@ function TicketRow({
       let windowDurationDisplay = "—";
 
       if (ticket.startedAt && ticket.transferredAt) {
-        windowDurationSeconds = Math.floor((ticket.transferredAt - ticket.startedAt) / 1000);
+        windowDurationSeconds = Math.abs(Math.floor((ticket.transferredAt - ticket.startedAt) / 1000));
         windowDurationDisplay = formatTime(windowDurationSeconds);
       }
 
