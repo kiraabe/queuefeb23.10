@@ -1,307 +1,145 @@
-import { useEffect, useState } from "react";
-import { Check, Loader2, AlertCircle } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-
-interface WaitingTicket {
-  id: string;
-  code: string;
-  service: string;
-  number: number;
-  ownerName?: string;
-  woreda?: string;
-  createdAt: number;
-  status: string;
-  documentsFetched: boolean;
-  documentsFetchedAt?: number | null;
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GlobalQueuePanel } from "@/components/archiever/GlobalQueuePanel";
+import { ActiveTicketWorkspace } from "@/components/archiever/ActiveTicketWorkspace";
+import { MyActiveWorkIndicator } from "@/components/archiever/MyActiveWorkIndicator";
+import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHistory";
+import { Card } from "@/components/ui/card";
 
 export default function Archiever() {
-  const queryClient = useQueryClient();
-  const [selectedTickets, setSelectedTickets] = useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedTicketId, setSelectedTicketId] = useState<string | undefined>();
+  const [selectedTicketCode, setSelectedTicketCode] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState("queue");
 
-  // Fetch waiting documents
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["archiever-documents"],
-    queryFn: async () => {
-      const response = await fetch("/api/archiever/documents");
-      if (!response.ok) throw new Error("Failed to fetch documents");
-      return response.json() as Promise<{ tickets: WaitingTicket[] }>;
-    },
-    refetchInterval: 5000, // Refresh every 5 seconds
-  });
-
-  // Mark documents as fetched mutation
-  const { mutate: markFetched, isPending: isMarking } = useMutation({
-    mutationFn: async (ticketId: string) => {
-      const response = await fetch(
-        `/api/archiever/documents/${ticketId}/fetch`,
-        {
-          method: "POST",
-          headers: { "X-Requested-With": "XMLHttpRequest" },
-        },
-      );
-      if (!response.ok) throw new Error("Failed to mark documents as fetched");
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["archiever-documents"] });
-      setSelectedTickets((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(data.ticket.id);
-        return newSet;
-      });
-      toast.success(
-        `Documents marked as fetched for ticket ${data.ticket.code}`,
-      );
-    },
-    onError: () => {
-      toast.error("Failed to mark documents as fetched");
-    },
-  });
-
-  const tickets = data?.tickets ?? [];
-  const pendingDocuments = tickets.filter((t) => !t.documentsFetched);
-  const fetchedDocuments = tickets.filter((t) => t.documentsFetched);
-
-  const handleMarkFetched = (ticketId: string) => {
-    markFetched(ticketId);
+  const handleTicketSelected = (ticketId: string, ticketCode: string) => {
+    setSelectedTicketId(ticketId);
+    setSelectedTicketCode(ticketCode);
+    setActiveTab("workspace");
   };
 
-  const toggleTicketSelection = (ticketId: string) => {
-    setSelectedTickets((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(ticketId)) {
-        newSet.delete(ticketId);
-      } else {
-        newSet.add(ticketId);
-      }
-      return newSet;
-    });
+  const handleTicketRetrieved = () => {
+    setSelectedTicketId(undefined);
+    setSelectedTicketCode(undefined);
+    setActiveTab("queue");
   };
 
-  const handleMarkSelectedFetched = () => {
-    for (const ticketId of selectedTickets) {
-      handleMarkFetched(ticketId);
-    }
-    setSelectedTickets(new Set());
+  const handleReleaseTicket = () => {
+    setSelectedTicketId(undefined);
+    setSelectedTicketCode(undefined);
+    setActiveTab("queue");
   };
 
   return (
     <ConsoleShell
-      title="Archiever Dashboard"
-      description="Manage document fetching for customer tickets"
+      title="Archiver Interface"
+      description="Manage document retrieval workflow - Global Queue → Active Workspace → Service Queues"
     >
-      <div className="space-y-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Waiting for Documents
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {pendingDocuments.length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Tickets pending document fetch
-              </p>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Main content area - 3 columns */}
+        <div className="lg:col-span-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="queue">Global Queue</TabsTrigger>
+              <TabsTrigger value="workspace" disabled={!selectedTicketId}>
+                Working on Ticket
+              </TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Documents Fetched Today
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {fetchedDocuments.length}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Completed document pickups
-              </p>
-            </CardContent>
-          </Card>
+            <TabsContent value="queue" className="space-y-4">
+              <GlobalQueuePanel
+                onTicketSelected={handleTicketSelected}
+                selectedTicketId={selectedTicketId}
+              />
+            </TabsContent>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Tickets
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{tickets.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                All tickets requiring documents
-              </p>
-            </CardContent>
-          </Card>
+            <TabsContent value="workspace">
+              {selectedTicketId ? (
+                <ActiveTicketWorkspace
+                  ticketId={selectedTicketId}
+                  onTicketRetrieved={handleTicketRetrieved}
+                  onReleaseTicket={handleReleaseTicket}
+                />
+              ) : (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">
+                    Select a ticket from the Global Queue to begin
+                  </p>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="history">
+              <ArchivedTicketsHistory />
+            </TabsContent>
+          </Tabs>
         </div>
 
-        {/* Pending Documents Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Pending Documents</CardTitle>
-                <CardDescription>
-                  Tickets waiting for document fetch confirmation
-                </CardDescription>
-              </div>
-              {selectedTickets.size > 0 && (
-                <Button
-                  onClick={handleMarkSelectedFetched}
-                  disabled={isMarking || selectedTickets.size === 0}
-                  className="gap-2"
-                >
-                  {isMarking ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="h-4 w-4" />
-                  )}
-                  Mark {selectedTickets.size} as Fetched
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : error ? (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Failed to load documents. Please try again.
-                </AlertDescription>
-              </Alert>
-            ) : pendingDocuments.length === 0 ? (
-              <div className="text-center py-12">
-                <Check className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <p className="text-lg font-medium">All caught up!</p>
-                <p className="text-sm text-muted-foreground">
-                  No pending documents at the moment
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingDocuments.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    className={cn(
-                      "flex items-center justify-between p-4 rounded-lg border",
-                      "hover:bg-accent transition-colors",
-                      selectedTickets.has(ticket.id) && "bg-accent",
-                    )}
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <input
-                        type="checkbox"
-                        checked={selectedTickets.has(ticket.id)}
-                        onChange={() => toggleTicketSelection(ticket.id)}
-                        className="h-4 w-4 rounded cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm">
-                          Ticket {ticket.code}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {ticket.ownerName && (
-                            <>Customer: {ticket.ownerName} • </>
-                          )}
-                          Service: {ticket.service}
-                          {ticket.woreda && ` • ${ticket.woreda}`}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Created:{" "}
-                          {new Date(ticket.createdAt).toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleMarkFetched(ticket.id)}
-                      disabled={isMarking}
-                      size="sm"
-                      className="gap-2 whitespace-nowrap ml-4"
-                    >
-                      {isMarking ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                      Fetched
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+        {/* Sidebar - 1 column */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4">
+            <MyActiveWorkIndicator
+              ticketCode={selectedTicketCode}
+              startTime={selectedTicketId ? Date.now() : undefined}
+              isWorkingOnTicket={!!selectedTicketId}
+              onClear={() => {
+                setSelectedTicketId(undefined);
+                setSelectedTicketCode(undefined);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Information Footer */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <Card className="p-4 bg-blue-50 border-blue-200">
+          <h3 className="font-semibold text-blue-900 mb-2">1️⃣ Global Queue</h3>
+          <p className="text-blue-800">
+            Browse all newly created tickets waiting for document retrieval. Click "Start" to claim a ticket.
+          </p>
         </Card>
 
-        {/* Fetched Documents Section */}
-        {fetchedDocuments.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Documents Fetched</CardTitle>
-              <CardDescription>
-                Tickets with documents already marked as fetched
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {fetchedDocuments.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-green-200 bg-green-50"
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm">
-                          Ticket {ticket.code}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {ticket.ownerName && (
-                            <>Customer: {ticket.ownerName} • </>
-                          )}
-                          Service: {ticket.service}
-                          {ticket.woreda && ` • ${ticket.woreda}`}
-                        </p>
-                        {ticket.documentsFetchedAt && (
-                          <p className="text-xs text-green-600">
-                            Fetched:{" "}
-                            {new Date(
-                              ticket.documentsFetchedAt,
-                            ).toLocaleString()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <Card className="p-4 bg-purple-50 border-purple-200">
+          <h3 className="font-semibold text-purple-900 mb-2">2️⃣ Active Workspace</h3>
+          <p className="text-purple-800">
+            Work on claimed tickets. Verify documents from the checklist and add internal notes.
+          </p>
+        </Card>
+
+        <Card className="p-4 bg-green-50 border-green-200">
+          <h3 className="font-semibold text-green-900 mb-2">3️⃣ Retrieved Status</h3>
+          <p className="text-green-800">
+            Click "Retrieved" to move the ticket to its service-specific queue. Tellers can then call the customer.
+          </p>
+        </Card>
       </div>
+
+      {/* Role Restrictions Info */}
+      <Card className="mt-6 p-4 border-gray-300">
+        <h3 className="font-semibold mb-3">🔐 Archiver Role Restrictions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <h4 className="font-medium text-green-700 mb-2">✅ Archiver CAN:</h4>
+            <ul className="space-y-1 text-gray-700">
+              <li>• Claim tickets from Global repository</li>
+              <li>• Prepare and verify documents</li>
+              <li>• Add internal notes</li>
+              <li>• Release tickets to service queues</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-red-700 mb-2">❌ Archiver CANNOT:</h4>
+            <ul className="space-y-1 text-gray-700">
+              <li>• Call or serve customers</li>
+              <li>• See teller windows</li>
+              <li>• Complete cases</li>
+              <li>• Transfer to employees</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
     </ConsoleShell>
   );
 }
