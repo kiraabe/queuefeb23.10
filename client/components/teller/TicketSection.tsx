@@ -201,15 +201,18 @@ function TicketRow({
     const steps = [];
     let stepNumber = 1;
 
-    // Step 1: Add initial "Archiver" step
-    steps.push({
-      id: "archiver-step",
-      number: stepNumber++,
-      employeeName: "Archiver",
-      action: "Started",
-      duration: "—",
-      durationSeconds: null,
-    });
+    // Step 1: Use first workflow item as the Archiver (e.g., Mohammad Ali)
+    if (workflowItems && workflowItems.length > 0) {
+      const firstItem = workflowItems[0];
+      steps.push({
+        id: firstItem.id,
+        number: stepNumber++,
+        employeeName: firstItem.employeeName || "Archiver",
+        action: "Started",
+        duration: formatTime(firstItem.durationSeconds),
+        durationSeconds: firstItem.durationSeconds,
+      });
+    }
 
     // Step 2: Add current window step (if available)
     if (currentWindowId) {
@@ -223,9 +226,9 @@ function TicketRow({
       });
     }
 
-    // Step 3+: Add workflow steps with incremented numbers
-    if (workflowItems && workflowItems.length > 0) {
-      workflowItems.forEach((item: any) => {
+    // Step 3+: Add remaining workflow steps (skip the first one since it's the Archiver)
+    if (workflowItems && workflowItems.length > 1) {
+      workflowItems.slice(1).forEach((item: any) => {
         steps.push({
           id: item.id,
           number: stepNumber++,
