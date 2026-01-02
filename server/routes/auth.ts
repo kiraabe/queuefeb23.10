@@ -417,6 +417,16 @@ export const login: RequestHandler = async (req, res) => {
     activeRole = desiredRole as any;
   }
 
+  // Validate that user has at least one role
+  if (!activeRole) {
+    console.error("User has no roles assigned:", { userId: userRow.id, username: userRow.username });
+    return res.status(500).json({
+      error: "User configuration error",
+      message: "User account is not properly configured. Please contact the administrator.",
+      code: "USER_CONFIG_ERROR",
+    });
+  }
+
   // Success: rotate sessions by revoking previous
   await revokeSessionsForUser(userRow.id, "conflict");
   const { token, session } = await createUserSession({
