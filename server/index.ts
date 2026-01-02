@@ -70,6 +70,11 @@ import {
   resetUserPassword,
   listJobTitlesHandler,
 } from "./routes/management";
+import {
+  getWaitingDocumentsDb,
+  markDocumentsFetched,
+  getDocumentStatus,
+} from "./routes/archiever";
 
 export function createServer() {
   const app = express();
