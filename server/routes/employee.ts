@@ -1048,42 +1048,56 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     );
 
     // Fetch teller information for all tickets
-    // Find the user who was logged in at the window when the ticket was being served
-    const tellerRes = await p.query(
-      `WITH teller_sessions AS (
-         SELECT
-           t.id as ticket_id,
-           t.window_id,
-           t.created_at,
-           t.started_at,
-           us.user_id,
-           ROW_NUMBER() OVER (PARTITION BY t.id ORDER BY us.created_at DESC) as rn
-         FROM tickets t
-         LEFT JOIN user_sessions us ON us.window_id = t.window_id
-           AND us.active_role = 'teller'
-           AND us.created_at <= t.started_at
-           AND (us.revoked_at IS NULL OR us.revoked_at >= t.started_at)
-         WHERE t.id = ANY($1)
-           AND t.window_id IS NOT NULL
-           AND t.started_at IS NOT NULL
-       )
-       SELECT
-         ts.ticket_id,
-         ts.window_id,
-         extract(epoch from ts.created_at)*1000 as created_at,
-         extract(epoch from ts.started_at)*1000 as started_at,
-         EXTRACT(EPOCH FROM (ts.started_at - ts.created_at)) as duration_seconds,
-         u.id as user_id,
+    // Get basic ticket info first
+    const ticketTellerDataRes = await p.query(
+      `SELECT
+         t.id as ticket_id,
+         t.window_id,
+         extract(epoch from t.created_at)*1000 as created_at,
+         extract(epoch from t.started_at)*1000 as started_at,
+         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds
+       FROM tickets t
+       WHERE t.id = ANY($1)
+         AND t.window_id IS NOT NULL
+         AND t.started_at IS NOT NULL`,
+      [ticketIds],
+    );
+
+    // Then get user sessions for those tickets
+    const userSessionsRes = await p.query(
+      `SELECT DISTINCT ON (t.id)
+         t.id as ticket_id,
+         us.user_id,
          u.full_name,
          u.username,
          jt.name_english,
          jt.name_amharic
-       FROM teller_sessions ts
-       LEFT JOIN users u ON ts.user_id = u.id
+       FROM tickets t
+       LEFT JOIN user_sessions us ON us.window_id = t.window_id
+         AND us.active_role = 'teller'
+         AND us.created_at <= t.started_at
+         AND (us.revoked_at IS NULL OR us.revoked_at >= t.started_at)
+       LEFT JOIN users u ON us.user_id = u.id
        LEFT JOIN job_title jt ON u.job_title_id = jt.id
-       WHERE ts.rn = 1`,
+       WHERE t.id = ANY($1)
+         AND t.window_id IS NOT NULL
+         AND t.started_at IS NOT NULL
+       ORDER BY t.id, us.created_at DESC`,
       [ticketIds],
     );
+
+    // Merge the data
+    const tellerRes = {
+      rows: ticketTellerDataRes.rows.map((ticketRow) => {
+        const userSessionRow = userSessionsRes.rows.find(
+          (ur) => ur.ticket_id === ticketRow.ticket_id
+        );
+        return {
+          ...ticketRow,
+          ...(userSessionRow || {}),
+        };
+      }),
+    };
 
     // Group workflow entries by ticket
     const workflowsByTicket = new Map<string, any[]>();
