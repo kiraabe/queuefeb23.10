@@ -405,9 +405,10 @@ export default function TellerWindow() {
           }, 500);
         } catch {}
       } else if (data?.message) {
+        // Show message from server (e.g., "No waiting customers")
         toast.message(data.message);
       } else {
-        toast.message("No customers waiting in the queue");
+        toast.message("No waiting customers");
       }
     },
     onError: (e: any) =>
