@@ -174,7 +174,7 @@ export const startTicket: RequestHandler = async (req, res) => {
     const ticket = result.rows[0];
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "ticket_started",
       userId,
       username,
