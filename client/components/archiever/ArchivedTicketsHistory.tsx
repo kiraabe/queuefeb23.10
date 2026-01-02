@@ -40,10 +40,14 @@ interface ArchivedTicket {
 export function ArchivedTicketsHistory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [archivedTickets, setArchivedTickets] = useState<Set<string>>(
+    new Set(),
+  );
+  const [archivingTicket, setArchivingTicket] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   // Fetch archived history
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["archiever-history"],
     queryFn: async () => {
       const response = await fetch("/api/archiever/history");
@@ -75,20 +79,47 @@ export function ArchivedTicketsHistory() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedTickets = filteredTickets.slice(startIndex, endIndex);
 
+  // Calculate stats - only include tickets with both start and retrieved timestamps
+  const validTickets = tickets.filter(
+    (t) => t.archiverStartedAt && t.retrievedAt && t.processingTime,
+  );
   const stats = {
     total: tickets.length,
     today: tickets.filter((t) => {
       const today = new Date();
-      const retrieved = new Date(t.retrievedAt);
-      return retrieved.toDateString() === today.toDateString();
+      const retrieved = t.retrievedAt ? new Date(t.retrievedAt) : null;
+      return retrieved && retrieved.toDateString() === today.toDateString();
     }).length,
     avgTime:
-      tickets.length > 0
+      validTickets.length > 0
         ? Math.round(
-            tickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
-              tickets.filter((t) => t.processingTime).length,
+            validTickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
+              validTickets.length,
           )
         : 0,
+  };
+
+  const handleBackToArchive = async (ticketId: string, ticketCode: string) => {
+    setArchivingTicket(ticketId);
+    try {
+      const response = await fetch(
+        `/api/archiever/tickets/${ticketId}/manually-archive`,
+        {
+          method: "POST",
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to archive ticket");
+      }
+      setArchivedTickets((prev) => new Set(prev).add(ticketId));
+      toast.success(`Ticket ${ticketCode} marked as archived`);
+      refetch();
+    } catch (error) {
+      console.error("Error archiving ticket:", error);
+      toast.error("Failed to archive ticket. Please try again.");
+    } finally {
+      setArchivingTicket(null);
+    }
   };
 
   const formatTime = (minutes: number | null) => {
