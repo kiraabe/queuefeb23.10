@@ -783,7 +783,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     let tellerRes = { rows: [] };
     if (ticketTellerRes.rows.length > 0) {
       const ticketData = ticketTellerRes.rows[0];
-      tellerRes = await p.query(
+      const userRes = await p.query(
         `SELECT
            us.user_id,
            u.full_name,
@@ -799,17 +799,17 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
            AND (us.revoked_at IS NULL OR us.revoked_at >= to_timestamp($2 / 1000))
          ORDER BY us.created_at DESC
          LIMIT 1`,
-        [$1, ticketData.started_at],
+        [ticketData.window_id, ticketData.started_at],
       );
 
       // Merge the ticket data with the user session data
-      if (tellerRes.rows.length > 0) {
-        tellerRes.rows[0] = {
+      if (userRes.rows.length > 0) {
+        tellerRes.rows = [{
           ...ticketData,
-          ...tellerRes.rows[0],
-        };
+          ...userRes.rows[0],
+        }];
       } else {
-        // No user session found, but we still want to record the teller step
+        // No user session found, but we still want to record the teller step with just ticket data
         tellerRes.rows = [ticketData];
       }
     }
