@@ -715,87 +715,219 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
   const p = getPool();
 
   try {
-    const query = `
-      SELECT
-        ecp.id,
-        ecp.ticket_id,
-        ecp.employee_id,
-        ecp.job_title_id,
-        extract(epoch from ecp.started_at)*1000 as started_at,
-        extract(epoch from ecp.ended_at)*1000 as ended_at,
-        ecp.status,
-        EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
-        u.username,
-        u.full_name,
-        t.code as ticket_code,
-        t.service_category,
-        t.selected_services,
-        COALESCE(jt.name_english, jt.name_amharic, jt2.name_english, jt2.name_amharic, 'N/A') as job_title_name
-      FROM employee_case_performance ecp
-      LEFT JOIN users u ON ecp.employee_id = u.id
-      LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
-      LEFT JOIN job_title jt2 ON u.job_title_id = jt2.id
-      WHERE ecp.ticket_id = $1
-      ORDER BY ecp.started_at ASC
-    `;
+    // Fetch employee workflow entries for this ticket
+    const workflowRes = await p.query(
+      `SELECT
+         ecp.id,
+         ecp.ticket_id,
+         ecp.employee_id,
+         ecp.job_title_id,
+         extract(epoch from ecp.started_at)*1000 as started_at,
+         extract(epoch from ecp.ended_at)*1000 as ended_at,
+         ecp.status,
+         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
+         u.username,
+         u.full_name,
+         t.code as ticket_code,
+         t.service_category,
+         t.selected_services,
+         COALESCE(jt.name_english, jt.name_amharic, jt2.name_english, jt2.name_amharic, 'N/A') as job_title_name
+       FROM employee_case_performance ecp
+       LEFT JOIN users u ON ecp.employee_id = u.id
+       LEFT JOIN tickets t ON ecp.ticket_id = t.id
+       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+       LEFT JOIN job_title jt2 ON u.job_title_id = jt2.id
+       WHERE ecp.ticket_id = $1
+       ORDER BY ecp.started_at ASC`,
+      [ticketId],
+    );
 
-    const { rows } = await p.query(query, [ticketId]);
+    // Fetch archiver information for this ticket
+    const archiverRes = await p.query(
+      `SELECT
+         t.id as ticket_id,
+         t.archived_by_user_id,
+         u.full_name,
+         u.username,
+         extract(epoch from t.archiver_started_at)*1000 as started_at,
+         extract(epoch from t.documents_fetched_at)*1000 as ended_at,
+         EXTRACT(EPOCH FROM (t.documents_fetched_at - t.archiver_started_at)) as duration_seconds,
+         jt.name_english,
+         jt.name_amharic
+       FROM tickets t
+       LEFT JOIN users u ON t.archived_by_user_id = u.id
+       LEFT JOIN job_title jt ON u.job_title_id = jt.id
+       WHERE t.id = $1
+         AND t.archiver_started_at IS NOT NULL
+         AND t.documents_fetched_at IS NOT NULL`,
+      [ticketId],
+    );
 
-    // Enrich selected services with names (convert IDs to service names)
+    // Fetch teller information for this ticket
+    const tellerRes = await p.query(
+      `WITH teller_sessions AS (
+         SELECT
+           t.id as ticket_id,
+           t.window_id,
+           t.created_at,
+           t.started_at,
+           us.user_id,
+           ROW_NUMBER() OVER (PARTITION BY t.id ORDER BY us.created_at DESC) as rn
+         FROM tickets t
+         LEFT JOIN user_sessions us ON us.window_id = t.window_id
+           AND us.active_role = 'teller'
+           AND us.created_at <= t.started_at
+           AND (us.revoked_at IS NULL OR us.revoked_at >= t.started_at)
+         WHERE t.id = $1
+           AND t.window_id IS NOT NULL
+           AND t.started_at IS NOT NULL
+       )
+       SELECT
+         ts.ticket_id,
+         ts.window_id,
+         extract(epoch from ts.created_at)*1000 as created_at,
+         extract(epoch from ts.started_at)*1000 as started_at,
+         EXTRACT(EPOCH FROM (ts.started_at - ts.created_at)) as duration_seconds,
+         u.id as user_id,
+         u.full_name,
+         u.username,
+         jt.name_english,
+         jt.name_amharic
+       FROM teller_sessions ts
+       LEFT JOIN users u ON ts.user_id = u.id
+       LEFT JOIN job_title jt ON u.job_title_id = jt.id
+       WHERE ts.rn = 1`,
+      [ticketId],
+    );
+
+    // Get ticket info for service enrichment
+    const ticketRes = await p.query(
+      `SELECT code, service_category, selected_services FROM tickets WHERE id = $1`,
+      [ticketId],
+    );
+
+    const ticket = ticketRes.rows[0];
+
+    // Enrich selected services with names
     let enrichedServices: string[] | undefined = undefined;
     if (
-      rows.length > 0 &&
-      rows[0].selected_services &&
-      rows[0].service_category
+      ticket &&
+      ticket.selected_services &&
+      ticket.service_category
     ) {
       const selectedServiceIds = parseSelectedServices(
-        rows[0].selected_services,
+        ticket.selected_services,
       );
       if (selectedServiceIds && selectedServiceIds.length > 0) {
         try {
-          // Create a temporary ticket object for enrichment
           const tempTicket = {
             selectedServices: selectedServiceIds,
-            serviceCategory: rows[0].service_category,
+            serviceCategory: ticket.service_category,
           } as any;
 
-          // Enrich with service names
-          const enrichedTickets = await enrichMultipleTicketsWithServiceNames([
-            tempTicket,
-          ]);
+          const enrichedTickets =
+            await enrichMultipleTicketsWithServiceNames([tempTicket]);
           enrichedServices = enrichedTickets[0]?.selectedServices;
         } catch (enrichError) {
-          console.warn("Failed to enrich services with names:", enrichError);
-          enrichedServices = selectedServiceIds; // Fallback to IDs if enrichment fails
+          console.warn(
+            "Failed to enrich services with names:",
+            enrichError,
+          );
+          enrichedServices = selectedServiceIds;
         }
       }
     }
 
-    const ticketInfo =
-      rows.length > 0
-        ? {
-            ticketCode: rows[0].ticket_code,
-            serviceCategory: rows[0].service_category,
-            selectedServices: enrichedServices,
-          }
-        : null;
+    const ticketInfo = ticket
+      ? {
+          ticketCode: ticket.code,
+          serviceCategory: ticket.service_category,
+          selectedServices: enrichedServices,
+        }
+      : null;
 
-    const items = rows.map((r) => ({
-      id: r.id,
-      ticketId: r.ticket_id,
-      employeeId: r.employee_id,
-      jobTitleId: r.job_title_id,
-      startedAt: r.started_at ? Math.round(r.started_at) : null,
-      endedAt: r.ended_at ? Math.round(r.ended_at) : null,
-      status: r.status,
-      durationSeconds: r.duration_seconds
-        ? Math.round(r.duration_seconds)
-        : null,
-      employeeName: r.full_name || r.username || "Unknown",
-      jobTitle: r.job_title_name,
-      ticketCode: r.ticket_code,
-    }));
+    const items: any[] = [];
+
+    // Add archiver step first if available
+    const archiverData = archiverRes.rows[0];
+    if (archiverData && archiverData.started_at && archiverData.ended_at) {
+      items.push({
+        id: `archiver-${ticketId}`,
+        ticketId: ticketId,
+        employeeId: archiverData.archived_by_user_id,
+        jobTitleId: null,
+        startedAt: archiverData.started_at
+          ? Math.round(archiverData.started_at)
+          : null,
+        endedAt: archiverData.ended_at
+          ? Math.round(archiverData.ended_at)
+          : null,
+        status: "completed",
+        durationSeconds: archiverData.duration_seconds
+          ? Math.round(archiverData.duration_seconds)
+          : null,
+        employeeName:
+          archiverData.full_name ||
+          archiverData.username ||
+          "Unknown Archiver",
+        jobTitle:
+          archiverData.name_english ||
+          archiverData.name_amharic ||
+          "Archiver",
+        ticketCode: ticketId,
+        isArchiver: true,
+      });
+    }
+
+    // Add teller step second if available
+    const tellerData = tellerRes.rows[0];
+    if (tellerData && tellerData.started_at && tellerData.user_id) {
+      // Calculate teller's end time: when the first employee started
+      let tellerEndTime = null;
+      let tellerDuration = null;
+      if (workflowRes.rows.length > 0 && workflowRes.rows[0].started_at) {
+        tellerEndTime = Math.round(workflowRes.rows[0].started_at);
+        tellerDuration = Math.round((tellerEndTime - Math.round(tellerData.started_at)) / 1000);
+      }
+
+      items.push({
+        id: `teller-${ticketId}`,
+        ticketId: ticketId,
+        employeeId: tellerData.user_id,
+        jobTitleId: null,
+        startedAt: tellerData.started_at
+          ? Math.round(tellerData.started_at)
+          : null,
+        endedAt: tellerEndTime,
+        status: "completed",
+        durationSeconds: tellerDuration,
+        employeeName:
+          tellerData.full_name || tellerData.username || "Unknown Teller",
+        jobTitle:
+          tellerData.name_english || tellerData.name_amharic || "Teller",
+        ticketCode: ticketId,
+        isTeller: true,
+      });
+    }
+
+    // Add employee workflow steps
+    workflowRes.rows.forEach((r) => {
+      items.push({
+        id: r.id,
+        ticketId: r.ticket_id,
+        employeeId: r.employee_id,
+        jobTitleId: r.job_title_id,
+        startedAt: r.started_at ? Math.round(r.started_at) : null,
+        endedAt: r.ended_at ? Math.round(r.ended_at) : null,
+        status: r.status,
+        durationSeconds: r.duration_seconds
+          ? Math.round(r.duration_seconds)
+          : null,
+        employeeName: r.full_name || r.username || "Unknown",
+        jobTitle: r.job_title_name,
+        ticketCode: r.ticket_code,
+      });
+    });
 
     res.json({
       items,
