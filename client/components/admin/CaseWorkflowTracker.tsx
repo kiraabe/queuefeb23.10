@@ -325,9 +325,16 @@ export default function CaseWorkflowTracker() {
                                         <div className="space-y-2">
                                           {/* Employee Info */}
                                           <div className="space-y-1">
-                                            <p className="font-bold text-sm text-foreground line-clamp-2">
-                                              {step.employeeName}
-                                            </p>
+                                            <div className="flex items-center gap-2">
+                                              {step.isArchiever && (
+                                                <Badge className="bg-amber-600 text-white text-xs">
+                                                  Archiver
+                                                </Badge>
+                                              )}
+                                              <p className="font-bold text-sm text-foreground line-clamp-2">
+                                                {step.employeeName}
+                                              </p>
+                                            </div>
                                             <p className="text-xs text-muted-foreground">
                                               {step.jobTitle || "N/A"}
                                             </p>
