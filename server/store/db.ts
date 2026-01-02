@@ -135,19 +135,24 @@ export async function initDb() {
     );
     // Backfill archived_by_user_id for tickets that were already marked as retrieved but don't have archived_by_user_id
     // This handles tickets retrieved before the archived_by_user_id column was added
-    // We get the archiver_id from the audit log if available, otherwise use the current user
+    // We get the archiver_id from the audit log if available
     try {
       await p.query(`
-        UPDATE tickets
+        UPDATE tickets t
         SET archived_by_user_id = (
           SELECT user_id FROM audit_logs
           WHERE action = 'ticket_retrieved'
-          AND details->>'ticketId' = tickets.id
+          AND (details::jsonb->>'ticketId')::text = t.id::text
           ORDER BY created_at DESC
           LIMIT 1
         )
         WHERE documents_fetched = true
         AND archived_by_user_id IS NULL
+        AND EXISTS (
+          SELECT 1 FROM audit_logs
+          WHERE action = 'ticket_retrieved'
+          AND (details::jsonb->>'ticketId')::text = t.id::text
+        )
       `);
     } catch {
       // Backfill failed, continue - this is optional for historical data
