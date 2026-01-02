@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 export function RequireAuth({
   role,
 }: {
-  role?: "reception" | "teller" | "admin" | "employee";
+  role?: "reception" | "teller" | "admin" | "employee" | "archiever";
 }) {
   const { user } = useAuth();
   const loc = useLocation();
