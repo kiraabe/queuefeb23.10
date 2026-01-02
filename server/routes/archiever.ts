@@ -565,7 +565,7 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
     // Check if user is admin
     let query = `
       SELECT id, code, service, number, owner_name, service_category,
-             created_at, archiver_started_at, documents_fetched_at
+             created_at, archiver_started_at, documents_fetched_at, manually_archived_at
       FROM tickets
       WHERE documents_fetched = true
     `;
@@ -595,6 +595,9 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
         : null,
       retrievedAt: row.documents_fetched_at
         ? new Date(row.documents_fetched_at).getTime()
+        : null,
+      manuallyArchivedAt: row.manually_archived_at
+        ? new Date(row.manually_archived_at).getTime()
         : null,
       processingTime:
         row.archiver_started_at && row.documents_fetched_at
