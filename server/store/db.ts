@@ -197,7 +197,7 @@ export async function initDb() {
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references users(id) on delete cascade,
     username text not null,
-    active_role text not null check (active_role in ('reception','teller','admin','employee')),
+    active_role text not null check (active_role in ('reception','teller','admin','employee','archiever')),
     window_id int,
     job_title_id uuid,
     token_hash text not null unique,
@@ -209,7 +209,7 @@ export async function initDb() {
   );`);
     // Add missing columns if they don't exist (for existing installations)
     await p.query(
-      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS active_role text CHECK (active_role in ('reception','teller','admin','employee'));`,
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS active_role text CHECK (active_role in ('reception','teller','admin','employee','archiever'));`,
     );
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
