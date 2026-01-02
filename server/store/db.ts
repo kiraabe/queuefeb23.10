@@ -260,10 +260,28 @@ export async function initDb() {
     revoked_at timestamptz,
     revoke_reason text
   );`);
+    // Fix check constraint on user_sessions to include all roles
+    try {
+      // Drop old constraint if it exists
+      await p.query(`
+        ALTER TABLE user_sessions
+        DROP CONSTRAINT IF EXISTS user_sessions_active_role_check;
+      `);
+      // Add new constraint with all valid roles
+      await p.query(`
+        ALTER TABLE user_sessions
+        ADD CONSTRAINT user_sessions_active_role_check
+        CHECK (active_role in ('reception','teller','admin','employee','archiever'));
+      `);
+      console.log("✓ Updated user_sessions check constraint to include all roles");
+    } catch (err) {
+      console.log(
+        "User sessions constraint update skipped:",
+        (err as any)?.message,
+      );
+    }
+
     // Add missing columns if they don't exist (for existing installations)
-    await p.query(
-      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS active_role text CHECK (active_role in ('reception','teller','admin','employee','archiever'));`,
-    );
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
     );
