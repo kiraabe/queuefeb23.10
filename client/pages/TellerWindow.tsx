@@ -900,6 +900,26 @@ export default function TellerWindow() {
                 </p>
               )}
               <Separator className="my-4" />
+              {currentTicket && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {currentTicket.documentsFetched ? (
+                    <Badge
+                      className="flex items-center gap-1.5 bg-green-100 text-green-800 hover:bg-green-100"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Documents Ready
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1.5 border-orange-300 text-orange-700"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Pending Documents
+                    </Badge>
+                  )}
+                </div>
+              )}
               <div className={detailGridClass}>
                 {currentTicket && (
                   <div className="min-w-0">
