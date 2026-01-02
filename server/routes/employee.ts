@@ -783,8 +783,8 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
     let tellerRes = { rows: [] };
     if (ticketTellerRes.rows.length > 0) {
       const ticketData = ticketTellerRes.rows[0];
-      // Convert milliseconds to seconds for PostgreSQL's to_timestamp
-      const startedAtSeconds = ticketData.started_at / 1000;
+      // Convert milliseconds to seconds and ensure it's an integer for PostgreSQL's to_timestamp
+      const startedAtSeconds = Math.floor(ticketData.started_at / 1000);
       const userRes = await p.query(
         `SELECT
            us.user_id,
