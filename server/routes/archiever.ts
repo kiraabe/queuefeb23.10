@@ -507,7 +507,7 @@ export const releaseTicket: RequestHandler = async (req, res) => {
     );
 
     // Log audit
-    await logAudit(pool, {
+    await logAudit({
       action: "ticket_released",
       userId,
       username,
