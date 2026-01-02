@@ -60,17 +60,55 @@ export function ArchivedTicketsHistory() {
 
   const tickets = data?.tickets ?? [];
 
-  // Filter tickets based on search term
-  const filteredTickets = tickets.filter(
-    (ticket) =>
+  // Helper function to check if ticket is from today
+  const isToday = (timestamp: number | null) => {
+    if (!timestamp) return false;
+    const ticketDate = new Date(timestamp);
+    const today = new Date();
+    return ticketDate.toDateString() === today.toDateString();
+  };
+
+  // Helper function to check if ticket is from this week
+  const isThisWeek = (timestamp: number | null) => {
+    if (!timestamp) return false;
+    const ticketDate = new Date(timestamp);
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    return ticketDate >= weekStart && ticketDate < weekEnd;
+  };
+
+  // Filter tickets based on search term and time filter
+  const filteredTickets = tickets.filter((ticket) => {
+    // Apply search filter
+    const matchesSearch =
       ticket.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.service.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+      ticket.service.toLowerCase().includes(searchTerm.toLowerCase());
 
-  // Reset to first page when search term changes
+    if (!matchesSearch) return false;
+
+    // Apply time filter
+    if (timeFilter === "today") {
+      return isToday(ticket.retrievedAt);
+    } else if (timeFilter === "week") {
+      return isThisWeek(ticket.retrievedAt);
+    }
+
+    return true; // "all" filter shows all tickets
+  });
+
+  // Reset to first page when search term or time filter changes
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleTimeFilterChange = (filter: "all" | "today" | "week") => {
+    setTimeFilter(filter);
     setCurrentPage(1);
   };
 
