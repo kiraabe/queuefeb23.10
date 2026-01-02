@@ -810,11 +810,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     // Enrich selected services with names
     let enrichedServices: string[] | undefined = undefined;
-    if (
-      ticket &&
-      ticket.selected_services &&
-      ticket.service_category
-    ) {
+    if (ticket && ticket.selected_services && ticket.service_category) {
       const selectedServiceIds = parseSelectedServices(
         ticket.selected_services,
       );
@@ -825,14 +821,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
             serviceCategory: ticket.service_category,
           } as any;
 
-          const enrichedTickets =
-            await enrichMultipleTicketsWithServiceNames([tempTicket]);
+          const enrichedTickets = await enrichMultipleTicketsWithServiceNames([
+            tempTicket,
+          ]);
           enrichedServices = enrichedTickets[0]?.selectedServices;
         } catch (enrichError) {
-          console.warn(
-            "Failed to enrich services with names:",
-            enrichError,
-          );
+          console.warn("Failed to enrich services with names:", enrichError);
           enrichedServices = selectedServiceIds;
         }
       }
@@ -867,13 +861,9 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
           ? Math.round(archiverData.duration_seconds)
           : null,
         employeeName:
-          archiverData.full_name ||
-          archiverData.username ||
-          "Unknown Archiver",
+          archiverData.full_name || archiverData.username || "Unknown Archiver",
         jobTitle:
-          archiverData.name_english ||
-          archiverData.name_amharic ||
-          "Archiver",
+          archiverData.name_english || archiverData.name_amharic || "Archiver",
         ticketCode: ticketId,
         isArchiver: true,
       });
@@ -887,7 +877,9 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
       let tellerDuration = null;
       if (workflowRes.rows.length > 0 && workflowRes.rows[0].started_at) {
         tellerEndTime = Math.round(workflowRes.rows[0].started_at);
-        tellerDuration = Math.round((tellerEndTime - Math.round(tellerData.started_at)) / 1000);
+        tellerDuration = Math.round(
+          (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
+        );
       }
 
       items.push({
@@ -1189,7 +1181,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           let tellerDuration = null;
           if (workflowRows.length > 0 && workflowRows[0].started_at) {
             tellerEndTime = Math.round(workflowRows[0].started_at);
-            tellerDuration = Math.round((tellerEndTime - Math.round(tellerData.started_at)) / 1000);
+            tellerDuration = Math.round(
+              (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
+            );
           }
 
           workflowItems.push({
