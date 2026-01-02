@@ -216,6 +216,10 @@ export const createUser: RequestHandler = async (req, res) => {
     if (error?.code === "23505") {
       return res.status(400).json({ error: "Username already exists" });
     }
+    if (error?.code === "23514") {
+      // Check constraint violation (invalid role)
+      return res.status(400).json({ error: "Invalid role value" });
+    }
     res.status(500).json({ error: "Failed to create user" });
   }
 };
