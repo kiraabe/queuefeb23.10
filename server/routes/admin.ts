@@ -123,8 +123,8 @@ export const seedTestData: RequestHandler = async (_req, res) => {
       const code = `TST-${number}`;
 
       await client.query(
-        `INSERT INTO tickets (id, code, number, service, status, created_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category)
-         VALUES ($1, $2, $3, 'general', 'done', $4, $5, $6, $7, $8, $9)`,
+        `INSERT INTO tickets (id, code, number, service, status, created_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category, required_documents)
+         VALUES ($1, $2, $3, 'general', 'done', $4, $5, $6, $7, $8, $9, $10)`,
         [
           ticketId,
           code,
@@ -135,6 +135,7 @@ export const seedTestData: RequestHandler = async (_req, res) => {
           employees[0].id,
           `Customer ${number}`,
           category.id,
+          null,
         ],
       );
 
