@@ -459,11 +459,12 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
        SET status = 'waiting',
            documents_fetched = true,
            documents_fetched_at = now(),
+           archived_by_user_id = $1,
            archiver_id = NULL,
            archiver_started_at = NULL
-       WHERE id = $1
+       WHERE id = $2
        RETURNING id, code, service_category, status, documents_fetched, documents_fetched_at`,
-      [ticketId],
+      [userId, ticketId],
     );
 
     if (result.rows.length === 0) {
