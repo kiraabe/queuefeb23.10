@@ -1023,6 +1023,27 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         }
 
+        // Add teller step second if available
+        const tellerData = tellerByTicket.get(ticketId);
+        if (tellerData && tellerData.started_at && tellerData.user_id) {
+          workflowItems.push({
+            id: `teller-${ticketId}`,
+            ticketId: ticketId,
+            employeeId: tellerData.user_id,
+            jobTitleId: null,
+            startedAt: tellerData.created_at ? Math.round(tellerData.created_at) : null,
+            endedAt: tellerData.started_at ? Math.round(tellerData.started_at) : null,
+            status: "completed",
+            durationSeconds: tellerData.duration_seconds
+              ? Math.round(tellerData.duration_seconds)
+              : null,
+            employeeName: tellerData.full_name || tellerData.username || "Unknown Teller",
+            jobTitle: tellerData.name_english || tellerData.name_amharic || "Teller",
+            ticketCode: ticketId,
+            isTeller: true,
+          });
+        }
+
         // Add employee workflow steps
         workflowRows.forEach((r) => {
           workflowItems.push({
