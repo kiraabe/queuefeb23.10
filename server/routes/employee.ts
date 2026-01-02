@@ -888,6 +888,27 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       [ticketIds],
     );
 
+    // Fetch archiever information for all tickets
+    const archiverRes = await p.query(
+      `SELECT
+         t.id as ticket_id,
+         t.archived_by_user_id,
+         u.full_name,
+         u.username,
+         extract(epoch from t.archiver_started_at)*1000 as started_at,
+         extract(epoch from t.documents_fetched_at)*1000 as ended_at,
+         EXTRACT(EPOCH FROM (t.documents_fetched_at - t.archiver_started_at)) as duration_seconds,
+         jt.name_english,
+         jt.name_amharic
+       FROM tickets t
+       LEFT JOIN users u ON t.archived_by_user_id = u.id
+       LEFT JOIN job_title jt ON u.job_title_id = jt.id
+       WHERE t.id = ANY($1)
+         AND t.archiver_started_at IS NOT NULL
+         AND t.documents_fetched_at IS NOT NULL`,
+      [ticketIds],
+    );
+
     // Group workflow entries by ticket
     const workflowsByTicket = new Map<string, any[]>();
     workflowRes.rows.forEach((row) => {
