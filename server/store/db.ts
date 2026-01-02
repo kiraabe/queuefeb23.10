@@ -1014,9 +1014,12 @@ export async function createTicketDb(
         : JSON.stringify([selectedServices])
       : null;
 
+    // Default required documents - can be customized per service category
+    const serializedRequiredDocuments = null;
+
     const { rows } = await client.query(
-      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services)
-       VALUES ($1, $2, $3, $4, 'waiting', NULL, $5, $6, $7, $8, $9)
+      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services, required_documents)
+       VALUES ($1, $2, $3, $4, 'waiting', NULL, $5, $6, $7, $8, $9, $10)
        RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
       [
         id,
@@ -1028,6 +1031,7 @@ export async function createTicketDb(
         woreda ?? null,
         serviceCategory ?? null,
         serializedServices,
+        serializedRequiredDocuments,
       ],
     );
     await client.query("COMMIT");
