@@ -301,6 +301,16 @@ export function ArchivedTicketsHistory() {
                           </p>
                         </div>
 
+                        {/* Duration */}
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Duration
+                          </p>
+                          <p className="text-sm font-medium">
+                            {formatTime(ticket.processingTime)}
+                          </p>
+                        </div>
+
                         {/* Back To Archive Button & Archived Timestamp */}
                         <div className="flex flex-col gap-2 pt-2 md:pt-0">
                           {isArchived ? (
