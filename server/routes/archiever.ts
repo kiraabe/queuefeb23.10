@@ -601,12 +601,10 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
         : null,
       processingTime:
         row.archiver_started_at && row.documents_fetched_at
-          ? Math.floor(
-              (new Date(row.documents_fetched_at).getTime() -
-                new Date(row.archiver_started_at).getTime()) /
-                1000 /
-                60,
-            ) // minutes
+          ? (new Date(row.documents_fetched_at).getTime() -
+              new Date(row.archiver_started_at).getTime()) /
+              1000 /
+              60 // minutes with decimal precision
           : null,
     }));
 
