@@ -176,7 +176,6 @@ function TicketRow({
     // The API returns { items: [{ ticketId, ticketCode, items: [workflow steps], ... }] }
     // For a single ticket query, we get items[0].items which contains the workflow steps
     const workflowItems = performanceData?.items?.[0]?.items;
-    if (!workflowItems || workflowItems.length === 0) return [];
 
     const formatTime = (seconds: number | null) => {
       if (!seconds) return "—";
@@ -190,20 +189,42 @@ function TicketRow({
       return `${hours}h ${minutes}m`;
     };
 
-    return workflowItems.map((item: any, index: number) => ({
-      id: item.id,
-      number: index + 1,
-      employeeName: item.employeeName || "Unknown",
-      action:
-        item.status === "completed"
-          ? "Completed"
-          : item.status === "proceeded"
-            ? "Proceeded"
-            : "Started",
-      duration: formatTime(item.durationSeconds),
-      durationSeconds: item.durationSeconds,
-    }));
-  }, [performanceData]);
+    const steps = [];
+
+    // Add initial "from" step
+    const sourceStepName = ticket.transferredFromWindow
+      ? `Window ${ticket.transferredFromWindow}`
+      : "Archiver";
+    steps.push({
+      id: "source-step",
+      number: 1,
+      employeeName: sourceStepName,
+      action: "Started",
+      duration: "—",
+      durationSeconds: null,
+    });
+
+    // Add workflow steps with incremented numbers
+    if (workflowItems && workflowItems.length > 0) {
+      workflowItems.forEach((item: any, index: number) => {
+        steps.push({
+          id: item.id,
+          number: index + 2,
+          employeeName: item.employeeName || "Unknown",
+          action:
+            item.status === "completed"
+              ? "Completed"
+              : item.status === "proceeded"
+                ? "Proceeded"
+                : "Started",
+          duration: formatTime(item.durationSeconds),
+          durationSeconds: item.durationSeconds,
+        });
+      });
+    }
+
+    return steps;
+  }, [performanceData, ticket.transferredFromWindow]);
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
