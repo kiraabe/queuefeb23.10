@@ -1,4 +1,4 @@
-import { AlertCircle, Clock, Pause2, PlayCircle, X } from "lucide-react";
+import { AlertCircle, Clock, Pause, Play, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
