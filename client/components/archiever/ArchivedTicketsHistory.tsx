@@ -29,6 +29,8 @@ interface ArchivedTicket {
 
 export function ArchivedTicketsHistory() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch archived history
   const { data, isLoading, error } = useQuery({
@@ -50,6 +52,18 @@ export function ArchivedTicketsHistory() {
       ticket.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ticket.service.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  // Reset to first page when search term changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTickets = filteredTickets.slice(startIndex, endIndex);
 
   const stats = {
     total: tickets.length,
