@@ -367,6 +367,48 @@ export function createServer() {
     getDocumentStatus,
   );
 
+  // New Archiver Interface API Routes
+  app.get(
+    "/api/archiever/global-queue",
+    requireRole(["archiever"]),
+    getGlobalQueue,
+  );
+  app.post(
+    "/api/archiever/tickets/:ticketId/start",
+    requireRole(["archiever"]),
+    startTicket,
+  );
+  app.get(
+    "/api/archiever/tickets/:ticketId/details",
+    requireRole(["archiever"]),
+    getTicketDetails,
+  );
+  app.post(
+    "/api/archiever/tickets/:ticketId/notes",
+    requireRole(["archiever"]),
+    addInternalNotes,
+  );
+  app.post(
+    "/api/archiever/tickets/:ticketId/document-checklist",
+    requireRole(["archiever"]),
+    updateDocumentChecklist,
+  );
+  app.post(
+    "/api/archiever/tickets/:ticketId/retrieved",
+    requireRole(["archiever"]),
+    markTicketRetrieved,
+  );
+  app.post(
+    "/api/archiever/tickets/:ticketId/release",
+    requireRole(["archiever"]),
+    releaseTicket,
+  );
+  app.get(
+    "/api/archiever/history",
+    requireRole(["archiever"]),
+    getArchivedHistory,
+  );
+
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
