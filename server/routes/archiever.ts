@@ -570,7 +570,7 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
     `;
 
     if (userId) {
-      query += ` AND (archiver_id = $1 OR (SELECT role FROM user_roles WHERE user_id = $1 LIMIT 1) = 'admin')`;
+      query += ` AND archived_by_user_id = $1`;
     }
 
     query += ` ORDER BY documents_fetched_at DESC LIMIT 100`;
