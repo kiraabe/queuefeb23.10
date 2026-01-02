@@ -109,14 +109,17 @@ export function ArchivedTicketsHistory() {
         },
       );
       if (!response.ok) {
-        throw new Error("Failed to archive ticket");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || "Failed to archive ticket";
+        throw new Error(errorMessage);
       }
       setArchivedTickets((prev) => new Set(prev).add(ticketId));
       toast.success(`Ticket ${ticketCode} marked as archived`);
       refetch();
     } catch (error) {
-      console.error("Error archiving ticket:", error);
-      toast.error("Failed to archive ticket. Please try again.");
+      const message = error instanceof Error ? error.message : "Failed to archive ticket";
+      console.error("Error archiving ticket:", message);
+      toast.error(message);
     } finally {
       setArchivingTicket(null);
     }
