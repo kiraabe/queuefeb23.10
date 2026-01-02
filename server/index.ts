@@ -82,6 +82,7 @@ import {
   markTicketRetrieved,
   releaseTicket,
   getArchivedHistory,
+  manuallyArchiveTicket,
 } from "./routes/archiever";
 
 export function createServer() {
