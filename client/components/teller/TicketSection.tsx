@@ -20,6 +20,7 @@ interface TicketSectionProps {
   items: Ticket[];
   title: string;
   pageSize?: number;
+  currentWindowId?: number;
 }
 
 export function TicketSection({
