@@ -923,10 +923,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
          jt.name_english,
          jt.name_amharic
        FROM tickets t
-       LEFT JOIN users u ON u.window_id = t.window_id AND u.role = 'teller'
+       LEFT JOIN users u ON t.started_by_user_id = u.id
        LEFT JOIN job_title jt ON u.job_title_id = jt.id
        WHERE t.id = ANY($1)
-         AND t.window_id IS NOT NULL
+         AND t.started_by_user_id IS NOT NULL
          AND t.started_at IS NOT NULL`,
       [ticketIds],
     );
