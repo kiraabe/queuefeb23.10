@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, AlertCircle, Archive, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  Archive,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -193,61 +200,65 @@ export function ArchivedTicketsHistory() {
             <>
               <div className="space-y-3">
                 {paginatedTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Ticket Code
-                      </p>
-                      <p className="text-lg font-bold text-blue-600">
-                        {ticket.code}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Customer</p>
-                      <p className="font-medium">{ticket.ownerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Service</p>
-                      <p className="font-medium text-sm">{ticket.service}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Retrieved Time
-                      </p>
-                      <p className="text-sm">
-                        {new Date(ticket.retrievedAt).toLocaleTimeString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div
+                    key={ticket.id}
+                    className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                       <div>
                         <p className="text-xs text-muted-foreground">
-                          Processing Time
+                          Ticket Code
                         </p>
-                        <p className="font-semibold text-sm">
-                          {formatTime(ticket.processingTime)}
+                        <p className="text-lg font-bold text-blue-600">
+                          {ticket.code}
                         </p>
                       </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Customer
+                        </p>
+                        <p className="font-medium">{ticket.ownerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Service</p>
+                        <p className="font-medium text-sm">{ticket.service}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Retrieved Time
+                        </p>
+                        <p className="text-sm">
+                          {new Date(ticket.retrievedAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Processing Time
+                          </p>
+                          <p className="font-semibold text-sm">
+                            {formatTime(ticket.processingTime)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timestamp on separate row for mobile */}
+                    <div className="md:hidden mt-3 pt-3 border-t text-xs text-muted-foreground">
+                      <p>Retrieved: {formatDate(ticket.retrievedAt)}</p>
                     </div>
                   </div>
-
-                  {/* Timestamp on separate row for mobile */}
-                  <div className="md:hidden mt-3 pt-3 border-t text-xs text-muted-foreground">
-                    <p>Retrieved: {formatDate(ticket.retrievedAt)}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
               </div>
 
               {/* Pagination Controls */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="text-sm text-muted-foreground">
-                    Showing {startIndex + 1} to {Math.min(endIndex, filteredTickets.length)} of {filteredTickets.length} tickets
+                    Showing {startIndex + 1} to{" "}
+                    {Math.min(endIndex, filteredTickets.length)} of{" "}
+                    {filteredTickets.length} tickets
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -265,7 +276,9 @@ export function ArchivedTicketsHistory() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
                       disabled={currentPage === totalPages}
                     >
                       Next

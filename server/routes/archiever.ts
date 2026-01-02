@@ -577,7 +577,10 @@ export const getArchivedHistory: RequestHandler = async (req, res) => {
 
     query += ` ORDER BY documents_fetched_at DESC LIMIT 100`;
 
-    const result = await pool.query(query, userId && userRole !== "admin" ? [userId] : []);
+    const result = await pool.query(
+      query,
+      userId && userRole !== "admin" ? [userId] : [],
+    );
 
     const tickets = result.rows.map((row) => ({
       id: row.id,
