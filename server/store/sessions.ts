@@ -23,7 +23,7 @@ export const TRANSFER_AVAILABILITY_CHECK_SECONDS = parseNumberEnv(
 );
 export const SESSION_MAX_AGE_SECONDS = parseNumberEnv(
   process.env.SESSION_TTL_SECONDS,
-  8 * 60 * 60,
+  24 * 60 * 60, // 24 hours - increased from 8 hours for longer session duration
 );
 
 export type SessionRevokeReason =
