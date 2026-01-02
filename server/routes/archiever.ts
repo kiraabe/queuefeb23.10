@@ -6,12 +6,12 @@ export const getWaitingDocumentsDb: RequestHandler = async (req, res) => {
   try {
     const pool = getPool();
     const result = await pool.query(
-      `SELECT id, code, service, number, owner_name, woreda, created_at, 
+      `SELECT id, code, service, number, owner_name, woreda, created_at,
               status, documents_fetched, documents_fetched_at
        FROM tickets
        WHERE status IN ('waiting', 'serving')
        AND documents_fetched = false
-       ORDER BY created_at ASC`
+       ORDER BY created_at ASC`,
     );
 
     const tickets = result.rows.map((row) => ({
