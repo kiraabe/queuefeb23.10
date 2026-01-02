@@ -806,10 +806,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
       // Merge the ticket data with the user session data
       if (userRes.rows.length > 0) {
-        tellerRes.rows = [{
-          ...ticketData,
-          ...userRes.rows[0],
-        }];
+        tellerRes.rows = [
+          {
+            ...ticketData,
+            ...userRes.rows[0],
+          },
+        ];
       } else {
         // No user session found, but we still want to record the teller step with just ticket data
         tellerRes.rows = [ticketData];
@@ -1092,7 +1094,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     const tellerRes = {
       rows: ticketTellerDataRes.rows.map((ticketRow) => {
         const userSessionRow = userSessionsRes.rows.find(
-          (ur) => ur.ticket_id === ticketRow.ticket_id
+          (ur) => ur.ticket_id === ticketRow.ticket_id,
         );
         return {
           ...ticketRow,
