@@ -106,6 +106,9 @@ export function ArchivedTicketsHistory() {
         `/api/archiever/tickets/${ticketId}/manually-archive`,
         {
           method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
         },
       );
       if (!response.ok) {
