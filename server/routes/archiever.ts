@@ -647,3 +647,78 @@ export const getDocumentStatus: RequestHandler = async (req, res) => {
     res.status(500).json({ error: "Failed to get document status" });
   }
 };
+
+// Manually archive a retrieved ticket (Back To Archive action)
+export const manuallyArchiveTicket: RequestHandler = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const auth = req.auth;
+
+    if (!auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!ticketId) {
+      return res.status(400).json({ error: "Ticket ID is required" });
+    }
+
+    const pool = getPool();
+
+    // Get the ticket
+    const result = await pool.query(
+      `SELECT id, code, status, documents_fetched_at
+       FROM tickets
+       WHERE id = $1`,
+      [ticketId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    const ticket = result.rows[0];
+
+    // Verify ticket has been retrieved
+    if (!ticket.documents_fetched_at) {
+      return res.status(400).json({
+        error: "Ticket has not been retrieved yet",
+      });
+    }
+
+    // Update manually_archived_at timestamp
+    const updateResult = await pool.query(
+      `UPDATE tickets
+       SET manually_archived_at = now()
+       WHERE id = $1
+       RETURNING id, code, manually_archived_at`,
+      [ticketId],
+    );
+
+    if (updateResult.rows.length === 0) {
+      return res.status(500).json({ error: "Failed to archive ticket" });
+    }
+
+    // Log audit
+    await logAudit({
+      action: "ticket_manually_archived",
+      userId: auth.id,
+      username: auth.username,
+      details: { ticketId, ticketCode: ticket.code },
+    });
+
+    const archivedTicket = updateResult.rows[0];
+    res.json({
+      success: true,
+      ticket: {
+        id: archivedTicket.id,
+        code: archivedTicket.code,
+        manuallyArchivedAt: archivedTicket.manually_archived_at
+          ? new Date(archivedTicket.manually_archived_at).getTime()
+          : null,
+      },
+    });
+  } catch (error) {
+    console.error("Error manually archiving ticket:", error);
+    res.status(500).json({ error: "Failed to manually archive ticket" });
+  }
+};
