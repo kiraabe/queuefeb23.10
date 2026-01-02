@@ -221,7 +221,9 @@ function TicketRow({
       let windowDurationDisplay = "—";
 
       if (ticket.startedAt && ticket.transferredAt) {
-        windowDurationSeconds = Math.abs(Math.floor((ticket.transferredAt - ticket.startedAt) / 1000));
+        windowDurationSeconds = Math.abs(
+          Math.floor((ticket.transferredAt - ticket.startedAt) / 1000),
+        );
         windowDurationDisplay = formatTime(windowDurationSeconds);
       }
 
@@ -255,7 +257,12 @@ function TicketRow({
     }
 
     return steps;
-  }, [performanceData, currentWindowId, ticket.startedAt, ticket.transferredAt]);
+  }, [
+    performanceData,
+    currentWindowId,
+    ticket.startedAt,
+    ticket.transferredAt,
+  ]);
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
@@ -321,7 +328,9 @@ function TicketRow({
                   onClick={() => setIsExpanded(!isExpanded)}
                   className="h-8 w-8 p-0"
                   aria-label={
-                    isExpanded ? "Collapse ticket details" : "Expand ticket details"
+                    isExpanded
+                      ? "Collapse ticket details"
+                      : "Expand ticket details"
                   }
                 >
                   <ChevronDown
