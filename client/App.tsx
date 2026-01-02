@@ -14,6 +14,7 @@ import Queue from "./pages/Queue";
 import Reception from "./pages/Reception";
 import Teller from "./pages/Teller";
 import Employee from "./pages/Employee";
+import Archiever from "./pages/Archiever";
 import Display from "./pages/Display";
 import TicketStatus from "./pages/TicketStatus";
 import Track from "./pages/Track";
