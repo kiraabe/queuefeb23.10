@@ -266,14 +266,14 @@ export const startCase: RequestHandler = async (req, res) => {
       `INSERT INTO tickets (
         service, status, window_id, owner_name, woreda, remark, notes,
         transferred_from_window, transferred_to_user_id, transferred_at,
-        created_at, service_category
+        created_at, service_category, required_documents
       ) VALUES (
         $1, $2, NULL, $3, $4, $5, $6,
         NULL, $7, now(),
-        now(), $8
+        now(), $8, $9
       )
       RETURNING id, code`,
-      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId],
+      [jobTitleId, "transferred", "", "", "", "", employeeId, jobTitleId, null],
     );
 
     if (!rows.length) {
