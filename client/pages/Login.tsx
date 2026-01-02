@@ -52,7 +52,9 @@ export default function Login() {
                 ? "/reception"
                 : user.role === "employee"
                   ? "/employee"
-                  : "/");
+                  : user.role === "archiever"
+                    ? "/archiever"
+                    : "/");
         navigate(to);
       }
     } catch (e: any) {
