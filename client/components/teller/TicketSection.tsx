@@ -159,9 +159,11 @@ export function TicketSection({
 function TicketRow({
   ticket,
   userMap,
+  currentWindowId,
 }: {
   ticket: Ticket;
   userMap: Map<string, string>;
+  currentWindowId?: number;
 }) {
   // Auto-expand completed tickets by default
   const [isExpanded, setIsExpanded] = useState(ticket.status === "done");
