@@ -1145,6 +1145,7 @@ export default function TellerWindow() {
                 items={tabItems}
                 title="Completed Today"
                 pageSize={10}
+                currentWindowId={windowId}
               />
             </div>
           </TabsContent>
@@ -1154,12 +1155,18 @@ export default function TellerWindow() {
                 items={tabItems}
                 title="Skipped Today"
                 pageSize={10}
+                currentWindowId={windowId}
               />
             </div>
           </TabsContent>
           <TabsContent value="serving">
             <div className="mt-3">
-              <TicketSection items={tabItems} title="Ongoing" pageSize={10} />
+              <TicketSection
+                items={tabItems}
+                title="Ongoing"
+                pageSize={10}
+                currentWindowId={windowId}
+              />
             </div>
           </TabsContent>
           <TabsContent value="proceed">
@@ -1168,6 +1175,7 @@ export default function TellerWindow() {
                 items={tabItems}
                 title="Proceed Transfers"
                 pageSize={10}
+                currentWindowId={windowId}
               />
             </div>
           </TabsContent>
