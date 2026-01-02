@@ -92,10 +92,8 @@ export function ArchivedTicketsHistory() {
     }).length,
     avgTime:
       validTickets.length > 0
-        ? Math.round(
-            validTickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
-              validTickets.length,
-          )
+        ? validTickets.reduce((sum, t) => sum + (t.processingTime || 0), 0) /
+          validTickets.length
         : null,
   };
 
