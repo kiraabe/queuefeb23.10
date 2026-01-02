@@ -169,7 +169,7 @@ export const startTicket: RequestHandler = async (req, res) => {
     const result = await pool.query(
       `UPDATE tickets
        SET archiver_id = $1, archiver_started_at = now()
-       WHERE id = $2 AND documents_fetched = false
+       WHERE id = $2 AND status = 'waiting_archive' AND documents_fetched = false
        RETURNING id, code, service, number, owner_name, service_category,
                  required_documents, document_checklist, internal_notes`,
       [userId, ticketId],
