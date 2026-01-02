@@ -341,12 +341,20 @@ export default function CaseWorkflowTracker() {
                                           </div>
 
                                           {/* Status Badge */}
-                                          <Badge
-                                            className={`inline-flex items-center gap-1 text-xs ${getStatusColor(step.status)}`}
-                                          >
-                                            <CheckCircle2 className="h-3 w-3" />
-                                            {getStatusLabel(step.status)}
-                                          </Badge>
+                                          {!step.isArchiever && (
+                                            <Badge
+                                              className={`inline-flex items-center gap-1 text-xs ${getStatusColor(step.status)}`}
+                                            >
+                                              <CheckCircle2 className="h-3 w-3" />
+                                              {getStatusLabel(step.status)}
+                                            </Badge>
+                                          )}
+                                          {step.isArchiever && (
+                                            <Badge className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                              <CheckCircle2 className="h-3 w-3" />
+                                              Retrieved
+                                            </Badge>
+                                          )}
 
                                           {/* Timeline */}
                                           <div className="border-t border-blue-200 dark:border-blue-800 pt-2 space-y-1 text-xs">
