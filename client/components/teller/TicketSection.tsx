@@ -216,13 +216,22 @@ function TicketRow({
 
     // Step 2: Add current window step (if available)
     if (currentWindowId) {
+      // Calculate window duration from startedAt to transferredAt
+      let windowDurationSeconds = null;
+      let windowDurationDisplay = "—";
+
+      if (ticket.startedAt && ticket.transferredAt) {
+        windowDurationSeconds = Math.floor((ticket.transferredAt - ticket.startedAt) / 1000);
+        windowDurationDisplay = formatTime(windowDurationSeconds);
+      }
+
       steps.push({
         id: `window-${currentWindowId}-step`,
         number: stepNumber++,
         employeeName: `Window ${currentWindowId}`,
         action: "Proceeded",
-        duration: "—",
-        durationSeconds: null,
+        duration: windowDurationDisplay,
+        durationSeconds: windowDurationSeconds,
       });
     }
 
