@@ -2080,7 +2080,7 @@ export async function createUser(params: {
 }): Promise<void> {
   try {
     const p = getPool();
-    const userId = crypto.randomUUID();
+    const userId = (await import("node:crypto")).randomUUID();
 
     // Insert user without role column (now in user_roles table)
     await p.query(
