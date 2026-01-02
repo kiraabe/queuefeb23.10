@@ -191,7 +191,7 @@ export function ArchivedTicketsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-purple-600">
-              {formatTime(stats.avgTime === 0 ? null : stats.avgTime)}
+              {formatTime(stats.avgTime)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Average time per ticket
