@@ -199,26 +199,36 @@ function TicketRow({
     };
 
     const steps = [];
+    let stepNumber = 1;
 
-    // Add initial "from" step
-    const sourceStepName = ticket.transferredFromWindow
-      ? `Window ${ticket.transferredFromWindow}`
-      : "Archiver";
+    // Step 1: Add initial "Archiver" step
     steps.push({
-      id: "source-step",
-      number: 1,
-      employeeName: sourceStepName,
+      id: "archiver-step",
+      number: stepNumber++,
+      employeeName: "Archiver",
       action: "Started",
       duration: "—",
       durationSeconds: null,
     });
 
-    // Add workflow steps with incremented numbers
+    // Step 2: Add current window step (if available)
+    if (currentWindowId) {
+      steps.push({
+        id: `window-${currentWindowId}-step`,
+        number: stepNumber++,
+        employeeName: `Window ${currentWindowId}`,
+        action: "Proceeded",
+        duration: "—",
+        durationSeconds: null,
+      });
+    }
+
+    // Step 3+: Add workflow steps with incremented numbers
     if (workflowItems && workflowItems.length > 0) {
-      workflowItems.forEach((item: any, index: number) => {
+      workflowItems.forEach((item: any) => {
         steps.push({
           id: item.id,
-          number: index + 2,
+          number: stepNumber++,
           employeeName: item.employeeName || "Unknown",
           action:
             item.status === "completed"
@@ -233,7 +243,7 @@ function TicketRow({
     }
 
     return steps;
-  }, [performanceData, ticket.transferredFromWindow]);
+  }, [performanceData, currentWindowId]);
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
