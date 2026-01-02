@@ -74,6 +74,14 @@ import {
   getWaitingDocumentsDb,
   markDocumentsFetched,
   getDocumentStatus,
+  getGlobalQueue,
+  startTicket,
+  getTicketDetails,
+  addInternalNotes,
+  updateDocumentChecklist,
+  markTicketRetrieved,
+  releaseTicket,
+  getArchivedHistory,
 } from "./routes/archiever";
 
 export function createServer() {
