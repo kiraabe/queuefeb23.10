@@ -244,9 +244,15 @@ export function GlobalQueuePanel({
           <CardContent>
             <div className="space-y-2">
               {lockedTickets.map((ticket) => (
-                <div
+                <button
                   key={ticket.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50"
+                  onClick={() => onTicketSelected(ticket.id, ticket.code)}
+                  className={cn(
+                    "w-full flex items-center justify-between p-3 rounded-lg border transition-all text-left cursor-pointer",
+                    selectedTicketId === ticket.id
+                      ? "border-amber-500 bg-amber-50"
+                      : "border-amber-200 bg-amber-50 hover:border-amber-400 hover:bg-amber-100",
+                  )}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <Lock className="h-4 w-4 text-amber-600 flex-shrink-0" />
@@ -263,7 +269,7 @@ export function GlobalQueuePanel({
                   >
                     In Progress
                   </Badge>
-                </div>
+                </button>
               ))}
             </div>
           </CardContent>
