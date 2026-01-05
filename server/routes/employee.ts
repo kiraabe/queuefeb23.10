@@ -1208,13 +1208,20 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         // Add teller step second if available
         const tellerData = tellerByTicket.get(ticketId);
         if (tellerData && tellerData.started_at) {
-          // Calculate teller's end time: when the first employee started
+          // Calculate teller's end time: when the first employee started, or use ticket duration as fallback
           let tellerEndTime = null;
           let tellerDuration = null;
           if (workflowRows.length > 0 && workflowRows[0].started_at) {
+            // If employee workflow exists, teller ended when first employee started
             tellerEndTime = Math.round(workflowRows[0].started_at);
             tellerDuration = Math.round(
               (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
+            );
+          } else if (tellerData.duration_seconds) {
+            // Fallback: use the ticket's calculated duration (from created_at to started_at)
+            tellerDuration = Math.round(tellerData.duration_seconds);
+            tellerEndTime = Math.round(
+              tellerData.started_at + tellerDuration * 1000,
             );
           }
 
