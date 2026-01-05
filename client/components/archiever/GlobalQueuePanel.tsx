@@ -38,14 +38,32 @@ export function GlobalQueuePanel({
   const queryClient = useQueryClient();
 
   // Fetch global queue
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["archiever-global-queue"],
     queryFn: async () => {
-      const response = await fetch("/api/archiever/global-queue");
-      if (!response.ok) throw new Error("Failed to fetch global queue");
-      return response.json() as Promise<{ tickets: QueueTicket[] }>;
+      try {
+        const response = await fetch("/api/archiever/global-queue");
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Your session has expired or you don't have permission. Please log in again.");
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch global queue (${response.status})`);
+        }
+
+        return response.json() as Promise<{ tickets: QueueTicket[] }>;
+      } catch (fetchError) {
+        if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
+          throw new Error("Cannot connect to server. Please check your connection and try again.");
+        }
+        throw fetchError;
+      }
     },
     refetchInterval: 3000, // Refresh every 3 seconds
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Start ticket mutation
