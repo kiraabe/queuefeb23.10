@@ -1192,12 +1192,11 @@ export default function TellerWindow() {
             setPendingTransferUserId(undefined);
           }
         }}
-        onConfirm={(reason) => {
+        onConfirm={() => {
           if (pendingTransferUserId || pendingTransferTarget) {
             transfer.mutate({
               targetWindowId: pendingTransferTarget,
               targetUserId: pendingTransferUserId,
-              reason,
             });
           }
         }}
