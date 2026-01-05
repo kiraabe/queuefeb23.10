@@ -45,18 +45,28 @@ export function GlobalQueuePanel({
         const response = await fetch("/api/archiever/global-queue");
 
         if (response.status === 401 || response.status === 403) {
-          throw new Error("Your session has expired or you don't have permission. Please log in again.");
+          throw new Error(
+            "Your session has expired or you don't have permission. Please log in again.",
+          );
         }
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to fetch global queue (${response.status})`);
+          throw new Error(
+            errorData.error ||
+              `Failed to fetch global queue (${response.status})`,
+          );
         }
 
         return response.json() as Promise<{ tickets: QueueTicket[] }>;
       } catch (fetchError) {
-        if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
-          throw new Error("Cannot connect to server. Please check your connection and try again.");
+        if (
+          fetchError instanceof TypeError &&
+          fetchError.message.includes("fetch")
+        ) {
+          throw new Error(
+            "Cannot connect to server. Please check your connection and try again.",
+          );
         }
         throw fetchError;
       }
@@ -157,10 +167,16 @@ export function GlobalQueuePanel({
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {error instanceof Error ? error.message : "Failed to load queue. Please try again."}
+                  {error instanceof Error
+                    ? error.message
+                    : "Failed to load queue. Please try again."}
                 </AlertDescription>
               </Alert>
-              <Button onClick={() => refetch()} variant="outline" className="w-full">
+              <Button
+                onClick={() => refetch()}
+                variant="outline"
+                className="w-full"
+              >
                 Try Again
               </Button>
             </div>

@@ -65,18 +65,28 @@ export function ActiveTicketWorkspace({
         );
 
         if (response.status === 401 || response.status === 403) {
-          throw new Error("Your session has expired or you don't have permission. Please log in again.");
+          throw new Error(
+            "Your session has expired or you don't have permission. Please log in again.",
+          );
         }
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to fetch ticket details (${response.status})`);
+          throw new Error(
+            errorData.error ||
+              `Failed to fetch ticket details (${response.status})`,
+          );
         }
 
         return response.json() as Promise<{ ticket: TicketDetails }>;
       } catch (fetchError) {
-        if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
-          throw new Error("Cannot connect to server. Please check your connection and try again.");
+        if (
+          fetchError instanceof TypeError &&
+          fetchError.message.includes("fetch")
+        ) {
+          throw new Error(
+            "Cannot connect to server. Please check your connection and try again.",
+          );
         }
         throw fetchError;
       }
@@ -116,7 +126,9 @@ export function ActiveTicketWorkspace({
       toast.success("Notes saved");
     },
     onError: (error: any) => {
-      toast.error(error instanceof Error ? error.message : "Failed to save notes");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save notes",
+      );
     },
   });
 
@@ -264,7 +276,9 @@ export function ActiveTicketWorkspace({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {error instanceof Error ? error.message : "Failed to load ticket details. Please try again."}
+            {error instanceof Error
+              ? error.message
+              : "Failed to load ticket details. Please try again."}
           </AlertDescription>
         </Alert>
         <Button onClick={() => refetch()} variant="outline" className="w-full">
