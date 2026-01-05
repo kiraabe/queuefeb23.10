@@ -98,7 +98,15 @@ export function ActiveTicketWorkspace({
         },
         body: JSON.stringify({ notes: notesText }),
       });
-      if (!response.ok) throw new Error("Failed to add notes");
+
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Your session has expired. Please log in again.");
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to add notes");
+      }
       return response.json();
     },
     onSuccess: (data) => {
@@ -107,8 +115,8 @@ export function ActiveTicketWorkspace({
       });
       toast.success("Notes saved");
     },
-    onError: () => {
-      toast.error("Failed to save notes");
+    onError: (error: any) => {
+      toast.error(error instanceof Error ? error.message : "Failed to save notes");
     },
   });
 
