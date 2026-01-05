@@ -153,12 +153,17 @@ export function GlobalQueuePanel({
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : error ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Failed to load queue. Please try again.
-              </AlertDescription>
-            </Alert>
+            <div className="space-y-3">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {error instanceof Error ? error.message : "Failed to load queue. Please try again."}
+                </AlertDescription>
+              </Alert>
+              <Button onClick={() => refetch()} variant="outline" className="w-full">
+                Try Again
+              </Button>
+            </div>
           ) : waitingTickets.length === 0 ? (
             <div className="text-center py-12">
               <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
