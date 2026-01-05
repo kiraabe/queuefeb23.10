@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -26,7 +23,7 @@ import type { Ticket } from "@shared/api";
 interface ProceedHandoffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (reason?: string) => void;
+  onConfirm: () => void;
   isLoading?: boolean;
   ticket: Ticket | null;
   targetUserName?: string;
@@ -60,16 +57,12 @@ export function ProceedHandoffDialog({
   targetUserName = "selected user",
   targetWindowName,
 }: ProceedHandoffDialogProps) {
-  const [reason, setReason] = useState("");
-
   const handleConfirm = () => {
-    onConfirm(reason || undefined);
-    setReason("");
+    onConfirm();
     onOpenChange(false);
   };
 
   const handleCancel = () => {
-    setReason("");
     onOpenChange(false);
   };
 
