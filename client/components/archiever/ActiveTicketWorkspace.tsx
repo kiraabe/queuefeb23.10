@@ -56,17 +56,35 @@ export function ActiveTicketWorkspace({
   const [processingTime, setProcessingTime] = useState("0m");
 
   // Fetch ticket details
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["archiever-ticket-details", ticketId],
     queryFn: async () => {
-      const response = await fetch(
-        `/api/archiever/tickets/${ticketId}/details`,
-      );
-      if (!response.ok) throw new Error("Failed to fetch ticket details");
-      return response.json() as Promise<{ ticket: TicketDetails }>;
+      try {
+        const response = await fetch(
+          `/api/archiever/tickets/${ticketId}/details`,
+        );
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Your session has expired or you don't have permission. Please log in again.");
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch ticket details (${response.status})`);
+        }
+
+        return response.json() as Promise<{ ticket: TicketDetails }>;
+      } catch (fetchError) {
+        if (fetchError instanceof TypeError && fetchError.message.includes("fetch")) {
+          throw new Error("Cannot connect to server. Please check your connection and try again.");
+        }
+        throw fetchError;
+      }
     },
     enabled: !!ticketId,
     refetchInterval: 5000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Add internal notes mutation
