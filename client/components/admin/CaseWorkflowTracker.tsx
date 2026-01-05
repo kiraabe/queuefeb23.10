@@ -171,7 +171,9 @@ export default function CaseWorkflowTracker() {
                 Process Flow Section
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
-                Complete case workflow tracking from ticket creation through document retrieval by archivers and service delivery by tellers, with timeframe filtering and pagination
+                Complete case workflow tracking from ticket creation through
+                document retrieval by archivers and service delivery by tellers,
+                with timeframe filtering and pagination
               </CardDescription>
             </div>
           </div>
@@ -179,19 +181,30 @@ export default function CaseWorkflowTracker() {
         <CardContent className="pt-6">
           {/* Workflow Legend */}
           <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 border border-slate-200 dark:border-slate-800">
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Process Roles Legend:</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
+              Process Roles Legend:
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex-shrink-0"></div>
-                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Archiever:</span> Document retrieval & verification</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="font-semibold">Archiever:</span> Document
+                  retrieval & verification
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex-shrink-0"></div>
-                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Teller:</span> Service delivery & customer handling</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="font-semibold">Teller:</span> Service
+                  delivery & customer handling
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0"></div>
-                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Employee:</span> Administrative workflow steps</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="font-semibold">Employee:</span>{" "}
+                  Administrative workflow steps
+                </span>
               </div>
             </div>
           </div>
