@@ -237,23 +237,6 @@ export function ProceedHandoffDialog({
               </div>
             </>
           )}
-
-          <Separator />
-
-          {/* Handoff Reason */}
-          <div className="space-y-2">
-            <Label htmlFor="handoff-reason" className="text-sm font-semibold">
-              Handoff Reason (optional)
-            </Label>
-            <Textarea
-              id="handoff-reason"
-              placeholder="e.g., Service specialization, Customer request, Load balancing, Issue resolution..."
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="h-20 resize-none"
-              disabled={isLoading}
-            />
-          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
