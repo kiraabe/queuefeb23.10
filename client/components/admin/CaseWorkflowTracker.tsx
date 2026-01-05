@@ -171,13 +171,31 @@ export default function CaseWorkflowTracker() {
                 Process Flow Section
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
-                View completed case workflows with timeframe filter and
-                pagination
+                Complete case workflow tracking from ticket creation through document retrieval by archivers and service delivery by tellers, with timeframe filtering and pagination
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
+          {/* Workflow Legend */}
+          <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 border border-slate-200 dark:border-slate-800">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Process Roles Legend:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex-shrink-0"></div>
+                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Archiever:</span> Document retrieval & verification</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex-shrink-0"></div>
+                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Teller:</span> Service delivery & customer handling</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex-shrink-0"></div>
+                <span className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">Employee:</span> Administrative workflow steps</span>
+              </div>
+            </div>
+          </div>
+
           {/* Timeframe Filter Buttons */}
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
@@ -367,13 +385,13 @@ export default function CaseWorkflowTracker() {
                                           {step.isArchiever && (
                                             <Badge className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
                                               <CheckCircle2 className="h-3 w-3" />
-                                              Retrieved
+                                              Documents Retrieved
                                             </Badge>
                                           )}
                                           {step.isTeller && (
                                             <Badge className="inline-flex items-center gap-1 text-xs bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
                                               <CheckCircle2 className="h-3 w-3" />
-                                              Served
+                                              Service Completed
                                             </Badge>
                                           )}
 
@@ -442,7 +460,7 @@ export default function CaseWorkflowTracker() {
                               </div>
 
                               {/* Summary Stats */}
-                              <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
                                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Total Employees
@@ -451,6 +469,20 @@ export default function CaseWorkflowTracker() {
                                     {
                                       new Set(
                                         workflow.items.map((i) => i.employeeId),
+                                      ).size
+                                    }
+                                  </p>
+                                </div>
+                                <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Archivers Involved
+                                  </p>
+                                  <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+                                    {
+                                      new Set(
+                                        workflow.items
+                                          .filter((i) => i.isArchiever)
+                                          .map((i) => i.employeeId),
                                       ).size
                                     }
                                   </p>
