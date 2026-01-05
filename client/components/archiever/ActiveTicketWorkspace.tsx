@@ -252,12 +252,17 @@ export function ActiveTicketWorkspace({
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load ticket details. Please try again.
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-3">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error instanceof Error ? error.message : "Failed to load ticket details. Please try again."}
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => refetch()} variant="outline" className="w-full">
+          Try Again
+        </Button>
+      </div>
     );
   }
 
