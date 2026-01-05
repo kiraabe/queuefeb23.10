@@ -1207,7 +1207,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
 
         // Add teller step second if available
         const tellerData = tellerByTicket.get(ticketId);
-        if (tellerData && tellerData.started_at) {
+        if (tellerData && tellerData.started_at && tellerData.user_id) {
           // Calculate teller's end time: when the first employee started
           let tellerEndTime = null;
           let tellerDuration = null;
