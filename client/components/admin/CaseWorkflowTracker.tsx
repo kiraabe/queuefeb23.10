@@ -531,13 +531,16 @@ export default function CaseWorkflowTracker() {
                                   </p>
                                   <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
                                     {(() => {
-                                      const windowIds = new Set(
-                                        workflow.items
-                                          .filter((i) => i.isTeller || (i.windowId !== null && i.windowId !== undefined))
-                                          .map((i) => i.windowId),
-                                      );
-                                      console.log("Window items:", workflow.items.filter(i => i.isTeller || i.windowId), "Count:", windowIds.size);
-                                      return windowIds.size;
+                                      // Find all unique window IDs from items that have a windowId property
+                                      const uniqueWindows = new Set<number>();
+                                      workflow.items.forEach((item) => {
+                                        if (item.windowId && typeof item.windowId === 'number') {
+                                          uniqueWindows.add(item.windowId);
+                                        }
+                                      });
+                                      console.log("All workflow items:", workflow.items);
+                                      console.log("Unique windows found:", Array.from(uniqueWindows));
+                                      return uniqueWindows.size;
                                     })()}
                                   </p>
                                 </div>
