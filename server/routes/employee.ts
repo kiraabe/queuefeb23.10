@@ -1,5 +1,10 @@
 import type { RequestHandler } from "express";
-import { getPool, enrichMultipleTicketsWithServiceNames } from "../store/db";
+import {
+  getPool,
+  enrichMultipleTicketsWithServiceNames,
+  isLastParticipantCompletingCase,
+  compileAndStoreProgressFlow,
+} from "../store/db";
 
 // Helper function to safely parse selectedServices
 function parseSelectedServices(data: any): string[] | undefined {
