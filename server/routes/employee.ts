@@ -1237,6 +1237,13 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             );
           }
 
+          // Build job title with window number if available
+          let jobTitle =
+            tellerData.name_english || tellerData.name_amharic || "Teller";
+          if (tellerData.window_id) {
+            jobTitle = `${jobTitle} - Window ${tellerData.window_id}`;
+          }
+
           workflowItems.push({
             id: `teller-${ticketId}`,
             ticketId: ticketId,
@@ -1251,8 +1258,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             durationSeconds: tellerDuration,
             employeeName:
               tellerData.full_name || tellerData.username || "Unknown Teller",
-            jobTitle:
-              tellerData.name_english || tellerData.name_amharic || "Teller",
+            jobTitle: jobTitle,
             ticketCode: ticketId,
             isTeller: true,
           });
