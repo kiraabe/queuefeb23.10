@@ -530,13 +530,15 @@ export default function CaseWorkflowTracker() {
                                     Windows Used
                                   </p>
                                   <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
-                                    {
-                                      new Set(
+                                    {(() => {
+                                      const windowIds = new Set(
                                         workflow.items
-                                          .filter((i) => i.windowId !== null && i.windowId !== undefined)
+                                          .filter((i) => i.isTeller || (i.windowId !== null && i.windowId !== undefined))
                                           .map((i) => i.windowId),
-                                      ).size
-                                    }
+                                      );
+                                      console.log("Window items:", workflow.items.filter(i => i.isTeller || i.windowId), "Count:", windowIds.size);
+                                      return windowIds.size;
+                                    })()}
                                   </p>
                                 </div>
                                 <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
