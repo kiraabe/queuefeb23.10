@@ -874,7 +874,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         endedAt: archiverData.ended_at
           ? Math.round(archiverData.ended_at)
           : null,
-        status: "completed",
+        status: "Retrieved",
         durationSeconds: archiverData.duration_seconds
           ? Math.round(archiverData.duration_seconds)
           : null,
@@ -909,7 +909,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
           ? Math.round(tellerData.started_at)
           : null,
         endedAt: tellerEndTime,
-        status: "completed",
+        status: "Proceeded",
         durationSeconds: tellerDuration,
         employeeName:
           tellerData.full_name || tellerData.username || "Unknown Teller",
@@ -938,6 +938,11 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         ticketCode: r.ticket_code,
       });
     });
+
+    // Mark the last item in the workflow as "Completed"
+    if (items.length > 0) {
+      items[items.length - 1].status = "Completed";
+    }
 
     res.json({
       items,
