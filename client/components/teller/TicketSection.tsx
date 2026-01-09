@@ -201,21 +201,42 @@ function TicketRow({
     const steps = [];
     let stepNumber = 1;
 
-    // Step 1: Use first workflow item as the Archiver (e.g., Mohammad Ali)
+    // Process all workflow items in order
     if (workflowItems && workflowItems.length > 0) {
-      const firstItem = workflowItems[0];
-      steps.push({
-        id: firstItem.id,
-        number: stepNumber++,
-        employeeName: firstItem.employeeName || "Archiver",
-        action: "Started",
-        duration: formatTime(firstItem.durationSeconds),
-        durationSeconds: firstItem.durationSeconds,
+      workflowItems.forEach((item: any, index: number) => {
+        // Determine the display name and status
+        let displayName = item.employeeName || "Unknown";
+        let displayStatus = item.status || "Started";
+
+        // For teller steps, include window number in the display name
+        if (item.isTeller && item.windowId) {
+          displayName = `${displayName} - Window ${item.windowId}`;
+        }
+
+        // Map backend status to action status
+        let action: "Started" | "Proceeded" | "Completed" = "Started";
+        if (displayStatus === "Completed" || displayStatus === "completed") {
+          action = "Completed";
+        } else if (displayStatus === "Proceeded" || displayStatus === "proceeded") {
+          action = "Proceeded";
+        } else if (displayStatus === "Retrieved" || displayStatus === "retrieved") {
+          // Treat Retrieved as Started for process flow
+          action = "Started";
+        }
+
+        steps.push({
+          id: item.id,
+          number: stepNumber++,
+          employeeName: displayName,
+          action: action,
+          duration: formatTime(item.durationSeconds),
+          durationSeconds: item.durationSeconds,
+        });
       });
     }
 
-    // Step 2: Add current window step (if available)
-    if (currentWindowId) {
+    // Fallback: Add current window step if no teller step was found in items
+    if (currentWindowId && (!workflowItems || !workflowItems.some((item: any) => item.isTeller))) {
       // Calculate window duration from startedAt to transferredAt
       let windowDurationSeconds = null;
       let windowDurationDisplay = "—";
@@ -234,25 +255,6 @@ function TicketRow({
         action: "Proceeded",
         duration: windowDurationDisplay,
         durationSeconds: windowDurationSeconds,
-      });
-    }
-
-    // Step 3+: Add remaining workflow steps (skip the first one since it's the Archiver)
-    if (workflowItems && workflowItems.length > 1) {
-      workflowItems.slice(1).forEach((item: any) => {
-        steps.push({
-          id: item.id,
-          number: stepNumber++,
-          employeeName: item.employeeName || "Unknown",
-          action:
-            item.status === "completed"
-              ? "Completed"
-              : item.status === "proceeded"
-                ? "Proceeded"
-                : "Started",
-          duration: formatTime(item.durationSeconds),
-          durationSeconds: item.durationSeconds,
-        });
       });
     }
 
