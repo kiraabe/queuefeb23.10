@@ -349,32 +349,41 @@ export default function CaseWorkflowTracker() {
                                         className={`flex items-center justify-center w-14 h-14 rounded-full text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950 ${
                                           step.isArchiever
                                             ? "bg-gradient-to-br from-amber-500 to-amber-600"
-                                            : step.isTeller
-                                              ? "bg-gradient-to-br from-cyan-500 to-cyan-600"
-                                              : "bg-gradient-to-br from-blue-500 to-blue-600"
+                                            : step.isWindowService
+                                              ? "bg-gradient-to-br from-teal-500 to-teal-600"
+                                              : step.isTeller
+                                                ? "bg-gradient-to-br from-cyan-500 to-cyan-600"
+                                                : "bg-gradient-to-br from-blue-500 to-blue-600"
                                         }`}
                                       >
                                         {index + 1}
                                       </div>
                                       <div
-                                        className={`mt-3 rounded-lg border-2 p-3 min-w-48 hover:shadow-md transition-shadow ${
+                                        className={`mt-3 rounded-lg border-2 p-3 min-w-56 hover:shadow-md transition-shadow ${
                                           step.isArchiever
                                             ? "border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50"
-                                            : step.isTeller
-                                              ? "border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/50"
-                                              : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50"
+                                            : step.isWindowService
+                                              ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/50 ring-1 ring-teal-200 dark:ring-teal-800"
+                                              : step.isTeller
+                                                ? "border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/50"
+                                                : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50"
                                         }`}
                                       >
                                         <div className="space-y-2">
                                           {/* Employee Info */}
                                           <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap">
                                               {step.isArchiever && (
                                                 <Badge className="bg-amber-600 text-white text-xs">
                                                   Archiver
                                                 </Badge>
                                               )}
-                                              {step.isTeller && (
+                                              {step.isWindowService && (
+                                                <Badge className="bg-teal-600 text-white text-xs font-semibold">
+                                                  Window {step.windowId}
+                                                </Badge>
+                                              )}
+                                              {step.isTeller && !step.isWindowService && (
                                                 <Badge className="bg-cyan-600 text-white text-xs">
                                                   Teller
                                                 </Badge>
@@ -404,28 +413,34 @@ export default function CaseWorkflowTracker() {
                                               Documents Retrieved
                                             </Badge>
                                           )}
-                                          {step.isTeller && (
+                                          {step.isWindowService && (
+                                            <Badge className="inline-flex items-center gap-1 text-xs bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 font-semibold">
+                                              <CheckCircle2 className="h-3 w-3" />
+                                              Service Delivered
+                                            </Badge>
+                                          )}
+                                          {step.isTeller && !step.isWindowService && (
                                             <Badge className="inline-flex items-center gap-1 text-xs bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
                                               <CheckCircle2 className="h-3 w-3" />
                                               Service Completed
                                             </Badge>
                                           )}
 
-                                          {/* Timeline */}
-                                          <div className="border-t border-blue-200 dark:border-blue-800 pt-2 space-y-1 text-xs">
+                                          {/* Timeline & Window Service Details */}
+                                          <div className="border-t border-gray-200 dark:border-gray-700 pt-2 space-y-1 text-xs">
                                             {step.startedAt && (
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  {format(
+                                                  Entered: {format(
                                                     new Date(step.startedAt),
                                                     "HH:mm:ss",
                                                   )}
                                                 </span>
                                               </div>
                                             )}
-                                            <div className="font-semibold text-blue-600 dark:text-blue-400">
-                                              {formatSeconds(
+                                            <div className="font-semibold text-teal-600 dark:text-teal-400">
+                                              Duration: {formatSeconds(
                                                 step.durationSeconds,
                                               )}
                                             </div>
@@ -433,7 +448,7 @@ export default function CaseWorkflowTracker() {
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  {format(
+                                                  Proceeded: {format(
                                                     new Date(step.endedAt),
                                                     "HH:mm:ss",
                                                   )}
