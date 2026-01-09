@@ -824,6 +824,33 @@ export async function initDb() {
       );
     }
 
+    // Extend employee_case_performance with step tracking columns
+    await p.query(
+      `ALTER TABLE employee_case_performance ADD COLUMN IF NOT EXISTS step_type text CHECK (step_type in ('archiver', 'teller', 'employee'));`,
+    );
+    await p.query(
+      `ALTER TABLE employee_case_performance ADD COLUMN IF NOT EXISTS window_id int;`,
+    );
+    await p.query(
+      `ALTER TABLE employee_case_performance ADD COLUMN IF NOT EXISTS metadata jsonb;`,
+    );
+
+    // Create case_progress table for finalized, immutable progress flows
+    await p.query(`CREATE TABLE IF NOT EXISTS case_progress (
+    id uuid primary key default gen_random_uuid(),
+    ticket_id uuid not null references tickets(id) on delete cascade,
+    completed_at timestamptz not null default now(),
+    flow jsonb not null,
+    created_at timestamptz not null default now()
+  );`);
+
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_case_progress_ticket ON case_progress(ticket_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_case_progress_completed ON case_progress(completed_at)`,
+    );
+
     // Reset started_at for all transferred tickets to ensure employees see the Start button first
     // This handles any existing tickets that were transferred with old logic
     try {
