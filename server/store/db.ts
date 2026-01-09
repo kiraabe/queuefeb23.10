@@ -1529,7 +1529,12 @@ export async function transferDb(
         `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, started_at, status)
          VALUES ($1, $2, $3, now(), $4)
          ON CONFLICT DO NOTHING`,
-        [source.currentTicketId, transferredToUserId, 'employee', 'in_progress'],
+        [
+          source.currentTicketId,
+          transferredToUserId,
+          "employee",
+          "in_progress",
+        ],
       );
     }
 
@@ -1654,9 +1659,9 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
     // Compile progress flow
     const flowSteps = progressRes.rows.map((row, index) => ({
       order: index + 1,
-      stepType: row.step_type || 'unknown',
-      actorRole: row.step_type === 'teller' ? 'teller' : 'employee',
-      actorName: row.full_name || row.username || 'Unknown',
+      stepType: row.step_type || "unknown",
+      actorRole: row.step_type === "teller" ? "teller" : "employee",
+      actorName: row.full_name || row.username || "Unknown",
       actorId: row.employee_id,
       jobTitle: row.job_title || null,
       tellerWindow: row.window_name || null,
@@ -1664,9 +1669,11 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       status: row.status,
       startedAt: row.started_at ? new Date(row.started_at).getTime() : null,
       endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null,
-      durationMs: row.started_at && row.ended_at
-        ? new Date(row.ended_at).getTime() - new Date(row.started_at).getTime()
-        : null,
+      durationMs:
+        row.started_at && row.ended_at
+          ? new Date(row.ended_at).getTime() -
+            new Date(row.started_at).getTime()
+          : null,
     }));
 
     const progressFlow = {
@@ -1678,9 +1685,12 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       caseCompletedAt: Math.round(Number(ticketInfo.completed_at)),
       totalSteps: flowSteps.length,
       steps: flowSteps,
-      totalDurationMs: flowSteps.length > 0 && flowSteps[0].startedAt && flowSteps[flowSteps.length - 1].endedAt
-        ? flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt
-        : null,
+      totalDurationMs:
+        flowSteps.length > 0 &&
+        flowSteps[0].startedAt &&
+        flowSteps[flowSteps.length - 1].endedAt
+          ? flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt
+          : null,
     };
 
     // Store the compiled flow in case_progress table
@@ -2529,7 +2539,10 @@ export async function setWindowServicesDb(
 }
 
 // Modified callNextDb to accept window ID and automatically select from allowed services
-export async function callNextForWindowDb(windowId: number, userId?: string | null) {
+export async function callNextForWindowDb(
+  windowId: number,
+  userId?: string | null,
+) {
   const p = getPool();
   const client = await p.connect();
   try {
@@ -2599,7 +2612,7 @@ export async function callNextForWindowDb(windowId: number, userId?: string | nu
           `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, window_id, started_at, status)
            VALUES ($1, $2, $3, $4, now(), $5)
            ON CONFLICT DO NOTHING`,
-          [ticketId, userId, 'teller', windowId, 'in_progress'],
+          [ticketId, userId, "teller", windowId, "in_progress"],
         );
       }
 
@@ -2651,7 +2664,7 @@ export async function callNextForWindowDb(windowId: number, userId?: string | nu
         `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, window_id, started_at, status)
          VALUES ($1, $2, $3, $4, now(), $5)
          ON CONFLICT DO NOTHING`,
-        [ticketId, userId, 'teller', windowId, 'in_progress'],
+        [ticketId, userId, "teller", windowId, "in_progress"],
       );
     }
 

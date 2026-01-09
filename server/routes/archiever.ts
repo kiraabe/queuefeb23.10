@@ -189,7 +189,7 @@ export const startTicket: RequestHandler = async (req, res) => {
         `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, started_at, status)
          VALUES ($1, $2, $3, now(), $4)
          ON CONFLICT DO NOTHING`,
-        [ticketId, userId, 'archiver', 'in_progress'],
+        [ticketId, userId, "archiver", "in_progress"],
       );
     } catch (err) {
       // If progress record creation fails, continue - it's not critical

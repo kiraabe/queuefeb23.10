@@ -518,9 +518,7 @@ export const completeCase: RequestHandler = async (req, res) => {
       if (isLastParticipant) {
         try {
           await compileAndStoreProgressFlow(caseId);
-          console.log(
-            `✓ Progress flow compiled and stored for case ${caseId}`,
-          );
+          console.log(`✓ Progress flow compiled and stored for case ${caseId}`);
         } catch (err) {
           console.error("Error storing progress flow:", err);
           // Don't fail the completion if progress flow storage fails
@@ -1260,7 +1258,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             tellerServiceDuration = tellerDuration;
           } else if (tellerData.wait_duration_seconds) {
             // Fallback: use the ticket's wait duration (from created_at to started_at)
-            tellerServiceDuration = Math.round(tellerData.wait_duration_seconds);
+            tellerServiceDuration = Math.round(
+              tellerData.wait_duration_seconds,
+            );
             tellerEndTime = Math.round(
               tellerData.started_at + tellerServiceDuration * 1000,
             );
