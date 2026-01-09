@@ -507,9 +507,30 @@ export const completeCase: RequestHandler = async (req, res) => {
       );
 
       await client.query("COMMIT");
+
+      // Check if this is the last participant completing the case
+      const isLastParticipant = await isLastParticipantCompletingCase(
+        caseId,
+        userId,
+      );
+
+      // If this is the last participant, compile and store the complete progress flow
+      if (isLastParticipant) {
+        try {
+          await compileAndStoreProgressFlow(caseId);
+          console.log(
+            `✓ Progress flow compiled and stored for case ${caseId}`,
+          );
+        } catch (err) {
+          console.error("Error storing progress flow:", err);
+          // Don't fail the completion if progress flow storage fails
+        }
+      }
+
       res.json({
         success: true,
         completedAt: completeRes.rows[0].completed_at,
+        isLastParticipant,
       });
     } catch (error) {
       await client.query("ROLLBACK");
