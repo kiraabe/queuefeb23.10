@@ -1578,6 +1578,33 @@ export async function transferDb(
   }
 }
 
+export async function isLastParticipantCompletingCase(
+  ticketId: string,
+  employeeId: string,
+): Promise<boolean> {
+  const p = getPool();
+
+  // Query all employee_case_performance records for this ticket
+  const res = await p.query(
+    `SELECT COUNT(*) as total,
+            SUM(CASE WHEN status != 'completed' THEN 1 ELSE 0 END) as incomplete
+     FROM employee_case_performance
+     WHERE ticket_id = $1 AND step_type IN ('employee', 'teller', 'archiver')`,
+    [ticketId],
+  );
+
+  const row = res.rows[0];
+  const totalSteps = Number(row.total || 0);
+  const incompleteSteps = Number(row.incomplete || 0);
+
+  // If there are no steps yet, this is not the last participant
+  if (totalSteps === 0) return false;
+
+  // If all steps are completed, this employee is the last
+  // (This query counts before the update, so if only 1 step remains, they are last)
+  return incompleteSteps <= 1;
+}
+
 export async function compileAndStoreProgressFlow(ticketId: string) {
   const p = getPool();
   const client = await p.connect();
