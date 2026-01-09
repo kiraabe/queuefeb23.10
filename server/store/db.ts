@@ -547,9 +547,21 @@ export async function initDb() {
     job_title_id uuid references job_title(id) on delete set null,
     started_at timestamptz,
     ended_at timestamptz,
-    status text check (status in ('in_progress', 'completed', 'proceeded')),
+    status text check (status in ('in_progress', 'completed', 'proceeded', 'skipped')),
     created_at timestamptz not null default now()
   );`);
+
+    // Update status constraint to include 'skipped' for existing tables
+    try {
+      await p.query(
+        `ALTER TABLE employee_case_performance DROP CONSTRAINT IF EXISTS employee_case_performance_status_check;`,
+      );
+      await p.query(
+        `ALTER TABLE employee_case_performance ADD CONSTRAINT employee_case_performance_status_check CHECK (status in ('in_progress', 'completed', 'proceeded', 'skipped'));`,
+      );
+    } catch {
+      // Constraint might already exist or be compatible
+    }
 
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_employee_case_performance_ticket ON employee_case_performance(ticket_id)`,
