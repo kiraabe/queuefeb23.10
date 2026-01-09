@@ -491,7 +491,7 @@ export default function CaseWorkflowTracker() {
                               </div>
 
                               {/* Summary Stats */}
-                              <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                              <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                                 <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
                                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     Total Employees
@@ -514,6 +514,20 @@ export default function CaseWorkflowTracker() {
                                         workflow.items
                                           .filter((i) => i.isArchiever)
                                           .map((i) => i.employeeId),
+                                      ).size
+                                    }
+                                  </p>
+                                </div>
+                                <div className="text-center p-4 rounded-lg bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800">
+                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                    Windows Used
+                                  </p>
+                                  <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
+                                    {
+                                      new Set(
+                                        workflow.items
+                                          .filter((i) => i.isWindowService && i.windowId)
+                                          .map((i) => i.windowId),
                                       ).size
                                     }
                                   </p>
