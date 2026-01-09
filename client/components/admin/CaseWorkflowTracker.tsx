@@ -187,12 +187,19 @@ export default function CaseWorkflowTracker() {
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
               Process Roles Legend:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex-shrink-0"></div>
                 <span className="text-sm text-slate-700 dark:text-slate-300">
                   <span className="font-semibold">Archiever:</span> Document
                   retrieval & verification
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex-shrink-0"></div>
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="font-semibold">Window Service:</span> Teller
+                  window processing with duration & timing
                 </span>
               </div>
               <div className="flex items-center gap-2">
