@@ -16,6 +16,9 @@ interface EmployeeStep {
   jobTitle: string;
   status: "Started" | "Proceeded" | "Completed" | "Retrieved";
   durationSeconds: number | null;
+  windowId?: number | null;
+  isTeller?: boolean;
+  isArchiver?: boolean;
 }
 
 interface CompletedTicketSummaryProps {
