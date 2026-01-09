@@ -15,7 +15,7 @@ interface EmployeeStep {
   id: string;
   employeeName: string;
   jobTitle: string;
-  status: "Started" | "Proceeded" | "Completed";
+  status: "Started" | "Proceeded" | "Completed" | "Retrieved";
   startedAt: number;
   endedAt: number | null;
   durationSeconds: number | null;
