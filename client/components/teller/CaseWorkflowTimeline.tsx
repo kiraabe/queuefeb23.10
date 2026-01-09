@@ -19,6 +19,9 @@ interface EmployeeStep {
   startedAt: number;
   endedAt: number | null;
   durationSeconds: number | null;
+  windowId?: number | null;
+  isTeller?: boolean;
+  isArchiver?: boolean;
 }
 
 interface CaseWorkflowTimelineProps {
