@@ -1578,6 +1578,103 @@ export async function transferDb(
   }
 }
 
+export async function compileAndStoreProgressFlow(ticketId: string) {
+  const p = getPool();
+  const client = await p.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Fetch all progress records for this ticket, ordered by start time
+    const progressRes = await client.query(
+      `SELECT
+        ecp.id,
+        ecp.ticket_id,
+        ecp.employee_id,
+        ecp.step_type,
+        ecp.window_id,
+        ecp.started_at,
+        ecp.ended_at,
+        ecp.status,
+        u.full_name,
+        u.username,
+        jt.name_english as job_title,
+        w.name as window_name
+       FROM employee_case_performance ecp
+       LEFT JOIN users u ON ecp.employee_id = u.id
+       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+       LEFT JOIN windows w ON ecp.window_id = w.id
+       WHERE ecp.ticket_id = $1
+       ORDER BY ecp.started_at ASC, ecp.created_at ASC`,
+      [ticketId],
+    );
+
+    // Fetch ticket info for context
+    const ticketRes = await client.query(
+      `SELECT
+        id, service, number, code, service_category,
+        extract(epoch from created_at)*1000 as created_at,
+        extract(epoch from completed_at)*1000 as completed_at
+       FROM tickets WHERE id = $1`,
+      [ticketId],
+    );
+
+    if (!ticketRes.rowCount) {
+      throw new Error(`Ticket ${ticketId} not found`);
+    }
+
+    const ticketInfo = ticketRes.rows[0];
+
+    // Compile progress flow
+    const flowSteps = progressRes.rows.map((row, index) => ({
+      order: index + 1,
+      stepType: row.step_type || 'unknown',
+      actorRole: row.step_type === 'teller' ? 'teller' : 'employee',
+      actorName: row.full_name || row.username || 'Unknown',
+      actorId: row.employee_id,
+      jobTitle: row.job_title || null,
+      tellerWindow: row.window_name || null,
+      windowId: row.window_id || null,
+      status: row.status,
+      startedAt: row.started_at ? new Date(row.started_at).getTime() : null,
+      endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null,
+      durationMs: row.started_at && row.ended_at
+        ? new Date(row.ended_at).getTime() - new Date(row.started_at).getTime()
+        : null,
+    }));
+
+    const progressFlow = {
+      ticketId,
+      ticketCode: ticketInfo.code,
+      service: ticketInfo.service,
+      serviceCategory: ticketInfo.service_category,
+      caseCreatedAt: Math.round(Number(ticketInfo.created_at)),
+      caseCompletedAt: Math.round(Number(ticketInfo.completed_at)),
+      totalSteps: flowSteps.length,
+      steps: flowSteps,
+      totalDurationMs: flowSteps.length > 0 && flowSteps[0].startedAt && flowSteps[flowSteps.length - 1].endedAt
+        ? flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt
+        : null,
+    };
+
+    // Store the compiled flow in case_progress table
+    await client.query(
+      `INSERT INTO case_progress (ticket_id, flow, completed_at)
+       VALUES ($1, $2, now())
+       ON CONFLICT (ticket_id) DO UPDATE SET flow = $2, completed_at = now()`,
+      [ticketId, JSON.stringify(progressFlow)],
+    );
+
+    await client.query("COMMIT");
+    return progressFlow;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error compiling and storing progress flow:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export async function displayStateDb(): Promise<DisplayState> {
   const p = getPool();
   const client = await p.connect();
