@@ -326,6 +326,14 @@ export const listWindows: RequestHandler = async (_req, res) => {
 
 export const callNext: RequestHandler = async (req, res) => {
   const windowId = Number(req.params.id);
+  const auth = (req as any).auth as
+    | {
+        id: string;
+        username: string;
+        role: string;
+        windowId?: number | null;
+      }
+    | undefined;
 
   try {
     const windowsDb = await listWindowsDb();
@@ -340,7 +348,7 @@ export const callNext: RequestHandler = async (req, res) => {
       });
     }
 
-    const result = await callNextForWindowDb(windowId);
+    const result = await callNextForWindowDb(windowId, auth?.id ?? null);
     if (!result.ticket) {
       const message =
         result.waitingCount === 0
