@@ -373,14 +373,6 @@ export const callNext: RequestHandler = async (req, res) => {
       result.window,
     );
     try {
-      const auth = (req as any).auth as
-        | {
-            id: string;
-            username: string;
-            role: string;
-            windowId?: number | null;
-          }
-        | undefined;
       await logAudit({
         action: "window.callNext",
         userId: auth?.id ?? null,
