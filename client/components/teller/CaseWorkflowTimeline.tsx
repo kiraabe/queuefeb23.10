@@ -231,11 +231,19 @@ export function CaseWorkflowTimeline({
                                 ? "bg-green-200 text-green-900 dark:bg-green-900 dark:text-green-100"
                                 : step.status === "Proceeded"
                                   ? "bg-purple-200 text-purple-900 dark:bg-purple-900 dark:text-purple-100"
-                                  : "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                                  : step.status === "Retrieved"
+                                    ? "bg-cyan-200 text-cyan-900 dark:bg-cyan-900 dark:text-cyan-100"
+                                    : "bg-blue-200 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
                             }`}
                           >
                             {step.status}
                           </span>
+                          {step.isTeller && step.windowId && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300 whitespace-nowrap">
+                              <Monitor className="h-3 w-3" />
+                              Window {step.windowId}
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
                           <Briefcase className="h-3 w-3 flex-shrink-0" />
