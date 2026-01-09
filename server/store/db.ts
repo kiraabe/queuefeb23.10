@@ -2363,7 +2363,7 @@ export async function setWindowServicesDb(
 }
 
 // Modified callNextDb to accept window ID and automatically select from allowed services
-export async function callNextForWindowDb(windowId: number) {
+export async function callNextForWindowDb(windowId: number, userId?: string | null) {
   const p = getPool();
   const client = await p.connect();
   try {
