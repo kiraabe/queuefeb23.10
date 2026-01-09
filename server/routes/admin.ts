@@ -109,7 +109,8 @@ export const seedTestData: RequestHandler = async (_req, res) => {
 
     const createdTickets = [];
 
-    for (const testCase of testCases) {
+    for (let caseIndex = 0; caseIndex < testCases.length; caseIndex++) {
+      const testCase = testCases[caseIndex];
       const createdAt = new Date();
       createdAt.setDate(createdAt.getDate() - testCase.daysAgo);
       createdAt.setHours(createdAt.getHours() - testCase.hoursAgo);
@@ -123,7 +124,7 @@ export const seedTestData: RequestHandler = async (_req, res) => {
       const code = `TST-${number}`;
 
       // Assign to a window and set started_at (teller processing begins 2 minutes after creation)
-      const windowId = (i % 6) + 1; // Assign to windows 1-6
+      const windowId = (caseIndex % 6) + 1; // Assign to windows 1-6
       const startedAt = new Date(createdAt);
       startedAt.setMinutes(startedAt.getMinutes() + 2);
 
