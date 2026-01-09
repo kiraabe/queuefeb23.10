@@ -39,6 +39,7 @@ interface WorkflowEntry {
   ticketCode: string;
   isArchiever?: boolean;
   isTeller?: boolean;
+  windowId?: number | null;
 }
 
 interface TicketInfo {
