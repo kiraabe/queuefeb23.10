@@ -1354,6 +1354,13 @@ export async function skipDb(windowId: number, reason?: string) {
       `UPDATE windows SET current_ticket_id=NULL, busy=false, updated_at=now() WHERE id=$1`,
       [windowId],
     );
+
+    // Update teller progress record to mark as skipped
+    await client.query(
+      `UPDATE employee_case_performance SET ended_at=now(), status='skipped' WHERE ticket_id=$1 AND step_type='teller' AND window_id=$2 AND status='in_progress'`,
+      [w.currentTicketId, windowId],
+    );
+
     await client.query("COMMIT");
     return {
       window: await getWindow(p, windowId),
