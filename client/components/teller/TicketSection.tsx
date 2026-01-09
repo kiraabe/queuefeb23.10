@@ -217,9 +217,15 @@ function TicketRow({
         let action: "Started" | "Proceeded" | "Completed" = "Started";
         if (displayStatus === "Completed" || displayStatus === "completed") {
           action = "Completed";
-        } else if (displayStatus === "Proceeded" || displayStatus === "proceeded") {
+        } else if (
+          displayStatus === "Proceeded" ||
+          displayStatus === "proceeded"
+        ) {
           action = "Proceeded";
-        } else if (displayStatus === "Retrieved" || displayStatus === "retrieved") {
+        } else if (
+          displayStatus === "Retrieved" ||
+          displayStatus === "retrieved"
+        ) {
           // Treat Retrieved as Started for process flow
           action = "Started";
         }
@@ -236,7 +242,10 @@ function TicketRow({
     }
 
     // Fallback: Add current window step if no teller step was found in items
-    if (currentWindowId && (!workflowItems || !workflowItems.some((item: any) => item.isTeller))) {
+    if (
+      currentWindowId &&
+      (!workflowItems || !workflowItems.some((item: any) => item.isTeller))
+    ) {
       // Calculate window duration from startedAt to transferredAt
       let windowDurationSeconds = null;
       let windowDurationDisplay = "—";
