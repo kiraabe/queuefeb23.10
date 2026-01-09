@@ -184,6 +184,19 @@ export const startTicket: RequestHandler = async (req, res) => {
 
     const ticket = result.rows[0];
 
+    // Create archiver progress record
+    try {
+      await pool.query(
+        `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, started_at, status)
+         VALUES ($1, $2, $3, now(), $4)
+         ON CONFLICT DO NOTHING`,
+        [ticketId, userId, 'archiver', 'in_progress'],
+      );
+    } catch (err) {
+      // If progress record creation fails, continue - it's not critical
+      console.error("Failed to create archiver progress record:", err);
+    }
+
     // Log audit
     await logAudit({
       action: "ticket_started",
