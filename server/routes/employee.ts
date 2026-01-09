@@ -1217,35 +1217,41 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         }
 
-        // Add teller step second if available
+        // Add teller window step second if available
         const tellerData = tellerByTicket.get(ticketId);
         if (tellerData && tellerData.started_at) {
-          // Calculate teller's end time: when the first employee started, or use ticket duration as fallback
+          // Calculate teller's service duration and end time
           let tellerEndTime = null;
           let tellerDuration = null;
+          let tellerServiceDuration = null;
+
           if (workflowRows.length > 0 && workflowRows[0].started_at) {
-            // If employee workflow exists, teller ended when first employee started
+            // If employee workflow exists, teller service ended when first employee started
             tellerEndTime = Math.round(workflowRows[0].started_at);
             tellerDuration = Math.round(
               (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
             );
-          } else if (tellerData.duration_seconds) {
-            // Fallback: use the ticket's calculated duration (from created_at to started_at)
-            tellerDuration = Math.round(tellerData.duration_seconds);
+            tellerServiceDuration = tellerDuration;
+          } else if (tellerData.wait_duration_seconds) {
+            // Fallback: use the ticket's wait duration (from created_at to started_at)
+            tellerServiceDuration = Math.round(tellerData.wait_duration_seconds);
             tellerEndTime = Math.round(
-              tellerData.started_at + tellerDuration * 1000,
+              tellerData.started_at + tellerServiceDuration * 1000,
             );
+            tellerDuration = tellerServiceDuration;
           }
 
-          // Build job title with window number if available
-          let jobTitle =
-            tellerData.name_english || tellerData.name_amharic || "Teller";
-          if (tellerData.window_id) {
-            jobTitle = `${jobTitle} - Window ${tellerData.window_id}`;
+          // Build job title emphasizing window number and teller information
+          let jobTitle = "Teller";
+          if (tellerData.name_english || tellerData.name_amharic) {
+            jobTitle = tellerData.name_english || tellerData.name_amharic;
           }
+
+          // Window information is now explicitly in windowId field for frontend to handle
+          // This separates window info from job title for better display flexibility
 
           workflowItems.push({
-            id: `teller-${ticketId}`,
+            id: `teller-window-${ticketId}`,
             ticketId: ticketId,
             employeeId: tellerData.user_id,
             jobTitleId: null,
@@ -1257,10 +1263,12 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             status: "completed",
             durationSeconds: tellerDuration,
             employeeName:
-              tellerData.full_name || tellerData.username || "Unknown Teller",
+              tellerData.full_name || tellerData.username || "Teller",
             jobTitle: jobTitle,
             ticketCode: ticketId,
             isTeller: true,
+            isWindowService: true,
+            windowServiceDuration: tellerServiceDuration,
           });
         }
 
