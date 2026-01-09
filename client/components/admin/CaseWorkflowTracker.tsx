@@ -439,14 +439,14 @@ export default function CaseWorkflowTracker() {
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  Entered: {format(
+                                                  {step.isWindowService ? "Entered:" : "Started:"} {format(
                                                     new Date(step.startedAt),
                                                     "HH:mm:ss",
                                                   )}
                                                 </span>
                                               </div>
                                             )}
-                                            <div className="font-semibold text-teal-600 dark:text-teal-400">
+                                            <div className={`font-semibold ${step.isWindowService ? 'text-teal-600 dark:text-teal-400' : 'text-blue-600 dark:text-blue-400'}`}>
                                               Duration: {formatSeconds(
                                                 step.durationSeconds,
                                               )}
@@ -455,7 +455,7 @@ export default function CaseWorkflowTracker() {
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  Proceeded: {format(
+                                                  {step.isWindowService ? "Proceeded:" : "Ended:"} {format(
                                                     new Date(step.endedAt),
                                                     "HH:mm:ss",
                                                   )}
