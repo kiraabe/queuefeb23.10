@@ -2426,6 +2426,17 @@ export async function callNextForWindowDb(windowId: number, userId?: string | nu
         `UPDATE windows SET current_ticket_id=$1, busy=true, updated_at=now() WHERE id=$2`,
         [ticketId, windowId],
       );
+
+      // Create teller progress record if userId is available
+      if (userId) {
+        await client.query(
+          `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, window_id, started_at, status)
+           VALUES ($1, $2, $3, $4, now(), $5)
+           ON CONFLICT DO NOTHING`,
+          [ticketId, userId, 'teller', windowId, 'in_progress'],
+        );
+      }
+
       await client.query("COMMIT");
       const ticket = rowToTicket(tRes.rows[0]);
       const window = await getWindow(p, windowId);
