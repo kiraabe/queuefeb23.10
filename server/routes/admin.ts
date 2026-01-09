@@ -123,10 +123,18 @@ export const seedTestData: RequestHandler = async (_req, res) => {
       const number = Math.floor(Math.random() * 1000);
       const code = `TST-${number}`;
 
-      // Assign to a window and set started_at (teller processing begins 2 minutes after creation)
+      // Assign to a window and set timestamps in order:
+      // 1. Archiver retrieves documents (starts at creation, ends 1 min after)
+      // 2. Teller processes at window (starts 1 min after, ends 3 min after)
+      // 3. Employees process (starts 3 min after, ends with completion)
       const windowId = (caseIndex % 6) + 1; // Assign to windows 1-6
+
+      const archiverStartedAt = new Date(createdAt);
+      const documentsFetchedAt = new Date(createdAt);
+      documentsFetchedAt.setMinutes(documentsFetchedAt.getMinutes() + 1);
+
       const startedAt = new Date(createdAt);
-      startedAt.setMinutes(startedAt.getMinutes() + 2);
+      startedAt.setMinutes(startedAt.getMinutes() + 1);
 
       await client.query(
         `INSERT INTO tickets (id, code, number, service, status, created_at, started_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category, required_documents, window_id, archived_by_user_id, archiver_started_at, documents_fetched_at)
@@ -145,8 +153,8 @@ export const seedTestData: RequestHandler = async (_req, res) => {
           null,
           windowId,
           employees[0].id,
-          createdAt,
-          startedAt,
+          archiverStartedAt,
+          documentsFetchedAt,
         ],
       );
 
