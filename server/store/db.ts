@@ -1517,6 +1517,22 @@ export async function transferDb(
       );
     }
 
+    // Update teller progress record to mark as proceeded
+    await client.query(
+      `UPDATE employee_case_performance SET ended_at=now(), status='proceeded' WHERE ticket_id=$1 AND step_type='teller' AND window_id=$2 AND status='in_progress'`,
+      [source.currentTicketId, windowId],
+    );
+
+    // If transferring to an employee, create an employee progress record
+    if (transferredToUserId) {
+      await client.query(
+        `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, started_at, status)
+         VALUES ($1, $2, $3, now(), $4)
+         ON CONFLICT DO NOTHING`,
+        [source.currentTicketId, transferredToUserId, 'employee', 'in_progress'],
+      );
+    }
+
     await client.query("COMMIT");
 
     const ticket = rowToTicket(tRes.rows[0]);
