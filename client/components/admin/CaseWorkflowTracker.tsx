@@ -533,7 +533,7 @@ export default function CaseWorkflowTracker() {
                                     {
                                       new Set(
                                         workflow.items
-                                          .filter((i) => i.isWindowService && i.windowId)
+                                          .filter((i) => i.windowId !== null && i.windowId !== undefined)
                                           .map((i) => i.windowId),
                                       ).size
                                     }
