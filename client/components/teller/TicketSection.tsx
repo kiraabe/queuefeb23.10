@@ -183,7 +183,7 @@ function TicketRow({
   // Convert performance data to process steps
   const processSteps = useMemo(() => {
     // The API returns { items: [workflow steps] }
-    // Each item contains the employee workflow data
+    // Each item contains the employee/archiver/teller workflow data
     const workflowItems = performanceData?.items;
 
     const formatTime = (seconds: number | null) => {
@@ -201,16 +201,25 @@ function TicketRow({
     const steps = [];
     let stepNumber = 1;
 
-    // Process all workflow items in order
+    // Process all workflow items in order (including archiver, teller, and employee steps)
     if (workflowItems && workflowItems.length > 0) {
-      workflowItems.forEach((item: any, index: number) => {
+      workflowItems.forEach((item: any) => {
         // Determine the display name and status
         let displayName = item.employeeName || "Unknown";
         let displayStatus = item.status || "Started";
 
-        // For teller steps, include window number in the display name
-        if (item.isTeller && item.windowId) {
-          displayName = `${displayName} - Window ${item.windowId}`;
+        // For archiver steps, use a descriptive label
+        if (item.isArchiver) {
+          displayName = `${displayName} (Archiever)`;
+        }
+
+        // For teller steps, include window number and use a descriptive label
+        if (item.isTeller) {
+          if (item.windowId) {
+            displayName = `${displayName} - Window ${item.windowId}`;
+          }
+          // Ensure teller action is "Proceeded"
+          displayStatus = "Proceeded";
         }
 
         // Map backend status to action status
@@ -241,39 +250,8 @@ function TicketRow({
       });
     }
 
-    // Fallback: Add current window step if no teller step was found in items
-    if (
-      currentWindowId &&
-      (!workflowItems || !workflowItems.some((item: any) => item.isTeller))
-    ) {
-      // Calculate window duration from startedAt to transferredAt
-      let windowDurationSeconds = null;
-      let windowDurationDisplay = "—";
-
-      if (ticket.startedAt && ticket.transferredAt) {
-        windowDurationSeconds = Math.abs(
-          Math.floor((ticket.transferredAt - ticket.startedAt) / 1000),
-        );
-        windowDurationDisplay = formatTime(windowDurationSeconds);
-      }
-
-      steps.push({
-        id: `window-${currentWindowId}-step`,
-        number: stepNumber++,
-        employeeName: `Window ${currentWindowId}`,
-        action: "Proceeded",
-        duration: windowDurationDisplay,
-        durationSeconds: windowDurationSeconds,
-      });
-    }
-
     return steps;
-  }, [
-    performanceData,
-    currentWindowId,
-    ticket.startedAt,
-    ticket.transferredAt,
-  ]);
+  }, [performanceData]);
 
   const getWindowName = (windowId: number | null | undefined) => {
     if (!windowId) return "—";
