@@ -122,20 +122,30 @@ export const seedTestData: RequestHandler = async (_req, res) => {
       const number = Math.floor(Math.random() * 1000);
       const code = `TST-${number}`;
 
+      // Assign to a window and set started_at (teller processing begins 2 minutes after creation)
+      const windowId = (i % 6) + 1; // Assign to windows 1-6
+      const startedAt = new Date(createdAt);
+      startedAt.setMinutes(startedAt.getMinutes() + 2);
+
       await client.query(
-        `INSERT INTO tickets (id, code, number, service, status, created_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category, required_documents)
-         VALUES ($1, $2, $3, 'general', 'done', $4, $5, $6, $7, $8, $9, $10)`,
+        `INSERT INTO tickets (id, code, number, service, status, created_at, started_at, completed_at, started_by_user_id, transferred_to_user_id, owner_name, service_category, required_documents, window_id, archived_by_user_id, archiver_started_at, documents_fetched_at)
+         VALUES ($1, $2, $3, 'general', 'done', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
         [
           ticketId,
           code,
           number,
           createdAt,
+          startedAt,
           completedAt,
           employees[0].id,
           employees[0].id,
           `Customer ${number}`,
           category.id,
           null,
+          windowId,
+          employees[0].id,
+          createdAt,
+          startedAt,
         ],
       );
 
