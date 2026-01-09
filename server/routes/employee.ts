@@ -1063,7 +1063,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       [ticketIds],
     );
 
-    // Fetch teller information for all tickets
+    // Fetch teller information for all tickets with detailed window tracking
     // Get basic ticket info first
     const ticketTellerDataRes = await p.query(
       `SELECT
@@ -1071,7 +1071,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
          t.window_id,
          extract(epoch from t.created_at)*1000 as created_at,
          extract(epoch from t.started_at)*1000 as started_at,
-         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds
+         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as wait_duration_seconds
        FROM tickets t
        WHERE t.id = ANY($1)
          AND t.window_id IS NOT NULL
