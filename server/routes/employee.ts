@@ -1242,6 +1242,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             ticketId: ticketId,
             employeeId: tellerData.user_id,
             jobTitleId: null,
+            windowId: tellerData.window_id || null,
             startedAt: tellerData.started_at
               ? Math.round(tellerData.started_at)
               : null,
