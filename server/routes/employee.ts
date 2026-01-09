@@ -900,11 +900,19 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         );
       }
 
+      // Build job title with window number if available
+      let jobTitle =
+        tellerData.name_english || tellerData.name_amharic || "Teller";
+      if (tellerData.window_id) {
+        jobTitle = `${jobTitle} - Window ${tellerData.window_id}`;
+      }
+
       items.push({
         id: `teller-${ticketId}`,
         ticketId: ticketId,
         employeeId: tellerData.user_id,
         jobTitleId: null,
+        windowId: tellerData.window_id || null,
         startedAt: tellerData.started_at
           ? Math.round(tellerData.started_at)
           : null,
@@ -913,8 +921,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         durationSeconds: tellerDuration,
         employeeName:
           tellerData.full_name || tellerData.username || "Unknown Teller",
-        jobTitle:
-          tellerData.name_english || tellerData.name_amharic || "Teller",
+        jobTitle: jobTitle,
         ticketCode: ticketId,
         isTeller: true,
       });
