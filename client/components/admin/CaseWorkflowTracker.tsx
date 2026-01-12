@@ -103,11 +103,13 @@ const getStatusLabel = (status: "in_progress" | "proceeded" | "completed") => {
   }
 };
 
-export default function CaseWorkflowTracker() {
+export default function CaseWorkflowTracker({
+  defaultTimeframe = "today",
+}: CaseWorkflowTrackerProps = {}) {
   const [workflows, setWorkflows] = useState<CaseWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [timeframe, setTimeframe] = useState<Timeframe>("today");
+  const [timeframe, setTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 5;
