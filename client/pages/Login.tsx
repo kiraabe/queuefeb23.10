@@ -55,6 +55,11 @@ export default function Login() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
+  useEffect(() => {
+    const detected = isMobileOrTablet();
+    setIsMobile(detected);
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
