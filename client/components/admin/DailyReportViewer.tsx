@@ -509,38 +509,52 @@ export default function DailyReportViewer() {
             </TabsContent>
 
             <TabsContent value="windows">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Window</TableHead>
-                    <TableHead>Teller</TableHead>
-                    <TableHead>Served</TableHead>
-                    <TableHead>Skipped</TableHead>
-                    <TableHead>Transfers Out</TableHead>
-                    <TableHead>Transfers In</TableHead>
-                    <TableHead>Avg Service Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {report.windowStats.map((window) => (
-                    <TableRow key={window.windowId}>
-                      <TableCell className="font-medium">
-                        {window.windowName}
-                      </TableCell>
-                      <TableCell>{window.tellerName}</TableCell>
-                      <TableCell>{window.served}</TableCell>
-                      <TableCell>{window.skipped}</TableCell>
-                      <TableCell>{window.transfersFrom}</TableCell>
-                      <TableCell>{window.transfersTo}</TableCell>
-                      <TableCell>
-                        {window.averageServiceTime
-                          ? `${window.averageServiceTime}s`
-                          : "—"}
-                      </TableCell>
+              {report.windowStats.length === 0 ? (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  No window data available for today
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Window</TableHead>
+                      <TableHead>Teller</TableHead>
+                      <TableHead>Served</TableHead>
+                      <TableHead>Skipped</TableHead>
+                      <TableHead>Transfers Out</TableHead>
+                      <TableHead>Transfers In</TableHead>
+                      <TableHead>Avg Service Time</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {report.windowStats.map((window) => (
+                      <TableRow key={window.windowId}>
+                        <TableCell className="font-medium">
+                          {window.windowName}
+                        </TableCell>
+                        <TableCell>{window.tellerName}</TableCell>
+                        <TableCell className="font-semibold text-green-600">
+                          {window.served}
+                        </TableCell>
+                        <TableCell className="font-semibold text-orange-600">
+                          {window.skipped}
+                        </TableCell>
+                        <TableCell className="font-semibold text-blue-600">
+                          {window.transfersFrom}
+                        </TableCell>
+                        <TableCell className="font-semibold text-purple-600">
+                          {window.transfersTo}
+                        </TableCell>
+                        <TableCell>
+                          {window.averageServiceTime
+                            ? `${window.averageServiceTime}s`
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </TabsContent>
 
             <TabsContent value="employees">
