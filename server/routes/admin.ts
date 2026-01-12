@@ -416,13 +416,13 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
         w.id,
         w.name,
         COALESCE(
-          (SELECT u.username FROM employee_case_performance ecp
+          (SELECT DISTINCT u.full_name FROM tickets t
+           JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
            JOIN users u ON ecp.employee_id = u.id
-           JOIN tickets t ON ecp.ticket_id = t.id
            WHERE t.window_id = w.id AND t.created_at >= $1::timestamptz
            ORDER BY ecp.ended_at DESC LIMIT 1),
-          (SELECT u.username FROM users u
-           WHERE u.window_id = w.id LIMIT 1),
+          (SELECT u.full_name FROM users u
+           WHERE u.window_id = w.id AND u.role = 'teller' LIMIT 1),
           'Unassigned'
         ) as teller_name,
         COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz THEN t.id END) as served,
