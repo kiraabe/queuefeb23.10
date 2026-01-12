@@ -21,7 +21,7 @@ function isMobileOrTablet(): boolean {
     /windows phone/,
   ];
 
-  if (mobilePatterns.some(pattern => pattern.test(userAgent))) {
+  if (mobilePatterns.some((pattern) => pattern.test(userAgent))) {
     return true;
   }
 
@@ -30,9 +30,9 @@ function isMobileOrTablet(): boolean {
     // Additional check: if it looks like a phone/tablet, not just a small desktop
     const touchSupport = () => {
       return (
-        ("ontouchstart" in window) ||
-        (navigator.maxTouchPoints > 0) ||
-        ((navigator as any).msMaxTouchPoints > 0)
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        (navigator as any).msMaxTouchPoints > 0
       );
     };
 
@@ -118,16 +118,20 @@ export default function Login() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0 mt-1" />
                 <div>
-                  <CardTitle className="text-destructive">Desktop Only</CardTitle>
+                  <CardTitle className="text-destructive">
+                    Desktop Only
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground mt-2">
-                    This system is only accessible from desktop browsers for security reasons.
+                    This system is only accessible from desktop browsers for
+                    security reasons.
                   </p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Please use a desktop or laptop computer to access the system. Mobile and tablet access are not supported.
+                Please use a desktop or laptop computer to access the system.
+                Mobile and tablet access are not supported.
               </p>
             </CardContent>
           </Card>

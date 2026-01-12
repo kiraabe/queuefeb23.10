@@ -264,21 +264,22 @@ export default function CaseWorkflowTracker({
                         Ticket{" "}
                         {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
                       </CardTitle>
-                      {workflow.createdAt && (() => {
-                        try {
-                          const date = new Date(workflow.createdAt);
-                          if (!isNaN(date.getTime())) {
-                            return (
-                              <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
-                                {format(date, "MMM dd, yyyy HH:mm")}
-                              </div>
-                            );
+                      {workflow.createdAt &&
+                        (() => {
+                          try {
+                            const date = new Date(workflow.createdAt);
+                            if (!isNaN(date.getTime())) {
+                              return (
+                                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
+                                  {format(date, "MMM dd, yyyy HH:mm")}
+                                </div>
+                              );
+                            }
+                            return null;
+                          } catch {
+                            return null;
                           }
-                          return null;
-                        } catch {
-                          return null;
-                        }
-                      })()}
+                        })()}
                     </div>
                     {workflow.ticketInfo?.serviceCategory && (
                       <div className="flex items-center gap-2">

@@ -1072,7 +1072,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     });
     console.log(
       "[listCaseWorkflows] Ticket dates map:",
-      Array.from(ticketDatesMap.entries())
+      Array.from(ticketDatesMap.entries()),
     );
 
     if (ticketIds.length === 0) {
@@ -1389,7 +1389,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         }
 
         const createdAt = ticketDatesMap.get(ticketId) || null;
-        console.log(`[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}`);
+        console.log(
+          `[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}`,
+        );
         return {
           ticketId,
           ticketCode: ticketInfo?.ticketCode,
