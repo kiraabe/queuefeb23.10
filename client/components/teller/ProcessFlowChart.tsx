@@ -59,6 +59,15 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
     }
   };
 
+  const formatDateTime = (timestamp: number | null | undefined) => {
+    if (!timestamp) return null;
+    const date = new Date(timestamp);
+    return {
+      date: date.toLocaleDateString([], { month: "short", day: "numeric" }),
+      time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+  };
+
   return (
     <div className="mt-4 rounded-lg border border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 p-4">
       <div className="flex items-center justify-between mb-4">
