@@ -9,6 +9,7 @@ import {
   getQueueSettings,
   updateQueueSettings,
   getDailyReport,
+  getOverallAnalytics,
   listServiceCategories,
   getCategoryServices,
   getWindowServices,
