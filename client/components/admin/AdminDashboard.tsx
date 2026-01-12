@@ -472,44 +472,66 @@ export default function AdminDashboard() {
       {/* Daily Report */}
       <DailyReportViewer />
 
-      {/* Divider */}
-      <div className="border-t pt-8">
-        <h2 className="text-2xl font-bold tracking-tight mb-6">
-          Advanced Analytics
-        </h2>
-      </div>
+      {/* Advanced Analytics Section */}
+      <Card className="border-2">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl">Advanced Analytics</CardTitle>
+              <CardDescription className="mt-2">
+                Comprehensive metrics for performance tracking and analysis
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Toggle Buttons */}
+          <div className="flex gap-2 mb-6">
+            <Button
+              variant={analyticsView === "overall" ? "default" : "outline"}
+              onClick={() => setAnalyticsView("overall")}
+              className={analyticsView === "overall" ? "bg-amber-600 hover:bg-amber-700" : ""}
+            >
+              📊 Overall Metrics (All-Time)
+            </Button>
+            <Button
+              variant={analyticsView === "daily" ? "default" : "outline"}
+              onClick={() => setAnalyticsView("daily")}
+              className={analyticsView === "daily" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            >
+              📅 Daily Metrics
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Overall Analytics Divider */}
-      <div className="border-t pt-6">
-        <h3 className="text-xl font-semibold tracking-tight mb-4 text-amber-700 dark:text-amber-400">
-          📊 Overall Metrics (All-Time)
-        </h3>
-      </div>
+      {/* Overall Analytics View */}
+      {analyticsView === "overall" && (
+        <div className="space-y-6">
+          {/* Overall Employee Analytics */}
+          <OverallEmployeeAnalytics />
 
-      {/* Overall Employee Analytics */}
-      <OverallEmployeeAnalytics />
+          {/* Overall Category Analytics */}
+          <OverallCategoryAnalytics />
+        </div>
+      )}
 
-      {/* Overall Category Analytics */}
-      <OverallCategoryAnalytics />
+      {/* Daily Analytics View */}
+      {analyticsView === "daily" && (
+        <div className="space-y-6">
+          {/* Employee Performance Dashboard Section */}
+          <EmployeePerformanceDashboard />
 
-      {/* Daily Analytics Divider */}
-      <div className="border-t pt-6">
-        <h3 className="text-xl font-semibold tracking-tight mb-4 text-blue-700 dark:text-blue-400">
-          📅 Daily Metrics
-        </h3>
-      </div>
+          {/* Service Category Analytics Section */}
+          <ServiceCategoryAnalytics />
 
-      {/* Employee Performance Dashboard Section */}
-      <EmployeePerformanceDashboard />
+          {/* Employee Case Queue Section */}
+          <EmployeeCaseQueue />
 
-      {/* Service Category Analytics Section */}
-      <ServiceCategoryAnalytics />
-
-      {/* Employee Case Queue Section */}
-      <EmployeeCaseQueue />
-
-      {/* Case Workflow Tracker Section */}
-      <CaseWorkflowTracker />
+          {/* Case Workflow Tracker Section */}
+          <CaseWorkflowTracker />
+        </div>
+      )}
     </div>
   );
 }
