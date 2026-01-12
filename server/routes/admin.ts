@@ -784,10 +784,11 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       },
     };
 
+    console.log("[getOverallAnalytics] Successfully generated analytics report");
     res.json(report);
   } catch (error) {
-    console.error("Failed to generate overall analytics", error);
-    res.status(500).json({ error: "Failed to generate overall analytics" });
+    console.error("[getOverallAnalytics] Failed to generate overall analytics:", error);
+    res.status(500).json({ error: "Failed to generate overall analytics", details: error instanceof Error ? error.message : String(error) });
   }
 };
 
