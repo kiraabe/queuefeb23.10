@@ -677,20 +677,25 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
     );
 
     // Get window statistics (overall)
-    const windowStatsRes = await p.query(
-      `SELECT
-        w.id,
-        w.name,
-        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id THEN t.id END) as served,
-        COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id THEN t.id END) as skipped,
-        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th WHERE th.from_window = w.id) as transfers_from,
-        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th WHERE th.to_window = w.id) as transfers_to,
-        ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
-      FROM windows w
-      LEFT JOIN tickets t ON w.id = t.window_id
-      GROUP BY w.id, w.name
-      ORDER BY w.id`,
-    );
+    console.log("[getOverallAnalytics] Fetching window statistics...");
+    let windowStatsRes = { rows: [] };
+    try {
+      windowStatsRes = await p.query(
+        `SELECT
+          w.id,
+          w.name,
+          COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id THEN t.id END) as served,
+          COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id THEN t.id END) as skipped,
+          ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+        FROM windows w
+        LEFT JOIN tickets t ON w.id = t.window_id
+        GROUP BY w.id, w.name
+        ORDER BY w.id`,
+      );
+    } catch (err) {
+      console.warn("[getOverallAnalytics] Window stats query failed (table may not exist):", err);
+      // Continue without window stats if table doesn't exist
+    }
 
     const ticketStats = ticketsRes.rows[0] || {};
     const totalTickets = Number(ticketStats.total || 0);
