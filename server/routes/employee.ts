@@ -1022,7 +1022,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
   const timeframe = (req.query.timeframe || "today") as
     | "today"
     | "week"
-    | "month";
+    | "month"
+    | "all-time";
   const limit = Math.min(Math.max(Number(req.query.limit || 10), 1), 100);
   const offset = Math.max(Number(req.query.offset || 0), 0);
 
@@ -1035,6 +1036,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       dateThreshold = "date_trunc('week', now())";
     } else if (timeframe === "month") {
       dateThreshold = "date_trunc('month', now())";
+    } else if (timeframe === "all-time") {
+      dateThreshold = "to_timestamp(0)"; // Unix epoch - includes all records
     }
 
     // Get count of completed cases with at least one workflow entry
