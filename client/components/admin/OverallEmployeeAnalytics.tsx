@@ -211,7 +211,9 @@ export default function OverallEmployeeAnalytics() {
                     : null,
                 )}
               </p>
-              <p className="text-xs text-muted-foreground">per case (average)</p>
+              <p className="text-xs text-muted-foreground">
+                per case (average)
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -277,7 +279,13 @@ export default function OverallEmployeeAnalytics() {
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
-                    <YAxis label={{ value: "Time (seconds)", angle: -90, position: "insideLeft" }} />
+                    <YAxis
+                      label={{
+                        value: "Time (seconds)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
                     <Tooltip
                       formatter={(value) => {
                         const num = Number(value);

@@ -228,26 +228,28 @@ export default function CaseWorkflowTracker({
           {/* Timeframe Filter Buttons */}
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
-              {(["today", "week", "month", "all-time"] as Timeframe[]).map((tf) => (
-                <Button
-                  key={tf}
-                  onClick={() => handleTimeframeChange(tf)}
-                  variant={timeframe === tf ? "default" : "outline"}
-                  className={
-                    timeframe === tf
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-950"
-                  }
-                >
-                  {tf === "today"
-                    ? "Today"
-                    : tf === "week"
-                      ? "This Week"
-                      : tf === "month"
-                        ? "This Month"
-                        : "All Time"}
-                </Button>
-              ))}
+              {(["today", "week", "month", "all-time"] as Timeframe[]).map(
+                (tf) => (
+                  <Button
+                    key={tf}
+                    onClick={() => handleTimeframeChange(tf)}
+                    variant={timeframe === tf ? "default" : "outline"}
+                    className={
+                      timeframe === tf
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-950"
+                    }
+                  >
+                    {tf === "today"
+                      ? "Today"
+                      : tf === "week"
+                        ? "This Week"
+                        : tf === "month"
+                          ? "This Month"
+                          : "All Time"}
+                  </Button>
+                ),
+              )}
             </div>
           </div>
         </CardContent>
@@ -398,11 +400,12 @@ export default function CaseWorkflowTracker({
                                                   Window {step.windowId}
                                                 </Badge>
                                               )}
-                                              {step.isTeller && !step.isWindowService && (
-                                                <Badge className="bg-cyan-600 text-white text-xs">
-                                                  Teller
-                                                </Badge>
-                                              )}
+                                              {step.isTeller &&
+                                                !step.isWindowService && (
+                                                  <Badge className="bg-cyan-600 text-white text-xs">
+                                                    Teller
+                                                  </Badge>
+                                                )}
                                               <p className="font-bold text-sm text-foreground line-clamp-2">
                                                 {step.employeeName}
                                               </p>
@@ -434,12 +437,13 @@ export default function CaseWorkflowTracker({
                                               Service Delivered
                                             </Badge>
                                           )}
-                                          {step.isTeller && !step.isWindowService && (
-                                            <Badge className="inline-flex items-center gap-1 text-xs bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
-                                              <CheckCircle2 className="h-3 w-3" />
-                                              Service Completed
-                                            </Badge>
-                                          )}
+                                          {step.isTeller &&
+                                            !step.isWindowService && (
+                                              <Badge className="inline-flex items-center gap-1 text-xs bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
+                                                <CheckCircle2 className="h-3 w-3" />
+                                                Service Completed
+                                              </Badge>
+                                            )}
 
                                           {/* Timeline & Window Service Details */}
                                           <div className="border-t border-gray-200 dark:border-gray-700 pt-2 space-y-1 text-xs">
@@ -447,15 +451,21 @@ export default function CaseWorkflowTracker({
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  {step.isWindowService ? "Entered:" : "Started:"} {format(
+                                                  {step.isWindowService
+                                                    ? "Entered:"
+                                                    : "Started:"}{" "}
+                                                  {format(
                                                     new Date(step.startedAt),
                                                     "HH:mm:ss",
                                                   )}
                                                 </span>
                                               </div>
                                             )}
-                                            <div className={`font-semibold ${step.isWindowService ? 'text-teal-600 dark:text-teal-400' : 'text-blue-600 dark:text-blue-400'}`}>
-                                              Duration: {formatSeconds(
+                                            <div
+                                              className={`font-semibold ${step.isWindowService ? "text-teal-600 dark:text-teal-400" : "text-blue-600 dark:text-blue-400"}`}
+                                            >
+                                              Duration:{" "}
+                                              {formatSeconds(
                                                 step.durationSeconds,
                                               )}
                                             </div>
@@ -463,7 +473,10 @@ export default function CaseWorkflowTracker({
                                               <div className="flex items-center gap-1">
                                                 <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                                 <span className="text-muted-foreground">
-                                                  {step.isWindowService ? "Proceeded:" : "Ended:"} {format(
+                                                  {step.isWindowService
+                                                    ? "Proceeded:"
+                                                    : "Ended:"}{" "}
+                                                  {format(
                                                     new Date(step.endedAt),
                                                     "HH:mm:ss",
                                                   )}
@@ -542,12 +555,21 @@ export default function CaseWorkflowTracker({
                                       // Find all unique window IDs from items that have a windowId property
                                       const uniqueWindows = new Set<number>();
                                       workflow.items.forEach((item) => {
-                                        if (item.windowId && typeof item.windowId === 'number') {
+                                        if (
+                                          item.windowId &&
+                                          typeof item.windowId === "number"
+                                        ) {
                                           uniqueWindows.add(item.windowId);
                                         }
                                       });
-                                      console.log("All workflow items:", workflow.items);
-                                      console.log("Unique windows found:", Array.from(uniqueWindows));
+                                      console.log(
+                                        "All workflow items:",
+                                        workflow.items,
+                                      );
+                                      console.log(
+                                        "Unique windows found:",
+                                        Array.from(uniqueWindows),
+                                      );
                                       return uniqueWindows.size;
                                     })()}
                                   </p>

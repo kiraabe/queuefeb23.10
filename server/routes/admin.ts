@@ -727,8 +727,12 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         totalCasesStarted: Number(r.total_cases_started || 0),
         casesCompleted: Number(r.cases_completed || 0),
         casesProceed: Number(r.cases_proceeded || 0),
-        averageCaseTime: r.avg_case_time_seconds ? Math.round(Number(r.avg_case_time_seconds)) : null,
-        totalTimeSpent: r.total_time_spent_seconds ? Math.round(Number(r.total_time_spent_seconds)) : null,
+        averageCaseTime: r.avg_case_time_seconds
+          ? Math.round(Number(r.avg_case_time_seconds))
+          : null,
+        totalTimeSpent: r.total_time_spent_seconds
+          ? Math.round(Number(r.total_time_spent_seconds))
+          : null,
       })),
       categories: categoryPerfRes.rows.map((r: any) => ({
         categoryName: r.service_name || "Uncategorized",
@@ -757,7 +761,9 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
                   highestPerformer.username ||
                   "Unknown",
                 casesCompleted: Number(highestPerformer.cases_completed || 0),
-                averageTime: highestPerformer.avg_case_time_seconds ? Math.round(Number(highestPerformer.avg_case_time_seconds)) : null,
+                averageTime: highestPerformer.avg_case_time_seconds
+                  ? Math.round(Number(highestPerformer.avg_case_time_seconds))
+                  : null,
               }
             : null,
       },
@@ -772,12 +778,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       "[getOverallAnalytics] Failed to generate overall analytics:",
       error,
     );
-    res
-      .status(500)
-      .json({
-        error: "Failed to generate overall analytics",
-        details: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      error: "Failed to generate overall analytics",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 

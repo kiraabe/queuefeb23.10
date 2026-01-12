@@ -83,15 +83,15 @@ export default function OverallProcessFlowAnalytics() {
       // Calculate average steps (using employee count as a proxy for involvement)
       const avgStepsPerCase =
         analyticsData.employees?.length > 0
-          ? (completedCases > 0
-              ? Math.round(
-                  analyticsData.employees.reduce(
-                    (sum: number, emp: any) =>
-                      sum + Number(emp.casesCompleted || 0),
-                    0,
-                  ) / completedCases,
-                )
-              : 0)
+          ? completedCases > 0
+            ? Math.round(
+                analyticsData.employees.reduce(
+                  (sum: number, emp: any) =>
+                    sum + Number(emp.casesCompleted || 0),
+                  0,
+                ) / completedCases,
+              )
+            : 0
           : null;
 
       const flowData: OverallProcessFlowData = {
@@ -371,9 +371,19 @@ export default function OverallProcessFlowAnalytics() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="steps"
-                  label={{ value: "Number of Steps", position: "insideBottom", offset: -5 }}
+                  label={{
+                    value: "Number of Steps",
+                    position: "insideBottom",
+                    offset: -5,
+                  }}
                 />
-                <YAxis label={{ value: "Number of Cases", angle: -90, position: "insideLeft" }} />
+                <YAxis
+                  label={{
+                    value: "Number of Cases",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "var(--background)",
