@@ -263,7 +263,7 @@ export default function CaseWorkflowTracker({
                         Ticket{" "}
                         {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
                       </CardTitle>
-                      {workflow.createdAt && (
+                      {workflow.createdAt && typeof workflow.createdAt === 'number' && workflow.createdAt > 0 && (
                         <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
                           {format(new Date(workflow.createdAt), "MMM dd, yyyy HH:mm")}
                         </div>
