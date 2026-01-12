@@ -757,7 +757,7 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
                   highestPerformer.username ||
                   "Unknown",
                 casesCompleted: Number(highestPerformer.cases_completed || 0),
-                averageTime: null,
+                averageTime: highestPerformer.avg_case_time_seconds ? Math.round(Number(highestPerformer.avg_case_time_seconds)) : null,
               }
             : null,
       },
