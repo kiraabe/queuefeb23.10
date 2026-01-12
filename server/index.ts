@@ -433,6 +433,7 @@ export function createServer() {
     updateQueueSettings,
   );
   app.get("/api/admin/daily-report", requireRole(["admin"]), getDailyReport);
+  app.get("/api/admin/overall-analytics", requireRole(["admin"]), getOverallAnalytics);
 
   // Service categories and services endpoints (public for reception console)
   app.get("/api/service-categories", listServiceCategories);
