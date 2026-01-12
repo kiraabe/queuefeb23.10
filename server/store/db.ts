@@ -1615,7 +1615,9 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
   const p = getPool();
   const client = await p.connect();
   try {
-    console.log(`📊 Starting progress flow compilation for ticket: ${ticketId}`);
+    console.log(
+      `📊 Starting progress flow compilation for ticket: ${ticketId}`,
+    );
     await client.query("BEGIN");
 
     // Fetch archiver information for this ticket
@@ -1742,14 +1744,20 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         order: stepOrder++,
         stepType: "archiver",
         actorRole: "archiver",
-        actorName: archiverData.full_name || archiverData.username || "Unknown Archiver",
+        actorName:
+          archiverData.full_name || archiverData.username || "Unknown Archiver",
         actorId: archiverData.archived_by_user_id,
-        jobTitle: archiverData.name_english || archiverData.name_amharic || "Archiver",
+        jobTitle:
+          archiverData.name_english || archiverData.name_amharic || "Archiver",
         tellerWindow: null,
         windowId: null,
         status: "Retrieved",
-        startedAt: archiverData.started_at ? Math.round(archiverData.started_at) : null,
-        endedAt: archiverData.ended_at ? Math.round(archiverData.ended_at) : null,
+        startedAt: archiverData.started_at
+          ? Math.round(archiverData.started_at)
+          : null,
+        endedAt: archiverData.ended_at
+          ? Math.round(archiverData.ended_at)
+          : null,
         durationMs: archiverData.duration_seconds
           ? Math.round(archiverData.duration_seconds * 1000)
           : null,
@@ -1764,20 +1772,26 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       if (progressRes.rows.length > 0 && progressRes.rows[0].started_at) {
         // Both are now in milliseconds from the query
         tellerEndTime = Math.round(Number(progressRes.rows[0].started_at));
-        tellerDurationMs = Math.round(tellerEndTime - Math.round(Number(tellerData.started_at)));
+        tellerDurationMs = Math.round(
+          tellerEndTime - Math.round(Number(tellerData.started_at)),
+        );
       }
 
       flowSteps.push({
         order: stepOrder++,
         stepType: "teller",
         actorRole: "teller",
-        actorName: tellerData.full_name || tellerData.username || "Unknown Teller",
+        actorName:
+          tellerData.full_name || tellerData.username || "Unknown Teller",
         actorId: tellerData.user_id || null,
-        jobTitle: tellerData.name_english || tellerData.name_amharic || "Teller",
+        jobTitle:
+          tellerData.name_english || tellerData.name_amharic || "Teller",
         tellerWindow: `Window ${tellerData.window_id}` || null,
         windowId: tellerData.window_id || null,
         status: "Proceeded",
-        startedAt: tellerData.started_at ? Math.round(Number(tellerData.started_at)) : null,
+        startedAt: tellerData.started_at
+          ? Math.round(Number(tellerData.started_at))
+          : null,
         endedAt: tellerEndTime,
         durationMs: tellerDurationMs,
       });
@@ -1791,7 +1805,8 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
 
       const durationMs =
         row.started_at && row.ended_at
-          ? Math.round(Number(row.ended_at)) - Math.round(Number(row.started_at))
+          ? Math.round(Number(row.ended_at)) -
+            Math.round(Number(row.started_at))
           : null;
 
       flowSteps.push({
@@ -1813,7 +1828,10 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
     // Mark the last non-archiver, non-teller step as "Completed"
     if (flowSteps.length > 0) {
       for (let i = flowSteps.length - 1; i >= 0; i--) {
-        if (flowSteps[i].stepType !== "archiver" && flowSteps[i].stepType !== "teller") {
+        if (
+          flowSteps[i].stepType !== "archiver" &&
+          flowSteps[i].stepType !== "teller"
+        ) {
           flowSteps[i].status = "Completed";
           break;
         }
@@ -1838,8 +1856,12 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       storedAt: new Date().toISOString(),
     };
 
-    console.log(`📊 Compiled ${flowSteps.length} steps for ticket ${ticketId}:`,
-      flowSteps.map(s => `${s.order}. ${s.actorName} (${s.stepType})`).join(", "));
+    console.log(
+      `📊 Compiled ${flowSteps.length} steps for ticket ${ticketId}:`,
+      flowSteps
+        .map((s) => `${s.order}. ${s.actorName} (${s.stepType})`)
+        .join(", "),
+    );
 
     // Store the compiled flow in case_progress table
     const storeRes = await client.query(
@@ -1850,13 +1872,19 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       [ticketId, JSON.stringify(progressFlow)],
     );
 
-    console.log(`✅ Progress flow stored successfully for ticket ${ticketId}:`, storeRes.rows[0]);
+    console.log(
+      `✅ Progress flow stored successfully for ticket ${ticketId}:`,
+      storeRes.rows[0],
+    );
 
     await client.query("COMMIT");
     return progressFlow;
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error(`❌ Error compiling and storing progress flow for ticket ${ticketId}:`, error);
+    console.error(
+      `❌ Error compiling and storing progress flow for ticket ${ticketId}:`,
+      error,
+    );
     throw error;
   } finally {
     client.release();
