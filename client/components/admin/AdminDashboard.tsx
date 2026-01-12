@@ -36,6 +36,7 @@ import EmployeeCaseQueue from "./EmployeeCaseQueue";
 import ServiceCategoryAnalytics from "./ServiceCategoryAnalytics";
 import OverallEmployeeAnalytics from "./OverallEmployeeAnalytics";
 import OverallCategoryAnalytics from "./OverallCategoryAnalytics";
+import OverallProcessFlowAnalytics from "./OverallProcessFlowAnalytics";
 
 interface DashboardStats {
   totalWaiting: number;
