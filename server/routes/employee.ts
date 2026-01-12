@@ -1051,7 +1051,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
 
     // Get list of distinct completed ticket IDs (paginated)
     const ticketRes = await p.query(
-      `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at
+      `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at,
+              extract(epoch from t.created_at)*1000 as created_at
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status = 'done'
@@ -1062,6 +1063,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     );
 
     const ticketIds = ticketRes.rows.map((row) => row.id);
+    const ticketDatesMap = new Map<string, number>();
+    ticketRes.rows.forEach((row) => {
+      ticketDatesMap.set(row.id, row.created_at);
+    });
 
     if (ticketIds.length === 0) {
       return res.json({
