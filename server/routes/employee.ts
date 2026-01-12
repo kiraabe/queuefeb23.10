@@ -953,8 +953,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
       });
     }
 
-    // Add employee workflow steps
+    // Add employee workflow steps (excluding archiver if they're also in the employee workflow)
     workflowRes.rows.forEach((r) => {
+      // Skip if this is the same person as the archiver
+      if (archiverEmployeeId && r.employee_id === archiverEmployeeId) {
+        return;
+      }
       items.push({
         id: r.id,
         ticketId: r.ticket_id,
