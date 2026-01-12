@@ -645,7 +645,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       ORDER BY cases_completed DESC`,
     );
 
-    console.log("[getOverallAnalytics] Employee performance fetched, rows:", employeePerfRes.rows?.length || 0);
+    console.log(
+      "[getOverallAnalytics] Employee performance fetched, rows:",
+      employeePerfRes.rows?.length || 0,
+    );
 
     // Get ALL ticket statistics (no daily filter)
     console.log("[getOverallAnalytics] Fetching ticket statistics...");
@@ -660,7 +663,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       FROM tickets`,
     );
 
-    console.log("[getOverallAnalytics] Tickets fetched, total:", ticketsRes.rows[0]?.total || 0);
+    console.log(
+      "[getOverallAnalytics] Tickets fetched, total:",
+      ticketsRes.rows[0]?.total || 0,
+    );
 
     // Get category performance (no daily filter)
     console.log("[getOverallAnalytics] Fetching category performance...");
@@ -676,14 +682,16 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       ORDER BY total_tickets DESC`,
     );
 
-    console.log("[getOverallAnalytics] Categories fetched, count:", categoryPerfRes.rows?.length || 0);
+    console.log(
+      "[getOverallAnalytics] Categories fetched, count:",
+      categoryPerfRes.rows?.length || 0,
+    );
 
     const ticketStats = ticketsRes.rows[0] || {};
     const totalTickets = Number(ticketStats.total || 0);
     const totalServed = Number(ticketStats.served || 0);
-    const overallCompletionRate = totalTickets > 0
-      ? Math.round((totalServed / totalTickets) * 100)
-      : 0;
+    const overallCompletionRate =
+      totalTickets > 0 ? Math.round((totalServed / totalTickets) * 100) : 0;
 
     // Find highest performer
     const highestPerformer =
@@ -726,9 +734,12 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         skipped: Number(r.skipped || 0),
         transferred: Number(r.transferred || 0),
         averageServiceTime: null,
-        completionRate: Number(r.total_tickets || 0) > 0
-          ? Math.round((Number(r.served || 0) / Number(r.total_tickets || 0)) * 100)
-          : 0,
+        completionRate:
+          Number(r.total_tickets || 0) > 0
+            ? Math.round(
+                (Number(r.served || 0) / Number(r.total_tickets || 0)) * 100,
+              )
+            : 0,
       })),
       windows: [],
       insights: {
@@ -738,7 +749,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         highestPerformer:
           highestPerformer && Number(highestPerformer.cases_completed || 0) > 0
             ? {
-                employeeName: highestPerformer.full_name || highestPerformer.username || "Unknown",
+                employeeName:
+                  highestPerformer.full_name ||
+                  highestPerformer.username ||
+                  "Unknown",
                 casesCompleted: Number(highestPerformer.cases_completed || 0),
                 averageTime: null,
               }
@@ -746,11 +760,21 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       },
     };
 
-    console.log("[getOverallAnalytics] Successfully generated analytics report");
+    console.log(
+      "[getOverallAnalytics] Successfully generated analytics report",
+    );
     res.json(report);
   } catch (error) {
-    console.error("[getOverallAnalytics] Failed to generate overall analytics:", error);
-    res.status(500).json({ error: "Failed to generate overall analytics", details: error instanceof Error ? error.message : String(error) });
+    console.error(
+      "[getOverallAnalytics] Failed to generate overall analytics:",
+      error,
+    );
+    res
+      .status(500)
+      .json({
+        error: "Failed to generate overall analytics",
+        details: error instanceof Error ? error.message : String(error),
+      });
   }
 };
 

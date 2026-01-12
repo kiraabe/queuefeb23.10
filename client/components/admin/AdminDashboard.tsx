@@ -57,7 +57,9 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
   const [display, setDisplay] = useState<DisplayState | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
-  const [analyticsView, setAnalyticsView] = useState<"overall" | "daily">("overall");
+  const [analyticsView, setAnalyticsView] = useState<"overall" | "daily">(
+    "overall",
+  );
 
   const sseUrl = "/api/events";
   useSSE(sseUrl, (event) => {
@@ -490,14 +492,20 @@ export default function AdminDashboard() {
             <Button
               variant={analyticsView === "overall" ? "default" : "outline"}
               onClick={() => setAnalyticsView("overall")}
-              className={analyticsView === "overall" ? "bg-amber-600 hover:bg-amber-700" : ""}
+              className={
+                analyticsView === "overall"
+                  ? "bg-amber-600 hover:bg-amber-700"
+                  : ""
+              }
             >
               📊 Overall Metrics (All-Time)
             </Button>
             <Button
               variant={analyticsView === "daily" ? "default" : "outline"}
               onClick={() => setAnalyticsView("daily")}
-              className={analyticsView === "daily" ? "bg-blue-600 hover:bg-blue-700" : ""}
+              className={
+                analyticsView === "daily" ? "bg-blue-600 hover:bg-blue-700" : ""
+              }
             >
               📅 Daily Metrics
             </Button>

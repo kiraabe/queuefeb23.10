@@ -28,12 +28,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import {
-  AlertCircle,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-} from "lucide-react";
+import { AlertCircle, TrendingUp, Clock, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface CategoryAnalytics {
@@ -187,7 +182,9 @@ export default function OverallCategoryAnalytics() {
                 </span>
                 <TrendingUp className="h-4 w-4 text-blue-500" />
               </div>
-              <p className="text-3xl font-bold">{analytics.summary.totalTickets}</p>
+              <p className="text-3xl font-bold">
+                {analytics.summary.totalTickets}
+              </p>
               <p className="text-xs text-muted-foreground">all-time</p>
             </div>
           </CardContent>
@@ -261,7 +258,8 @@ export default function OverallCategoryAnalytics() {
                 {analytics.summary.transferred + analytics.summary.skipped}
               </p>
               <p className="text-xs text-muted-foreground">
-                {analytics.summary.transferred} transferred, {analytics.summary.skipped} skipped
+                {analytics.summary.transferred} transferred,{" "}
+                {analytics.summary.skipped} skipped
               </p>
             </div>
           </CardContent>

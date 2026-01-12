@@ -163,9 +163,7 @@ export default function OverallEmployeeAnalytics() {
               <p className="text-3xl font-bold">
                 {analytics.insights.totalEmployees}
               </p>
-              <p className="text-xs text-muted-foreground">
-                with case history
-              </p>
+              <p className="text-xs text-muted-foreground">with case history</p>
             </div>
           </CardContent>
         </Card>
@@ -183,9 +181,7 @@ export default function OverallEmployeeAnalytics() {
               <p className="text-3xl font-bold">
                 {analytics.insights.totalCasesProcessed}
               </p>
-              <p className="text-xs text-muted-foreground">
-                processed overall
-              </p>
+              <p className="text-xs text-muted-foreground">processed overall</p>
             </div>
           </CardContent>
         </Card>
