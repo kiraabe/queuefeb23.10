@@ -477,6 +477,26 @@ export default function AdminDashboard() {
         </h2>
       </div>
 
+      {/* Overall Analytics Divider */}
+      <div className="border-t pt-6">
+        <h3 className="text-xl font-semibold tracking-tight mb-4 text-amber-700 dark:text-amber-400">
+          📊 Overall Metrics (All-Time)
+        </h3>
+      </div>
+
+      {/* Overall Employee Analytics */}
+      <OverallEmployeeAnalytics />
+
+      {/* Overall Category Analytics */}
+      <OverallCategoryAnalytics />
+
+      {/* Daily Analytics Divider */}
+      <div className="border-t pt-6">
+        <h3 className="text-xl font-semibold tracking-tight mb-4 text-blue-700 dark:text-blue-400">
+          📅 Daily Metrics
+        </h3>
+      </div>
+
       {/* Employee Performance Dashboard Section */}
       <EmployeePerformanceDashboard />
 
