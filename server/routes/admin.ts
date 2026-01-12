@@ -627,7 +627,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
   try {
     const p = getPool();
 
+    console.log("[getOverallAnalytics] Starting query...");
+
     // Get ALL employee case performance (no daily filter)
+    console.log("[getOverallAnalytics] Fetching employee performance...");
     const employeePerfRes = await p.query(
       `SELECT
         ecp.employee_id,
