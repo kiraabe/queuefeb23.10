@@ -514,15 +514,20 @@ export const completeCase: RequestHandler = async (req, res) => {
         userId,
       );
 
+      console.log(`📋 Case ${caseId} completed by user ${userId}. Is last participant: ${isLastParticipant}`);
+
       // If this is the last participant, compile and store the complete progress flow
       if (isLastParticipant) {
         try {
+          console.log(`🔄 Starting progress flow compilation for case ${caseId}...`);
           await compileAndStoreProgressFlow(caseId);
-          console.log(`✓ Progress flow compiled and stored for case ${caseId}`);
+          console.log(`✅ Progress flow compiled and stored for case ${caseId}`);
         } catch (err) {
-          console.error("Error storing progress flow:", err);
+          console.error(`❌ Error storing progress flow for case ${caseId}:`, err);
           // Don't fail the completion if progress flow storage fails
         }
+      } else {
+        console.log(`⏳ Case ${caseId} not yet complete - waiting for other participants`);
       }
 
       res.json({
