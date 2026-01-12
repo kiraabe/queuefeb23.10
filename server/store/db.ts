@@ -1791,8 +1791,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
 
       const durationMs =
         row.started_at && row.ended_at
-          ? new Date(row.ended_at).getTime() -
-            new Date(row.started_at).getTime()
+          ? Math.round(Number(row.ended_at)) - Math.round(Number(row.started_at))
           : null;
 
       flowSteps.push({
@@ -1805,8 +1804,8 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         tellerWindow: row.window_name || null,
         windowId: row.window_id || null,
         status: row.status,
-        startedAt: row.started_at ? new Date(row.started_at).getTime() : null,
-        endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null,
+        startedAt: row.started_at ? Math.round(Number(row.started_at)) : null,
+        endedAt: row.ended_at ? Math.round(Number(row.ended_at)) : null,
         durationMs: durationMs,
       });
     });
