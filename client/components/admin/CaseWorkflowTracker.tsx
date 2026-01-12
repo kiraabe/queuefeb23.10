@@ -127,6 +127,7 @@ export default function CaseWorkflowTracker({
         );
 
         if (workflowsRes.items && workflowsRes.items.length > 0) {
+          console.log("Workflows received:", workflowsRes.items);
           setWorkflows(workflowsRes.items);
           setTotalItems(workflowsRes.total || 0);
         } else {
