@@ -33,6 +33,8 @@ import EmployeePerformanceDashboard from "./EmployeePerformanceDashboard";
 import CaseWorkflowTracker from "./CaseWorkflowTracker";
 import EmployeeCaseQueue from "./EmployeeCaseQueue";
 import ServiceCategoryAnalytics from "./ServiceCategoryAnalytics";
+import OverallEmployeeAnalytics from "./OverallEmployeeAnalytics";
+import OverallCategoryAnalytics from "./OverallCategoryAnalytics";
 
 interface DashboardStats {
   totalWaiting: number;
