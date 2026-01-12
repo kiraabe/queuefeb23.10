@@ -1,13 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
+function isMobileOrTablet(): boolean {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  // Detect mobile/tablet devices
+  const mobilePatterns = [
+    /android/,
+    /webos/,
+    /iphone/,
+    /ipad/,
+    /ipod/,
+    /blackberry/,
+    /windows phone/,
+  ];
+
+  if (mobilePatterns.some(pattern => pattern.test(userAgent))) {
+    return true;
+  }
+
+  // Check screen size as additional indicator
+  if (window.innerWidth <= 1024) {
+    // Additional check: if it looks like a phone/tablet, not just a small desktop
+    const touchSupport = () => {
+      return (
+        ("ontouchstart" in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        ((navigator as any).msMaxTouchPoints > 0)
+      );
+    };
+
+    if (touchSupport() && window.innerWidth <= 768) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export default function Login() {
+  const [isMobile, setIsMobile] = useState(false);
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
