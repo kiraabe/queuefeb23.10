@@ -416,7 +416,7 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
         w.id,
         w.name,
         COALESCE(
-          (SELECT DISTINCT u.full_name FROM tickets t
+          (SELECT u.full_name FROM tickets t
            JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
            JOIN users u ON ecp.employee_id = u.id
            WHERE t.window_id = w.id AND t.created_at >= $1::timestamptz
