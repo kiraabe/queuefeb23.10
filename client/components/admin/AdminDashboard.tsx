@@ -57,6 +57,7 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
   const [display, setDisplay] = useState<DisplayState | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number>(Date.now());
+  const [analyticsView, setAnalyticsView] = useState<"overall" | "daily">("overall");
 
   const sseUrl = "/api/events";
   useSSE(sseUrl, (event) => {
