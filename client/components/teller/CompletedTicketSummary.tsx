@@ -87,6 +87,12 @@ export function CompletedTicketSummary({
     return `${hours}h ${minutes}m`;
   };
 
+  const formatDateTime = (timestamp: number | null | undefined) => {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
   const totalDuration = items.reduce((sum, item) => {
     return sum + (item.durationSeconds || 0);
   }, 0);
