@@ -4,6 +4,7 @@ interface ProcessStep {
   id: string;
   number: number;
   employeeName: string;
+  jobTitle?: string;
   action: "Started" | "Proceeded" | "Completed";
   duration: string;
   durationSeconds: number | null;
