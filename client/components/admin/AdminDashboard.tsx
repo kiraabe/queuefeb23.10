@@ -520,6 +520,9 @@ export default function AdminDashboard() {
           {/* Overall Employee Analytics */}
           <OverallEmployeeAnalytics />
 
+          {/* Overall Process Flow Analytics */}
+          <OverallProcessFlowAnalytics />
+
           {/* Overall Category Analytics */}
           <OverallCategoryAnalytics />
         </div>
