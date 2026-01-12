@@ -648,6 +648,7 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
     );
 
     // Get ALL ticket statistics (no daily filter)
+    console.log("[getOverallAnalytics] Fetching ticket statistics...");
     const ticketsRes = await p.query(
       `SELECT
         COUNT(*)::int as total,
