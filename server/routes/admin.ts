@@ -629,77 +629,54 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
 
     console.log("[getOverallAnalytics] Starting query...");
 
-    // Get ALL employee case performance (no daily filter)
+    // Simplified: Just get basic employee stats first
     console.log("[getOverallAnalytics] Fetching employee performance...");
     const employeePerfRes = await p.query(
       `SELECT
         ecp.employee_id,
         u.full_name,
         u.username,
-        COUNT(DISTINCT ecp.id) as total_cases_started,
-        COUNT(DISTINCT CASE WHEN ecp.status = 'completed' THEN ecp.id END) as cases_completed,
-        COUNT(DISTINCT CASE WHEN ecp.status = 'proceeded' THEN ecp.id END) as cases_proceeded,
-        ROUND(AVG(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as avg_case_time,
-        ROUND(SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as total_time_spent
+        COUNT(ecp.id) as total_cases_started,
+        SUM(CASE WHEN ecp.status = 'completed' THEN 1 ELSE 0 END) as cases_completed,
+        SUM(CASE WHEN ecp.status = 'proceeded' THEN 1 ELSE 0 END) as cases_proceeded
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
     );
 
+    console.log("[getOverallAnalytics] Employee performance fetched, rows:", employeePerfRes.rows?.length || 0);
+
     // Get ALL ticket statistics (no daily filter)
     console.log("[getOverallAnalytics] Fetching ticket statistics...");
     const ticketsRes = await p.query(
       `SELECT
-        COUNT(*)::int as total,
-        COUNT(CASE WHEN status = 'done' THEN 1 END)::int as served,
-        COUNT(CASE WHEN status = 'skipped' THEN 1 END)::int as skipped,
-        COUNT(CASE WHEN status = 'transferred' THEN 1 END)::int as transferred,
-        COUNT(CASE WHEN status = 'waiting' THEN 1 END)::int as waiting,
-        COUNT(CASE WHEN status = 'serving' THEN 1 END)::int as serving,
-        ROUND(AVG(CASE WHEN status = 'done' THEN EXTRACT(EPOCH FROM (completed_at - started_at)) ELSE NULL END))::int as avg_service_time,
-        ROUND(MIN(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as min_service_time,
-        ROUND(MAX(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as max_service_time
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'done' THEN 1 ELSE 0 END) as served,
+        SUM(CASE WHEN status = 'skipped' THEN 1 ELSE 0 END) as skipped,
+        SUM(CASE WHEN status = 'transferred' THEN 1 ELSE 0 END) as transferred,
+        SUM(CASE WHEN status = 'waiting' THEN 1 ELSE 0 END) as waiting,
+        SUM(CASE WHEN status = 'serving' THEN 1 ELSE 0 END) as serving
       FROM tickets`,
     );
 
-    console.log("[getOverallAnalytics] Employee performance fetched, rows:", employeePerfRes.rows?.length || 0);
+    console.log("[getOverallAnalytics] Tickets fetched, total:", ticketsRes.rows[0]?.total || 0);
 
     // Get category performance (no daily filter)
     console.log("[getOverallAnalytics] Fetching category performance...");
     const categoryPerfRes = await p.query(
       `SELECT
         t.service as service_name,
-        COUNT(DISTINCT t.id) as total_tickets,
-        COUNT(DISTINCT CASE WHEN t.status = 'done' THEN t.id END) as served,
-        COUNT(DISTINCT CASE WHEN t.status = 'skipped' THEN t.id END) as skipped,
-        COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
-        ROUND(AVG(CASE WHEN t.status = 'done' THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+        COUNT(t.id) as total_tickets,
+        SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as served,
+        SUM(CASE WHEN t.status = 'skipped' THEN 1 ELSE 0 END) as skipped,
+        SUM(CASE WHEN t.status = 'transferred' THEN 1 ELSE 0 END) as transferred
       FROM tickets t
       GROUP BY t.service
       ORDER BY total_tickets DESC`,
     );
 
-    // Get window statistics (overall)
-    console.log("[getOverallAnalytics] Fetching window statistics...");
-    let windowStatsRes = { rows: [] };
-    try {
-      windowStatsRes = await p.query(
-        `SELECT
-          w.id,
-          w.name,
-          COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id THEN t.id END) as served,
-          COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id THEN t.id END) as skipped,
-          ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
-        FROM windows w
-        LEFT JOIN tickets t ON w.id = t.window_id
-        GROUP BY w.id, w.name
-        ORDER BY w.id`,
-      );
-    } catch (err) {
-      console.warn("[getOverallAnalytics] Window stats query failed (table may not exist):", err);
-      // Continue without window stats if table doesn't exist
-    }
+    console.log("[getOverallAnalytics] Categories fetched, count:", categoryPerfRes.rows?.length || 0);
 
     const ticketStats = ticketsRes.rows[0] || {};
     const totalTickets = Number(ticketStats.total || 0);
