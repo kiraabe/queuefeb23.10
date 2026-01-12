@@ -1379,3 +1379,45 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Endpoint for retrieving stored process flow from case_progress table
+export const getStoredProgressFlow: RequestHandler = async (req, res) => {
+  const ticketId = req.query.ticketId as string | undefined;
+
+  if (!ticketId) {
+    return res.status(400).json({ error: "Missing ticketId parameter" });
+  }
+
+  const p = getPool();
+
+  try {
+    const progressRes = await p.query(
+      `SELECT id, ticket_id, flow, completed_at, created_at
+       FROM case_progress
+       WHERE ticket_id = $1`,
+      [ticketId],
+    );
+
+    if (progressRes.rows.length === 0) {
+      return res.status(404).json({
+        error: "Progress flow not found for this ticket",
+      });
+    }
+
+    const progressData = progressRes.rows[0];
+
+    res.json({
+      id: progressData.id,
+      ticketId: progressData.ticket_id,
+      flow: progressData.flow,
+      completedAt: progressData.completed_at,
+      createdAt: progressData.created_at,
+    });
+  } catch (error) {
+    console.error("Failed to fetch progress flow:", error);
+    res.status(500).json({
+      error: "Failed to fetch progress flow. Please try again later.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
