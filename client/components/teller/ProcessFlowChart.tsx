@@ -19,14 +19,8 @@ interface ProcessFlowChartProps {
 
 export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   if (!steps || steps.length === 0) {
-    console.log("ProcessFlowChart: No steps provided, returning null");
     return null;
   }
-
-  console.log("ProcessFlowChart: Rendering with steps:", {
-    count: steps.length,
-    firstStep: steps[0],
-  });
 
   const totalDuration = steps.reduce((sum, step) => {
     return sum + (step.durationSeconds || 0);
