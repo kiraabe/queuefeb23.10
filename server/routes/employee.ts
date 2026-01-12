@@ -1312,8 +1312,12 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         }
 
-        // Add employee workflow steps
+        // Add employee workflow steps (excluding archiver if they're also in the employee workflow)
         workflowRows.forEach((r) => {
+          // Skip if this is the same person as the archiver
+          if (archiverEmployeeId && r.employee_id === archiverEmployeeId) {
+            return;
+          }
           workflowItems.push({
             id: r.id,
             ticketId: r.ticket_id,
