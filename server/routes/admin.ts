@@ -758,15 +758,13 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
           ? Math.round((Number(r.served || 0) / Number(r.total_tickets || 0)) * 100)
           : 0,
       })),
-      windows: windowStatsRes.rows.map((r: any) => ({
+      windows: windowStatsRes.rows ? windowStatsRes.rows.map((r: any) => ({
         windowId: r.id,
         windowName: r.name,
         served: Number(r.served || 0),
         skipped: Number(r.skipped || 0),
-        transfersFrom: Number(r.transfers_from || 0),
-        transfersTo: Number(r.transfers_to || 0),
         averageServiceTime: r.avg_service_time || null,
-      })),
+      })) : [],
       insights: {
         totalEmployees,
         totalCasesProcessed,
