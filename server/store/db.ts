@@ -850,7 +850,7 @@ export async function initDb() {
     // Create case_progress table for finalized, immutable progress flows
     await p.query(`CREATE TABLE IF NOT EXISTS case_progress (
     id uuid primary key default gen_random_uuid(),
-    ticket_id uuid not null references tickets(id) on delete cascade,
+    ticket_id uuid not null unique references tickets(id) on delete cascade,
     completed_at timestamptz not null default now(),
     flow jsonb not null,
     created_at timestamptz not null default now()
