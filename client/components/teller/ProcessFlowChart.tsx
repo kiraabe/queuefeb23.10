@@ -150,7 +150,7 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
       </div>
 
       {/* Summary info */}
-      <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
         <div>
           <p className="text-muted-foreground font-medium">Steps</p>
           <p className="text-lg font-bold text-foreground">{steps.length}</p>
@@ -159,6 +159,17 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
           <p className="text-muted-foreground font-medium">Status</p>
           <p className="text-lg font-bold text-green-600 dark:text-green-400">
             ✓ Done
+          </p>
+        </div>
+        <div>
+          <p className="text-muted-foreground font-medium">Started</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {steps.length > 0 && steps[0]?.startedAt
+              ? new Date(steps[0].startedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—"}
           </p>
         </div>
         <div>
