@@ -1616,6 +1616,77 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
   try {
     await client.query("BEGIN");
 
+    // Fetch archiver information for this ticket
+    const archiverRes = await client.query(
+      `SELECT
+         t.archived_by_user_id,
+         u.full_name,
+         u.username,
+         extract(epoch from t.archiver_started_at)*1000 as started_at,
+         extract(epoch from t.documents_fetched_at)*1000 as ended_at,
+         EXTRACT(EPOCH FROM (t.documents_fetched_at - t.archiver_started_at)) as duration_seconds,
+         jt.name_english,
+         jt.name_amharic
+       FROM tickets t
+       LEFT JOIN users u ON t.archived_by_user_id = u.id
+       LEFT JOIN job_title jt ON u.job_title_id = jt.id
+       WHERE t.id = $1
+         AND t.archiver_started_at IS NOT NULL
+         AND t.documents_fetched_at IS NOT NULL`,
+      [ticketId],
+    );
+
+    // Fetch teller information for this ticket
+    const ticketTellerRes = await client.query(
+      `SELECT
+         t.id as ticket_id,
+         t.window_id,
+         extract(epoch from t.created_at)*1000 as created_at,
+         extract(epoch from t.started_at)*1000 as started_at,
+         EXTRACT(EPOCH FROM (t.started_at - t.created_at)) as duration_seconds
+       FROM tickets t
+       WHERE t.id = $1
+         AND t.window_id IS NOT NULL
+         AND t.started_at IS NOT NULL`,
+      [ticketId],
+    );
+
+    // Get the user who was logged in at that window during that time
+    let tellerRes = { rows: [] };
+    if (ticketTellerRes.rows.length > 0) {
+      const ticketData = ticketTellerRes.rows[0];
+      const startedAtSeconds = Math.floor(ticketData.started_at / 1000);
+      const userRes = await client.query(
+        `SELECT
+           us.user_id,
+           u.full_name,
+           u.username,
+           jt.name_english,
+           jt.name_amharic
+         FROM user_sessions us
+         LEFT JOIN users u ON us.user_id = u.id
+         LEFT JOIN job_title jt ON u.job_title_id = jt.id
+         WHERE us.window_id = $1
+           AND us.active_role = 'teller'
+           AND us.created_at <= to_timestamp($2)
+           AND (us.revoked_at IS NULL OR us.revoked_at >= to_timestamp($2))
+         ORDER BY us.created_at DESC
+         LIMIT 1`,
+        [ticketData.window_id, startedAtSeconds],
+      );
+
+      if (userRes.rows.length > 0) {
+        tellerRes.rows = [
+          {
+            ...ticketData,
+            ...userRes.rows[0],
+          },
+        ];
+      } else {
+        tellerRes.rows = [ticketData];
+      }
+    }
+
     // Fetch all progress records for this ticket, ordered by start time
     const progressRes = await client.query(
       `SELECT
@@ -1656,25 +1727,98 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
 
     const ticketInfo = ticketRes.rows[0];
 
-    // Compile progress flow
-    const flowSteps = progressRes.rows.map((row, index) => ({
-      order: index + 1,
-      stepType: row.step_type || "unknown",
-      actorRole: row.step_type === "teller" ? "teller" : "employee",
-      actorName: row.full_name || row.username || "Unknown",
-      actorId: row.employee_id,
-      jobTitle: row.job_title || null,
-      tellerWindow: row.window_name || null,
-      windowId: row.window_id || null,
-      status: row.status,
-      startedAt: row.started_at ? new Date(row.started_at).getTime() : null,
-      endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null,
-      durationMs:
+    // Compile progress flow - include archiver, teller, and employees
+    const flowSteps: any[] = [];
+    let stepOrder = 1;
+
+    // Add archiver step first if available
+    const archiverData = archiverRes.rows[0];
+    let archiverEmployeeId: string | null = null;
+    if (archiverData && archiverData.started_at && archiverData.ended_at) {
+      archiverEmployeeId = archiverData.archived_by_user_id;
+      flowSteps.push({
+        order: stepOrder++,
+        stepType: "archiver",
+        actorRole: "archiver",
+        actorName: archiverData.full_name || archiverData.username || "Unknown Archiver",
+        actorId: archiverData.archived_by_user_id,
+        jobTitle: archiverData.name_english || archiverData.name_amharic || "Archiver",
+        tellerWindow: null,
+        windowId: null,
+        status: "Retrieved",
+        startedAt: archiverData.started_at ? Math.round(archiverData.started_at) : null,
+        endedAt: archiverData.ended_at ? Math.round(archiverData.ended_at) : null,
+        durationMs: archiverData.duration_seconds
+          ? Math.round(archiverData.duration_seconds * 1000)
+          : null,
+      });
+    }
+
+    // Add teller step second if available
+    const tellerData = tellerRes.rows[0];
+    if (tellerData && tellerData.started_at) {
+      let tellerEndTime = null;
+      let tellerDuration = null;
+      if (progressRes.rows.length > 0 && progressRes.rows[0].started_at) {
+        tellerEndTime = Math.round(progressRes.rows[0].started_at.getTime());
+        tellerDuration = Math.round(
+          (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
+        );
+      }
+
+      flowSteps.push({
+        order: stepOrder++,
+        stepType: "teller",
+        actorRole: "teller",
+        actorName: tellerData.full_name || tellerData.username || "Unknown Teller",
+        actorId: tellerData.user_id || null,
+        jobTitle: tellerData.name_english || tellerData.name_amharic || "Teller",
+        tellerWindow: `Window ${tellerData.window_id}` || null,
+        windowId: tellerData.window_id || null,
+        status: "Proceeded",
+        startedAt: tellerData.started_at ? Math.round(tellerData.started_at) : null,
+        endedAt: tellerEndTime,
+        durationMs: tellerDuration ? Math.round(tellerDuration * 1000) : null,
+      });
+    }
+
+    // Add employee steps (excluding archiver if they're also in the employee workflow)
+    progressRes.rows.forEach((row) => {
+      if (archiverEmployeeId && row.employee_id === archiverEmployeeId) {
+        return; // Skip if this is the archiver's employee record
+      }
+
+      const durationMs =
         row.started_at && row.ended_at
           ? new Date(row.ended_at).getTime() -
             new Date(row.started_at).getTime()
-          : null,
-    }));
+          : null;
+
+      flowSteps.push({
+        order: stepOrder++,
+        stepType: row.step_type || "employee",
+        actorRole: "employee",
+        actorName: row.full_name || row.username || "Unknown",
+        actorId: row.employee_id,
+        jobTitle: row.job_title || null,
+        tellerWindow: row.window_name || null,
+        windowId: row.window_id || null,
+        status: row.status,
+        startedAt: row.started_at ? new Date(row.started_at).getTime() : null,
+        endedAt: row.ended_at ? new Date(row.ended_at).getTime() : null,
+        durationMs: durationMs,
+      });
+    });
+
+    // Mark the last non-archiver, non-teller step as "Completed"
+    if (flowSteps.length > 0) {
+      for (let i = flowSteps.length - 1; i >= 0; i--) {
+        if (flowSteps[i].stepType !== "archiver" && flowSteps[i].stepType !== "teller") {
+          flowSteps[i].status = "Completed";
+          break;
+        }
+      }
+    }
 
     const progressFlow = {
       ticketId,
