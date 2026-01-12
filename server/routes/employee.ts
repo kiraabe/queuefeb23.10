@@ -1224,7 +1224,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
 
         // Add archiever step first if available
         const archiverData = archiverByTicket.get(ticketId);
+        let archiverEmployeeId: string | null = null;
         if (archiverData && archiverData.started_at && archiverData.ended_at) {
+          archiverEmployeeId = archiverData.archived_by_user_id;
           workflowItems.push({
             id: `archiver-${ticketId}`,
             ticketId: ticketId,
