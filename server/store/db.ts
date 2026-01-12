@@ -1835,6 +1835,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         flowSteps[flowSteps.length - 1].endedAt
           ? flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt
           : null,
+      storedAt: new Date().toISOString(),
     };
 
     // Store the compiled flow in case_progress table
