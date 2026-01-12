@@ -863,6 +863,39 @@ export async function initDb() {
       `CREATE INDEX IF NOT EXISTS idx_case_progress_completed ON case_progress(completed_at)`,
     );
 
+    // Add unique constraint on ticket_id if it doesn't exist (for existing databases)
+    try {
+      // Check if the constraint already exists
+      const constraintCheck = await p.query(
+        `SELECT constraint_name FROM information_schema.table_constraints
+         WHERE table_name = 'case_progress' AND constraint_type = 'UNIQUE' AND column_name = 'ticket_id'`,
+      );
+
+      if (constraintCheck.rowCount === 0) {
+        // If there are duplicate ticket_ids, keep only the latest progress record for each ticket
+        await p.query(`
+          DELETE FROM case_progress cp
+          WHERE id NOT IN (
+            SELECT id FROM (
+              SELECT id, ROW_NUMBER() OVER (PARTITION BY ticket_id ORDER BY created_at DESC) as rn
+              FROM case_progress
+            ) sub
+            WHERE rn = 1
+          )
+        `);
+
+        // Now add the unique constraint
+        await p.query(
+          `ALTER TABLE case_progress ADD CONSTRAINT uq_case_progress_ticket_id UNIQUE (ticket_id)`,
+        );
+        console.log("✅ Added UNIQUE constraint on case_progress(ticket_id)");
+      }
+    } catch (error: any) {
+      if (!error.message?.includes("already exists")) {
+        console.warn("⚠️  Could not add unique constraint to case_progress:", error.message);
+      }
+    }
+
     // Reset started_at for all transferred tickets to ensure employees see the Start button first
     // This handles any existing tickets that were transferred with old logic
     try {
