@@ -886,7 +886,9 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     // Add archiver step first if available
     const archiverData = archiverRes.rows[0];
+    let archiverEmployeeId: string | null = null;
     if (archiverData && archiverData.started_at && archiverData.ended_at) {
+      archiverEmployeeId = archiverData.archived_by_user_id;
       items.push({
         id: `archiver-${ticketId}`,
         ticketId: ticketId,
