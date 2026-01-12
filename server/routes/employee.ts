@@ -1067,6 +1067,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     ticketRes.rows.forEach((row) => {
       ticketDatesMap.set(row.id, row.created_at);
     });
+    console.log(
+      "[listCaseWorkflows] Ticket dates map:",
+      Array.from(ticketDatesMap.entries())
+    );
 
     if (ticketIds.length === 0) {
       return res.json({
