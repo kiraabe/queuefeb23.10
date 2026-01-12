@@ -1615,6 +1615,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
   const p = getPool();
   const client = await p.connect();
   try {
+    console.log(`📊 Starting progress flow compilation for ticket: ${ticketId}`);
     await client.query("BEGIN");
 
     // Fetch archiver information for this ticket
