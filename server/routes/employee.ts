@@ -1065,7 +1065,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     const ticketIds = ticketRes.rows.map((row) => row.id);
     const ticketDatesMap = new Map<string, number>();
     ticketRes.rows.forEach((row) => {
-      ticketDatesMap.set(row.id, row.created_at);
+      const createdAtValue = row.created_at
+        ? Math.round(Number(row.created_at))
+        : null;
+      ticketDatesMap.set(row.id, createdAtValue);
     });
     console.log(
       "[listCaseWorkflows] Ticket dates map:",
