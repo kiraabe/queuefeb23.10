@@ -1838,19 +1838,25 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
       storedAt: new Date().toISOString(),
     };
 
+    console.log(`📊 Compiled ${flowSteps.length} steps for ticket ${ticketId}:`,
+      flowSteps.map(s => `${s.order}. ${s.actorName} (${s.stepType})`).join(", "));
+
     // Store the compiled flow in case_progress table
-    await client.query(
+    const storeRes = await client.query(
       `INSERT INTO case_progress (ticket_id, flow, completed_at)
        VALUES ($1, $2, now())
-       ON CONFLICT (ticket_id) DO UPDATE SET flow = $2, completed_at = now()`,
+       ON CONFLICT (ticket_id) DO UPDATE SET flow = $2, completed_at = now()
+       RETURNING id, ticket_id`,
       [ticketId, JSON.stringify(progressFlow)],
     );
+
+    console.log(`✅ Progress flow stored successfully for ticket ${ticketId}:`, storeRes.rows[0]);
 
     await client.query("COMMIT");
     return progressFlow;
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Error compiling and storing progress flow:", error);
+    console.error(`❌ Error compiling and storing progress flow for ticket ${ticketId}:`, error);
     throw error;
   } finally {
     client.release();
