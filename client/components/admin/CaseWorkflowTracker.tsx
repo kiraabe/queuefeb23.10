@@ -53,6 +53,7 @@ interface TicketInfo {
 interface CaseWorkflow {
   ticketId: string;
   ticketCode: string;
+  createdAt?: number | null;
   ticketInfo?: TicketInfo;
   items: WorkflowEntry[];
   totalDuration: number | null;
