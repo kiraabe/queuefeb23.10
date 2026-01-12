@@ -1760,12 +1760,11 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
     const tellerData = tellerRes.rows[0];
     if (tellerData && tellerData.started_at) {
       let tellerEndTime = null;
-      let tellerDuration = null;
+      let tellerDurationMs = null;
       if (progressRes.rows.length > 0 && progressRes.rows[0].started_at) {
-        tellerEndTime = Math.round(progressRes.rows[0].started_at.getTime());
-        tellerDuration = Math.round(
-          (tellerEndTime - Math.round(tellerData.started_at)) / 1000,
-        );
+        // Both are now in milliseconds from the query
+        tellerEndTime = Math.round(Number(progressRes.rows[0].started_at));
+        tellerDurationMs = Math.round(tellerEndTime - Math.round(Number(tellerData.started_at)));
       }
 
       flowSteps.push({
@@ -1778,9 +1777,9 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         tellerWindow: `Window ${tellerData.window_id}` || null,
         windowId: tellerData.window_id || null,
         status: "Proceeded",
-        startedAt: tellerData.started_at ? Math.round(tellerData.started_at) : null,
+        startedAt: tellerData.started_at ? Math.round(Number(tellerData.started_at)) : null,
         endedAt: tellerEndTime,
-        durationMs: tellerDuration ? Math.round(tellerDuration * 1000) : null,
+        durationMs: tellerDurationMs,
       });
     }
 
