@@ -152,39 +152,57 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
         </div>
       </div>
 
-      {/* Summary info */}
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
-        <div>
-          <p className="text-muted-foreground font-medium">Steps</p>
-          <p className="text-lg font-bold text-foreground">{steps.length}</p>
-        </div>
-        <div>
-          <p className="text-muted-foreground font-medium">Status</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">
-            ✓ Done
-          </p>
-        </div>
-        <div>
-          <p className="text-muted-foreground font-medium">Started</p>
-          <p className="text-xs font-medium text-muted-foreground">
-            {steps.length > 0 && steps[0]?.startedAt
-              ? new Date(steps[0].startedAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "—"}
-          </p>
-        </div>
-        <div>
-          <p className="text-muted-foreground font-medium">Completed</p>
-          <p className="text-xs font-medium text-muted-foreground">
-            {ticket.completedAt
-              ? new Date(ticket.completedAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "—"}
-          </p>
+      {/* Summary info with dates */}
+      <div className="mt-6 rounded-lg bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/30 dark:to-green-950/30 border-2 border-blue-200 dark:border-blue-800 p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div>
+            <p className="text-muted-foreground font-semibold text-sm">Total Steps</p>
+            <p className="text-2xl font-bold text-foreground mt-1">{steps.length}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground font-semibold text-sm">Status</p>
+            <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-1">
+              ✓ Done
+            </p>
+          </div>
+          <div className="rounded-lg bg-white/50 dark:bg-black/20 p-2">
+            <p className="text-muted-foreground font-semibold text-sm">Process Started</p>
+            <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mt-1">
+              {steps.length > 0 && steps[0]?.startedAt
+                ? new Date(steps[0].startedAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "—"}
+            </p>
+            <p className="text-xs text-blue-600 dark:text-blue-400">
+              {steps.length > 0 && steps[0]?.startedAt
+                ? new Date(steps[0].startedAt).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })
+                : ""}
+            </p>
+          </div>
+          <div className="rounded-lg bg-white/50 dark:bg-black/20 p-2">
+            <p className="text-muted-foreground font-semibold text-sm">Completed</p>
+            <p className="text-sm font-bold text-green-700 dark:text-green-300 mt-1">
+              {ticket.completedAt
+                ? new Date(ticket.completedAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "—"}
+            </p>
+            <p className="text-xs text-green-600 dark:text-green-400">
+              {ticket.completedAt
+                ? new Date(ticket.completedAt).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })
+                : ""}
+            </p>
+          </div>
         </div>
       </div>
     </div>
