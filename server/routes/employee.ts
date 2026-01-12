@@ -1385,10 +1385,12 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           }
         }
 
+        const createdAt = ticketDatesMap.get(ticketId) || null;
+        console.log(`[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}`);
         return {
           ticketId,
           ticketCode: ticketInfo?.ticketCode,
-          createdAt: ticketDatesMap.get(ticketId) || null,
+          createdAt,
           ticketInfo,
           items: workflowItems,
           totalDuration,
