@@ -228,7 +228,7 @@ export default function CaseWorkflowTracker({
           {/* Timeframe Filter Buttons */}
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
-              {(["today", "week", "month"] as Timeframe[]).map((tf) => (
+              {(["today", "week", "month", "all-time"] as Timeframe[]).map((tf) => (
                 <Button
                   key={tf}
                   onClick={() => handleTimeframeChange(tf)}
@@ -243,7 +243,9 @@ export default function CaseWorkflowTracker({
                     ? "Today"
                     : tf === "week"
                       ? "This Week"
-                      : "This Month"}
+                      : tf === "month"
+                        ? "This Month"
+                        : "All Time"}
                 </Button>
               ))}
             </div>
