@@ -1230,7 +1230,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             endedAt: archiverData.ended_at
               ? Math.round(archiverData.ended_at)
               : null,
-            status: "completed",
+            status: "Retrieved",
             durationSeconds: archiverData.duration_seconds
               ? Math.round(archiverData.duration_seconds)
               : null,
