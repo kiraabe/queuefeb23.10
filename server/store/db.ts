@@ -865,26 +865,32 @@ export async function initDb() {
 
     // Add unique constraint on ticket_id if it doesn't exist (for existing databases)
     try {
-      // Check if the constraint already exists
+      // Check if the unique constraint already exists
       const constraintCheck = await p.query(
-        `SELECT constraint_name FROM information_schema.table_constraints
-         WHERE table_name = 'case_progress' AND constraint_type = 'UNIQUE'`,
+        `SELECT constraint_name FROM information_schema.key_column_usage
+         WHERE table_name = 'case_progress' AND column_name = 'ticket_id' AND constraint_name LIKE 'uq_%'`,
       );
 
-      if (constraintCheck.rowCount === 0) {
+      if (!constraintCheck.rows.length) {
         // If there are duplicate ticket_ids, keep only the latest progress record for each ticket
-        const result = await p.query(`
-          DELETE FROM case_progress cp
-          WHERE id NOT IN (
-            SELECT id FROM (
-              SELECT id, ROW_NUMBER() OVER (PARTITION BY ticket_id ORDER BY created_at DESC) as rn
-              FROM case_progress
-            ) sub
-            WHERE rn = 1
-          )
+        const duplicateCheck = await p.query(`
+          SELECT ticket_id, COUNT(*) as count
+          FROM case_progress
+          GROUP BY ticket_id
+          HAVING COUNT(*) > 1
         `);
 
-        if (result.rowCount && result.rowCount > 0) {
+        if (duplicateCheck.rowCount && duplicateCheck.rowCount > 0) {
+          // Remove duplicates, keeping only the latest
+          const result = await p.query(`
+            DELETE FROM case_progress cp
+            WHERE id NOT IN (
+              SELECT DISTINCT ON (ticket_id) id
+              FROM case_progress
+              ORDER BY ticket_id, created_at DESC
+            )
+          `);
+
           console.log(`🗑️  Cleaned up ${result.rowCount} duplicate progress records`);
         }
 
@@ -895,8 +901,8 @@ export async function initDb() {
         console.log("✅ Added UNIQUE constraint on case_progress(ticket_id)");
       }
     } catch (error: any) {
-      if (!error.message?.includes("already exists")) {
-        console.warn("⚠️  Could not add unique constraint to case_progress:", error.message);
+      if (!error.message?.includes("already exists") && !error.message?.includes("duplicate key")) {
+        console.warn("⚠️  Note on unique constraint for case_progress:", error.message);
       }
     }
 
