@@ -1566,20 +1566,9 @@ export async function transferDb(
       [source.currentTicketId, windowId],
     );
 
-    // If transferring to an employee, create an employee progress record
-    if (transferredToUserId) {
-      await client.query(
-        `INSERT INTO employee_case_performance (ticket_id, employee_id, step_type, started_at, status)
-         VALUES ($1, $2, $3, now(), $4)
-         ON CONFLICT DO NOTHING`,
-        [
-          source.currentTicketId,
-          transferredToUserId,
-          "employee",
-          "in_progress",
-        ],
-      );
-    }
+    // DO NOT automatically create an employee progress record here.
+    // The employee must click Start button themselves to create their own performance record.
+    // This ensures each employee has their own independent Start button state.
 
     await client.query("COMMIT");
 
