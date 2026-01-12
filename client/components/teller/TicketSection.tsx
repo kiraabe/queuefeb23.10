@@ -186,13 +186,6 @@ function TicketRow({
     // Each item contains the employee/archiver/teller workflow data
     const workflowItems = performanceData?.items;
 
-    if (workflowItems && workflowItems.length > 0) {
-      console.log("ProcessFlow - API Response Items:", {
-        count: workflowItems.length,
-        firstItem: workflowItems[0],
-      });
-    }
-
     const formatTime = (seconds: number | null) => {
       if (!seconds) return "—";
       if (seconds < 60) return `${Math.round(seconds)}s`;
@@ -246,7 +239,7 @@ function TicketRow({
           action = "Started";
         }
 
-        const step = {
+        steps.push({
           id: item.id,
           number: stepNumber++,
           employeeName: displayName,
@@ -256,14 +249,10 @@ function TicketRow({
           durationSeconds: item.durationSeconds,
           startedAt: item.startedAt,
           endedAt: item.endedAt,
-        };
-
-        console.log("ProcessFlow - Created Step:", step);
-        steps.push(step);
+        });
       });
     }
 
-    console.log("ProcessFlow - Total Steps Created:", steps.length);
     return steps;
   }, [performanceData]);
 
