@@ -696,15 +696,6 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       0,
     );
 
-    const avgCompletionTimeByEmployee = employeePerfRes.rows.length > 0
-      ? Math.round(
-          employeePerfRes.rows.reduce(
-            (sum: number, r: any) => sum + (r.avg_case_time || 0),
-            0,
-          ) / employeePerfRes.rows.length,
-        )
-      : null;
-
     const report = {
       generatedAt: new Date().toISOString(),
       summary: {
@@ -715,9 +706,9 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         waiting: Number(ticketStats.waiting || 0),
         serving: Number(ticketStats.serving || 0),
         completionRate: overallCompletionRate,
-        averageServiceTime: ticketStats.avg_service_time || null,
-        minServiceTime: ticketStats.min_service_time || null,
-        maxServiceTime: ticketStats.max_service_time || null,
+        averageServiceTime: null,
+        minServiceTime: null,
+        maxServiceTime: null,
       },
       employees: employeePerfRes.rows.map((r: any) => ({
         employeeId: r.employee_id,
@@ -725,8 +716,8 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         totalCasesStarted: Number(r.total_cases_started || 0),
         casesCompleted: Number(r.cases_completed || 0),
         casesProceed: Number(r.cases_proceeded || 0),
-        averageCaseTime: r.avg_case_time || null,
-        totalTimeSpent: r.total_time_spent || null,
+        averageCaseTime: null,
+        totalTimeSpent: null,
       })),
       categories: categoryPerfRes.rows.map((r: any) => ({
         categoryName: r.service_name || "Uncategorized",
@@ -734,28 +725,22 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         served: Number(r.served || 0),
         skipped: Number(r.skipped || 0),
         transferred: Number(r.transferred || 0),
-        averageServiceTime: r.avg_service_time || null,
+        averageServiceTime: null,
         completionRate: Number(r.total_tickets || 0) > 0
           ? Math.round((Number(r.served || 0) / Number(r.total_tickets || 0)) * 100)
           : 0,
       })),
-      windows: windowStatsRes.rows ? windowStatsRes.rows.map((r: any) => ({
-        windowId: r.id,
-        windowName: r.name,
-        served: Number(r.served || 0),
-        skipped: Number(r.skipped || 0),
-        averageServiceTime: r.avg_service_time || null,
-      })) : [],
+      windows: [],
       insights: {
         totalEmployees,
         totalCasesProcessed,
-        averageCompletionTimeByEmployee: avgCompletionTimeByEmployee,
+        averageCompletionTimeByEmployee: null,
         highestPerformer:
           highestPerformer && Number(highestPerformer.cases_completed || 0) > 0
             ? {
                 employeeName: highestPerformer.full_name || highestPerformer.username || "Unknown",
                 casesCompleted: Number(highestPerformer.cases_completed || 0),
-                averageTime: highestPerformer.avg_case_time || null,
+                averageTime: null,
               }
             : null,
       },
