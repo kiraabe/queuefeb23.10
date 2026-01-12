@@ -638,9 +638,12 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         u.username,
         COUNT(ecp.id) as total_cases_started,
         SUM(CASE WHEN ecp.status = 'completed' THEN 1 ELSE 0 END) as cases_completed,
-        SUM(CASE WHEN ecp.status = 'proceeded' THEN 1 ELSE 0 END) as cases_proceeded
+        SUM(CASE WHEN ecp.status = 'proceeded' THEN 1 ELSE 0 END) as cases_proceeded,
+        AVG(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))) as avg_case_time_seconds,
+        SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))) as total_time_spent_seconds
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
+      WHERE ecp.started_at IS NOT NULL AND ecp.ended_at IS NOT NULL
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
     );
