@@ -113,7 +113,10 @@ export function CompletedTicketSummary({
                 </div>
                 {step.startedAt && (
                   <p className="text-xs text-green-600 dark:text-green-400 mt-0.5 ml-4">
-                    <span className="text-green-500 dark:text-green-500">↳</span> {formatDateTime(step.startedAt)}
+                    <span className="text-green-500 dark:text-green-500">
+                      ↳
+                    </span>{" "}
+                    {formatDateTime(step.startedAt)}
                   </p>
                 )}
               </div>
