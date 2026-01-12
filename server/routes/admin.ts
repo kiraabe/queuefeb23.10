@@ -663,7 +663,10 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       FROM tickets`,
     );
 
+    console.log("[getOverallAnalytics] Employee performance fetched, rows:", employeePerfRes.rows?.length || 0);
+
     // Get category performance (no daily filter)
+    console.log("[getOverallAnalytics] Fetching category performance...");
     const categoryPerfRes = await p.query(
       `SELECT
         t.service as service_name,
