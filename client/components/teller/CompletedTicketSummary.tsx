@@ -100,22 +100,31 @@ export function CompletedTicketSummary({
   return (
     <div className="mt-3 space-y-2 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 p-3 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200/50 dark:border-green-900/50">
       {/* Flow visualization */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="space-y-2">
         {items.map((step, index) => (
-          <div key={step.id} className="flex items-center gap-1.5">
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="flex items-center gap-1">
-                <Activity className="h-3 w-3 text-green-600 dark:text-green-400" />
-                <span className="text-xs font-medium text-green-700 dark:text-green-300 whitespace-nowrap truncate max-w-[100px]">
-                  {step.employeeName}
-                </span>
+          <div key={step.id}>
+            <div className="flex items-center gap-2 rounded-lg bg-white/40 dark:bg-black/20 p-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <Activity className="h-3.5 w-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-300 truncate">
+                    {step.employeeName}
+                  </span>
+                </div>
+                {step.startedAt && (
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-0.5 ml-4">
+                    <span className="text-green-500 dark:text-green-500">↳</span> {formatDateTime(step.startedAt)}
+                  </p>
+                )}
               </div>
-              <span className="text-xs text-green-600/70 dark:text-green-400/70">
+              <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex-shrink-0">
                 {formatTime(step.durationSeconds)}
               </span>
             </div>
             {index < items.length - 1 && (
-              <ArrowRight className="h-3.5 w-3.5 text-green-400 dark:text-green-600 flex-shrink-0" />
+              <div className="flex justify-center py-1">
+                <ArrowRight className="h-3.5 w-3.5 text-green-400 dark:text-green-600 rotate-90" />
+              </div>
             )}
           </div>
         ))}
