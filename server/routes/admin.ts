@@ -727,8 +727,8 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         totalCasesStarted: Number(r.total_cases_started || 0),
         casesCompleted: Number(r.cases_completed || 0),
         casesProceed: Number(r.cases_proceeded || 0),
-        averageCaseTime: null,
-        totalTimeSpent: null,
+        averageCaseTime: r.avg_case_time_seconds ? Math.round(Number(r.avg_case_time_seconds)) : null,
+        totalTimeSpent: r.total_time_spent_seconds ? Math.round(Number(r.total_time_spent_seconds)) : null,
       })),
       categories: categoryPerfRes.rows.map((r: any) => ({
         categoryName: r.service_name || "Uncategorized",
