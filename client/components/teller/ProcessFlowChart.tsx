@@ -93,6 +93,13 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
                   {step.employeeName}
                 </p>
 
+                {/* Job title */}
+                {step.jobTitle && (
+                  <p className="text-xs text-muted-foreground text-center max-w-24 line-clamp-2">
+                    {step.jobTitle}
+                  </p>
+                )}
+
                 {/* Action label */}
                 <span className="text-xs font-medium text-muted-foreground">
                   {step.action}
