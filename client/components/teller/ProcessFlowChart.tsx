@@ -116,6 +116,15 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
                   {step.action}
                 </span>
 
+                {/* Timestamp - started time */}
+                {step.startedAt && (
+                  <div className="text-xs text-center">
+                    <p className="text-muted-foreground">
+                      {formatDateTime(step.startedAt)?.time}
+                    </p>
+                  </div>
+                )}
+
                 {/* Duration */}
                 <div className="rounded bg-white/50 dark:bg-black/20 px-2 py-1">
                   <p className="text-xs font-semibold text-foreground">
