@@ -868,12 +868,12 @@ export async function initDb() {
       // Check if the constraint already exists
       const constraintCheck = await p.query(
         `SELECT constraint_name FROM information_schema.table_constraints
-         WHERE table_name = 'case_progress' AND constraint_type = 'UNIQUE' AND column_name = 'ticket_id'`,
+         WHERE table_name = 'case_progress' AND constraint_type = 'UNIQUE'`,
       );
 
       if (constraintCheck.rowCount === 0) {
         // If there are duplicate ticket_ids, keep only the latest progress record for each ticket
-        await p.query(`
+        const result = await p.query(`
           DELETE FROM case_progress cp
           WHERE id NOT IN (
             SELECT id FROM (
@@ -883,6 +883,10 @@ export async function initDb() {
             WHERE rn = 1
           )
         `);
+
+        if (result.rowCount && result.rowCount > 0) {
+          console.log(`🗑️  Cleaned up ${result.rowCount} duplicate progress records`);
+        }
 
         // Now add the unique constraint
         await p.query(
