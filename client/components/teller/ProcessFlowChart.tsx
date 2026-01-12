@@ -8,6 +8,8 @@ interface ProcessStep {
   action: "Started" | "Proceeded" | "Completed";
   duration: string;
   durationSeconds: number | null;
+  startedAt?: number | null;
+  endedAt?: number | null;
 }
 
 interface ProcessFlowChartProps {
