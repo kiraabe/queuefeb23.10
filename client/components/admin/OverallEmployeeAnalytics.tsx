@@ -139,12 +139,14 @@ export default function OverallEmployeeAnalytics() {
     );
   }
 
-  const chartData = analytics.employees.map((emp) => ({
-    name: emp.employeeName.split(" ")[0], // First name only
-    completed: emp.casesCompleted,
-    forwarded: emp.casesProceed,
-    avgTime: emp.averageCaseTime || 0,
-  }));
+  const chartData = analytics.employees
+    .filter((emp) => emp.averageCaseTime !== null) // Only show employees with time data
+    .map((emp) => ({
+      name: emp.employeeName.split(" ")[0], // First name only
+      completed: emp.casesCompleted,
+      forwarded: emp.casesProceed,
+      avgTime: emp.averageCaseTime || 0,
+    }));
 
   return (
     <div className="space-y-6">
