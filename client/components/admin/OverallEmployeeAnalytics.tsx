@@ -264,21 +264,42 @@ export default function OverallEmployeeAnalytics() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="avgTime"
-                    stroke="#f59e0b"
-                    name="Avg Time (sec)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis label={{ value: "Time (seconds)", angle: -90, position: "insideLeft" }} />
+                    <Tooltip
+                      formatter={(value) => {
+                        const num = Number(value);
+                        const mins = Math.floor(num / 60);
+                        const secs = Math.round(num % 60);
+                        if (mins === 0) return `${secs}s`;
+                        return `${mins}m ${secs}s`;
+                      }}
+                      contentStyle={{
+                        backgroundColor: "var(--background)",
+                        border: "1px solid var(--border)",
+                      }}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="avgTime"
+                      stroke="#f59e0b"
+                      name="Avg Time"
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      connectNulls
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center py-8 text-muted-foreground">
+                  No duration data available
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
