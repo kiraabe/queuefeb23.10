@@ -524,7 +524,7 @@ export default function AdminDashboard() {
           <OverallCategoryAnalytics />
 
           {/* Process Flow Section */}
-          <CaseWorkflowTracker />
+          <CaseWorkflowTracker defaultTimeframe="all-time" />
         </div>
       )}
 
