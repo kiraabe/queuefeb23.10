@@ -1324,6 +1324,17 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         });
 
+        // Mark the last non-archiver, non-teller item in the workflow as "Completed"
+        if (workflowItems.length > 0) {
+          // Find the last item that is NOT an archiver or teller
+          for (let i = workflowItems.length - 1; i >= 0; i--) {
+            if (!workflowItems[i].isArchiever && !workflowItems[i].isTeller) {
+              workflowItems[i].status = "Completed";
+              break;
+            }
+          }
+        }
+
         // Calculate total duration from first step to last step
         let totalDuration = null;
         if (workflowItems.length > 0) {
