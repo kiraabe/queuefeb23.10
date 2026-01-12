@@ -58,7 +58,11 @@ interface CaseWorkflow {
   totalDuration: number | null;
 }
 
-type Timeframe = "today" | "week" | "month";
+type Timeframe = "today" | "week" | "month" | "all-time";
+
+interface CaseWorkflowTrackerProps {
+  defaultTimeframe?: Timeframe;
+}
 
 const formatSeconds = (seconds: number | null) => {
   if (seconds === null || seconds === 0) return "N/A";
