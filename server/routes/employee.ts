@@ -1384,6 +1384,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         return {
           ticketId,
           ticketCode: ticketInfo?.ticketCode,
+          createdAt: ticketDatesMap.get(ticketId) || null,
           ticketInfo,
           items: workflowItems,
           totalDuration,
