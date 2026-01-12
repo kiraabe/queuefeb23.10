@@ -258,10 +258,17 @@ export default function CaseWorkflowTracker({
               <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                      Ticket{" "}
-                      {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
-                    </CardTitle>
+                    <div className="flex items-start justify-between gap-4">
+                      <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                        Ticket{" "}
+                        {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
+                      </CardTitle>
+                      {workflow.createdAt && (
+                        <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
+                          {format(new Date(workflow.createdAt), "MMM dd, yyyy HH:mm")}
+                        </div>
+                      )}
+                    </div>
                     {workflow.ticketInfo?.serviceCategory && (
                       <div className="flex items-center gap-2">
                         <Badge
