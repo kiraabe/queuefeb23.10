@@ -21,6 +21,12 @@ import type {
   GetCategoryServicesResponse,
 } from "@shared/api";
 
+// Define logAudit as a stub since it's used but not fully defined
+const logAudit = async (params: any) => {
+  // Audit logging stub
+  console.debug("Audit:", params);
+};
+
 export const clearDemo: RequestHandler = async (_req, res) => {
   if (!isDbEnabled) return res.status(400).json({ error: "DB not enabled" });
   const p = getPool();
