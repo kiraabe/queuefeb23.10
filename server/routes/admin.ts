@@ -619,6 +619,168 @@ export const getDailyReport: RequestHandler = async (_req, res) => {
   }
 };
 
+export const getOverallAnalytics: RequestHandler = async (_req, res) => {
+  if (!isDbEnabled) {
+    return res.status(400).json({ error: "Database not enabled" });
+  }
+
+  try {
+    const p = getPool();
+
+    // Get ALL employee case performance (no daily filter)
+    const employeePerfRes = await p.query(
+      `SELECT
+        ecp.employee_id,
+        u.full_name,
+        u.username,
+        COUNT(DISTINCT ecp.id) as total_cases_started,
+        COUNT(DISTINCT CASE WHEN ecp.status = 'completed' THEN ecp.id END) as cases_completed,
+        COUNT(DISTINCT CASE WHEN ecp.status = 'proceeded' THEN ecp.id END) as cases_proceeded,
+        ROUND(AVG(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as avg_case_time,
+        ROUND(SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as total_time_spent
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      GROUP BY ecp.employee_id, u.full_name, u.username
+      ORDER BY cases_completed DESC`,
+    );
+
+    // Get ALL ticket statistics (no daily filter)
+    const ticketsRes = await p.query(
+      `SELECT
+        COUNT(*)::int as total,
+        COUNT(CASE WHEN status = 'done' THEN 1 END)::int as served,
+        COUNT(CASE WHEN status = 'skipped' THEN 1 END)::int as skipped,
+        COUNT(CASE WHEN status = 'transferred' THEN 1 END)::int as transferred,
+        COUNT(CASE WHEN status = 'waiting' THEN 1 END)::int as waiting,
+        COUNT(CASE WHEN status = 'serving' THEN 1 END)::int as serving,
+        ROUND(AVG(CASE WHEN status = 'done' THEN EXTRACT(EPOCH FROM (completed_at - started_at)) ELSE NULL END))::int as avg_service_time,
+        ROUND(MIN(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as min_service_time,
+        ROUND(MAX(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as max_service_time
+      FROM tickets`,
+    );
+
+    // Get category performance (no daily filter)
+    const categoryPerfRes = await p.query(
+      `SELECT
+        t.service as service_name,
+        COUNT(DISTINCT t.id) as total_tickets,
+        COUNT(DISTINCT CASE WHEN t.status = 'done' THEN t.id END) as served,
+        COUNT(DISTINCT CASE WHEN t.status = 'skipped' THEN t.id END) as skipped,
+        COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
+        ROUND(AVG(CASE WHEN t.status = 'done' THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+      FROM tickets t
+      GROUP BY t.service
+      ORDER BY total_tickets DESC`,
+    );
+
+    // Get window statistics (overall)
+    const windowStatsRes = await p.query(
+      `SELECT
+        w.id,
+        w.name,
+        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id THEN t.id END) as served,
+        COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id THEN t.id END) as skipped,
+        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th WHERE th.from_window = w.id) as transfers_from,
+        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th WHERE th.to_window = w.id) as transfers_to,
+        ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+      FROM windows w
+      LEFT JOIN tickets t ON w.id = t.window_id
+      GROUP BY w.id, w.name
+      ORDER BY w.id`,
+    );
+
+    const ticketStats = ticketsRes.rows[0] || {};
+    const totalTickets = Number(ticketStats.total || 0);
+    const totalServed = Number(ticketStats.served || 0);
+    const overallCompletionRate = totalTickets > 0
+      ? Math.round((totalServed / totalTickets) * 100)
+      : 0;
+
+    // Find highest performer
+    const highestPerformer =
+      employeePerfRes.rows.length > 0 ? employeePerfRes.rows[0] : null;
+
+    // Calculate summary statistics
+    const totalEmployees = employeePerfRes.rows.length;
+    const totalCasesProcessed = employeePerfRes.rows.reduce(
+      (sum: number, r: any) => sum + Number(r.total_cases_started || 0),
+      0,
+    );
+
+    const avgCompletionTimeByEmployee = employeePerfRes.rows.length > 0
+      ? Math.round(
+          employeePerfRes.rows.reduce(
+            (sum: number, r: any) => sum + (r.avg_case_time || 0),
+            0,
+          ) / employeePerfRes.rows.length,
+        )
+      : null;
+
+    const report = {
+      generatedAt: new Date().toISOString(),
+      summary: {
+        totalTickets,
+        served: totalServed,
+        skipped: Number(ticketStats.skipped || 0),
+        transferred: Number(ticketStats.transferred || 0),
+        waiting: Number(ticketStats.waiting || 0),
+        serving: Number(ticketStats.serving || 0),
+        completionRate: overallCompletionRate,
+        averageServiceTime: ticketStats.avg_service_time || null,
+        minServiceTime: ticketStats.min_service_time || null,
+        maxServiceTime: ticketStats.max_service_time || null,
+      },
+      employees: employeePerfRes.rows.map((r: any) => ({
+        employeeId: r.employee_id,
+        employeeName: r.full_name || r.username || "Unknown",
+        totalCasesStarted: Number(r.total_cases_started || 0),
+        casesCompleted: Number(r.cases_completed || 0),
+        casesProceed: Number(r.cases_proceeded || 0),
+        averageCaseTime: r.avg_case_time || null,
+        totalTimeSpent: r.total_time_spent || null,
+      })),
+      categories: categoryPerfRes.rows.map((r: any) => ({
+        categoryName: r.service_name || "Uncategorized",
+        totalTickets: Number(r.total_tickets || 0),
+        served: Number(r.served || 0),
+        skipped: Number(r.skipped || 0),
+        transferred: Number(r.transferred || 0),
+        averageServiceTime: r.avg_service_time || null,
+        completionRate: Number(r.total_tickets || 0) > 0
+          ? Math.round((Number(r.served || 0) / Number(r.total_tickets || 0)) * 100)
+          : 0,
+      })),
+      windows: windowStatsRes.rows.map((r: any) => ({
+        windowId: r.id,
+        windowName: r.name,
+        served: Number(r.served || 0),
+        skipped: Number(r.skipped || 0),
+        transfersFrom: Number(r.transfers_from || 0),
+        transfersTo: Number(r.transfers_to || 0),
+        averageServiceTime: r.avg_service_time || null,
+      })),
+      insights: {
+        totalEmployees,
+        totalCasesProcessed,
+        averageCompletionTimeByEmployee: avgCompletionTimeByEmployee,
+        highestPerformer:
+          highestPerformer && Number(highestPerformer.cases_completed || 0) > 0
+            ? {
+                employeeName: highestPerformer.full_name || highestPerformer.username || "Unknown",
+                casesCompleted: Number(highestPerformer.cases_completed || 0),
+                averageTime: highestPerformer.avg_case_time || null,
+              }
+            : null,
+      },
+    };
+
+    res.json(report);
+  } catch (error) {
+    console.error("Failed to generate overall analytics", error);
+    res.status(500).json({ error: "Failed to generate overall analytics" });
+  }
+};
+
 // Service Categories and Services handlers
 export const listServiceCategories: RequestHandler = async (_req, res) => {
   try {
