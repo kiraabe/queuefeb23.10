@@ -247,6 +247,8 @@ function TicketRow({
           action: action,
           duration: formatTime(item.durationSeconds),
           durationSeconds: item.durationSeconds,
+          startedAt: item.startedAt,
+          endedAt: item.endedAt,
         });
       });
     }
