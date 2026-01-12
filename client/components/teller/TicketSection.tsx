@@ -243,7 +243,7 @@ function TicketRow({
           id: item.id,
           number: stepNumber++,
           employeeName: displayName,
-          jobTitle: item.jobTitle || item.jobTitleName || "—",
+          jobTitle: item.jobTitle,
           action: action,
           duration: formatTime(item.durationSeconds),
           durationSeconds: item.durationSeconds,
