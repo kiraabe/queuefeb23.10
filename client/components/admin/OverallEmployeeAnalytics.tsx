@@ -200,10 +200,18 @@ export default function OverallEmployeeAnalytics() {
               </div>
               <p className="text-3xl font-bold">
                 {formatSeconds(
-                  analytics.insights.averageCompletionTimeByEmployee,
+                  analytics.employees.length > 0
+                    ? Math.round(
+                        analytics.employees.reduce(
+                          (sum: number, emp: any) =>
+                            sum + (emp.averageCaseTime || 0),
+                          0,
+                        ) / analytics.employees.length,
+                      )
+                    : null,
                 )}
               </p>
-              <p className="text-xs text-muted-foreground">per case</p>
+              <p className="text-xs text-muted-foreground">per case (average)</p>
             </div>
           </CardContent>
         </Card>
