@@ -891,7 +891,9 @@ export async function initDb() {
             )
           `);
 
-          console.log(`🗑️  Cleaned up ${result.rowCount} duplicate progress records`);
+          console.log(
+            `🗑️  Cleaned up ${result.rowCount} duplicate progress records`,
+          );
         }
 
         // Now add the unique constraint
@@ -901,8 +903,14 @@ export async function initDb() {
         console.log("✅ Added UNIQUE constraint on case_progress(ticket_id)");
       }
     } catch (error: any) {
-      if (!error.message?.includes("already exists") && !error.message?.includes("duplicate key")) {
-        console.warn("⚠️  Note on unique constraint for case_progress:", error.message);
+      if (
+        !error.message?.includes("already exists") &&
+        !error.message?.includes("duplicate key")
+      ) {
+        console.warn(
+          "⚠️  Note on unique constraint for case_progress:",
+          error.message,
+        );
       }
     }
 
