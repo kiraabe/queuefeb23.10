@@ -11,7 +11,6 @@ import {
   BarChart3,
   Users,
   Ticket,
-  MonitorPlay,
   Settings,
   User,
   Briefcase,
