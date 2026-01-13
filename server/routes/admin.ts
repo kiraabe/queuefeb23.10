@@ -346,7 +346,7 @@ export const getEmployeeStats: RequestHandler = async (_req, res) => {
 
     // Get total employees
     const employeesRes = await p.query(
-      `SELECT COUNT(DISTINCT id) as count FROM users WHERE active_role = 'employee'`,
+      `SELECT COUNT(DISTINCT id) as count FROM users WHERE role = 'employee'`,
     );
     const totalEmployees = Number(employeesRes.rows[0]?.count || 0);
 
