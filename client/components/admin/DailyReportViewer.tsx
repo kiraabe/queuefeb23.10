@@ -146,9 +146,12 @@ export default function DailyReportViewer() {
         const toEnd = new Date(to);
         toEnd.setHours(23, 59, 59, 999);
 
-        const fromStr = encodeURIComponent(fromStart.toISOString());
-        const toStr = encodeURIComponent(toEnd.toISOString());
-        url += `?fromDate=${fromStr}&toDate=${toStr}`;
+        // Use URLSearchParams for proper parameter encoding
+        const params = new URLSearchParams({
+          fromDate: fromStart.toISOString(),
+          toDate: toEnd.toISOString(),
+        });
+        url += `?${params.toString()}`;
       }
 
       const response = await fetch(url);
