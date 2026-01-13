@@ -352,6 +352,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       // User specified date range - already in ISO format from frontend
       fromDate = req.query.fromDate as string;
       toDate = req.query.toDate as string;
+      console.log("[getDailyReport] Received date range from frontend:", {
+        fromDate,
+        toDate,
+      });
     } else {
       // Default to today only
       const today = new Date();
@@ -361,6 +365,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       const todayEnd = new Date(today);
       todayEnd.setUTCHours(23, 59, 59, 999);
       toDate = todayEnd.toISOString();
+      console.log("[getDailyReport] Using default date range (today):", {
+        fromDate,
+        toDate,
+      });
     }
 
     // Get skipped tickets with details
