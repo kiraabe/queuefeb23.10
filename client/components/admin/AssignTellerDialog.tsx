@@ -250,7 +250,7 @@ export default function AssignTellerDialog({
           )}
 
           {/* Assign Existing Teller */}
-          {allTellers.length > 0 && (
+          {allTellers.filter((t) => !t.windowId).length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="existing-teller">Assign Existing Teller</Label>
               <Select
@@ -259,22 +259,16 @@ export default function AssignTellerDialog({
                 disabled={isSaving}
               >
                 <SelectTrigger id="existing-teller">
-                  <SelectValue placeholder="Select a teller" />
+                  <SelectValue placeholder="Select an unassigned teller" />
                 </SelectTrigger>
                 <SelectContent>
-                  {allTellers.map((teller) => {
-                    const currentWindow = allWindows.find(
-                      (w) => w.id === teller.windowId,
-                    );
-                    const label = currentWindow
-                      ? `${teller.username} (assigned to ${currentWindow.name})`
-                      : `${teller.username} (unassigned)`;
-                    return (
+                  {allTellers
+                    .filter((teller) => !teller.windowId)
+                    .map((teller) => (
                       <SelectItem key={teller.id} value={teller.id}>
-                        {label}
+                        {teller.username}
                       </SelectItem>
-                    );
-                  })}
+                    ))}
                 </SelectContent>
               </Select>
               <Button
