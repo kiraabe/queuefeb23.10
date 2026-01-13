@@ -468,6 +468,20 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         JOIN tickets t ON t.id = th.ticket_id
         WHERE t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
         GROUP BY th.to_window
+      ),
+      window_avg_service_time AS (
+        SELECT w.id as window_id,
+          ROUND(AVG(EXTRACT(EPOCH FROM (t.completed_at - t.started_at))))::int as avg_time
+        FROM windows w
+        LEFT JOIN tickets t ON (
+          (t.window_id = w.id OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id))
+          AND t.status = 'done'
+          AND t.created_at >= $1::timestamptz
+          AND t.created_at <= $2::timestamptz
+          AND t.completed_at IS NOT NULL
+          AND t.started_at IS NOT NULL
+        )
+        GROUP BY w.id
       )
       SELECT
         w.id,
@@ -486,14 +500,13 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         COALESCE(ws.skipped_count, 0)::int as skipped,
         COALESCE(wtf.transfers_from_count, 0)::int as transfers_from,
         COALESCE(wtt.transfers_to_count, 0)::int as transfers_to,
-        ROUND(AVG(CASE WHEN t.status = 'done' AND (t.window_id = w.id OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id)) AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+        COALESCE(wast.avg_time, NULL)::int as avg_service_time
       FROM windows w
-      LEFT JOIN tickets t ON t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
       LEFT JOIN window_served_tickets wst ON wst.window_id = w.id
       LEFT JOIN window_skipped_tickets ws ON ws.window_id = w.id
       LEFT JOIN window_transfers_from wtf ON wtf.window_id = w.id
       LEFT JOIN window_transfers_to wtt ON wtt.window_id = w.id
-      GROUP BY w.id, w.name, wst.served_count, ws.skipped_count, wtf.transfers_from_count, wtt.transfers_to_count
+      LEFT JOIN window_avg_service_time wast ON wast.window_id = w.id
       ORDER BY w.id`,
       [fromDate, toDate],
     );
