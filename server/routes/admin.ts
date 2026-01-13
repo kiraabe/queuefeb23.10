@@ -535,7 +535,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
-    // Get category performance data (aggregate by service)
+    // Get category performance data (aggregate by service) for the date range
     const categoryPerfRes = await p.query(
       `SELECT
         t.service as service_name,
@@ -545,10 +545,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
         ROUND(AVG(CASE WHEN t.status = 'done' THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
       FROM tickets t
-      WHERE t.created_at >= $1
+      WHERE t.created_at >= $1 AND t.created_at <= $2
       GROUP BY t.service
       ORDER BY total_tickets DESC`,
-      [todayStr],
+      [fromDate, toDate],
     );
 
     const report = {
