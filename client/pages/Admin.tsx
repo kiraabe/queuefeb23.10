@@ -19,7 +19,6 @@ import {
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import SessionManagement from "@/components/admin/SessionManagement";
 import TicketManagement from "@/components/admin/TicketManagement";
-import AdminWindows from "@/components/admin/AdminWindows";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import EmploymentManagement from "@/components/admin/EmploymentManagement";
@@ -38,7 +37,7 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -54,10 +53,6 @@ export default function Admin() {
             <TabsTrigger value="tickets" className="flex items-center gap-2">
               <Ticket className="h-4 w-4" />
               <span className="hidden sm:inline">Tickets</span>
-            </TabsTrigger>
-            <TabsTrigger value="windows" className="flex items-center gap-2">
-              <MonitorPlay className="h-4 w-4" />
-              <span className="hidden sm:inline">Windows</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -85,9 +80,6 @@ export default function Admin() {
             <TicketManagement />
           </TabsContent>
 
-          <TabsContent value="windows" className="space-y-4">
-            <AdminWindows />
-          </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
             <AdminSettings />
