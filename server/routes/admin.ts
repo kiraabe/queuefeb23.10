@@ -553,10 +553,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         w.id,
         w.name,
         COALESCE(
-          (SELECT u.username FROM user_sessions us
-           JOIN users u ON us.user_id = u.id
+          (SELECT us.username FROM user_sessions us
            WHERE us.window_id = w.id AND us.revoked_at IS NULL
            ORDER BY us.created_at DESC LIMIT 1),
+          (SELECT u.username FROM users u WHERE u.window_id = w.id LIMIT 1),
           'Unassigned'
         ) as teller_name,
         COALESCE(wst.served_count, 0)::int as served,
