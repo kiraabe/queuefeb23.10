@@ -459,15 +459,81 @@ export default function DailyReportViewer() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <Button onClick={fetchReport} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
-        <Button onClick={downloadCSV} size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Download CSV
-        </Button>
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-2">
+        {/* Date Range Picker */}
+        <div className="flex flex-col gap-2 md:flex-row md:items-end">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">From Date</label>
+            <Popover open={fromDateOpen} onOpenChange={setFromDateOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "w-full md:w-auto justify-start text-left font-normal",
+                    !fromDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {fromDate ? format(fromDate, "MMM dd, yyyy") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={fromDate}
+                  onSelect={(date) => {
+                    setFromDate(date);
+                    setFromDateOpen(false);
+                  }}
+                  disabled={(date) => toDate ? date > toDate : false}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">To Date</label>
+            <Popover open={toDateOpen} onOpenChange={setToDateOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "w-full md:w-auto justify-start text-left font-normal",
+                    !toDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {toDate ? format(toDate, "MMM dd, yyyy") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={toDate}
+                  onSelect={(date) => {
+                    setToDate(date);
+                    setToDateOpen(false);
+                  }}
+                  disabled={(date) => fromDate ? date < fromDate : false}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button onClick={() => fetchReport(fromDate, toDate)} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={downloadCSV} size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Download CSV
+          </Button>
+        </div>
       </div>
 
       <Card>
