@@ -414,8 +414,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       LEFT JOIN windows wf ON th.from_window = wf.id
       LEFT JOIN windows wt ON th.to_window = wt.id
       WHERE t.created_at >= $1
+        AND t.created_at <= $2
       ORDER BY th.transferred_at DESC`,
-      [todayStr],
+      [fromDate, toDate],
     );
 
     // Get all tickets created today
