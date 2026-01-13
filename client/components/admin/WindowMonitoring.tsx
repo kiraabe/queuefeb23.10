@@ -168,6 +168,17 @@ export default function WindowMonitoring() {
     }
   };
 
+  const getServedLabel = () => {
+    switch (timeFilter) {
+      case "today":
+        return "Served Today";
+      case "month":
+        return "Served This Month";
+      case "all":
+        return "Served (All Time)";
+    }
+  };
+
   const getCSVFileName = () => {
     const now = new Date();
     const dateStr = format(now, "yyyy-MM-dd");
