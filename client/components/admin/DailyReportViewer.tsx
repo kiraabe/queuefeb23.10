@@ -479,117 +479,41 @@ export default function DailyReportViewer() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-2">
         {/* Date Range Picker */}
-        <div className="flex flex-col gap-2 md:flex-row md:items-end">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
               From Date
             </label>
-            <Popover open={fromDateOpen} onOpenChange={setFromDateOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "w-full md:w-auto justify-start text-left font-normal",
-                    !fromDate && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {fromDate ? format(fromDate, "MMM dd, yyyy") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3" align="start">
-                <Calendar
-                  mode="single"
-                  selected={fromDate}
-                  onSelect={(date) => {
-                    setFromDate(date);
-                    setFromDateOpen(false);
-                  }}
-                  disabled={(date) => (toDate ? date > toDate : false)}
-                />
-                <div className="flex justify-between gap-2 pt-3 border-t mt-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setFromDate(undefined);
-                      setFromDateOpen(false);
-                    }}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600 hover:text-blue-700"
-                    onClick={() => {
-                      setFromDate(new Date());
-                      setFromDateOpen(false);
-                    }}
-                  >
-                    Today
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <div className="relative">
+              <ReactDatePicker
+                selected={fromDate}
+                onChange={(date) => setFromDate(date)}
+                maxDate={toDate}
+                dateFormat="MMM dd, yyyy"
+                placeholderText="Pick a date"
+                className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                wrapperClassName="w-full md:w-auto"
+                popperClassName="react-datepicker-popper"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
               To Date
             </label>
-            <Popover open={toDateOpen} onOpenChange={setToDateOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "w-full md:w-auto justify-start text-left font-normal",
-                    !toDate && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {toDate ? format(toDate, "MMM dd, yyyy") : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3" align="start">
-                <Calendar
-                  mode="single"
-                  selected={toDate}
-                  onSelect={(date) => {
-                    setToDate(date);
-                    setToDateOpen(false);
-                  }}
-                  disabled={(date) => (fromDate ? date < fromDate : false)}
-                />
-                <div className="flex justify-between gap-2 pt-3 border-t mt-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setToDate(undefined);
-                      setToDateOpen(false);
-                    }}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600 hover:text-blue-700"
-                    onClick={() => {
-                      setToDate(new Date());
-                      setToDateOpen(false);
-                    }}
-                  >
-                    Today
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <div className="relative">
+              <ReactDatePicker
+                selected={toDate}
+                onChange={(date) => setToDate(date)}
+                minDate={fromDate}
+                dateFormat="MMM dd, yyyy"
+                placeholderText="Pick a date"
+                className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                wrapperClassName="w-full md:w-auto"
+                popperClassName="react-datepicker-popper"
+              />
+            </div>
           </div>
         </div>
 
