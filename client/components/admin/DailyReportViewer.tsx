@@ -542,7 +542,9 @@ export default function DailyReportViewer() {
         <CardHeader>
           <CardTitle>Daily Report</CardTitle>
           <CardDescription>
-            {format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
+            {report.reportDate.includes(" to ")
+              ? report.reportDate
+              : format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
           </CardDescription>
         </CardHeader>
         <CardContent>
