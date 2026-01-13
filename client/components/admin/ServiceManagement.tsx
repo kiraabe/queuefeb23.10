@@ -76,7 +76,7 @@ export default function ServiceManagement() {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (retries = 3): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -115,10 +115,21 @@ export default function ServiceManagement() {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Failed to load categories";
       console.error("Failed to load data", error);
+
+      // Retry with exponential backoff for network errors
+      if (retries > 0 && error instanceof TypeError) {
+        console.log(`Retrying loadData... (${3 - retries + 1}/3)`);
+        setIsLoading(false);
+        setTimeout(() => loadData(retries - 1), Math.pow(2, 3 - retries) * 1000);
+        return;
+      }
+
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
-      setIsLoading(false);
+      if (retries === 3 || retries < 3) {
+        setIsLoading(false);
+      }
     }
   };
 
