@@ -558,7 +558,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     );
 
     const report = {
-      reportDate: reportDate.toISOString().split("T")[0],
+      reportDate: reportDate,
       generatedAt: new Date().toISOString(),
       summary: {
         totalTicketsCreated: Number(totalTicketsRes.rows[0]?.total || 0),
