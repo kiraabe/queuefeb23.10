@@ -306,9 +306,7 @@ export default function AdminDashboard() {
                 <Zap className="h-4 w-4 text-purple-500" />
               </div>
               <p className="text-2xl font-bold">{windows.length}</p>
-              <p className="text-xs text-muted-foreground">
-                total available
-              </p>
+              <p className="text-xs text-muted-foreground">total available</p>
             </div>
           </div>
         </CardContent>

@@ -250,47 +250,50 @@ export default function AssignTellerDialog({
           )}
 
           {/* Assign Existing Teller */}
-          {!assignedTeller && allTellers.filter((t) => !t.windowId).length > 0 && (
-            <div className="space-y-2">
-              <Label htmlFor="existing-teller">Assign Existing Teller</Label>
-              <Select
-                value={selectedTellerId}
-                onValueChange={setSelectedTellerId}
-                disabled={isSaving}
-              >
-                <SelectTrigger id="existing-teller">
-                  <SelectValue placeholder="Select an unassigned teller" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allTellers
-                    .filter((teller) => !teller.windowId)
-                    .map((teller) => (
-                      <SelectItem key={teller.id} value={teller.id}>
-                        {teller.username}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={() => {
-                  if (selectedTellerId) {
-                    handleAssignExistingTeller(selectedTellerId);
-                  } else {
-                    toast.error("Please select a teller");
-                  }
-                }}
-                disabled={isSaving || !selectedTellerId}
-                className="w-full"
-              >
-                Assign Selected Teller
-              </Button>
-            </div>
-          )}
+          {!assignedTeller &&
+            allTellers.filter((t) => !t.windowId).length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="existing-teller">Assign Existing Teller</Label>
+                <Select
+                  value={selectedTellerId}
+                  onValueChange={setSelectedTellerId}
+                  disabled={isSaving}
+                >
+                  <SelectTrigger id="existing-teller">
+                    <SelectValue placeholder="Select an unassigned teller" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allTellers
+                      .filter((teller) => !teller.windowId)
+                      .map((teller) => (
+                        <SelectItem key={teller.id} value={teller.id}>
+                          {teller.username}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={() => {
+                    if (selectedTellerId) {
+                      handleAssignExistingTeller(selectedTellerId);
+                    } else {
+                      toast.error("Please select a teller");
+                    }
+                  }}
+                  disabled={isSaving || !selectedTellerId}
+                  className="w-full"
+                >
+                  Assign Selected Teller
+                </Button>
+              </div>
+            )}
 
           {/* Create New Teller */}
           {!assignedTeller && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Or Create New Teller</Label>
+              <Label className="text-sm font-medium">
+                Or Create New Teller
+              </Label>
               <Input
                 placeholder="Username"
                 value={newTellerUsername}
