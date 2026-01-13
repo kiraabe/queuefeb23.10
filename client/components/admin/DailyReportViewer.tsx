@@ -136,36 +136,65 @@ export default function DailyReportViewer() {
   const [fromDate, setFromDate] = useState<Date | null>(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
 
-  const fetchReport = async (from?: Date, to?: Date) => {
+  const fetchReport = async (from?: Date | null, to?: Date | null) => {
     try {
       setLoading(true);
       setError(null);
 
-      let url = "/api/admin/daily-report";
-      if (from && to) {
-        // Set to start and end of day in local timezone, then convert to ISO string
-        const fromStart = new Date(from);
-        fromStart.setHours(0, 0, 0, 0);
-
-        const toEnd = new Date(to);
-        toEnd.setHours(23, 59, 59, 999);
-
-        // Use URLSearchParams for proper parameter encoding
-        const params = new URLSearchParams({
-          fromDate: fromStart.toISOString(),
-          toDate: toEnd.toISOString(),
-        });
-        url += `?${params.toString()}`;
+      // Ensure dates are valid
+      if (!from || !to) {
+        setError("Please select both From and To dates");
+        setLoading(false);
+        return;
       }
 
-      const response = await fetch(url);
+      // Create date range in UTC to avoid timezone issues
+      const fromStart = new Date(from);
+      fromStart.setHours(0, 0, 0, 0);
+
+      const toEnd = new Date(to);
+      toEnd.setHours(23, 59, 59, 999);
+
+      // Convert to ISO string and remove the Z to work with local timezone
+      const fromISO = fromStart.toISOString();
+      const toISO = toEnd.toISOString();
+
+      console.log("Fetching report for date range:", {
+        from: fromISO,
+        to: toISO,
+      });
+
+      // Use URLSearchParams for proper parameter encoding
+      const params = new URLSearchParams({
+        fromDate: fromISO,
+        toDate: toISO,
+      });
+
+      const url = `/api/admin/daily-report?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "fetch",
+        },
+        credentials: "include",
+      });
+
       if (!response.ok) {
-        throw new Error("Failed to fetch daily report");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Failed to fetch daily report: ${response.statusText}`
+        );
       }
+
       const data = await response.json();
+      console.log("Report data received:", data);
       setReport(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      const errorMsg = err instanceof Error ? err.message : "Unknown error";
+      console.error("Error fetching report:", errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
