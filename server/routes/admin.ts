@@ -336,13 +336,38 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
   }
 };
 
-export const getDailyReport: RequestHandler = async (_req, res) => {
+export const getDailyReport: RequestHandler = async (req, res) => {
   if (!isDbEnabled) {
     return res.status(400).json({ error: "Database not enabled" });
   }
 
   try {
     const p = getPool();
+
+    // Parse date range from query parameters
+    let fromDate: string;
+    let toDate: string;
+
+    if (req.query.fromDate && req.query.toDate) {
+      // User specified date range
+      const from = new Date(req.query.fromDate as string);
+      const to = new Date(req.query.toDate as string);
+
+      from.setUTCHours(0, 0, 0, 0);
+      to.setUTCHours(23, 59, 59, 999);
+
+      fromDate = from.toISOString();
+      toDate = to.toISOString();
+    } else {
+      // Default to today only
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      fromDate = today.toISOString();
+
+      const todayEnd = new Date(today);
+      todayEnd.setUTCHours(23, 59, 59, 999);
+      toDate = todayEnd.toISOString();
+    }
 
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
