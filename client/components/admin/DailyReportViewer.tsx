@@ -558,7 +558,7 @@ export default function DailyReportViewer() {
                   {toDate ? format(toDate, "MMM dd, yyyy") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-3" align="start">
                 <Calendar
                   mode="single"
                   selected={toDate}
@@ -568,6 +568,30 @@ export default function DailyReportViewer() {
                   }}
                   disabled={(date) => (fromDate ? date < fromDate : false)}
                 />
+                <div className="flex justify-between gap-2 pt-3 border-t mt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setToDate(undefined);
+                      setToDateOpen(false);
+                    }}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700"
+                    onClick={() => {
+                      setToDate(new Date());
+                      setToDateOpen(false);
+                    }}
+                  >
+                    Today
+                  </Button>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
