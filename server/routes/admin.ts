@@ -462,18 +462,22 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         GROUP BY w.id
       ),
       window_transfers_from AS (
-        SELECT th.from_window as window_id, COUNT(DISTINCT th.id) as transfers_from_count
-        FROM transfer_history th
-        JOIN tickets t ON t.id = th.ticket_id
-        WHERE t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
-        GROUP BY th.from_window
+        SELECT w.id as window_id, COUNT(DISTINCT th.id) as transfers_from_count
+        FROM windows w
+        LEFT JOIN transfer_history th ON th.from_window = w.id
+        LEFT JOIN tickets t ON t.id = th.ticket_id
+          AND t.created_at >= $1::timestamptz
+          AND t.created_at <= $2::timestamptz
+        GROUP BY w.id
       ),
       window_transfers_to AS (
-        SELECT th.to_window as window_id, COUNT(DISTINCT th.id) as transfers_to_count
-        FROM transfer_history th
-        JOIN tickets t ON t.id = th.ticket_id
-        WHERE t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
-        GROUP BY th.to_window
+        SELECT w.id as window_id, COUNT(DISTINCT th.id) as transfers_to_count
+        FROM windows w
+        LEFT JOIN transfer_history th ON th.to_window = w.id
+        LEFT JOIN tickets t ON t.id = th.ticket_id
+          AND t.created_at >= $1::timestamptz
+          AND t.created_at <= $2::timestamptz
+        GROUP BY w.id
       ),
       window_avg_service_time AS (
         SELECT w.id as window_id,
