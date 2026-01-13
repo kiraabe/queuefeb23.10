@@ -485,7 +485,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     const toDateObj = new Date(toDate);
     const fromDateStr = fromDateObj.toISOString().split("T")[0];
     const toDateStr = toDateObj.toISOString().split("T")[0];
-    const reportDate = fromDateStr === toDateStr ? fromDateStr : `${fromDateStr} to ${toDateStr}`;
+    const reportDate =
+      fromDateStr === toDateStr
+        ? fromDateStr
+        : `${fromDateStr} to ${toDateStr}`;
 
     // Get employee case performance data for the date range
     const employeePerfRes = await p.query(

@@ -17,9 +17,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { AlertCircle, Download, RefreshCw, TrendingUp, Calendar as CalendarIcon } from "lucide-react";
+import {
+  AlertCircle,
+  Download,
+  RefreshCw,
+  TrendingUp,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -475,7 +485,9 @@ export default function DailyReportViewer() {
         {/* Date Range Picker */}
         <div className="flex flex-col gap-2 md:flex-row md:items-end">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">From Date</label>
+            <label className="text-sm font-medium text-muted-foreground">
+              From Date
+            </label>
             <Popover open={fromDateOpen} onOpenChange={setFromDateOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -483,7 +495,7 @@ export default function DailyReportViewer() {
                   size="sm"
                   className={cn(
                     "w-full md:w-auto justify-start text-left font-normal",
-                    !fromDate && "text-muted-foreground"
+                    !fromDate && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -498,14 +510,16 @@ export default function DailyReportViewer() {
                     setFromDate(date);
                     setFromDateOpen(false);
                   }}
-                  disabled={(date) => toDate ? date > toDate : false}
+                  disabled={(date) => (toDate ? date > toDate : false)}
                 />
               </PopoverContent>
             </Popover>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">To Date</label>
+            <label className="text-sm font-medium text-muted-foreground">
+              To Date
+            </label>
             <Popover open={toDateOpen} onOpenChange={setToDateOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -513,7 +527,7 @@ export default function DailyReportViewer() {
                   size="sm"
                   className={cn(
                     "w-full md:w-auto justify-start text-left font-normal",
-                    !toDate && "text-muted-foreground"
+                    !toDate && "text-muted-foreground",
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -528,7 +542,7 @@ export default function DailyReportViewer() {
                     setToDate(date);
                     setToDateOpen(false);
                   }}
-                  disabled={(date) => fromDate ? date < fromDate : false}
+                  disabled={(date) => (fromDate ? date < fromDate : false)}
                 />
               </PopoverContent>
             </Popover>
@@ -537,7 +551,11 @@ export default function DailyReportViewer() {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Button onClick={() => fetchReport(fromDate, toDate)} variant="outline" size="sm">
+          <Button
+            onClick={() => fetchReport(fromDate, toDate)}
+            variant="outline"
+            size="sm"
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
