@@ -133,10 +133,8 @@ export default function DailyReportViewer() {
   const [error, setError] = useState<string | null>(null);
 
   // Date range state
-  const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
-  const [toDate, setToDate] = useState<Date | undefined>(new Date());
-  const [fromDateOpen, setFromDateOpen] = useState(false);
-  const [toDateOpen, setToDateOpen] = useState(false);
+  const [fromDate, setFromDate] = useState<Date | null>(new Date());
+  const [toDate, setToDate] = useState<Date | null>(new Date());
 
   const fetchReport = async (from?: Date, to?: Date) => {
     try {
