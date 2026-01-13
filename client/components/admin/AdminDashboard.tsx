@@ -70,6 +70,12 @@ export default function AdminDashboard() {
   const [analyticsView, setAnalyticsView] = useState<"overall" | "daily">(
     "overall",
   );
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats>({
+    totalEmployees: 0,
+    totalCases: 0,
+    topPerformer: "N/A",
+    avgDuration: null,
+  });
 
   const sseUrl = "/api/events";
   useSSE(sseUrl, (event) => {
