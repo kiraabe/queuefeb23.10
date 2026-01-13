@@ -176,6 +176,7 @@ export default function DailyReportViewer() {
       const params = new URLSearchParams();
       params.append("fromDate", fromISO);
       params.append("toDate", toISO);
+      params.append("_t", Date.now().toString()); // Cache buster
 
       const url = `/api/admin/daily-report?${params.toString()}`;
 
