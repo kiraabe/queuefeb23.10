@@ -263,7 +263,7 @@ export default function WindowMonitoring() {
             </div>
             <Button onClick={downloadWindowsCSV} variant="outline" size="sm">
               <DownloadCloud className="mr-2 h-4 w-4" />
-              Download Daily Report
+              Download Report
             </Button>
           </div>
         </CardHeader>
