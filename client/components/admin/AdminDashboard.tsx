@@ -373,14 +373,76 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Actions Metrics */}
+      {/* Queue Actions */}
       <Card>
         <CardHeader>
           <CardTitle>Queue Actions</CardTitle>
-          <CardDescription>Today's ticket operations</CardDescription>
+          <CardDescription>Real-time queue operations and metrics</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            {/* Waiting */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Waiting
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.totalWaiting}</p>
+              <p className="text-xs text-muted-foreground">in queue</p>
+            </div>
+
+            {/* Serving */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-green-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Serving
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.totalServing}</p>
+              <p className="text-xs text-muted-foreground">being served</p>
+            </div>
+
+            {/* Served Today */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Served Today
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.servedToday}</p>
+              <p className="text-xs text-muted-foreground">completed</p>
+            </div>
+
+            {/* Active Windows */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-purple-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Active Windows
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.activeWindows}</p>
+              <p className="text-xs text-muted-foreground">
+                of {windows.length}
+              </p>
+            </div>
+
+            {/* Completion Rate */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Completion Rate
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.completionRate}%</p>
+              <p className="text-xs text-muted-foreground">today's rate</p>
+            </div>
+
             {/* Skipped */}
             <div className="space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
@@ -390,41 +452,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <p className="text-2xl font-bold">{stats.skippedToday}</p>
-              <p className="text-xs text-muted-foreground">tickets</p>
-            </div>
-
-            {/* Transferred */}
-            <div className="space-y-2 rounded-lg border p-4">
-              <div className="flex items-center gap-2">
-                <ArrowRightLeft className="h-4 w-4 text-green-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Transferred
-                </span>
-              </div>
-              <p className="text-2xl font-bold">{stats.transferredToday}</p>
-              <p className="text-xs text-muted-foreground">tickets</p>
-            </div>
-
-            {/* Completion Rate */}
-            <div className="space-y-2 rounded-lg border p-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Completion Rate
-                </span>
-              </div>
-              <p className="text-2xl font-bold">
-                {stats.totalTicketsCreatedToday > 0
-                  ? Math.round(
-                      (stats.servedToday / stats.totalTicketsCreatedToday) *
-                        100,
-                    )
-                  : 0}
-                %
-              </p>
-              <p className="text-xs text-muted-foreground">
-                of today's tickets
-              </p>
+              <p className="text-xs text-muted-foreground">skipped today</p>
             </div>
           </div>
         </CardContent>
