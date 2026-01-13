@@ -458,15 +458,34 @@ export default function DailyReportViewer() {
     window.URL.revokeObjectURL(url);
   };
 
-  if (loading) {
+  if (!fromDate || !toDate) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Queue Report</CardTitle>
         </CardHeader>
         <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Please select both From and To dates to view the report</AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Queue Report</CardTitle>
+          <CardDescription>
+            Loading data for {format(fromDate, "MMM dd, yyyy")} to {format(toDate, "MMM dd, yyyy")}...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">Loading report...</p>
+            <p className="text-muted-foreground">Fetching report data...</p>
           </div>
         </CardContent>
       </Card>
@@ -496,7 +515,7 @@ export default function DailyReportViewer() {
           <CardTitle>Queue Report</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No report data available</p>
+          <p className="text-muted-foreground">No report data available for the selected date range</p>
         </CardContent>
       </Card>
     );
