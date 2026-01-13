@@ -491,7 +491,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     const summary = summaryRes.rows[0] || {};
     const reportDate = new Date(today);
 
-    // Get employee case performance data for today
+    // Get employee case performance data for the date range
     const employeePerfRes = await p.query(
       `SELECT
         ecp.employee_id,
@@ -505,10 +505,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      WHERE t.created_at >= $1
+      WHERE t.created_at >= $1 AND t.created_at <= $2
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
-      [todayStr],
+      [fromDate, toDate],
     );
 
     // Get case workflow details (employee case performance by employee)
