@@ -223,6 +223,34 @@ export default function WindowMonitoring() {
 
   return (
     <div className="space-y-4">
+      {/* Time Filter */}
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground">Time Period</h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Showing data for: {getTimeFilterLabel()}
+          </p>
+        </div>
+        <ToggleGroup
+          type="single"
+          value={timeFilter}
+          onValueChange={(value) => {
+            if (value) setTimeFilter(value as TimeFilter);
+          }}
+          className="border rounded-lg p-1"
+        >
+          <ToggleGroupItem value="all" aria-label="All time">
+            All Time
+          </ToggleGroupItem>
+          <ToggleGroupItem value="today" aria-label="Today">
+            Today
+          </ToggleGroupItem>
+          <ToggleGroupItem value="month" aria-label="This month">
+            This Month
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       {/* Summary Card */}
       <Card>
         <CardHeader>
