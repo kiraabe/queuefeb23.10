@@ -594,11 +594,12 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         extract(epoch from ecp.ended_at)*1000 as ended_at,
         ecp.status,
         EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
-        jt.name_english as job_title_name
+        COALESCE(jt.name_english, ut.name_english, 'Unknown') as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+      LEFT JOIN job_title ut ON u.job_title_id = ut.id
       WHERE t.created_at >= $1 AND t.created_at <= $2
       ORDER BY ecp.started_at ASC`,
       [fromDate, toDate],
