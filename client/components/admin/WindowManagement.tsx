@@ -120,7 +120,7 @@ export default function WindowManagement() {
     }
   }, [serviceCategories]);
 
-  const loadServiceCategories = async () => {
+  const loadServiceCategories = async (retries = 3) => {
     try {
       setError(null);
       const response = await fetch("/api/service-categories", {
@@ -136,6 +136,14 @@ export default function WindowManagement() {
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Failed to load service categories";
       console.error("Failed to load service categories", error);
+
+      // Retry with exponential backoff
+      if (retries > 0 && error instanceof TypeError) {
+        console.log(`Retrying loadServiceCategories... (${3 - retries + 1}/3)`);
+        setTimeout(() => loadServiceCategories(retries - 1), Math.pow(2, 3 - retries) * 1000);
+        return;
+      }
+
       setError(errorMsg);
       toast.error(errorMsg);
     }
