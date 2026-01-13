@@ -41,6 +41,7 @@ export default function ServiceManagement() {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   // Category form state
