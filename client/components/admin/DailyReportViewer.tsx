@@ -434,7 +434,7 @@ export default function DailyReportViewer() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Daily Report</CardTitle>
+          <CardTitle>Queue Report</CardTitle>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
