@@ -50,7 +50,15 @@ interface DashboardStats {
   averageWaitTime: number | null;
   totalTicketsCreatedToday: number;
   activeWindows: number;
+  completionRate: number;
   systemHealth: "healthy" | "warning" | "critical";
+}
+
+interface EmployeeStats {
+  totalEmployees: number;
+  totalCases: number;
+  topPerformer: string;
+  avgDuration: number | null;
 }
 
 export default function AdminDashboard() {
