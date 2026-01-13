@@ -493,7 +493,8 @@ export default function DailyReportViewer() {
             Report Period
           </CardTitle>
           <CardDescription>
-            Select the date range to generate and view the queue report
+            Current range: {fromDate ? format(fromDate, "MMM dd, yyyy") : "—"} to{" "}
+            {toDate ? format(toDate, "MMM dd, yyyy") : "—"}
           </CardDescription>
         </CardHeader>
         <CardContent>
