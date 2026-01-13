@@ -189,7 +189,8 @@ export default function DailyReportViewer() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.error || `Failed to fetch daily report: ${response.statusText}`
+          errorData.error ||
+            `Failed to fetch daily report: ${response.statusText}`,
         );
       }
 
@@ -478,7 +479,9 @@ export default function DailyReportViewer() {
         <CardContent>
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>Please select both From and To dates to view the report</AlertDescription>
+            <AlertDescription>
+              Please select both From and To dates to view the report
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -491,7 +494,8 @@ export default function DailyReportViewer() {
         <CardHeader>
           <CardTitle>Queue Report</CardTitle>
           <CardDescription>
-            Loading data for {format(fromDate, "MMM dd, yyyy")} to {format(toDate, "MMM dd, yyyy")}...
+            Loading data for {format(fromDate, "MMM dd, yyyy")} to{" "}
+            {format(toDate, "MMM dd, yyyy")}...
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -526,7 +530,9 @@ export default function DailyReportViewer() {
           <CardTitle>Queue Report</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No report data available for the selected date range</p>
+          <p className="text-muted-foreground">
+            No report data available for the selected date range
+          </p>
         </CardContent>
       </Card>
     );
@@ -582,9 +588,7 @@ export default function DailyReportViewer() {
                 popperClassName="react-datepicker-popper"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Up to today's date
-            </p>
+            <p className="text-xs text-muted-foreground">Up to today's date</p>
           </div>
         </div>
 
