@@ -469,10 +469,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
-    // Get total tickets created today
+    // Get total tickets created in the date range
     const totalTicketsRes = await p.query(
-      `SELECT COUNT(*)::int as total FROM tickets WHERE created_at >= $1`,
-      [todayStr],
+      `SELECT COUNT(*)::int as total FROM tickets WHERE created_at >= $1 AND created_at <= $2`,
+      [fromDate, toDate],
     );
 
     // Get summary statistics
@@ -484,8 +484,8 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         COUNT(*)::int as total,
         ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as avg_service_time
       FROM tickets
-      WHERE created_at >= $1`,
-      [todayStr],
+      WHERE created_at >= $1 AND created_at <= $2`,
+      [fromDate, toDate],
     );
 
     const summary = summaryRes.rows[0] || {};
