@@ -305,21 +305,6 @@ export default function DailyReportViewer() {
     });
     lines.push("");
 
-    const servedTickets = report.allTickets.filter((t) => t.status === "done");
-    lines.push("SERVED TICKETS LIST");
-    lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
-    servedTickets.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const completedDate = t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "";
-      const windowName =
-        t.windowName || (t.windowId ? `Window ${t.windowId}` : "");
-      lines.push(
-        `${t.ticketCode},${t.service},${t.status},${windowName},${createdDate},${completedDate}`,
-      );
-    });
-    lines.push("");
 
     const skippedTickets = report.allTickets.filter(
       (t) => t.status === "skipped",
