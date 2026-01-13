@@ -105,6 +105,25 @@ export default function AdminDashboard() {
     }
   });
 
+  // Fetch employee stats periodically
+  useEffect(() => {
+    const fetchEmployeeStats = async () => {
+      try {
+        const response = await fetch("/api/admin/employee-stats");
+        if (response.ok) {
+          const data = await response.json();
+          setEmployeeStats(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch employee stats:", error);
+      }
+    };
+
+    fetchEmployeeStats();
+    const interval = setInterval(fetchEmployeeStats, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   const stats = useMemo((): DashboardStats => {
     const ticketList = Object.values(tickets);
     const now = Date.now();
