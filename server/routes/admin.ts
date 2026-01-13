@@ -692,7 +692,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         ticketId: r.ticket_id,
         ticketCode: r.ticket_code,
         service: r.service,
-        jobTitle: r.job_title_name || "N/A",
+        jobTitle: r.job_title_name,
         startedAt: r.started_at ? Math.round(Number(r.started_at)) : null,
         endedAt: r.ended_at ? Math.round(Number(r.ended_at)) : null,
         status: r.status,
