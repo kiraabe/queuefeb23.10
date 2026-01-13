@@ -288,31 +288,33 @@ export default function AssignTellerDialog({
           )}
 
           {/* Create New Teller */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Or Create New Teller</Label>
-            <Input
-              placeholder="Username"
-              value={newTellerUsername}
-              onChange={(e) => setNewTellerUsername(e.target.value)}
-              disabled={isSaving || isLoading}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={newTellerPassword}
-              onChange={(e) => setNewTellerPassword(e.target.value)}
-              disabled={isSaving || isLoading}
-            />
-            <Button
-              onClick={handleCreateAndAssignTeller}
-              disabled={isSaving || isLoading}
-              className="w-full"
-              variant="outline"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create & Assign New Teller
-            </Button>
-          </div>
+          {!assignedTeller && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Or Create New Teller</Label>
+              <Input
+                placeholder="Username"
+                value={newTellerUsername}
+                onChange={(e) => setNewTellerUsername(e.target.value)}
+                disabled={isSaving || isLoading}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={newTellerPassword}
+                onChange={(e) => setNewTellerPassword(e.target.value)}
+                disabled={isSaving || isLoading}
+              />
+              <Button
+                onClick={handleCreateAndAssignTeller}
+                disabled={isSaving || isLoading}
+                className="w-full"
+                variant="outline"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create & Assign New Teller
+              </Button>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
