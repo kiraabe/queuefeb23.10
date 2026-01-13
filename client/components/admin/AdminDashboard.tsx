@@ -230,18 +230,13 @@ export default function AdminDashboard() {
                 Real-time system health and activity
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className={healthBadgeColor}>
-                {stats.systemHealth === "healthy"
-                  ? "✓ Healthy"
-                  : stats.systemHealth === "warning"
-                    ? "⚠ Warning"
-                    : "✕ Critical"}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                Updated: {format(lastUpdate, "HH:mm:ss")}
-              </span>
-            </div>
+            <Badge className={healthBadgeColor}>
+              {stats.systemHealth === "healthy"
+                ? "✓ Healthy"
+                : stats.systemHealth === "warning"
+                  ? "⚠ Warning"
+                  : "✕ Critical"}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent>
@@ -312,7 +307,7 @@ export default function AdminDashboard() {
               </div>
               <p className="text-2xl font-bold">{windows.length}</p>
               <p className="text-xs text-muted-foreground">
-                {stats.activeWindows} active
+                total available
               </p>
             </div>
           </div>
