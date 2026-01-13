@@ -485,8 +485,15 @@ export default function DailyReportViewer() {
             <div className="relative">
               <ReactDatePicker
                 selected={fromDate}
-                onChange={(date) => setFromDate(date)}
-                maxDate={toDate}
+                onChange={(date) => {
+                  setFromDate(date);
+                  // Auto-adjust toDate if it's before the new fromDate
+                  if (date && toDate && date > toDate) {
+                    setToDate(date);
+                  }
+                }}
+                minDate={subYears(new Date(), 1)}
+                maxDate={new Date()}
                 dateFormat="MMM dd, yyyy"
                 placeholderText="Pick a date"
                 className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -494,6 +501,9 @@ export default function DailyReportViewer() {
                 popperClassName="react-datepicker-popper"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Up to 1 year prior from today
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -504,7 +514,8 @@ export default function DailyReportViewer() {
               <ReactDatePicker
                 selected={toDate}
                 onChange={(date) => setToDate(date)}
-                minDate={fromDate}
+                minDate={fromDate || subYears(new Date(), 1)}
+                maxDate={new Date()}
                 dateFormat="MMM dd, yyyy"
                 placeholderText="Pick a date"
                 className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -512,6 +523,9 @@ export default function DailyReportViewer() {
                 popperClassName="react-datepicker-popper"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Up to today's date
+            </p>
           </div>
         </div>
 
