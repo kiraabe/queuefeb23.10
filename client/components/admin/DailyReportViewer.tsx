@@ -133,7 +133,11 @@ export default function DailyReportViewer() {
   const [error, setError] = useState<string | null>(null);
 
   // Date range state
-  const [fromDate, setFromDate] = useState<Date | null>(new Date());
+  const [fromDate, setFromDate] = useState<Date | null>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30); // Default to last 30 days
+    return d;
+  });
   const [toDate, setToDate] = useState<Date | null>(new Date());
 
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
@@ -160,11 +164,11 @@ export default function DailyReportViewer() {
       const fromISO = fromStart.toISOString();
       const toISO = toEnd.toISOString();
 
-      console.log("Fetching report for date range:", {
+      console.log("[DailyReportViewer] Fetching report for date range:", {
         fromDate: fromISO,
         toDate: toISO,
-        fromDateObj: from,
-        toDateObj: to,
+        fromDateDisplay: from.toLocaleDateString(),
+        toDateDisplay: to.toLocaleDateString(),
       });
 
       // Use URLSearchParams for proper parameter encoding
@@ -175,7 +179,7 @@ export default function DailyReportViewer() {
 
       const url = `/api/admin/daily-report?${params.toString()}`;
 
-      console.log("API URL:", url);
+      console.log("[DailyReportViewer] API URL:", url);
 
       const response = await fetch(url, {
         method: "GET",
@@ -195,17 +199,18 @@ export default function DailyReportViewer() {
       }
 
       const data = await response.json();
-      console.log("Report data received:", {
+      console.log("[DailyReportViewer] Report data received:", {
         windowStatsCount: data.windowStats?.length || 0,
         skippedCount: data.skipped?.length || 0,
         transfersCount: data.transfers?.length || 0,
         allTicketsCount: data.allTickets?.length || 0,
         summary: data.summary,
+        reportDate: data.reportDate,
       });
       setReport(data);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      console.error("Error fetching report:", errorMsg);
+      console.error("[DailyReportViewer] Error fetching report:", errorMsg);
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -213,6 +218,10 @@ export default function DailyReportViewer() {
   };
 
   useEffect(() => {
+    console.log("[DailyReportViewer] Dates changed, fetching new report", {
+      fromDate: fromDate?.toLocaleDateString(),
+      toDate: toDate?.toLocaleDateString(),
+    });
     fetchReport(fromDate, toDate);
   }, [fromDate, toDate]);
 
