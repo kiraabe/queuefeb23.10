@@ -21,6 +21,8 @@ import {
   CheckCircle,
   SkipForward,
   ArrowRightLeft,
+  Award,
+  Briefcase,
 } from "lucide-react";
 import type {
   QueueSnapshot,
