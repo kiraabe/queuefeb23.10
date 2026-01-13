@@ -155,10 +155,15 @@ export default function AdminDashboard() {
 
     const activeWindowCount = windows.filter((w) => w.busy).length;
 
+    const servedCount = todayTickets.filter((t) => t.status === "done").length;
+    const completionRate = todayTickets.length > 0
+      ? Math.round((servedCount / todayTickets.length) * 100)
+      : 0;
+
     return {
       totalWaiting: waiting.length,
       totalServing: serving.length,
-      servedToday: todayTickets.filter((t) => t.status === "done").length,
+      servedToday: servedCount,
       skippedToday: todayTickets.filter((t) => t.status === "skipped").length,
       transferredToday: todayTickets.filter((t) => t.status === "transferred")
         .length,
@@ -167,6 +172,7 @@ export default function AdminDashboard() {
       averageWaitTime: avgWait,
       totalTicketsCreatedToday: todayTickets.length,
       activeWindows: activeWindowCount,
+      completionRate,
       systemHealth: health,
     };
   }, [tickets]);
