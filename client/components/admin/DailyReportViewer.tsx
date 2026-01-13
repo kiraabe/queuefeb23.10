@@ -274,10 +274,6 @@ export default function DailyReportViewer() {
     lines.push(`Total Skipped: ${report.summary.skipped}`);
     lines.push("");
 
-    lines.push("TRANSFERRED TICKETS SUMMARY");
-    lines.push(`Total Transferred: ${report.summary.transferred}`);
-    lines.push("");
-
     lines.push("ALL TICKETS CREATED TODAY");
     lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
     report.allTickets.forEach((t) => {
@@ -327,24 +323,6 @@ export default function DailyReportViewer() {
     });
     lines.push("");
 
-    const transferredTickets = report.allTickets.filter(
-      (t) => t.status === "transferred",
-    );
-    lines.push("TRANSFERRED TICKETS LIST");
-    lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
-    transferredTickets.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const completedDate = t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "";
-      const windowName =
-        t.windowName || (t.windowId ? `Window ${t.windowId}` : "");
-      lines.push(
-        `${t.ticketCode},${t.service},${t.status},${windowName},${createdDate},${completedDate}`,
-      );
-    });
-    lines.push("");
-
     const waitingTickets = report.allTickets.filter(
       (t) => t.status === "waiting",
     );
@@ -370,37 +348,6 @@ export default function DailyReportViewer() {
     report.windowStats.forEach((w) => {
       lines.push(
         `"${w.windowId}","${w.windowName}","${w.tellerName}","${w.served}","${w.skipped}","${w.transfersFrom}","${w.transfersTo}","${w.averageServiceTime ?? "N/A"}"`,
-      );
-    });
-    lines.push("");
-
-    lines.push("DETAILED SKIPPED TICKETS");
-    lines.push(
-      "Ticket Code,Service,Number,Created At,Skipped At,Skipped By Window,Remark",
-    );
-    report.skipped.forEach((s) => {
-      const createdDate = format(new Date(s.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const skippedDate = format(new Date(s.skippedAt), "yyyy-MM-dd HH:mm:ss");
-      const remark = (s.remark || "").replace(/"/g, '""');
-      lines.push(
-        `${s.ticketCode},${s.service},${s.ticketNumber},${createdDate},${skippedDate},${s.skippedByWindowName || `Window ${s.skippedByWindow}`},"${remark}"`,
-      );
-    });
-    lines.push("");
-
-    lines.push("DETAILED TRANSFERRED TICKETS");
-    lines.push(
-      "Ticket Code,Service,Number,Created At,Transferred At,From Window,To Window,Remark",
-    );
-    report.transfers.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const transferDate = format(
-        new Date(t.transferredAt),
-        "yyyy-MM-dd HH:mm:ss",
-      );
-      const remark = (t.remark || "").replace(/"/g, '""');
-      lines.push(
-        `${t.ticketCode},${t.service},${t.ticketNumber},${createdDate},${transferDate},${t.fromWindowName || `Window ${t.fromWindow}`},${t.toWindowName || `Window ${t.toWindow}`},"${remark}"`,
       );
     });
     lines.push("");
