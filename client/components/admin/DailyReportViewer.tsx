@@ -148,20 +148,23 @@ export default function DailyReportViewer() {
         return;
       }
 
-      // Create date range in UTC to avoid timezone issues
+      // Create date range in UTC to match server behavior
+      // This is critical for proper date filtering in PostgreSQL
       const fromStart = new Date(from);
-      fromStart.setHours(0, 0, 0, 0);
+      fromStart.setUTCHours(0, 0, 0, 0);
 
       const toEnd = new Date(to);
-      toEnd.setHours(23, 59, 59, 999);
+      toEnd.setUTCHours(23, 59, 59, 999);
 
-      // Convert to ISO string and remove the Z to work with local timezone
+      // Convert to ISO string - this includes timezone info
       const fromISO = fromStart.toISOString();
       const toISO = toEnd.toISOString();
 
       console.log("Fetching report for date range:", {
-        from: fromISO,
-        to: toISO,
+        fromDate: fromISO,
+        toDate: toISO,
+        fromDateObj: from,
+        toDateObj: to,
       });
 
       // Use URLSearchParams for proper parameter encoding
@@ -171,6 +174,8 @@ export default function DailyReportViewer() {
       });
 
       const url = `/api/admin/daily-report?${params.toString()}`;
+
+      console.log("API URL:", url);
 
       const response = await fetch(url, {
         method: "GET",
@@ -189,7 +194,13 @@ export default function DailyReportViewer() {
       }
 
       const data = await response.json();
-      console.log("Report data received:", data);
+      console.log("Report data received:", {
+        windowStatsCount: data.windowStats?.length || 0,
+        skippedCount: data.skipped?.length || 0,
+        transfersCount: data.transfers?.length || 0,
+        allTicketsCount: data.allTickets?.length || 0,
+        summary: data.summary,
+      });
       setReport(data);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
