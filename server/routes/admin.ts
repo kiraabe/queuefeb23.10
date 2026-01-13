@@ -389,8 +389,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       LEFT JOIN windows w ON t.skipped_by_window = w.id
       WHERE t.status = 'skipped'
         AND t.created_at >= $1
+        AND t.created_at <= $2
       ORDER BY t.skipped_at DESC`,
-      [todayStr],
+      [fromDate, toDate],
     );
 
     // Get transfer history with details
