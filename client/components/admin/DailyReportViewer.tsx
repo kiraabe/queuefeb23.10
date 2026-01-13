@@ -419,7 +419,7 @@ export default function DailyReportViewer() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Daily Report</CardTitle>
+          <CardTitle>Queue Report</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
