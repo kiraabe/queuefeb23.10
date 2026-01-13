@@ -54,6 +54,7 @@ interface WindowWithServices extends WindowInfo {
 export default function WindowManagement() {
   const [windows, setWindows] = useState<WindowWithServices[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingWindowId, setEditingWindowId] = useState<number | null>(null);
   const [editingWindowName, setEditingWindowName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
