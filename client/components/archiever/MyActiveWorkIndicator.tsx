@@ -1,4 +1,4 @@
-import { AlertCircle, Clock, Pause, Play, X } from "lucide-react";
+import { AlertCircle, Clock, X } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -25,7 +25,6 @@ export function MyActiveWorkIndicator({
   isWorkingOnTicket,
 }: MyActiveWorkIndicatorProps) {
   const [elapsedTime, setElapsedTime] = useState("0m 0s");
-  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (!startTime || !isWorkingOnTicket) return;
