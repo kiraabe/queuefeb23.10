@@ -470,305 +470,239 @@ export default function DailyReportViewer() {
     window.URL.revokeObjectURL(url);
   };
 
-  if (!fromDate || !toDate) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Report</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Please select both From and To dates to view the report
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Report</CardTitle>
-          <CardDescription>
-            Loading data for {format(fromDate, "MMM dd, yyyy")} to{" "}
-            {format(toDate, "MMM dd, yyyy")}...
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <p className="text-muted-foreground">Fetching report data...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Report</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!report) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Report</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            No report data available for the selected date range
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-2">
-        {/* Date Range Picker */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">
-              From Date
-            </label>
-            <div className="relative">
-              <ReactDatePicker
-                selected={fromDate}
-                onChange={(date) => {
-                  setFromDate(date);
-                  // Auto-adjust toDate if it's before the new fromDate
-                  if (date && toDate && date > toDate) {
-                    setToDate(date);
-                  }
-                }}
-                minDate={subYears(new Date(), 1)}
-                maxDate={new Date()}
-                dateFormat="MMM dd, yyyy"
-                placeholderText="Pick a date"
-                className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                wrapperClassName="w-full md:w-auto"
-                popperClassName="react-datepicker-popper"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Up to 1 year prior from today
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">
-              To Date
-            </label>
-            <div className="relative">
-              <ReactDatePicker
-                selected={toDate}
-                onChange={(date) => setToDate(date)}
-                minDate={fromDate || subYears(new Date(), 1)}
-                maxDate={new Date()}
-                dateFormat="MMM dd, yyyy"
-                placeholderText="Pick a date"
-                className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                wrapperClassName="w-full md:w-auto"
-                popperClassName="react-datepicker-popper"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">Up to today's date</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button
-            onClick={() => fetchReport(fromDate, toDate)}
-            variant="outline"
-            size="sm"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button onClick={downloadCSV} size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Download CSV
-          </Button>
-        </div>
-      </div>
-
+      {/* Date Range Picker - Always Visible */}
       <Card>
         <CardHeader>
-          <CardTitle>Queue Report</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <CalendarIcon className="h-5 w-5" />
+            Report Period
+          </CardTitle>
           <CardDescription>
-            {report.reportDate.includes(" to ")
-              ? `Period: ${report.reportDate}`
-              : format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
+            Select the date range to generate and view the queue report
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="windows">Windows</TabsTrigger>
-              <TabsTrigger value="employees">Employees</TabsTrigger>
-              <TabsTrigger value="services">Services</TabsTrigger>
-              <TabsTrigger value="skipped">Skipped</TabsTrigger>
-              <TabsTrigger value="transfers">Transfers</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="summary" className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Tickets</p>
-                  <p className="text-2xl font-bold">
-                    {report.summary.totalTicketsCreated}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Served</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {report.summary.served}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Skipped</p>
-                  <p className="text-2xl font-bold text-orange-600">
-                    {report.summary.skipped}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Transferred</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {report.summary.transferred}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Avg Service</p>
-                  <p className="text-2xl font-bold">
-                    {report.summary.averageServiceTime
-                      ? `${report.summary.averageServiceTime}s`
-                      : "—"}
-                  </p>
-                </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                From Date
+              </label>
+              <div className="relative">
+                <ReactDatePicker
+                  selected={fromDate}
+                  onChange={(date) => {
+                    setFromDate(date);
+                    if (date && toDate && date > toDate) {
+                      setToDate(date);
+                    }
+                  }}
+                  minDate={subYears(new Date(), 1)}
+                  maxDate={new Date()}
+                  dateFormat="MMM dd, yyyy"
+                  placeholderText="Pick a date"
+                  className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  wrapperClassName="w-full md:w-auto"
+                  popperClassName="react-datepicker-popper"
+                />
               </div>
-            </TabsContent>
+              <p className="text-xs text-muted-foreground">
+                Up to 1 year prior from today
+              </p>
+            </div>
 
-            <TabsContent value="windows">
-              {report.windowStats.length === 0 ? (
-                <div className="flex items-center justify-center py-8 text-muted-foreground">
-                  No window data available for the selected period
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                To Date
+              </label>
+              <div className="relative">
+                <ReactDatePicker
+                  selected={toDate}
+                  onChange={(date) => setToDate(date)}
+                  minDate={fromDate || subYears(new Date(), 1)}
+                  maxDate={new Date()}
+                  dateFormat="MMM dd, yyyy"
+                  placeholderText="Pick a date"
+                  className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  wrapperClassName="w-full md:w-auto"
+                  popperClassName="react-datepicker-popper"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Up to today's date
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => fetchReport(fromDate, toDate)}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button onClick={downloadCSV} disabled={!report} size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Download CSV
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Report Content - Conditional Rendering */}
+      {!fromDate || !toDate ? (
+        <Card>
+          <CardContent className="pt-6">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please select both From and To dates to view the report
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      ) : loading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Queue Report</CardTitle>
+            <CardDescription>
+              Loading data for {format(fromDate, "MMM dd, yyyy")} to{" "}
+              {format(toDate, "MMM dd, yyyy")}...
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center py-8">
+              <p className="text-muted-foreground">Fetching report data...</p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : error ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Queue Report</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      ) : !report ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Queue Report</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              No report data available for the selected date range
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Queue Report</CardTitle>
+            <CardDescription>
+              {report.reportDate.includes(" to ")
+                ? `Period: ${report.reportDate}`
+                : format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="summary" className="w-full">
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="windows">Windows</TabsTrigger>
+                <TabsTrigger value="employees">Employees</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="skipped">Skipped</TabsTrigger>
+                <TabsTrigger value="transfers">Transfers</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="summary" className="space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Tickets
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {report.summary.totalTicketsCreated}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Served</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {report.summary.served}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Skipped</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      {report.summary.skipped}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Transferred</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {report.summary.transferred}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg Service</p>
+                    <p className="text-2xl font-bold">
+                      {report.summary.averageServiceTime
+                        ? `${report.summary.averageServiceTime}s`
+                        : "—"}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Window</TableHead>
-                      <TableHead>Teller</TableHead>
-                      <TableHead>Served</TableHead>
-                      <TableHead>Skipped</TableHead>
-                      <TableHead>Transfers Out</TableHead>
-                      <TableHead>Transfers In</TableHead>
-                      <TableHead>Avg Service Time</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.windowStats.map((window) => (
-                      <TableRow key={window.windowId}>
-                        <TableCell className="font-medium">
-                          {window.windowName}
-                        </TableCell>
-                        <TableCell>{window.tellerName}</TableCell>
-                        <TableCell className="font-semibold text-green-600">
-                          {window.served}
-                        </TableCell>
-                        <TableCell className="font-semibold text-orange-600">
-                          {window.skipped}
-                        </TableCell>
-                        <TableCell className="font-semibold text-blue-600">
-                          {window.transfersFrom}
-                        </TableCell>
-                        <TableCell className="font-semibold text-purple-600">
-                          {window.transfersTo}
-                        </TableCell>
-                        <TableCell>
-                          {window.averageServiceTime
-                            ? `${window.averageServiceTime}s`
-                            : "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="employees">
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Employee performance metrics based on case workflow data
-                </p>
-                {report.employeePerformance.length === 0 ? (
-                  <p className="text-muted-foreground">
-                    No employee data available for the selected period
-                  </p>
+              <TabsContent value="windows">
+                {report.windowStats.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-muted-foreground">
+                    No window data available for the selected period
+                  </div>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Employee</TableHead>
-                        <TableHead className="text-right">
-                          Cases Started
-                        </TableHead>
-                        <TableHead className="text-right">
-                          Cases Completed
-                        </TableHead>
-                        <TableHead className="text-right">
-                          Cases Proceeded
-                        </TableHead>
-                        <TableHead className="text-right">
-                          Avg Case Time
-                        </TableHead>
-                        <TableHead className="text-right">
-                          Total Time Spent
-                        </TableHead>
+                        <TableHead>Window</TableHead>
+                        <TableHead>Teller</TableHead>
+                        <TableHead>Served</TableHead>
+                        <TableHead>Skipped</TableHead>
+                        <TableHead>Transfers Out</TableHead>
+                        <TableHead>Transfers In</TableHead>
+                        <TableHead>Avg Service Time</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.employeePerformance.map((employee) => (
-                        <TableRow key={employee.employeeId}>
+                      {report.windowStats.map((window) => (
+                        <TableRow key={window.windowId}>
                           <TableCell className="font-medium">
-                            {employee.employeeName}
+                            {window.windowName}
                           </TableCell>
-                          <TableCell className="text-right">
-                            {employee.totalCasesStarted}
+                          <TableCell>{window.tellerName}</TableCell>
+                          <TableCell className="font-semibold text-green-600">
+                            {window.served}
                           </TableCell>
-                          <TableCell className="text-right text-green-600 font-semibold">
-                            {employee.casesCompleted}
+                          <TableCell className="font-semibold text-orange-600">
+                            {window.skipped}
                           </TableCell>
-                          <TableCell className="text-right text-blue-600 font-semibold">
-                            {employee.casesProceed}
+                          <TableCell className="font-semibold text-blue-600">
+                            {window.transfersFrom}
                           </TableCell>
-                          <TableCell className="text-right">
-                            {employee.averageCaseTime
-                              ? `${Math.round(employee.averageCaseTime)}s`
-                              : "—"}
+                          <TableCell className="font-semibold text-purple-600">
+                            {window.transfersTo}
                           </TableCell>
-                          <TableCell className="text-right">
-                            {employee.totalTimeSpent
-                              ? `${Math.round(employee.totalTimeSpent)}s`
+                          <TableCell>
+                            {window.averageServiceTime
+                              ? `${window.averageServiceTime}s`
                               : "—"}
                           </TableCell>
                         </TableRow>
@@ -776,171 +710,237 @@ export default function DailyReportViewer() {
                     </TableBody>
                   </Table>
                 )}
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="services">
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Service category performance and distribution
-                </p>
-                {report.allTickets.length === 0 ? (
-                  <p className="text-muted-foreground">
-                    No service data available
+              <TabsContent value="employees">
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Employee performance metrics based on case workflow data
+                  </p>
+                  {report.employeePerformance.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      No employee data available for the selected period
+                    </p>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Employee</TableHead>
+                          <TableHead className="text-right">
+                            Cases Started
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Cases Completed
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Cases Proceeded
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Avg Case Time
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Total Time Spent
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {report.employeePerformance.map((employee) => (
+                          <TableRow key={employee.employeeId}>
+                            <TableCell className="font-medium">
+                              {employee.employeeName}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {employee.totalCasesStarted}
+                            </TableCell>
+                            <TableCell className="text-right text-green-600 font-semibold">
+                              {employee.casesCompleted}
+                            </TableCell>
+                            <TableCell className="text-right text-blue-600 font-semibold">
+                              {employee.casesProceed}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {employee.averageCaseTime
+                                ? `${Math.round(employee.averageCaseTime)}s`
+                                : "—"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {employee.totalTimeSpent
+                                ? `${Math.round(employee.totalTimeSpent)}s`
+                                : "—"}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="services">
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Service category performance and distribution
+                  </p>
+                  {report.allTickets.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      No service data available
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {(() => {
+                        const serviceMap = new Map<
+                          string,
+                          { total: number; served: number }
+                        >();
+                        for (const ticket of report.allTickets) {
+                          const service = ticket.service || "Uncategorized";
+                          if (!serviceMap.has(service)) {
+                            serviceMap.set(service, { total: 0, served: 0 });
+                          }
+                          const stat = serviceMap.get(service)!;
+                          stat.total++;
+                          if (ticket.status === "done") {
+                            stat.served++;
+                          }
+                        }
+                        const services = Array.from(serviceMap.entries())
+                          .map(([name, stats]) => ({
+                            name,
+                            ...stats,
+                            rate: Math.round((stats.served / stats.total) * 100),
+                          }))
+                          .sort((a, b) => b.total - a.total);
+
+                        return (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Service</TableHead>
+                                <TableHead className="text-right">
+                                  Total
+                                </TableHead>
+                                <TableHead className="text-right">
+                                  Served
+                                </TableHead>
+                                <TableHead className="text-right">
+                                  Completion Rate
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {services.map((service) => (
+                                <TableRow key={service.name}>
+                                  <TableCell className="font-medium">
+                                    {service.name}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {service.total}
+                                  </TableCell>
+                                  <TableCell className="text-right text-green-600 font-medium">
+                                    {service.served}
+                                  </TableCell>
+                                  <TableCell className="text-right font-semibold">
+                                    {service.rate}%
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="skipped">
+                {report.skipped.length === 0 ? (
+                  <p className="text-muted-foreground py-4">
+                    No skipped tickets in this period
                   </p>
                 ) : (
-                  <div className="space-y-4">
-                    {(() => {
-                      const serviceMap = new Map<
-                        string,
-                        { total: number; served: number }
-                      >();
-                      for (const ticket of report.allTickets) {
-                        const service = ticket.service || "Uncategorized";
-                        if (!serviceMap.has(service)) {
-                          serviceMap.set(service, { total: 0, served: 0 });
-                        }
-                        const stat = serviceMap.get(service)!;
-                        stat.total++;
-                        if (ticket.status === "done") {
-                          stat.served++;
-                        }
-                      }
-                      const services = Array.from(serviceMap.entries())
-                        .map(([name, stats]) => ({
-                          name,
-                          ...stats,
-                          rate: Math.round((stats.served / stats.total) * 100),
-                        }))
-                        .sort((a, b) => b.total - a.total);
-
-                      return (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Service</TableHead>
-                              <TableHead className="text-right">
-                                Total
-                              </TableHead>
-                              <TableHead className="text-right">
-                                Served
-                              </TableHead>
-                              <TableHead className="text-right">
-                                Completion Rate
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {services.map((service) => (
-                              <TableRow key={service.name}>
-                                <TableCell className="font-medium">
-                                  {service.name}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  {service.total}
-                                </TableCell>
-                                <TableCell className="text-right text-green-600 font-medium">
-                                  {service.served}
-                                </TableCell>
-                                <TableCell className="text-right font-semibold">
-                                  {service.rate}%
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      );
-                    })()}
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Service</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Skipped By</TableHead>
+                        <TableHead>Reason</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.skipped.map((skip) => (
+                        <TableRow key={skip.ticketId}>
+                          <TableCell className="font-medium">
+                            {skip.ticketCode}
+                          </TableCell>
+                          <TableCell>{skip.service}</TableCell>
+                          <TableCell>
+                            {format(new Date(skip.createdAt), "HH:mm:ss")}
+                          </TableCell>
+                          <TableCell>
+                            {skip.skippedByWindowName ||
+                              `Window ${skip.skippedByWindow}`}
+                          </TableCell>
+                          <TableCell className="text-sm max-w-xs truncate">
+                            {skip.remark || "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 )}
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-            <TabsContent value="skipped">
-              {report.skipped.length === 0 ? (
-                <p className="text-muted-foreground py-4">
-                  No skipped tickets today
-                </p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Skipped By</TableHead>
-                      <TableHead>Reason</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.skipped.map((skip) => (
-                      <TableRow key={skip.ticketId}>
-                        <TableCell className="font-medium">
-                          {skip.ticketCode}
-                        </TableCell>
-                        <TableCell>{skip.service}</TableCell>
-                        <TableCell>
-                          {format(new Date(skip.createdAt), "HH:mm:ss")}
-                        </TableCell>
-                        <TableCell>
-                          {skip.skippedByWindowName ||
-                            `Window ${skip.skippedByWindow}`}
-                        </TableCell>
-                        <TableCell className="text-sm max-w-xs truncate">
-                          {skip.remark || "—"}
-                        </TableCell>
+              <TabsContent value="transfers">
+                {report.transfers.length === 0 ? (
+                  <p className="text-muted-foreground py-4">
+                    No transfers in this period
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Service</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>From</TableHead>
+                        <TableHead>To</TableHead>
+                        <TableHead>Reason</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </TabsContent>
-
-            <TabsContent value="transfers">
-              {report.transfers.length === 0 ? (
-                <p className="text-muted-foreground py-4">No transfers today</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Reason</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.transfers.map((transfer) => (
-                      <TableRow key={transfer.transferId}>
-                        <TableCell className="font-medium">
-                          {transfer.ticketCode}
-                        </TableCell>
-                        <TableCell>{transfer.service}</TableCell>
-                        <TableCell>
-                          {format(new Date(transfer.createdAt), "HH:mm:ss")}
-                        </TableCell>
-                        <TableCell>
-                          {transfer.fromWindowName ||
-                            `Window ${transfer.fromWindow}`}
-                        </TableCell>
-                        <TableCell>
-                          {transfer.toWindowName ||
-                            `Window ${transfer.toWindow}`}
-                        </TableCell>
-                        <TableCell className="text-sm max-w-xs truncate">
-                          {transfer.remark || "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {report.transfers.map((transfer) => (
+                        <TableRow key={transfer.transferId}>
+                          <TableCell className="font-medium">
+                            {transfer.ticketCode}
+                          </TableCell>
+                          <TableCell>{transfer.service}</TableCell>
+                          <TableCell>
+                            {format(new Date(transfer.createdAt), "HH:mm:ss")}
+                          </TableCell>
+                          <TableCell>
+                            {transfer.fromWindowName ||
+                              `Window ${transfer.fromWindow}`}
+                          </TableCell>
+                          <TableCell>
+                            {transfer.toWindowName ||
+                              `Window ${transfer.toWindow}`}
+                          </TableCell>
+                          <TableCell className="text-sm max-w-xs truncate">
+                            {transfer.remark || "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
