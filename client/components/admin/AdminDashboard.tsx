@@ -175,9 +175,10 @@ export default function AdminDashboard() {
     const activeWindowCount = windows.filter((w) => w.busy).length;
 
     const servedCount = todayTickets.filter((t) => t.status === "done").length;
-    const completionRate = todayTickets.length > 0
-      ? Math.round((servedCount / todayTickets.length) * 100)
-      : 0;
+    const completionRate =
+      todayTickets.length > 0
+        ? Math.round((servedCount / todayTickets.length) * 100)
+        : 0;
 
     return {
       totalWaiting: waiting.length,
@@ -257,7 +258,9 @@ export default function AdminDashboard() {
                 </span>
                 <Users className="h-4 w-4 text-blue-500" />
               </div>
-              <p className="text-2xl font-bold">{employeeStats.totalEmployees}</p>
+              <p className="text-2xl font-bold">
+                {employeeStats.totalEmployees}
+              </p>
               <p className="text-xs text-muted-foreground">active staff</p>
             </div>
 
@@ -281,7 +284,9 @@ export default function AdminDashboard() {
                 </span>
                 <Award className="h-4 w-4 text-yellow-500" />
               </div>
-              <p className="text-2xl font-bold truncate">{employeeStats.topPerformer}</p>
+              <p className="text-2xl font-bold truncate">
+                {employeeStats.topPerformer}
+              </p>
               <p className="text-xs text-muted-foreground">by cases</p>
             </div>
 
@@ -377,7 +382,9 @@ export default function AdminDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Queue Actions</CardTitle>
-          <CardDescription>Real-time queue operations and metrics</CardDescription>
+          <CardDescription>
+            Real-time queue operations and metrics
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">

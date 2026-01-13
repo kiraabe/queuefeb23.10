@@ -805,7 +805,6 @@ export default function DailyReportViewer() {
                   </Table>
                 )}
               </TabsContent>
-
             </Tabs>
           </CardContent>
         </Card>
