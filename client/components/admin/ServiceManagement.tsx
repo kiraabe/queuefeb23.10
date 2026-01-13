@@ -79,6 +79,7 @@ export default function ServiceManagement() {
   const loadData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const res = await fetch("/api/service-categories", {
         headers: { "X-Requested-With": "XMLHttpRequest" },
       });
@@ -93,25 +94,29 @@ export default function ServiceManagement() {
       // Load services for each category
       const allServices: Service[] = [];
       for (const category of data.categories) {
-        const servicesRes = await fetch(
-          `/api/service-categories/${category.id}/services`,
-          {
-            headers: { "X-Requested-With": "XMLHttpRequest" },
-          },
-        );
+        try {
+          const servicesRes = await fetch(
+            `/api/service-categories/${category.code}/services`,
+            {
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+            },
+          );
 
-        if (servicesRes.ok) {
-          const servicesData: { services: Service[] } =
-            await servicesRes.json();
-          allServices.push(...servicesData.services);
+          if (servicesRes.ok) {
+            const servicesData: { services: Service[] } =
+              await servicesRes.json();
+            allServices.push(...servicesData.services);
+          }
+        } catch (categoryError) {
+          console.warn(`Failed to load services for category ${category.id}`, categoryError);
         }
       }
       setServices(allServices);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Failed to load categories";
       console.error("Failed to load data", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to load categories",
-      );
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
