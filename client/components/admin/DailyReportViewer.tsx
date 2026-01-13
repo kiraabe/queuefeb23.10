@@ -172,15 +172,18 @@ export default function DailyReportViewer() {
         toDateDisplay: to.toLocaleDateString(),
       });
 
-      // Use URLSearchParams for proper parameter encoding
-      const params = new URLSearchParams({
-        fromDate: fromISO,
-        toDate: toISO,
-      });
+      // Build query string with proper encoding
+      const params = new URLSearchParams();
+      params.append("fromDate", fromISO);
+      params.append("toDate", toISO);
 
       const url = `/api/admin/daily-report?${params.toString()}`;
 
-      console.log("[DailyReportViewer] API URL:", url);
+      console.log("[DailyReportViewer] Fetching from URL:", url);
+      console.log("[DailyReportViewer] Query params:", {
+        fromDate: fromISO,
+        toDate: toISO,
+      });
 
       const response = await fetch(url, {
         method: "GET",
