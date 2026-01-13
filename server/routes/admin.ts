@@ -467,6 +467,11 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
+    console.log("[getDailyReport] Window stats query result:", {
+      rowCount: windowStatsRes.rows?.length || 0,
+      rows: windowStatsRes.rows?.slice(0, 3), // Log first 3 rows for debugging
+    });
+
     // Get total tickets created in the date range
     const totalTicketsRes = await p.query(
       `SELECT COUNT(*)::int as total FROM tickets WHERE created_at >= $1 AND created_at <= $2`,
