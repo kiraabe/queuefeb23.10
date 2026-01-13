@@ -955,7 +955,13 @@ export async function listWindowsDb(): Promise<WindowState[]> {
       us.user_id as teller_id,
       us.username as teller_username
     FROM windows w
-    LEFT JOIN user_sessions us ON w.id = us.window_id AND us.revoked_at IS NULL AND us.expires_at > now()
+    LEFT JOIN LATERAL (
+      SELECT user_id, username
+      FROM user_sessions
+      WHERE window_id = w.id AND revoked_at IS NULL
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) us ON true
     ORDER BY w.id`,
   );
   return rows.map((r) => ({
