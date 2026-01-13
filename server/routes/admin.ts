@@ -419,7 +419,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
-    // Get all tickets created today
+    // Get all tickets created in the date range
     const allTicketsRes = await p.query(
       `SELECT
         t.id,
@@ -433,8 +433,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       FROM tickets t
       LEFT JOIN windows w ON t.window_id = w.id
       WHERE t.created_at >= $1
+        AND t.created_at <= $2
       ORDER BY t.created_at ASC`,
-      [todayStr],
+      [fromDate, toDate],
     );
 
     // Get window statistics with assigned teller (show teller who served tickets today or is assigned to window)
