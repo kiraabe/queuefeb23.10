@@ -540,10 +540,10 @@ export default function DailyReportViewer() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Daily Report</CardTitle>
+          <CardTitle>Queue Report</CardTitle>
           <CardDescription>
             {report.reportDate.includes(" to ")
-              ? report.reportDate
+              ? `Period: ${report.reportDate}`
               : format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
           </CardDescription>
         </CardHeader>
