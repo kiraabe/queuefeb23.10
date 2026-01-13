@@ -952,8 +952,8 @@ export async function listWindowsDb(): Promise<WindowState[]> {
       w.current_ticket_id,
       w.busy,
       extract(epoch from w.updated_at)*1000 as updated_at,
-      us.user_id as teller_id,
-      us.username as teller_username
+      COALESCE(us.user_id, u.id) as teller_id,
+      COALESCE(us.username, u.username) as teller_username
     FROM windows w
     LEFT JOIN LATERAL (
       SELECT user_id, username
@@ -962,6 +962,7 @@ export async function listWindowsDb(): Promise<WindowState[]> {
       ORDER BY created_at DESC
       LIMIT 1
     ) us ON true
+    LEFT JOIN users u ON u.window_id = w.id
     ORDER BY w.id`,
   );
   return rows.map((r) => ({
