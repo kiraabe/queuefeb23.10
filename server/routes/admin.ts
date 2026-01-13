@@ -349,15 +349,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     let toDate: string;
 
     if (req.query.fromDate && req.query.toDate) {
-      // User specified date range
-      const from = new Date(req.query.fromDate as string);
-      const to = new Date(req.query.toDate as string);
-
-      from.setUTCHours(0, 0, 0, 0);
-      to.setUTCHours(23, 59, 59, 999);
-
-      fromDate = from.toISOString();
-      toDate = to.toISOString();
+      // User specified date range - already in ISO format from frontend
+      fromDate = req.query.fromDate as string;
+      toDate = req.query.toDate as string;
     } else {
       // Default to today only
       const today = new Date();
