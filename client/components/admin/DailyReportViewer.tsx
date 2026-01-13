@@ -462,72 +462,88 @@ export default function DailyReportViewer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
-            {/* From Date Section */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">From Date</label>
-              <div className="relative">
-                <ReactDatePicker
-                  selected={fromDate}
-                  onChange={(date) => {
-                    setFromDate(date);
-                    if (date && toDate && date > toDate) {
-                      setToDate(date);
-                    }
-                  }}
-                  minDate={subYears(new Date(), 1)}
-                  maxDate={new Date()}
-                  dateFormat="MMM dd, yyyy"
-                  placeholderText="Pick a date"
-                  className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  wrapperClassName="w-full"
-                  popperClassName="react-datepicker-popper"
-                />
+          <div className="space-y-4">
+            {/* Input Row - All controls aligned */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
+              {/* From Date Input */}
+              <div className="flex-1 min-w-0">
+                <label className="text-sm font-medium block mb-2">
+                  From Date
+                </label>
+                <div className="relative">
+                  <ReactDatePicker
+                    selected={fromDate}
+                    onChange={(date) => {
+                      setFromDate(date);
+                      if (date && toDate && date > toDate) {
+                        setToDate(date);
+                      }
+                    }}
+                    minDate={subYears(new Date(), 1)}
+                    maxDate={new Date()}
+                    dateFormat="MMM dd, yyyy"
+                    placeholderText="Pick a date"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    wrapperClassName="w-full"
+                    popperClassName="react-datepicker-popper"
+                  />
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Up to 1 year prior from today
-              </p>
+
+              {/* To Date Input */}
+              <div className="flex-1 min-w-0">
+                <label className="text-sm font-medium block mb-2">
+                  To Date
+                </label>
+                <div className="relative">
+                  <ReactDatePicker
+                    selected={toDate}
+                    onChange={(date) => setToDate(date)}
+                    minDate={fromDate || subYears(new Date(), 1)}
+                    maxDate={new Date()}
+                    dateFormat="MMM dd, yyyy"
+                    placeholderText="Pick a date"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    wrapperClassName="w-full"
+                    popperClassName="react-datepicker-popper"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={() => fetchReport(fromDate, toDate)}
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+                <Button
+                  onClick={downloadCSV}
+                  disabled={!report}
+                  className="w-full sm:w-auto"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download CSV
+                </Button>
+              </div>
             </div>
 
-            {/* To Date Section */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">To Date</label>
-              <div className="relative">
-                <ReactDatePicker
-                  selected={toDate}
-                  onChange={(date) => setToDate(date)}
-                  minDate={fromDate || subYears(new Date(), 1)}
-                  maxDate={new Date()}
-                  dateFormat="MMM dd, yyyy"
-                  placeholderText="Pick a date"
-                  className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  wrapperClassName="w-full"
-                  popperClassName="react-datepicker-popper"
-                />
+            {/* Helper Text Row */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">
+                  Up to 1 year prior from today
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Up to today's date
-              </p>
-            </div>
-
-            {/* Action Buttons - Span remaining columns on larger screens */}
-            <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-2 lg:flex-row lg:justify-end">
-              <Button
-                onClick={() => fetchReport(fromDate, toDate)}
-                variant="outline"
-                className="w-full sm:w-auto"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-              <Button
-                onClick={downloadCSV}
-                disabled={!report}
-                className="w-full sm:w-auto"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download CSV
-              </Button>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">
+                  Up to today's date
+                </p>
+              </div>
+              <div className="w-full sm:w-auto" />
             </div>
           </div>
         </CardContent>
