@@ -336,6 +336,60 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
   }
 };
 
+export const getEmployeeStats: RequestHandler = async (_req, res) => {
+  if (!isDbEnabled) {
+    return res.status(400).json({ error: "Database not enabled" });
+  }
+
+  try {
+    const p = getPool();
+
+    // Get total employees
+    const employeesRes = await p.query(
+      `SELECT COUNT(DISTINCT id) as count FROM users WHERE active_role = 'employee'`,
+    );
+    const totalEmployees = Number(employeesRes.rows[0]?.count || 0);
+
+    // Get total cases
+    const casesRes = await p.query(
+      `SELECT COUNT(DISTINCT id) as count FROM employee_case_performance`,
+    );
+    const totalCases = Number(casesRes.rows[0]?.count || 0);
+
+    // Get top performer (employee with most cases)
+    const topPerformerRes = await p.query(
+      `SELECT
+        u.full_name,
+        COUNT(DISTINCT ecp.id) as case_count
+      FROM employee_case_performance ecp
+      LEFT JOIN users u ON ecp.employee_id = u.id
+      GROUP BY u.id, u.full_name
+      ORDER BY case_count DESC
+      LIMIT 1`,
+    );
+    const topPerformer = topPerformerRes.rows[0]?.full_name || "N/A";
+
+    // Get average case duration
+    const avgDurationRes = await p.query(
+      `SELECT
+        ROUND(AVG(EXTRACT(EPOCH FROM (ended_at - started_at))))::int as avg_duration
+      FROM employee_case_performance
+      WHERE ended_at IS NOT NULL AND started_at IS NOT NULL`,
+    );
+    const avgDuration = avgDurationRes.rows[0]?.avg_duration || null;
+
+    res.json({
+      totalEmployees,
+      totalCases,
+      topPerformer,
+      avgDuration,
+    });
+  } catch (error) {
+    console.error("Failed to fetch employee stats", error);
+    res.status(500).json({ error: "Failed to fetch employee stats" });
+  }
+};
+
 export const getDailyReport: RequestHandler = async (req, res) => {
   if (!isDbEnabled) {
     return res.status(400).json({ error: "Database not enabled" });
