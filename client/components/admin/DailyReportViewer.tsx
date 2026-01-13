@@ -152,15 +152,16 @@ export default function DailyReportViewer() {
         return;
       }
 
-      // Create date range in UTC to match server behavior
-      // This is critical for proper date filtering in PostgreSQL
+      // Create date range - treat as local date and convert to ISO
+      // This ensures the date range is inclusive of the selected dates
       const fromStart = new Date(from);
-      fromStart.setUTCHours(0, 0, 0, 0);
+      fromStart.setHours(0, 0, 0, 0);
 
       const toEnd = new Date(to);
-      toEnd.setUTCHours(23, 59, 59, 999);
+      toEnd.setHours(23, 59, 59, 999);
 
-      // Convert to ISO string - this includes timezone info
+      // Convert to ISO string for API
+      // The backend will receive the ISO string and can handle timezone conversion
       const fromISO = fromStart.toISOString();
       const toISO = toEnd.toISOString();
 
