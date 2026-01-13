@@ -122,18 +122,22 @@ export default function WindowManagement() {
 
   const loadServiceCategories = async () => {
     try {
+      setError(null);
       const response = await fetch("/api/service-categories", {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to load service categories");
+        throw new Error(`Failed to load service categories: ${response.status}`);
       }
       const data: ListServiceCategoriesResponse = await response.json();
       setServiceCategories(data.categories || []);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Failed to load service categories";
       console.error("Failed to load service categories", error);
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
