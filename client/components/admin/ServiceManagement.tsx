@@ -414,6 +414,12 @@ export default function ServiceManagement() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           {showAddCategory && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-3 mb-4">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
