@@ -383,9 +383,9 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="flex flex-wrap gap-4">
             {/* Waiting */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Serving */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-green-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Served Today */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -421,7 +421,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Completion Rate */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -433,7 +433,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Skipped */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <SkipForward className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm font-medium text-muted-foreground">
