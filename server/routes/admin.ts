@@ -344,11 +344,11 @@ export const getEmployeeStats: RequestHandler = async (_req, res) => {
   try {
     const p = getPool();
 
-    // Get total employees
+    // Get total employees (all staff roles)
     const employeesRes = await p.query(
       `SELECT COUNT(DISTINCT u.id) as count FROM users u
        INNER JOIN user_roles ur ON u.id = ur.user_id
-       WHERE ur.role = 'employee'`,
+       WHERE ur.role IN ('employee', 'reception', 'teller')`,
     );
     const totalEmployees = Number(employeesRes.rows[0]?.count || 0);
 
