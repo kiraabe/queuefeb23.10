@@ -406,7 +406,9 @@ export default function DailyReportViewer() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `daily-report-${report.reportDate}.csv`;
+    // Use the reportDate which now includes the date range
+    const filename = `report-${report.reportDate.replace(/ /g, "_")}.csv`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
