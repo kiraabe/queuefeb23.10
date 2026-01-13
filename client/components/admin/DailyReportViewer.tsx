@@ -630,9 +630,8 @@ export default function DailyReportViewer() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
-                <TabsTrigger value="windows">Windows</TabsTrigger>
                 <TabsTrigger value="employees">Employees</TabsTrigger>
                 <TabsTrigger value="services">Services</TabsTrigger>
                 <TabsTrigger value="skipped">Skipped</TabsTrigger>
@@ -675,55 +674,6 @@ export default function DailyReportViewer() {
                     </p>
                   </div>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="windows">
-                {report.windowStats.length === 0 ? (
-                  <div className="flex items-center justify-center py-8 text-muted-foreground">
-                    No window data available for the selected period
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Window</TableHead>
-                        <TableHead>Teller</TableHead>
-                        <TableHead>Served</TableHead>
-                        <TableHead>Skipped</TableHead>
-                        <TableHead>Transfers Out</TableHead>
-                        <TableHead>Transfers In</TableHead>
-                        <TableHead>Avg Service Time</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.windowStats.map((window) => (
-                        <TableRow key={window.windowId}>
-                          <TableCell className="font-medium">
-                            {window.windowName}
-                          </TableCell>
-                          <TableCell>{window.tellerName}</TableCell>
-                          <TableCell className="font-semibold text-green-600">
-                            {window.served}
-                          </TableCell>
-                          <TableCell className="font-semibold text-orange-600">
-                            {window.skipped}
-                          </TableCell>
-                          <TableCell className="font-semibold text-blue-600">
-                            {window.transfersFrom}
-                          </TableCell>
-                          <TableCell className="font-semibold text-purple-600">
-                            {window.transfersTo}
-                          </TableCell>
-                          <TableCell>
-                            {window.averageServiceTime
-                              ? `${window.averageServiceTime}s`
-                              : "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
               </TabsContent>
 
               <TabsContent value="employees">
