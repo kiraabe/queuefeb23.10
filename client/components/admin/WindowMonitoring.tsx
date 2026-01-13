@@ -429,9 +429,6 @@ export default function WindowMonitoring() {
           ),
         )}
       </div>
-
-      {/* Daily Report */}
-      <DailyReportViewer />
     </div>
   );
 }
