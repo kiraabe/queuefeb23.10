@@ -274,7 +274,7 @@ export default function DailyReportViewer() {
     lines.push(`Total Skipped: ${report.summary.skipped}`);
     lines.push("");
 
-    lines.push("ALL TICKETS CREATED TODAY");
+    lines.push(`ALL TICKETS CREATED (${report.reportDate})`);
     lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
     report.allTickets.forEach((t) => {
       const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
