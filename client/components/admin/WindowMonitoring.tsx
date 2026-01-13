@@ -84,23 +84,19 @@ export default function WindowMonitoring() {
         : null;
 
       const ticketList = Object.values(tickets);
-      const todayTickets = ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        const today = new Date().toDateString();
-        return ticketDate === today;
-      });
+      const filteredTickets = ticketList.filter(isTicketInRange);
 
-      const servedByWindow = todayTickets.filter(
+      const servedByWindow = filteredTickets.filter(
         (t) => t.status === "done" && (t.windowId === window.id || t.transferredFromWindow === window.id),
       );
-      const skippedByWindow = todayTickets.filter(
+      const skippedByWindow = filteredTickets.filter(
         (t) => t.status === "skipped" && t.skippedByWindow === window.id,
       );
-      const transferredFromWindow = todayTickets.filter(
+      const transferredFromWindow = filteredTickets.filter(
         (t) =>
           t.status === "transferred" && t.transferredFromWindow === window.id,
       );
-      const transferredToWindow = todayTickets.filter(
+      const transferredToWindow = filteredTickets.filter(
         (t) =>
           t.status === "transferred" && t.transferredToWindow === window.id,
       );
@@ -145,7 +141,7 @@ export default function WindowMonitoring() {
         activeEmployees: window.tellerUsername ? 1 : 0,
       };
     });
-  }, [windows, tickets]);
+  }, [windows, tickets, timeFilter]);
 
   const totalStats = useMemo(() => {
     const served = windowStats.reduce((sum, w) => sum + w.servedToday, 0);
