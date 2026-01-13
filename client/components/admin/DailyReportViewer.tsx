@@ -494,8 +494,8 @@ export default function DailyReportViewer() {
             Report Period
           </CardTitle>
           <CardDescription>
-            Current range: {fromDate ? format(fromDate, "MMM dd, yyyy") : "—"} to{" "}
-            {toDate ? format(toDate, "MMM dd, yyyy") : "—"}
+            Current range: {fromDate ? format(fromDate, "MMM dd, yyyy") : "—"}{" "}
+            to {toDate ? format(toDate, "MMM dd, yyyy") : "—"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -822,7 +822,9 @@ export default function DailyReportViewer() {
                           .map(([name, stats]) => ({
                             name,
                             ...stats,
-                            rate: Math.round((stats.served / stats.total) * 100),
+                            rate: Math.round(
+                              (stats.served / stats.total) * 100,
+                            ),
                           }))
                           .sort((a, b) => b.total - a.total);
 
