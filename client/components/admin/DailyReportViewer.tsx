@@ -630,13 +630,12 @@ export default function DailyReportViewer() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="windows">Windows</TabsTrigger>
                 <TabsTrigger value="employees">Employees</TabsTrigger>
                 <TabsTrigger value="services">Services</TabsTrigger>
                 <TabsTrigger value="skipped">Skipped</TabsTrigger>
-                <TabsTrigger value="transfers">Transfers</TabsTrigger>
               </TabsList>
 
               <TabsContent value="summary" className="space-y-4">
@@ -910,50 +909,6 @@ export default function DailyReportViewer() {
                 )}
               </TabsContent>
 
-              <TabsContent value="transfers">
-                {report.transfers.length === 0 ? (
-                  <p className="text-muted-foreground py-4">
-                    No transfers in this period
-                  </p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Code</TableHead>
-                        <TableHead>Service</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead>From</TableHead>
-                        <TableHead>To</TableHead>
-                        <TableHead>Reason</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.transfers.map((transfer) => (
-                        <TableRow key={transfer.transferId}>
-                          <TableCell className="font-medium">
-                            {transfer.ticketCode}
-                          </TableCell>
-                          <TableCell>{transfer.service}</TableCell>
-                          <TableCell>
-                            {format(new Date(transfer.createdAt), "HH:mm:ss")}
-                          </TableCell>
-                          <TableCell>
-                            {transfer.fromWindowName ||
-                              `Window ${transfer.fromWindow}`}
-                          </TableCell>
-                          <TableCell>
-                            {transfer.toWindowName ||
-                              `Window ${transfer.toWindow}`}
-                          </TableCell>
-                          <TableCell className="text-sm max-w-xs truncate">
-                            {transfer.remark || "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
