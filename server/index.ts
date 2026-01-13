@@ -10,6 +10,7 @@ import {
   updateQueueSettings,
   getDailyReport,
   getOverallAnalytics,
+  getEmployeeStats,
   listServiceCategories,
   getCategoryServices,
   getWindowServices,
@@ -434,6 +435,7 @@ export function createServer() {
   );
   app.get("/api/admin/daily-report", requireRole(["admin"]), getDailyReport);
   app.get("/api/admin/overall-analytics", getOverallAnalytics); // Temporarily public for debugging
+  app.get("/api/admin/employee-stats", requireRole(["admin"]), getEmployeeStats);
 
   // Service categories and services endpoints (public for reception console)
   app.get("/api/service-categories", listServiceCategories);
