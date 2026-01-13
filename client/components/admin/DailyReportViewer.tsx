@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -26,7 +26,7 @@ import {
   TrendingUp,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, subYears, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
   BarChart,
