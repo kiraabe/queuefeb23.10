@@ -49,6 +49,34 @@ export default function WindowMonitoring() {
     }
   });
 
+  const getTimeRange = () => {
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        return {
+          start: startOfDay(now),
+          end: endOfDay(now),
+        };
+      case "month":
+        return {
+          start: startOfMonth(now),
+          end: endOfMonth(now),
+        };
+      case "all":
+      default:
+        return {
+          start: new Date(0),
+          end: new Date(),
+        };
+    }
+  };
+
+  const isTicketInRange = (ticket: Ticket) => {
+    const { start, end } = getTimeRange();
+    const ticketDate = new Date(ticket.createdAt);
+    return ticketDate >= start && ticketDate <= end;
+  };
+
   const windowStats = useMemo(() => {
     return windows.map((window) => {
       const currentTicket = window.currentTicketId
