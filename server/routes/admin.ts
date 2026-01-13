@@ -438,7 +438,38 @@ export const getDailyReport: RequestHandler = async (req, res) => {
 
     // Get window statistics with assigned teller (show teller who served tickets in date range or is assigned to window)
     const windowStatsRes = await p.query(
-      `SELECT
+      `WITH window_served_tickets AS (
+        SELECT w.id as window_id, COUNT(DISTINCT t.id) as served_count
+        FROM windows w
+        LEFT JOIN tickets t ON (
+          t.window_id = w.id
+          OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id)
+        )
+        WHERE t.status = 'done' AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+        GROUP BY w.id
+      ),
+      window_skipped_tickets AS (
+        SELECT w.id as window_id, COUNT(DISTINCT t.id) as skipped_count
+        FROM windows w
+        LEFT JOIN tickets t ON t.skipped_by_window = w.id
+        WHERE t.status = 'skipped' AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+        GROUP BY w.id
+      ),
+      window_transfers_from AS (
+        SELECT th.from_window as window_id, COUNT(DISTINCT th.id) as transfers_from_count
+        FROM transfer_history th
+        JOIN tickets t ON t.id = th.ticket_id
+        WHERE t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+        GROUP BY th.from_window
+      ),
+      window_transfers_to AS (
+        SELECT th.to_window as window_id, COUNT(DISTINCT th.id) as transfers_to_count
+        FROM transfer_history th
+        JOIN tickets t ON t.id = th.ticket_id
+        WHERE t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+        GROUP BY th.to_window
+      )
+      SELECT
         w.id,
         w.name,
         COALESCE(
@@ -451,19 +482,18 @@ export const getDailyReport: RequestHandler = async (req, res) => {
            WHERE u.window_id = w.id LIMIT 1),
           'Unassigned'
         ) as teller_name,
-        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN t.id END) +
-        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.id IN (SELECT ticket_id FROM transfer_history WHERE to_window = w.id AND ticket_id IN (SELECT id FROM tickets WHERE created_at >= $1::timestamptz AND created_at <= $2::timestamptz)) THEN t.id END) as served,
-        COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN t.id END) as skipped,
-        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th
-         JOIN tickets t2 ON t2.id = th.ticket_id
-         WHERE th.from_window = w.id AND t2.created_at >= $1::timestamptz AND t2.created_at <= $2::timestamptz) as transfers_from,
-        (SELECT COUNT(DISTINCT th.id) FROM transfer_history th
-         JOIN tickets t2 ON t2.id = th.ticket_id
-         WHERE th.to_window = w.id AND t2.created_at >= $1::timestamptz AND t2.created_at <= $2::timestamptz) as transfers_to,
-        ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
+        COALESCE(wst.served_count, 0)::int as served,
+        COALESCE(ws.skipped_count, 0)::int as skipped,
+        COALESCE(wtf.transfers_from_count, 0)::int as transfers_from,
+        COALESCE(wtt.transfers_to_count, 0)::int as transfers_to,
+        ROUND(AVG(CASE WHEN t.status = 'done' AND (t.window_id = w.id OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id)) AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
       FROM windows w
-      LEFT JOIN tickets t ON t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz AND (t.window_id = w.id OR t.id IN (SELECT ticket_id FROM transfer_history WHERE to_window = w.id))
-      GROUP BY w.id, w.name
+      LEFT JOIN tickets t ON t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+      LEFT JOIN window_served_tickets wst ON wst.window_id = w.id
+      LEFT JOIN window_skipped_tickets ws ON ws.window_id = w.id
+      LEFT JOIN window_transfers_from wtf ON wtf.window_id = w.id
+      LEFT JOIN window_transfers_to wtt ON wtt.window_id = w.id
+      GROUP BY w.id, w.name, wst.served_count, ws.skipped_count, wtf.transfers_from_count, wtt.transfers_to_count
       ORDER BY w.id`,
       [fromDate, toDate],
     );
