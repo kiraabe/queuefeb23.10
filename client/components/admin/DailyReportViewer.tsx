@@ -462,11 +462,10 @@ export default function DailyReportViewer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                From Date
-              </label>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+            {/* From Date Section */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium">From Date</label>
               <div className="relative">
                 <ReactDatePicker
                   selected={fromDate}
@@ -480,8 +479,8 @@ export default function DailyReportViewer() {
                   maxDate={new Date()}
                   dateFormat="MMM dd, yyyy"
                   placeholderText="Pick a date"
-                  className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  wrapperClassName="w-full md:w-auto"
+                  className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  wrapperClassName="w-full"
                   popperClassName="react-datepicker-popper"
                 />
               </div>
@@ -490,10 +489,9 @@ export default function DailyReportViewer() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                To Date
-              </label>
+            {/* To Date Section */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium">To Date</label>
               <div className="relative">
                 <ReactDatePicker
                   selected={toDate}
@@ -502,8 +500,8 @@ export default function DailyReportViewer() {
                   maxDate={new Date()}
                   dateFormat="MMM dd, yyyy"
                   placeholderText="Pick a date"
-                  className="w-full md:w-auto px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  wrapperClassName="w-full md:w-auto"
+                  className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  wrapperClassName="w-full"
                   popperClassName="react-datepicker-popper"
                 />
               </div>
@@ -512,17 +510,21 @@ export default function DailyReportViewer() {
               </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
+            {/* Action Buttons - Span remaining columns on larger screens */}
+            <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-2 lg:flex-row lg:justify-end">
               <Button
                 onClick={() => fetchReport(fromDate, toDate)}
                 variant="outline"
-                size="sm"
+                className="w-full sm:w-auto"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button onClick={downloadCSV} disabled={!report} size="sm">
+              <Button
+                onClick={downloadCSV}
+                disabled={!report}
+                className="w-full sm:w-auto"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Download CSV
               </Button>
