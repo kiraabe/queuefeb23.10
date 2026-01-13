@@ -149,7 +149,7 @@ export default function WindowManagement() {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to load window services");
+        throw new Error(`Failed to load window services: ${response.status}`);
       }
       const data = await response.json();
       const serviceCodes = data.services || [];
