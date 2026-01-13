@@ -19,7 +19,13 @@ import {
   Activity,
   DownloadCloud,
 } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfDay,
+  endOfDay,
+} from "date-fns";
 import type { QueueSnapshot, WindowState, Ticket } from "@shared/api";
 
 type TimeFilter = "all" | "today" | "month";
@@ -86,7 +92,9 @@ export default function WindowMonitoring() {
       const filteredTickets = ticketList.filter(isTicketInRange);
 
       const servedByWindow = filteredTickets.filter(
-        (t) => t.status === "done" && (t.windowId === window.id || t.transferredFromWindow === window.id),
+        (t) =>
+          t.status === "done" &&
+          (t.windowId === window.id || t.transferredFromWindow === window.id),
       );
       const skippedByWindow = filteredTickets.filter(
         (t) => t.status === "skipped" && t.skippedByWindow === window.id,
@@ -236,7 +244,9 @@ export default function WindowMonitoring() {
       {/* Time Filter */}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground">Time Period</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Time Period
+          </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Showing data for: {getTimeFilterLabel()}
           </p>
@@ -290,7 +300,9 @@ export default function WindowMonitoring() {
               />
             </div>
             <div className="space-y-2 rounded-lg border p-4">
-              <p className="text-sm text-muted-foreground">{getServedLabel()}</p>
+              <p className="text-sm text-muted-foreground">
+                {getServedLabel()}
+              </p>
               <p className="text-2xl font-bold">{totalStats.served}</p>
               <p className="text-xs text-muted-foreground">
                 across all windows

@@ -154,19 +154,29 @@ export default function DailyReportViewer() {
 
       // Create date range using UTC to avoid timezone issues
       // Parse the local date and convert to UTC start/end of day
-      const fromUTC = new Date(Date.UTC(
-        from.getFullYear(),
-        from.getMonth(),
-        from.getDate(),
-        0, 0, 0, 0
-      ));
+      const fromUTC = new Date(
+        Date.UTC(
+          from.getFullYear(),
+          from.getMonth(),
+          from.getDate(),
+          0,
+          0,
+          0,
+          0,
+        ),
+      );
 
-      const toUTC = new Date(Date.UTC(
-        to.getFullYear(),
-        to.getMonth(),
-        to.getDate(),
-        23, 59, 59, 999
-      ));
+      const toUTC = new Date(
+        Date.UTC(
+          to.getFullYear(),
+          to.getMonth(),
+          to.getDate(),
+          23,
+          59,
+          59,
+          999,
+        ),
+      );
 
       const fromISO = fromUTC.toISOString();
       const toISO = toUTC.toISOString();
