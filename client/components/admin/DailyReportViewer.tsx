@@ -716,42 +716,61 @@ export default function DailyReportViewer() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Employee performance metrics based on case workflow data
                 </p>
-                {report.allTickets.length === 0 ? (
+                {report.employeePerformance.length === 0 ? (
                   <p className="text-muted-foreground">
-                    No employee data available
+                    No employee data available for the selected period
                   </p>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="rounded-lg border p-4">
-                      <h4 className="font-semibold mb-3">
-                        Service Time Distribution
-                      </h4>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart
-                          data={[
-                            {
-                              name: "Today",
-                              avg: report.summary.averageServiceTime || 0,
-                            },
-                          ]}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar
-                            dataKey="avg"
-                            fill="#3b82f6"
-                            name="Avg Time (sec)"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Average service time: {report.summary.averageServiceTime}s
-                      per ticket
-                    </p>
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Employee</TableHead>
+                        <TableHead className="text-right">
+                          Cases Started
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Cases Completed
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Cases Proceeded
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Avg Case Time
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Total Time Spent
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.employeePerformance.map((employee) => (
+                        <TableRow key={employee.employeeId}>
+                          <TableCell className="font-medium">
+                            {employee.employeeName}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.totalCasesStarted}
+                          </TableCell>
+                          <TableCell className="text-right text-green-600 font-semibold">
+                            {employee.casesCompleted}
+                          </TableCell>
+                          <TableCell className="text-right text-blue-600 font-semibold">
+                            {employee.casesProceed}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.averageCaseTime
+                              ? `${Math.round(employee.averageCaseTime)}s`
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.totalTimeSpent
+                              ? `${Math.round(employee.totalTimeSpent)}s`
+                              : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 )}
               </div>
             </TabsContent>
