@@ -492,6 +492,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     );
 
     const summary = summaryRes.rows[0] || {};
+    console.log("[getDailyReport] Summary statistics:", {
+      dateRange: { fromDate, toDate },
+      summary,
+      windowStatsCount: windowStatsRes.rows?.length || 0,
+      allTicketsCount: allTicketsRes.rows?.length || 0,
+      skippedCount: skippedRes.rows?.length || 0,
+      transfersCount: transfersRes.rows?.length || 0,
+    });
 
     // Format report date range
     const fromDateObj = new Date(fromDate);
