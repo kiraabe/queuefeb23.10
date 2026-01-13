@@ -291,7 +291,7 @@ export default function WindowMonitoring() {
               />
             </div>
             <div className="space-y-2 rounded-lg border p-4">
-              <p className="text-sm text-muted-foreground">Served Today</p>
+              <p className="text-sm text-muted-foreground">{getServedLabel()}</p>
               <p className="text-2xl font-bold">{totalStats.served}</p>
               <p className="text-xs text-muted-foreground">
                 across all windows
