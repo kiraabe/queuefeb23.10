@@ -598,7 +598,7 @@ export default function DailyReportViewer() {
             <TabsContent value="windows">
               {report.windowStats.length === 0 ? (
                 <div className="flex items-center justify-center py-8 text-muted-foreground">
-                  No window data available for today
+                  No window data available for the selected period
                 </div>
               ) : (
                 <Table>
