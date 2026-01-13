@@ -137,3 +137,104 @@
     animation: blink 1s infinite;
   }
 }
+
+/* React DatePicker Custom Styling */
+.react-datepicker {
+  @apply rounded-md border border-input bg-background text-foreground shadow-lg;
+  font-family: var(--font-sans);
+}
+
+.react-datepicker__header {
+  @apply bg-muted text-foreground;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.react-datepicker__month {
+  @apply m-3;
+}
+
+.react-datepicker__day-names {
+  @apply flex justify-between gap-1 px-2 mb-2;
+}
+
+.react-datepicker__day-name {
+  @apply w-9 h-9 flex items-center justify-center text-xs font-semibold text-muted-foreground;
+}
+
+.react-datepicker__week {
+  @apply flex justify-between gap-1 px-2 mb-1;
+}
+
+.react-datepicker__day {
+  @apply w-9 h-9 rounded hover:bg-accent hover:text-accent-foreground cursor-pointer text-sm flex items-center justify-center;
+  color: inherit;
+  outline: none;
+}
+
+.react-datepicker__day--selected {
+  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
+}
+
+.react-datepicker__day--keyboard-selected {
+  @apply bg-accent text-accent-foreground;
+}
+
+.react-datepicker__day--in-range {
+  @apply bg-accent text-accent-foreground;
+}
+
+.react-datepicker__day--in-selecting-range {
+  @apply bg-accent/50;
+}
+
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+  @apply bg-primary text-primary-foreground;
+}
+
+.react-datepicker__day--outside-month {
+  @apply text-muted-foreground opacity-50;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-muted-foreground opacity-50 cursor-not-allowed;
+}
+
+.react-datepicker__navigation {
+  @apply flex items-center justify-between;
+}
+
+.react-datepicker__navigation-icon {
+  @apply text-muted-foreground hover:text-foreground;
+}
+
+.react-datepicker__navigation--previous {
+  @apply left-3;
+  position: absolute;
+}
+
+.react-datepicker__navigation--next {
+  @apply right-3;
+  position: absolute;
+}
+
+.react-datepicker__current-month {
+  @apply text-foreground font-semibold mb-4;
+}
+
+.react-datepicker-popper {
+  z-index: 10;
+}
+
+/* Dark mode support */
+.dark .react-datepicker {
+  @apply bg-card border-border;
+}
+
+.dark .react-datepicker__header {
+  @apply bg-muted border-border;
+}
+
+.dark .react-datepicker__day-name {
+  @apply text-muted-foreground;
+}
