@@ -250,7 +250,7 @@ export default function AssignTellerDialog({
           )}
 
           {/* Assign Existing Teller */}
-          {allTellers.filter((t) => !t.windowId).length > 0 && (
+          {!assignedTeller && allTellers.filter((t) => !t.windowId).length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="existing-teller">Assign Existing Teller</Label>
               <Select
