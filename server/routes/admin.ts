@@ -531,6 +531,11 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
+    console.log("[getDailyReport] Employee performance data:", {
+      count: employeePerfRes.rows?.length || 0,
+      rows: employeePerfRes.rows?.slice(0, 5),
+    });
+
     // Get case workflow details (employee case performance by employee) for the date range
     const caseWorkflowRes = await p.query(
       `SELECT
