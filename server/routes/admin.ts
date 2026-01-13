@@ -369,10 +369,6 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       toDate = todayEnd.toISOString();
     }
 
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    const todayStr = today.toISOString();
-
     // Get skipped tickets with details
     const skippedRes = await p.query(
       `SELECT
