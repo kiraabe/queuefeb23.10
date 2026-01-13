@@ -465,6 +465,12 @@ export default function WindowManagement() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <form
           onSubmit={handleAddWindow}
           className="space-y-3 rounded-lg border p-4 bg-muted/30"
