@@ -248,58 +248,70 @@ export default function AdminDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Waiting */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {/* Total Employees */}
             <div className="space-y-2 rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
-                  Waiting
+                  Total Employees
                 </span>
                 <Users className="h-4 w-4 text-blue-500" />
               </div>
-              <p className="text-2xl font-bold">{stats.totalWaiting}</p>
-              <p className="text-xs text-muted-foreground">
-                customers in queue
+              <p className="text-2xl font-bold">{employeeStats.totalEmployees}</p>
+              <p className="text-xs text-muted-foreground">active staff</p>
+            </div>
+
+            {/* Total Cases */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Total Cases
+                </span>
+                <Briefcase className="h-4 w-4 text-green-500" />
+              </div>
+              <p className="text-2xl font-bold">{employeeStats.totalCases}</p>
+              <p className="text-xs text-muted-foreground">all-time total</p>
+            </div>
+
+            {/* Top Performer */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Top Performer
+                </span>
+                <Award className="h-4 w-4 text-yellow-500" />
+              </div>
+              <p className="text-2xl font-bold truncate">{employeeStats.topPerformer}</p>
+              <p className="text-xs text-muted-foreground">by cases</p>
+            </div>
+
+            {/* Avg Duration */}
+            <div className="space-y-2 rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Avg Duration
+                </span>
+                <Clock className="h-4 w-4 text-orange-500" />
+              </div>
+              <p className="text-2xl font-bold">
+                {employeeStats.avgDuration !== null
+                  ? `${Math.round(employeeStats.avgDuration)}s`
+                  : "N/A"}
               </p>
+              <p className="text-xs text-muted-foreground">per case</p>
             </div>
 
-            {/* Serving */}
+            {/* Total Windows */}
             <div className="space-y-2 rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
-                  Serving
+                  Total Windows
                 </span>
-                <Zap className="h-4 w-4 text-green-500" />
+                <Zap className="h-4 w-4 text-purple-500" />
               </div>
-              <p className="text-2xl font-bold">{stats.totalServing}</p>
-              <p className="text-xs text-muted-foreground">active windows</p>
-            </div>
-
-            {/* Served Today */}
-            <div className="space-y-2 rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Served Today
-                </span>
-                <CheckCircle className="h-4 w-4 text-green-600" />
-              </div>
-              <p className="text-2xl font-bold">{stats.servedToday}</p>
+              <p className="text-2xl font-bold">{windows.length}</p>
               <p className="text-xs text-muted-foreground">
-                of {stats.totalTicketsCreatedToday} tickets
-              </p>
-            </div>
-
-            {/* Active Windows */}
-            <div className="space-y-2 rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Active Windows
-                </span>
-                <TrendingUp className="h-4 w-4 text-purple-500" />
-              </div>
-              <p className="text-2xl font-bold">{stats.activeWindows}</p>
-              <p className="text-xs text-muted-foreground">
-                of {windows.length} windows
+                {stats.activeWindows} active
               </p>
             </div>
           </div>
