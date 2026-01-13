@@ -49,7 +49,6 @@ interface DashboardStats {
   longestWaitTime: number | null;
   averageWaitTime: number | null;
   totalTicketsCreatedToday: number;
-  activeWindows: number;
   completionRate: number;
   systemHealth: "healthy" | "warning" | "critical";
 }
@@ -172,8 +171,6 @@ export default function AdminDashboard() {
     if (longestWait && longestWait > 3600) health = "critical";
     else if (longestWait && longestWait > 1800) health = "warning";
 
-    const activeWindowCount = windows.filter((w) => w.busy).length;
-
     const servedCount = todayTickets.filter((t) => t.status === "done").length;
     const completionRate =
       todayTickets.length > 0
@@ -191,7 +188,6 @@ export default function AdminDashboard() {
       longestWaitTime: longestWait,
       averageWaitTime: avgWait,
       totalTicketsCreatedToday: todayTickets.length,
-      activeWindows: activeWindowCount,
       completionRate,
       systemHealth: health,
     };
@@ -422,20 +418,6 @@ export default function AdminDashboard() {
               </div>
               <p className="text-2xl font-bold">{stats.servedToday}</p>
               <p className="text-xs text-muted-foreground">completed</p>
-            </div>
-
-            {/* Active Windows */}
-            <div className="space-y-2 rounded-lg border p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-purple-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Active Windows
-                </span>
-              </div>
-              <p className="text-2xl font-bold">{stats.activeWindows}</p>
-              <p className="text-xs text-muted-foreground">
-                of {windows.length}
-              </p>
             </div>
 
             {/* Completion Rate */}
