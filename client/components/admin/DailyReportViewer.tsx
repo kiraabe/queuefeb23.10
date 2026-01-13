@@ -139,8 +139,15 @@ export default function DailyReportViewer() {
 
       let url = "/api/admin/daily-report";
       if (from && to) {
-        const fromStr = format(from, "yyyy-MM-dd");
-        const toStr = format(to, "yyyy-MM-dd");
+        // Set to start and end of day in local timezone, then convert to ISO string
+        const fromStart = new Date(from);
+        fromStart.setHours(0, 0, 0, 0);
+
+        const toEnd = new Date(to);
+        toEnd.setHours(23, 59, 59, 999);
+
+        const fromStr = encodeURIComponent(fromStart.toISOString());
+        const toStr = encodeURIComponent(toEnd.toISOString());
         url += `?fromDate=${fromStr}&toDate=${toStr}`;
       }
 
