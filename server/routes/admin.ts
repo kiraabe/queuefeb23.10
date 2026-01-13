@@ -474,14 +474,29 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     );
 
     // Get all tickets created in the date range
+    // Note: We try to find the window that actually served the ticket by:
+    // 1. First checking the ticket's window_id
+    // 2. If that's null, checking the last window in transfer_history (the one who completed it)
     const allTicketsRes = await p.query(
       `SELECT
         t.id,
         t.code,
         t.service,
         t.status,
-        t.window_id,
-        w.name as window_name,
+        COALESCE(t.window_id, (
+          SELECT to_window FROM transfer_history
+          WHERE ticket_id = t.id
+          ORDER BY transferred_at DESC
+          LIMIT 1
+        )) as window_id,
+        COALESCE(
+          w.name,
+          (SELECT tw.name FROM transfer_history th
+           JOIN windows tw ON th.to_window = tw.id
+           WHERE th.ticket_id = t.id
+           ORDER BY th.transferred_at DESC
+           LIMIT 1)
+        ) as window_name,
         extract(epoch from t.created_at)*1000 as created_at,
         extract(epoch from t.completed_at)*1000 as completed_at
       FROM tickets t
