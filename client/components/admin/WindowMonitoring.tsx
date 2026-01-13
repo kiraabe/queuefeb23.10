@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   AlertCircle,
   Wifi,
@@ -18,13 +19,16 @@ import {
   Activity,
   DownloadCloud,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import type { QueueSnapshot, WindowState, Ticket } from "@shared/api";
 import DailyReportViewer from "./DailyReportViewer";
+
+type TimeFilter = "all" | "today" | "month";
 
 export default function WindowMonitoring() {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
