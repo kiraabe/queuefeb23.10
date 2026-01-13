@@ -126,11 +126,25 @@ export default function DailyReportViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReport = async () => {
+  // Date range state
+  const [fromDate, setFromDate] = useState<Date | undefined>(new Date());
+  const [toDate, setToDate] = useState<Date | undefined>(new Date());
+  const [fromDateOpen, setFromDateOpen] = useState(false);
+  const [toDateOpen, setToDateOpen] = useState(false);
+
+  const fetchReport = async (from?: Date, to?: Date) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/admin/daily-report");
+
+      let url = "/api/admin/daily-report";
+      if (from && to) {
+        const fromStr = format(from, "yyyy-MM-dd");
+        const toStr = format(to, "yyyy-MM-dd");
+        url += `?fromDate=${fromStr}&toDate=${toStr}`;
+      }
+
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch daily report");
       }
@@ -144,8 +158,8 @@ export default function DailyReportViewer() {
   };
 
   useEffect(() => {
-    fetchReport();
-  }, []);
+    fetchReport(fromDate, toDate);
+  }, [fromDate, toDate]);
 
   const downloadCSV = () => {
     if (!report) return;
