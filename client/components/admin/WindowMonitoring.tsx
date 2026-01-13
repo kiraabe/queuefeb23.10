@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import type { QueueSnapshot, WindowState, Ticket } from "@shared/api";
-import DailyReportViewer from "./DailyReportViewer";
 
 type TimeFilter = "all" | "today" | "month";
 
