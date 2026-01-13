@@ -442,17 +442,23 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         SELECT w.id as window_id, COUNT(DISTINCT t.id) as served_count
         FROM windows w
         LEFT JOIN tickets t ON (
-          t.window_id = w.id
-          OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id)
+          (t.window_id = w.id
+          OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id))
+          AND t.status = 'done'
+          AND t.created_at >= $1::timestamptz
+          AND t.created_at <= $2::timestamptz
         )
-        WHERE t.status = 'done' AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
         GROUP BY w.id
       ),
       window_skipped_tickets AS (
         SELECT w.id as window_id, COUNT(DISTINCT t.id) as skipped_count
         FROM windows w
-        LEFT JOIN tickets t ON t.skipped_by_window = w.id
-        WHERE t.status = 'skipped' AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz
+        LEFT JOIN tickets t ON (
+          t.skipped_by_window = w.id
+          AND t.status = 'skipped'
+          AND t.created_at >= $1::timestamptz
+          AND t.created_at <= $2::timestamptz
+        )
         GROUP BY w.id
       ),
       window_transfers_from AS (
