@@ -157,16 +157,42 @@ export default function WindowMonitoring() {
     return `${Math.round(diff / 3600)}h ago`;
   };
 
+  const getTimeFilterLabel = () => {
+    switch (timeFilter) {
+      case "today":
+        return "Today";
+      case "month":
+        return "This Month";
+      case "all":
+        return "All Time";
+    }
+  };
+
+  const getCSVFileName = () => {
+    const now = new Date();
+    const dateStr = format(now, "yyyy-MM-dd");
+    switch (timeFilter) {
+      case "today":
+        return `windows-report-today-${dateStr}.csv`;
+      case "month":
+        return `windows-report-month-${format(now, "yyyy-MM")}.csv`;
+      case "all":
+        return `windows-report-all-time-${dateStr}.csv`;
+    }
+  };
+
   const downloadWindowsCSV = () => {
     const headers = [
       "Window ID",
       "Window Name",
       "Teller",
-      "Served Today",
-      "Skipped Today",
+      "Served",
+      "Skipped",
       "Transferred From",
       "Transferred To",
       "Avg Service Time (seconds)",
+      "Total Cases",
+      "Completion Rate (%)",
     ];
 
     const rows = windowStats.map((stat) => [
@@ -178,6 +204,8 @@ export default function WindowMonitoring() {
       stat.transferredFrom,
       stat.transferredTo,
       stat.avgServiceTime || "N/A",
+      stat.totalCasesHandled,
+      stat.completionRate,
     ]);
 
     const csv = [headers, ...rows]
@@ -188,7 +216,7 @@ export default function WindowMonitoring() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `windows-daily-report-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = getCSVFileName();
     a.click();
     window.URL.revokeObjectURL(url);
   };
