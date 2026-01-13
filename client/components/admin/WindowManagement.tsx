@@ -181,19 +181,22 @@ export default function WindowManagement() {
   const loadWindows = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const response = await fetch("/api/admin/windows", {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to load windows");
+        throw new Error(`Failed to load windows: ${response.status}`);
       }
       const data: ListWindowsResponse = await response.json();
       setWindows(data.windows);
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Failed to load windows";
       console.error("Failed to load windows", error);
-      toast.error("Failed to load windows");
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
