@@ -451,36 +451,19 @@ export const getDailyReport: RequestHandler = async (req, res) => {
            WHERE u.window_id = w.id LIMIT 1),
           'Unassigned'
         ) as teller_name,
-        (SELECT COUNT(DISTINCT t.id) FROM tickets t
-         WHERE t.status = 'done'
-         AND t.created_at >= $1::timestamptz
-         AND t.created_at <= $2::timestamptz
-         AND (t.window_id = w.id OR t.id IN (
-           SELECT ticket_id FROM transfer_history
-           WHERE to_window = w.id
-           AND ticket_id IN (SELECT id FROM tickets WHERE status = 'done')
-         ))) as served,
-        (SELECT COUNT(DISTINCT t.id) FROM tickets t
-         WHERE t.status = 'skipped'
-         AND t.skipped_by_window = w.id
-         AND t.created_at >= $1::timestamptz
-         AND t.created_at <= $2::timestamptz) as skipped,
+        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN t.id END) +
+        COUNT(DISTINCT CASE WHEN t.status = 'done' AND t.id IN (SELECT ticket_id FROM transfer_history WHERE to_window = w.id AND ticket_id IN (SELECT id FROM tickets WHERE created_at >= $1::timestamptz AND created_at <= $2::timestamptz)) THEN t.id END) as served,
+        COUNT(DISTINCT CASE WHEN t.status = 'skipped' AND t.skipped_by_window = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN t.id END) as skipped,
         (SELECT COUNT(DISTINCT th.id) FROM transfer_history th
          JOIN tickets t2 ON t2.id = th.ticket_id
          WHERE th.from_window = w.id AND t2.created_at >= $1::timestamptz AND t2.created_at <= $2::timestamptz) as transfers_from,
         (SELECT COUNT(DISTINCT th.id) FROM transfer_history th
          JOIN tickets t2 ON t2.id = th.ticket_id
          WHERE th.to_window = w.id AND t2.created_at >= $1::timestamptz AND t2.created_at <= $2::timestamptz) as transfers_to,
-        (SELECT ROUND(AVG(EXTRACT(EPOCH FROM (t.completed_at - t.started_at))))::int FROM tickets t
-         WHERE t.status = 'done'
-         AND t.created_at >= $1::timestamptz
-         AND t.created_at <= $2::timestamptz
-         AND (t.window_id = w.id OR t.id IN (
-           SELECT ticket_id FROM transfer_history
-           WHERE to_window = w.id
-           AND ticket_id IN (SELECT id FROM tickets WHERE status = 'done')
-         ))) as avg_service_time
+        ROUND(AVG(CASE WHEN t.status = 'done' AND t.window_id = w.id AND t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
       FROM windows w
+      LEFT JOIN tickets t ON t.created_at >= $1::timestamptz AND t.created_at <= $2::timestamptz AND (t.window_id = w.id OR t.id IN (SELECT ticket_id FROM transfer_history WHERE to_window = w.id))
+      GROUP BY w.id, w.name
       ORDER BY w.id`,
       [fromDate, toDate],
     );
