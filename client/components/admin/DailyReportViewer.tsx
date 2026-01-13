@@ -305,7 +305,6 @@ export default function DailyReportViewer() {
     });
     lines.push("");
 
-
     const skippedTickets = report.allTickets.filter(
       (t) => t.status === "skipped",
     );

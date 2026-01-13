@@ -129,18 +129,26 @@ export default function WindowManagement() {
         },
       });
       if (!response.ok) {
-        throw new Error(`Failed to load service categories: ${response.status}`);
+        throw new Error(
+          `Failed to load service categories: ${response.status}`,
+        );
       }
       const data: ListServiceCategoriesResponse = await response.json();
       setServiceCategories(data.categories || []);
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Failed to load service categories";
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "Failed to load service categories";
       console.error("Failed to load service categories", error);
 
       // Retry with exponential backoff
       if (retries > 0 && error instanceof TypeError) {
         console.log(`Retrying loadServiceCategories... (${3 - retries + 1}/3)`);
-        setTimeout(() => loadServiceCategories(retries - 1), Math.pow(2, 3 - retries) * 1000);
+        setTimeout(
+          () => loadServiceCategories(retries - 1),
+          Math.pow(2, 3 - retries) * 1000,
+        );
         return;
       }
 
@@ -201,7 +209,8 @@ export default function WindowManagement() {
       const data: ListWindowsResponse = await response.json();
       setWindows(data.windows);
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Failed to load windows";
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to load windows";
       console.error("Failed to load windows", error);
       setError(errorMsg);
       toast.error(errorMsg);

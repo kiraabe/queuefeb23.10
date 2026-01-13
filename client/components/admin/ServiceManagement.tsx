@@ -108,19 +108,26 @@ export default function ServiceManagement() {
             allServices.push(...servicesData.services);
           }
         } catch (categoryError) {
-          console.warn(`Failed to load services for category ${category.id}`, categoryError);
+          console.warn(
+            `Failed to load services for category ${category.id}`,
+            categoryError,
+          );
         }
       }
       setServices(allServices);
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Failed to load categories";
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to load categories";
       console.error("Failed to load data", error);
 
       // Retry with exponential backoff for network errors
       if (retries > 0 && error instanceof TypeError) {
         console.log(`Retrying loadData... (${3 - retries + 1}/3)`);
         setIsLoading(false);
-        setTimeout(() => loadData(retries - 1), Math.pow(2, 3 - retries) * 1000);
+        setTimeout(
+          () => loadData(retries - 1),
+          Math.pow(2, 3 - retries) * 1000,
+        );
         return;
       }
 
