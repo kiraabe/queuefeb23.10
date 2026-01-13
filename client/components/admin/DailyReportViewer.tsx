@@ -152,18 +152,24 @@ export default function DailyReportViewer() {
         return;
       }
 
-      // Create date range - treat as local date and convert to ISO
-      // This ensures the date range is inclusive of the selected dates
-      const fromStart = new Date(from);
-      fromStart.setHours(0, 0, 0, 0);
+      // Create date range using UTC to avoid timezone issues
+      // Parse the local date and convert to UTC start/end of day
+      const fromUTC = new Date(Date.UTC(
+        from.getFullYear(),
+        from.getMonth(),
+        from.getDate(),
+        0, 0, 0, 0
+      ));
 
-      const toEnd = new Date(to);
-      toEnd.setHours(23, 59, 59, 999);
+      const toUTC = new Date(Date.UTC(
+        to.getFullYear(),
+        to.getMonth(),
+        to.getDate(),
+        23, 59, 59, 999
+      ));
 
-      // Convert to ISO string for API
-      // The backend will receive the ISO string and can handle timezone conversion
-      const fromISO = fromStart.toISOString();
-      const toISO = toEnd.toISOString();
+      const fromISO = fromUTC.toISOString();
+      const toISO = toUTC.toISOString();
 
       console.log("[DailyReportViewer] Fetching report for date range:", {
         fromDate: fromISO,
