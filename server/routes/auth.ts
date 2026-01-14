@@ -724,13 +724,19 @@ export const listSessionsHandler: RequestHandler = async (req, res) => {
     });
 
     const sessions = await listSessions();
-    console.log("[listSessionsHandler] Successfully fetched sessions, count:", sessions.length);
+    console.log(
+      "[listSessionsHandler] Successfully fetched sessions, count:",
+      sessions.length,
+    );
 
     const payload: ListSessionsResponse = { sessions };
     res.header("Content-Type", "application/json");
     res.json(payload);
   } catch (error) {
-    console.error("[listSessionsHandler] Error fetching sessions:", error instanceof Error ? error.message : error);
+    console.error(
+      "[listSessionsHandler] Error fetching sessions:",
+      error instanceof Error ? error.message : error,
+    );
     res.status(500).json({
       error: "Failed to fetch sessions",
       sessions: [],
@@ -744,7 +750,10 @@ export const debugSessionsHandler: RequestHandler = async (_req, res) => {
   try {
     console.log("[debugSessionsHandler] Debug request received");
     const sessions = await listSessions();
-    console.log("[debugSessionsHandler] Sessions fetched, count:", sessions.length);
+    console.log(
+      "[debugSessionsHandler] Sessions fetched, count:",
+      sessions.length,
+    );
 
     res.json({
       success: true,
