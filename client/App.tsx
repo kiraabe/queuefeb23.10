@@ -7,7 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import AppLayout from "@/components/layout/AppLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Suspense } from "react-router-dom";
+import { lazy } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Queue from "./pages/Queue";
@@ -20,10 +21,24 @@ import TicketStatus from "./pages/TicketStatus";
 import Track from "./pages/Track";
 import Login from "./pages/Login";
 import TellerWindow from "./pages/TellerWindow";
-import Admin from "./pages/Admin";
 import RoleSelector from "./pages/RoleSelector";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+
+// Lazy load Admin page (contains heavy chart dependencies)
+const Admin = lazy(() => import("./pages/Admin"));
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/30 border-t-primary mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 const queryClient = new QueryClient();
 
