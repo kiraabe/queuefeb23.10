@@ -38,28 +38,39 @@ export default function SessionManagement() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch, error: queryError } = useQuery({
     queryKey: ["admin-sessions"],
     queryFn: async () => {
       try {
+        console.log("[SessionManagement] Fetching sessions from /api/admin/sessions");
         const response = await fetch("/api/admin/sessions", {
           method: "GET",
           credentials: "include",
-          headers: { "X-Requested-With": "XMLHttpRequest" },
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json",
+          },
         });
+
+        console.log("[SessionManagement] Response status:", response.status);
+
         if (!response.ok) {
-          console.error("Failed to fetch sessions:", response.status, response.statusText);
-          throw new Error(`Failed to fetch sessions: ${response.statusText}`);
+          const errorText = await response.text();
+          console.error("Failed to fetch sessions:", response.status, response.statusText, errorText);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        const data = await response.json() as ListSessionsResponse;
+
+        const data = (await response.json()) as ListSessionsResponse;
+        console.log("[SessionManagement] Sessions loaded, count:", data.sessions?.length || 0);
         return data;
       } catch (err) {
-        console.error("Error fetching sessions:", err);
+        console.error("[SessionManagement] Fetch error:", err instanceof Error ? err.message : String(err));
         throw err;
       }
     },
     refetchInterval: 5000,
-    retry: 2,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   useEffect(() => {
