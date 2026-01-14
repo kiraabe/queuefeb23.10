@@ -70,13 +70,34 @@ const App = () => (
                 <Route path="/queue" element={<Queue />} />
                 <Route path="/teller" element={<TellerHomeRedirect />} />
                 <Route element={<RequireAuth role="teller" />}>
-                  <Route path="/teller/:id" element={<TellerWindow />} />
+                  <Route
+                    path="/teller/:id"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <TellerWindow />
+                      </Suspense>
+                    }
+                  />
                 </Route>
                 <Route element={<RequireAuth role="employee" />}>
-                  <Route path="/employee" element={<Employee />} />
+                  <Route
+                    path="/employee"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Employee />
+                      </Suspense>
+                    }
+                  />
                 </Route>
                 <Route element={<RequireAuth role="archiever" />}>
-                  <Route path="/archiever" element={<Archiever />} />
+                  <Route
+                    path="/archiever"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Archiever />
+                      </Suspense>
+                    }
+                  />
                 </Route>
                 <Route element={<RequireAuth role="admin" />}>
                   <Route
