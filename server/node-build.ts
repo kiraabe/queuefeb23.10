@@ -61,9 +61,7 @@ if (process.env.NODE_ENV === "production") {
     const heapUsed = Math.round((used.heapUsed / 1024 / 1024) * 100) / 100;
     const heapTotal = Math.round((used.heapTotal / 1024 / 1024) * 100) / 100;
     if (used.heapUsed > memoryThreshold) {
-      console.warn(
-        `⚠️  Heap usage high: ${heapUsed}MB / ${heapTotal}MB`,
-      );
+      console.warn(`⚠️  Heap usage high: ${heapUsed}MB / ${heapTotal}MB`);
     }
   }, 30000); // Check every 30 seconds
 }
