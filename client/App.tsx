@@ -11,19 +11,19 @@ import NotFound from "./pages/NotFound";
 import Queue from "./pages/Queue";
 import Reception from "./pages/Reception";
 import Teller from "./pages/Teller";
-import Employee from "./pages/Employee";
-import Archiever from "./pages/Archiever";
 import Display from "./pages/Display";
 import TicketStatus from "./pages/TicketStatus";
 import Track from "./pages/Track";
 import Login from "./pages/Login";
-import TellerWindow from "./pages/TellerWindow";
 import RoleSelector from "./pages/RoleSelector";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
-// Lazy load Admin page (contains heavy chart dependencies)
+// Lazy load pages with heavy dependencies to reduce initial bundle
 const Admin = lazy(() => import("./pages/Admin"));
+const Employee = lazy(() => import("./pages/Employee"));
+const Archiever = lazy(() => import("./pages/Archiever"));
+const TellerWindow = lazy(() => import("./pages/TellerWindow"));
 
 // Loading fallback component
 function LoadingFallback() {
