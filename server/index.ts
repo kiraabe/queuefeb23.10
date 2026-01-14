@@ -422,6 +422,7 @@ export function createServer() {
 
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
+  app.get("/api/admin/sessions-debug", debugSessionsHandler); // Debug endpoint without auth
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
   app.post("/api/admin/seed-test-data", requireRole(["admin"]), seedTestData);
   app.get(
