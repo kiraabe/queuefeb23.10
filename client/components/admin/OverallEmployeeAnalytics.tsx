@@ -170,7 +170,7 @@ export default function OverallEmployeeAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Total Cases Completed */}
+        {/* Total Cases (Served Tickets) */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-2">
@@ -181,12 +181,9 @@ export default function OverallEmployeeAnalytics() {
                 <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
               <p className="text-3xl font-bold">
-                {analytics.employees.reduce(
-                  (sum: number, emp: any) => sum + (emp.casesCompleted || 0),
-                  0,
-                )}
+                {analytics.summary?.served || 0}
               </p>
-              <p className="text-xs text-muted-foreground">completed overall</p>
+              <p className="text-xs text-muted-foreground">served tickets (all-time)</p>
             </div>
           </CardContent>
         </Card>
