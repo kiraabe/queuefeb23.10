@@ -18,6 +18,34 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Split heavy vendor libraries into separate chunks for better caching and reduced initial load
+          if (id.includes("node_modules")) {
+            if (id.includes("recharts")) {
+              return "recharts";
+            }
+            if (id.includes("@radix-ui")) {
+              return "radix-ui";
+            }
+            if (id.includes("react-router-dom")) {
+              return "router";
+            }
+            if (id.includes("react") && !id.includes("@")) {
+              return "react";
+            }
+            if (
+              id.includes("@tanstack/react-query") ||
+              id.includes("zustand")
+            ) {
+              return "state";
+            }
+          }
+        },
+      },
+    },
   },
   plugins: [react(), expressPlugin()],
   resolve: {
