@@ -41,14 +41,25 @@ export default function SessionManagement() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-sessions"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/sessions", {
-        credentials: "include",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch sessions");
-      return (await response.json()) as ListSessionsResponse;
+      try {
+        const response = await fetch("/api/admin/sessions", {
+          method: "GET",
+          credentials: "include",
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        if (!response.ok) {
+          console.error("Failed to fetch sessions:", response.status, response.statusText);
+          throw new Error(`Failed to fetch sessions: ${response.statusText}`);
+        }
+        const data = await response.json() as ListSessionsResponse;
+        return data;
+      } catch (err) {
+        console.error("Error fetching sessions:", err);
+        throw err;
+      }
     },
     refetchInterval: 5000,
+    retry: 2,
   });
 
   useEffect(() => {
