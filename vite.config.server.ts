@@ -39,8 +39,8 @@ export default defineConfig({
         entryFileNames: "production.mjs",
       },
     },
-    minify: false, // Keep readable for debugging
-    sourcemap: true,
+    minify: "terser", // Minify to reduce build memory usage
+    sourcemap: false, // Disable sourcemaps in production to save memory
   },
   resolve: {
     alias: {
