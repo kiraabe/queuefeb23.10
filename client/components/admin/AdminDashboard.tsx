@@ -191,6 +191,7 @@ export default function AdminDashboard() {
       totalTicketsCreatedToday: todayTickets.length,
       completionRate,
       systemHealth: health,
+      totalCompleted: completed.length,
     };
   }, [tickets]);
 
