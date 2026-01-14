@@ -97,10 +97,11 @@ export default function EmployeePerformanceDashboard() {
       // Find highest performer (employee with most completed cases)
       const highestPerformer =
         employeeList.length > 0
-          ? employeeList.reduce((prev: EmployeeStats, current: EmployeeStats) =>
-              (current.casesCompleted || 0) > (prev.casesCompleted || 0)
-                ? current
-                : prev,
+          ? employeeList.reduce(
+              (prev: EmployeeStats, current: EmployeeStats) =>
+                (current.casesCompleted || 0) > (prev.casesCompleted || 0)
+                  ? current
+                  : prev,
             )
           : null;
 

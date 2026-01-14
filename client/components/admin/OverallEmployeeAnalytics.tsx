@@ -186,7 +186,9 @@ export default function OverallEmployeeAnalytics() {
               <p className="text-3xl font-bold">
                 {analytics.summary?.served || 0}
               </p>
-              <p className="text-xs text-muted-foreground">served tickets (all-time)</p>
+              <p className="text-xs text-muted-foreground">
+                served tickets (all-time)
+              </p>
             </div>
           </CardContent>
         </Card>
