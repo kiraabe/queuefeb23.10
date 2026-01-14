@@ -11,4 +11,6 @@ services:
       - key: NODE_VERSION
         value: 22
       - key: NODE_OPTIONS
-        value: --max-old-space-size=512 --disable-warnings
+        value: --max-old-space-size=256 --disable-warnings
+      - key: VITE_CHUNK_SIZE
+        value: "512"
