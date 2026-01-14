@@ -79,72 +79,25 @@ export default function EmployeePerformanceDashboard() {
       // Get total served tickets from the daily report summary
       const totalServedTickets = Number(reportData.summary?.served || 0);
 
-      // For now, we'll process employee data from tickets
-      // In the future, this should be a dedicated endpoint
-      const employees = new Map<string, EmployeeStats>();
+      // Use employee performance data directly from the daily report
+      // This already has casesCompleted, casesProceed, etc.
+      const employeeList = (reportData.employeePerformance || []).map(
+        (emp: any) => ({
+          employeeId: emp.employeeId,
+          employeeName: emp.employeeName,
+          totalCasesStarted: Number(emp.totalCasesStarted || 0),
+          casesCompleted: Number(emp.casesCompleted || 0),
+          casesProceed: Number(emp.casesProceed || 0),
+          averageCaseTime: emp.averageCaseTime || null,
+          averageServiceTime: null,
+          totalTimeSpent: emp.totalTimeSpent || null,
+        }),
+      );
 
-      // Process all tickets to get employee stats
-      for (const ticket of reportData.allTickets) {
-        // Get case workflow for this ticket to find employees who worked on it
-        try {
-          const workflowRes = await fetch(
-            `/api/employee/case-workflow?ticketId=${ticket.ticketId}`,
-          );
-          if (workflowRes.ok) {
-            const workflowData = await workflowRes.json();
-            for (const entry of workflowData.items) {
-              if (!employees.has(entry.employeeId)) {
-                employees.set(entry.employeeId, {
-                  employeeId: entry.employeeId,
-                  employeeName: entry.employeeName,
-                  totalCasesStarted: 0,
-                  casesCompleted: 0,
-                  casesProceed: 0,
-                  averageCaseTime: null,
-                  averageServiceTime: null,
-                  totalTimeSpent: 0,
-                });
-              }
-
-              const emp = employees.get(entry.employeeId)!;
-              emp.totalCasesStarted++;
-
-              if (entry.status === "completed") {
-                emp.casesCompleted++;
-              } else if (entry.status === "proceeded") {
-                emp.casesProceed++;
-              }
-
-              if (entry.durationSeconds) {
-                emp.totalTimeSpent! +=
-                  (emp.totalTimeSpent || 0) + entry.durationSeconds;
-              }
-            }
-          }
-        } catch (e) {
-          console.warn(
-            `Failed to fetch workflow for ticket ${ticket.ticketId}`,
-          );
-        }
-      }
-
-      // Calculate average times
-      const employeeList = Array.from(employees.values()).map((emp) => ({
-        ...emp,
-        averageCaseTime: emp.totalCasesStarted
-          ? Math.round(
-              ((emp.totalTimeSpent || 0) / emp.totalCasesStarted) * 100,
-            ) / 100
-          : null,
-        averageServiceTime: emp.totalTimeSpent
-          ? Math.round(emp.totalTimeSpent / 100) / 100
-          : null,
-      }));
-
-      // Find highest performer
+      // Find highest performer (employee with most completed cases)
       const highestPerformer =
         employeeList.length > 0
-          ? employeeList.reduce((prev, current) =>
+          ? employeeList.reduce((prev: EmployeeStats, current: EmployeeStats) =>
               (current.casesCompleted || 0) > (prev.casesCompleted || 0)
                 ? current
                 : prev,
