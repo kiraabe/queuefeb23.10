@@ -713,7 +713,15 @@ export const switchRole: RequestHandler = async (req, res) => {
 };
 
 export const listSessionsHandler: RequestHandler = async (_req, res) => {
-  const sessions = await listSessions();
-  const payload: ListSessionsResponse = { sessions };
-  res.json(payload);
+  try {
+    const sessions = await listSessions();
+    const payload: ListSessionsResponse = { sessions };
+    res.json(payload);
+  } catch (error) {
+    console.error("Failed to list sessions:", error);
+    res.status(500).json({
+      error: "Failed to fetch sessions",
+      sessions: []
+    });
+  }
 };
