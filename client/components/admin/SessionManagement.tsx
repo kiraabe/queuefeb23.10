@@ -265,25 +265,64 @@ export default function SessionManagement() {
                     />
                   </PaginationItem>
 
-                  {Array.from({ length: paginationData.totalPages }).map(
-                    (_, idx) => {
-                      const page = idx + 1;
-                      return (
+                  {(() => {
+                    const pages: (number | string)[] = [];
+                    const totalPages = paginationData.totalPages;
+                    const current = currentPage;
+                    const maxVisible = 5;
+
+                    // Always show first page
+                    pages.push(1);
+
+                    // Add ellipsis and pages before current
+                    if (current > maxVisible) {
+                      pages.push("...");
+                    }
+
+                    // Show pages around current (current - 2 to current + 2)
+                    const rangeStart = Math.max(2, current - 1);
+                    const rangeEnd = Math.min(totalPages - 1, current + 1);
+
+                    for (let i = rangeStart; i <= rangeEnd; i++) {
+                      if (!pages.includes(i)) {
+                        pages.push(i);
+                      }
+                    }
+
+                    // Add ellipsis and pages after current
+                    if (current < totalPages - (maxVisible - 1)) {
+                      pages.push("...");
+                    }
+
+                    // Always show last page if more than 1 page
+                    if (totalPages > 1 && !pages.includes(totalPages)) {
+                      pages.push(totalPages);
+                    }
+
+                    // Remove duplicates
+                    const uniquePages = [...new Set(pages)];
+
+                    return uniquePages.map((page, idx) =>
+                      page === "..." ? (
+                        <PaginationItem key={`ellipsis-${idx}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
                         <PaginationItem key={page}>
                           <PaginationLink
                             href="#"
                             isActive={currentPage === page}
                             onClick={(e) => {
                               e.preventDefault();
-                              setCurrentPage(page);
+                              setCurrentPage(page as number);
                             }}
                           >
                             {page}
                           </PaginationLink>
                         </PaginationItem>
-                      );
-                    },
-                  )}
+                      ),
+                    );
+                  })()}
 
                   <PaginationItem>
                     <PaginationNext
