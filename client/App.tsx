@@ -82,7 +82,14 @@ const App = () => (
                   <Route path="/archiever" element={<Archiever />} />
                 </Route>
                 <Route element={<RequireAuth role="admin" />}>
-                  <Route path="/admin" element={<Admin />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Admin />
+                      </Suspense>
+                    }
+                  />
                 </Route>
                 <Route path="/display" element={<Display />} />
                 <Route path="/tickets/:code" element={<TicketStatus />} />
