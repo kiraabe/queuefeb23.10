@@ -46,8 +46,24 @@ export default function SessionManagement() {
     if (data?.sessions) {
       setSessions(data.sessions);
       setError(null);
+      setCurrentPage(1);
     }
   }, [data]);
+
+  const paginationData = useMemo(() => {
+    const totalPages = Math.ceil(sessions.length / ITEMS_PER_PAGE);
+    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIdx = startIdx + ITEMS_PER_PAGE;
+    const currentSessions = sessions.slice(startIdx, endIdx);
+
+    return {
+      currentSessions,
+      totalPages,
+      totalItems: sessions.length,
+      startIdx,
+      endIdx,
+    };
+  }, [sessions, currentPage]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
