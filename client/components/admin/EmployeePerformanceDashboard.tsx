@@ -167,7 +167,7 @@ export default function EmployeePerformanceDashboard() {
               ) / 100
             : null,
           highestPerformer:
-            highestPerformer && highestPerformer.totalCasesStarted > 0
+            highestPerformer && highestPerformer.casesCompleted > 0
               ? highestPerformer
               : null,
         },
