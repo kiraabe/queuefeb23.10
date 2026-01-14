@@ -53,6 +53,7 @@ interface PerformanceMetrics {
   summary: {
     totalEmployees: number;
     totalCasesProcessed: number;
+    totalServedTickets: number;
     averageCompletionTime: number | null;
     highestPerformer: EmployeeStats | null;
   };
