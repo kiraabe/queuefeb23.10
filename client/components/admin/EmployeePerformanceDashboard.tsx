@@ -75,6 +75,9 @@ export default function EmployeePerformanceDashboard() {
       }
       const reportData = await reportRes.json();
 
+      // Get total served tickets from the daily report summary
+      const totalServedTickets = Number(reportData.summary?.served || 0);
+
       // For now, we'll process employee data from tickets
       // In the future, this should be a dedicated endpoint
       const employees = new Map<string, EmployeeStats>();
