@@ -39,7 +39,7 @@ export default defineConfig({
         entryFileNames: "production.mjs",
       },
     },
-    minify: "terser", // Minify to reduce build memory usage
+    minify: true, // Use default esbuild minifier for memory efficiency
     sourcemap: false, // Disable sourcemaps in production to save memory
   },
   resolve: {
