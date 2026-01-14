@@ -18,7 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { format } from "date-fns";
 import type { ListSessionsResponse, SessionSummary } from "@shared/api";
 
