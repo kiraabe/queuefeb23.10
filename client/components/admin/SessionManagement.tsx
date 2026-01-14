@@ -186,7 +186,18 @@ export default function SessionManagement() {
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error instanceof Error ? error.message : String(error)}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {queryError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Query Error: {queryError instanceof Error ? queryError.message : String(queryError)}
+          </AlertDescription>
         </Alert>
       )}
 
