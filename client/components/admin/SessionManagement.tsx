@@ -230,7 +230,7 @@ export default function SessionManagement() {
 
           {/* Pagination */}
           {paginationData.totalPages > 1 && (
-            <div className="flex items-center justify-between rounded-lg border bg-card p-4">
+            <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
                 Showing{" "}
                 <span className="font-semibold">
@@ -250,64 +250,59 @@ export default function SessionManagement() {
                 sessions
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                >
-                  First
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((p) => Math.max(1, p - 1));
+                      }}
+                      className={
+                        currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                      }
+                    />
+                  </PaginationItem>
 
-                <div className="flex items-center gap-1">
                   {Array.from({ length: paginationData.totalPages }).map(
                     (_, idx) => {
                       const page = idx + 1;
                       return (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="min-w-9"
-                        >
-                          {page}
-                        </Button>
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            isActive={currentPage === page}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                            }}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
                       );
                     },
                   )}
-                </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrentPage((p) =>
-                      Math.min(paginationData.totalPages, p + 1),
-                    )
-                  }
-                  disabled={currentPage === paginationData.totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(paginationData.totalPages)}
-                  disabled={currentPage === paginationData.totalPages}
-                >
-                  Last
-                </Button>
-              </div>
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage((p) =>
+                          Math.min(paginationData.totalPages, p + 1),
+                        );
+                      }}
+                      className={
+                        currentPage === paginationData.totalPages
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>
