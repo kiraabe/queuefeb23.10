@@ -51,6 +51,7 @@ interface DashboardStats {
   totalTicketsCreatedToday: number;
   completionRate: number;
   systemHealth: "healthy" | "warning" | "critical";
+  totalCompleted: number;
 }
 
 interface EmployeeStats {
