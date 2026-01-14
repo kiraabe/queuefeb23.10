@@ -264,7 +264,7 @@ export default function EmployeePerformanceDashboard() {
           </CardContent>
         </Card>
 
-        {/* Total Cases Processed */}
+        {/* Total Cases Completed */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-2">
@@ -275,10 +275,13 @@ export default function EmployeePerformanceDashboard() {
                 <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
               <p className="text-3xl font-bold">
-                {metrics.summary.totalCasesProcessed}
+                {metrics.employees.reduce(
+                  (sum, emp) => sum + (emp.casesCompleted || 0),
+                  0,
+                )}
               </p>
               <p className="text-xs text-muted-foreground">
-                processed by employees
+                completed by employees
               </p>
             </div>
           </CardContent>
