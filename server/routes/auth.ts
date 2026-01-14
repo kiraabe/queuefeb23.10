@@ -714,24 +714,48 @@ export const switchRole: RequestHandler = async (req, res) => {
 
 export const listSessionsHandler: RequestHandler = async (req, res) => {
   try {
+    const auth = (req as any).auth;
     console.log("[listSessionsHandler] Request received", {
       method: req.method,
       path: req.path,
-      auth: (req as any).auth?.username || "no-auth",
-      cookies: req.headers.cookie ? "present" : "missing",
+      username: auth?.username || "no-auth",
+      role: auth?.role || "no-role",
+      hasCookie: !!req.headers.cookie,
     });
 
     const sessions = await listSessions();
-    console.log("[listSessionsHandler] Sessions fetched, count:", sessions.length);
+    console.log("[listSessionsHandler] Successfully fetched sessions, count:", sessions.length);
 
     const payload: ListSessionsResponse = { sessions };
+    res.header("Content-Type", "application/json");
     res.json(payload);
   } catch (error) {
-    console.error("[listSessionsHandler] Error:", error);
+    console.error("[listSessionsHandler] Error fetching sessions:", error instanceof Error ? error.message : error);
     res.status(500).json({
       error: "Failed to fetch sessions",
       sessions: [],
       details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+// Debug endpoint for testing sessions (no auth required)
+export const debugSessionsHandler: RequestHandler = async (_req, res) => {
+  try {
+    console.log("[debugSessionsHandler] Debug request received");
+    const sessions = await listSessions();
+    console.log("[debugSessionsHandler] Sessions fetched, count:", sessions.length);
+
+    res.json({
+      success: true,
+      count: sessions.length,
+      sessions: sessions.slice(0, 5), // Return first 5 for debugging
+    });
+  } catch (error) {
+    console.error("[debugSessionsHandler] Error:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
