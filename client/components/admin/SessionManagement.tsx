@@ -149,6 +149,19 @@ export default function SessionManagement() {
     }
   };
 
+  const getStatusDescription = (status: string): string => {
+    switch (status) {
+      case "active":
+        return "Session is currently active and valid";
+      case "revoked":
+        return "Session was terminated by admin, security event, or manual logout";
+      case "expired":
+        return "Session has exceeded its maximum lifetime";
+      default:
+        return "Unknown session status";
+    }
+  };
+
   const formatTime = (timestamp: number) => {
     return format(new Date(timestamp), "MMM d, HH:mm");
   };
