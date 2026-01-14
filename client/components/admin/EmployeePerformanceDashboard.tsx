@@ -160,6 +160,7 @@ export default function EmployeePerformanceDashboard() {
             (sum, emp) => sum + emp.totalCasesStarted,
             0,
           ),
+          totalServedTickets,
           averageCompletionTime: employeeList.length
             ? Math.round(
                 (employeeList.reduce(
