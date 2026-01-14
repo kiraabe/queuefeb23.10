@@ -47,6 +47,9 @@ interface EmployeeAnalytics {
 
 interface OverallAnalyticsData {
   employees: EmployeeAnalytics[];
+  summary?: {
+    served: number;
+  };
   insights: {
     totalEmployees: number;
     totalCasesProcessed: number;
