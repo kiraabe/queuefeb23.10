@@ -56,7 +56,14 @@ export default function SessionManagement() {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Failed to fetch sessions:", response.status, response.statusText, errorText);
+          console.error("Failed to fetch sessions:", response.status, response.statusText);
+          console.error("Response body:", errorText);
+
+          // If 401/403, it's an auth error
+          if (response.status === 401 || response.status === 403) {
+            throw new Error(`Authentication failed: ${response.status} ${response.statusText}. Make sure you are logged in as an admin.`);
+          }
+
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
@@ -64,13 +71,14 @@ export default function SessionManagement() {
         console.log("[SessionManagement] Sessions loaded, count:", data.sessions?.length || 0);
         return data;
       } catch (err) {
-        console.error("[SessionManagement] Fetch error:", err instanceof Error ? err.message : String(err));
-        throw err;
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error("[SessionManagement] Fetch error:", errMsg);
+        throw new Error(errMsg);
       }
     },
     refetchInterval: 5000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   useEffect(() => {
