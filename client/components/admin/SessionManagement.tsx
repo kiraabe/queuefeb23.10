@@ -187,7 +187,8 @@ export default function SessionManagement() {
   }
 
   return (
-    <div className="space-y-4">
+    <TooltipProvider>
+      <div className="space-y-4">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -265,9 +266,16 @@ export default function SessionManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getStatusColor(session.status)}>
-                            {getStatusIcon(session.status)} {session.status}
-                          </Badge>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge className={getStatusColor(session.status)}>
+                                {getStatusIcon(session.status)} {session.status}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {getStatusDescription(session.status)}
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell className="text-sm">
                           {session.windowId ?? "—"}
@@ -408,5 +416,6 @@ export default function SessionManagement() {
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 }
