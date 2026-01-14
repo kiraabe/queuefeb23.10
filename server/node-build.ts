@@ -53,6 +53,21 @@ app.listen(port, () => {
   console.log(`🔧 API: http://localhost:${port}/api`);
 });
 
+// Memory management
+if (process.env.NODE_ENV === "production") {
+  const memoryThreshold = 100 * 1024 * 1024; // 100MB warning threshold
+  setInterval(() => {
+    const used = process.memoryUsage();
+    const heapUsed = Math.round((used.heapUsed / 1024 / 1024) * 100) / 100;
+    const heapTotal = Math.round((used.heapTotal / 1024 / 1024) * 100) / 100;
+    if (used.heapUsed > memoryThreshold) {
+      console.warn(
+        `⚠️  Heap usage high: ${heapUsed}MB / ${heapTotal}MB`,
+      );
+    }
+  }, 30000); // Check every 30 seconds
+}
+
 // Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("🛑 Received SIGTERM, shutting down gracefully");
