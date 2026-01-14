@@ -167,56 +167,141 @@ export default function SessionManagement() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="pt-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Window</TableHead>
-                    <TableHead>Logged In</TableHead>
-                    <TableHead>Last Seen</TableHead>
-                    <TableHead>Duration</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sessions.map((session) => (
-                    <TableRow key={session.id}>
-                      <TableCell className="font-medium">
-                        {session.username}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getRoleColor(session.role)}>
-                          {session.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(session.status)}>
-                          {getStatusIcon(session.status)} {session.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {session.windowId ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {formatTime(session.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {formatTime(session.lastSeenAt)}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDuration(session.createdAt, session.lastSeenAt)}
-                      </TableCell>
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="pt-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Window</TableHead>
+                      <TableHead>Logged In</TableHead>
+                      <TableHead>Last Seen</TableHead>
+                      <TableHead>Duration</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginationData.currentSessions.map((session) => (
+                      <TableRow key={session.id}>
+                        <TableCell className="font-medium">
+                          {session.username}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getRoleColor(session.role)}>
+                            {session.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(session.status)}>
+                            {getStatusIcon(session.status)} {session.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {session.windowId ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {formatTime(session.createdAt)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {formatTime(session.lastSeenAt)}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatDuration(session.createdAt, session.lastSeenAt)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pagination */}
+          {paginationData.totalPages > 1 && (
+            <div className="flex items-center justify-between rounded-lg border bg-card p-4">
+              <div className="text-sm text-muted-foreground">
+                Showing{" "}
+                <span className="font-semibold">
+                  {paginationData.startIdx + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-semibold">
+                  {Math.min(
+                    paginationData.endIdx,
+                    paginationData.totalItems,
+                  )}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold">
+                  {paginationData.totalItems}
+                </span>{" "}
+                sessions
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: paginationData.totalPages }).map(
+                    (_, idx) => {
+                      const page = idx + 1;
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="min-w-9"
+                        >
+                          {page}
+                        </Button>
+                      );
+                    },
+                  )}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((p) =>
+                      Math.min(paginationData.totalPages, p + 1),
+                    )
+                  }
+                  disabled={currentPage === paginationData.totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(paginationData.totalPages)}
+                  disabled={currentPage === paginationData.totalPages}
+                >
+                  Last
+                </Button>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       )}
     </div>
   );
