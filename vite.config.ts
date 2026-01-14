@@ -20,12 +20,7 @@ export default defineConfig(({ mode }) => ({
     outDir: "dist/spa",
     chunkSizeWarningLimit: 600,
     sourcemap: false, // Disable sourcemaps to reduce build memory usage
-    minify: "terser", // Use terser for efficient minification
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production
-      },
-    },
+    minify: true, // Use default esbuild minifier (more memory efficient)
     rollupOptions: {
       output: {
         manualChunks: (id) => {
