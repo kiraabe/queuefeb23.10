@@ -38,6 +38,7 @@ import {
 } from "./routes/queue";
 import {
   listSessionsHandler,
+  debugSessionsHandler,
   login,
   logout,
   me,
