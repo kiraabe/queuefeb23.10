@@ -15,7 +15,6 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
-    "prestart": "pnpm run build",
     "start": "node scripts/start.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
