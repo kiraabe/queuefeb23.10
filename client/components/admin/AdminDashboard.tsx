@@ -265,8 +265,8 @@ export default function AdminDashboard() {
                 </span>
                 <Briefcase className="h-4 w-4 text-green-500" />
               </div>
-              <p className="text-2xl font-bold">{employeeStats.totalCases}</p>
-              <p className="text-xs text-muted-foreground">all-time total</p>
+              <p className="text-2xl font-bold">{stats.totalCompleted}</p>
+              <p className="text-xs text-muted-foreground">completed tickets</p>
             </div>
 
             {/* Top Performer */}
