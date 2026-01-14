@@ -214,7 +214,7 @@ export default function OverallProcessFlowAnalytics() {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Cases */}
+        {/* Total Cases (Completed) */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-2">
@@ -222,27 +222,27 @@ export default function OverallProcessFlowAnalytics() {
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Cases
                 </span>
-                <GitBranch className="h-4 w-4 text-blue-500" />
+                <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
-              <p className="text-3xl font-bold">{stats.totalCases}</p>
-              <p className="text-xs text-muted-foreground">all-time</p>
+              <p className="text-3xl font-bold">{stats.completedCases}</p>
+              <p className="text-xs text-muted-foreground">completed tickets</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Completed Cases */}
+        {/* Completion Rate */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
-                  Completed
+                  Completion Rate
                 </span>
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <Zap className="h-4 w-4 text-yellow-500" />
               </div>
-              <p className="text-3xl font-bold">{stats.completedCases}</p>
+              <p className="text-3xl font-bold">{stats.completionRate}%</p>
               <p className="text-xs text-muted-foreground">
-                {stats.completionRate}%
+                {stats.completedCases} of {stats.totalCases} cases
               </p>
             </div>
           </CardContent>
