@@ -34,7 +34,6 @@ export default function AdminSettings() {
     maxTicketsPerDay: 200,
     fifoMode: true,
     dailyResetTime: "00:00",
-    enableTicketTransfers: true,
   });
 
   // Load settings on mount
@@ -55,7 +54,6 @@ export default function AdminSettings() {
           maxTicketsPerDay: settings.maxTicketsPerDay,
           fifoMode: settings.fifoMode,
           dailyResetTime: settings.dailyResetTimeUtc,
-          enableTicketTransfers: settings.enableTicketTransfers,
         });
       } catch (error) {
         console.error("Failed to load queue settings", error);
@@ -81,7 +79,6 @@ export default function AdminSettings() {
           maxTicketsPerDay: queueSettings.maxTicketsPerDay,
           dailyResetTimeUtc: queueSettings.dailyResetTime,
           fifoMode: queueSettings.fifoMode,
-          enableTicketTransfers: queueSettings.enableTicketTransfers,
         }),
       });
       if (!response.ok) {
@@ -190,35 +187,6 @@ export default function AdminSettings() {
             </p>
           </div>
 
-          {/* Enable Transfers */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Allow Ticket Transfers</Label>
-              <p className="text-xs text-muted-foreground">
-                Allow staff to transfer tickets between windows
-              </p>
-            </div>
-            <Select
-              value={
-                queueSettings.enableTicketTransfers ? "enabled" : "disabled"
-              }
-              onValueChange={(value) => {
-                setQueueSettings({
-                  ...queueSettings,
-                  enableTicketTransfers: value === "enabled",
-                });
-                setUnsavedChanges(true);
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="enabled">Enabled</SelectItem>
-                <SelectItem value="disabled">Disabled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <Button
             onClick={handleSaveSettings}
