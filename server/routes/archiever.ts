@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { getPool, logAudit } from "../store/db";
+import { getPool, logAudit, compileAndStoreProgressFlow } from "../store/db";
 
 // Get all tickets in global queue waiting for document retrieval
 export const getGlobalQueue: RequestHandler = async (req, res) => {
