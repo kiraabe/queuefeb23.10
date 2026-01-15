@@ -442,7 +442,6 @@ function TicketRow({
                 ) : (
                   <CompletedTicketSummary ticket={ticket} />
                 )}
-                <CaseWorkflowTimeline ticket={ticket} />
               </>
             )}
           </div>
