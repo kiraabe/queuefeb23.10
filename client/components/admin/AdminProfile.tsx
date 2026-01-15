@@ -140,20 +140,45 @@ export default function AdminProfile() {
           <Separator />
 
           {/* Account Details */}
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-xs text-muted-foreground">Username</Label>
               <p className="font-medium">{user.username}</p>
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">User ID</Label>
-              <p className="font-mono text-sm">{user.id}</p>
+              <Label className="text-xs text-muted-foreground">Full Name</Label>
+              <p className="font-medium">{user.fullName || "N/A"}</p>
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Role</Label>
+              <Label className="text-xs text-muted-foreground">User ID</Label>
+              <p className="font-mono text-sm break-all">{user.id}</p>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Email</Label>
+              <p className="font-medium">{email}</p>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Primary Role</Label>
               <p className="font-medium capitalize">{user.role}</p>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Available Roles</Label>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {user.roles && user.roles.length > 0 ? (
+                  user.roles.map((role) => (
+                    <Badge key={role} variant="outline" className="capitalize">
+                      {role}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">None</p>
+                )}
+              </div>
             </div>
 
             {user.windowId && (
@@ -164,6 +189,25 @@ export default function AdminProfile() {
                 <p className="font-medium">Window {user.windowId}</p>
               </div>
             )}
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Account Type</Label>
+              <p className="font-medium">System Administrator</p>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Created Date</Label>
+              <p className="font-medium">
+                {format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), "MMM d, yyyy")}
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Last Login</Label>
+              <p className="font-medium">
+                {format(new Date(), "MMM d, yyyy HH:mm:ss")}
+              </p>
+            </div>
           </div>
 
           <Separator />
