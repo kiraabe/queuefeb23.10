@@ -343,7 +343,6 @@ export default function AdminProfile() {
           </Button>
         </CardContent>
       </Card>
-
     </div>
   );
 }

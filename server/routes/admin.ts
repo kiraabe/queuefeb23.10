@@ -260,11 +260,8 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
   }
 
   try {
-    const {
-      maxTicketsPerDay,
-      dailyResetTimeUtc,
-      fifoMode,
-    } = req.body as UpdateQueueSettingsRequest;
+    const { maxTicketsPerDay, dailyResetTimeUtc, fifoMode } =
+      req.body as UpdateQueueSettingsRequest;
 
     // Validate input
     if (
