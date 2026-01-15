@@ -241,13 +241,16 @@ function TicketRow({
         steps.push({
           id: item.id,
           number: stepNumber++,
-          employeeName: displayName,
+          employeeName: item.employeeName || "Unknown",
           jobTitle: item.jobTitle,
           action: action,
           duration: formatTime(item.durationSeconds),
           durationSeconds: item.durationSeconds,
           startedAt: item.startedAt,
           endedAt: item.endedAt,
+          windowId: item.windowId,
+          isTeller: item.isTeller,
+          isArchiver: item.isArchiver,
         });
       });
     }
