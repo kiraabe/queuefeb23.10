@@ -1,4 +1,6 @@
 import type { Ticket } from "@shared/api";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 interface ProcessStep {
   id: string;
@@ -18,6 +20,8 @@ interface ProcessFlowChartProps {
 }
 
 export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+
   if (!steps || steps.length === 0) {
     return null;
   }
@@ -37,25 +41,25 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
     return `${hours}h ${minutes}m`;
   };
 
-  const getActionColor = (action: string) => {
+  const getStepIcon = (action: string) => {
     switch (action) {
       case "Completed":
-        return "bg-green-100 dark:bg-green-900/30";
+        return "✓";
       case "Proceeded":
-        return "bg-blue-100 dark:bg-blue-900/30";
+        return "→";
       default:
-        return "bg-purple-100 dark:bg-purple-900/30";
+        return "◉";
     }
   };
 
-  const getActionBgColor = (action: string) => {
+  const getStepColor = (action: string) => {
     switch (action) {
       case "Completed":
-        return "bg-green-500 dark:bg-green-600";
+        return "bg-green-500 dark:bg-green-600 text-white";
       case "Proceeded":
-        return "bg-blue-500 dark:bg-blue-600";
+        return "bg-blue-500 dark:bg-blue-600 text-white";
       default:
-        return "bg-purple-500 dark:bg-purple-600";
+        return "bg-purple-500 dark:bg-purple-600 text-white";
     }
   };
 
@@ -69,148 +73,149 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   };
 
   return (
-    <div className="mt-4 rounded-lg border border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
-            ✓
+    <div className="mt-6 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">
+            Process Timeline
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {steps.length} step{steps.length !== 1 ? "s" : ""} • Total time:{" "}
+            <span className="font-semibold text-foreground">
+              {formatTotalTime(totalDuration)}
+            </span>
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
+          <span className="text-green-700 dark:text-green-300 font-semibold text-sm">
+            ✓ Completed
           </span>
-          Process Flow
-        </h3>
-        <span className="text-xs font-semibold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
-          Total: {formatTotalTime(totalDuration)}
-        </span>
+        </div>
       </div>
 
-      {/* Process flow visualization */}
-      <div className="relative">
-        {/* Horizontal flow container */}
-        <div className="flex items-stretch gap-0">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex flex-1 items-stretch">
-              {/* Step box */}
-              <div
-                className={`flex-1 rounded-lg border-2 border-green-300 dark:border-green-700 ${getActionColor(step.action)} p-3 flex flex-col items-center justify-between gap-2 relative`}
+      {/* Timeline steps */}
+      <div className="space-y-2">
+        {steps.map((step, index) => {
+          const isExpanded = expandedStep === step.id;
+          const isLast = index === steps.length - 1;
+
+          return (
+            <div key={step.id}>
+              {/* Step connector line (except for last step) */}
+              {!isLast && (
+                <div className="flex items-start ml-6 h-2">
+                  <div className="w-0.5 bg-gradient-to-b from-green-400 to-green-300 dark:from-green-600 dark:to-green-700 h-full" />
+                </div>
+              )}
+
+              {/* Step card */}
+              <button
+                onClick={() =>
+                  setExpandedStep(isExpanded ? null : step.id)
+                }
+                className="w-full text-left transition-all duration-200"
               >
-                {/* Step number circle */}
-                <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white ${getActionBgColor(step.action)}`}
-                >
-                  {step.number}
-                </div>
-
-                {/* Employee name */}
-                <p className="text-xs font-semibold text-center text-foreground max-w-24 line-clamp-2">
-                  {step.employeeName}
-                </p>
-
-                {/* Job title */}
-                {step.jobTitle && (
-                  <p className="text-xs text-muted-foreground text-center max-w-24 line-clamp-2">
-                    {step.jobTitle}
-                  </p>
-                )}
-
-                {/* Action label */}
-                <span className="text-xs font-medium text-muted-foreground">
-                  {step.action}
-                </span>
-
-                {/* Timestamp - started time */}
-                {step.startedAt && (
-                  <div className="rounded-md bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-900/30 px-3 py-2 w-full text-center border-2 border-blue-400 dark:border-blue-600 space-y-1">
-                    <p className="text-xs text-blue-700 dark:text-blue-300 font-bold uppercase tracking-wide">
-                      Started
-                    </p>
-                    <p className="text-sm font-bold text-blue-900 dark:text-blue-100">
-                      {formatDateTime(step.startedAt)?.time}
-                    </p>
-                    <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                      {formatDateTime(step.startedAt)?.date}
-                    </p>
+                <div className="flex gap-4 items-start hover:bg-accent/50 dark:hover:bg-accent/20 p-3 rounded-lg group">
+                  {/* Step circle */}
+                  <div
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${getStepColor(step.action)} shadow-sm group-hover:shadow-md transition-all duration-200`}
+                  >
+                    {getStepIcon(step.action)}
                   </div>
-                )}
 
-                {/* Duration */}
-                <div className="rounded bg-white/50 dark:bg-black/20 px-2 py-1">
-                  <p className="text-xs font-semibold text-foreground">
-                    {step.duration}
-                  </p>
+                  {/* Step content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
+                          {step.employeeName}
+                        </h4>
+                        {step.jobTitle && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {step.jobTitle}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="text-xs font-medium text-foreground">
+                            {step.duration}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {step.action}
+                          </p>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </button>
 
-              {/* Arrow connector (except after last step) */}
-              {index < steps.length - 1 && (
-                <div className="flex items-center -mx-2 z-10">
-                  <div className="h-6 w-6 rounded-full bg-green-400 dark:bg-green-600 flex items-center justify-center text-white">
-                    <span className="text-xs">→</span>
+              {/* Expanded details */}
+              {isExpanded && step.startedAt && (
+                <div className="ml-14 mb-2 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                        Started
+                      </p>
+                      <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                        {formatDateTime(step.startedAt)?.time}
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        {formatDateTime(step.startedAt)?.date}
+                      </p>
+                    </div>
+                    {step.endedAt && (
+                      <div>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                          Completed
+                        </p>
+                        <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+                          {formatDateTime(step.endedAt)?.time}
+                        </p>
+                        <p className="text-xs text-green-600 dark:text-green-400">
+                          {formatDateTime(step.endedAt)?.date}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Summary info with dates */}
-      <div className="mt-6 rounded-lg bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/30 dark:to-green-950/30 border-2 border-blue-200 dark:border-blue-800 p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+      {/* Summary footer */}
+      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-muted-foreground font-semibold text-sm">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Total Steps
             </p>
-            <p className="text-2xl font-bold text-foreground mt-1">
+            <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
               {steps.length}
             </p>
           </div>
+          <div className="border-l border-r border-green-200 dark:border-green-800">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Total Time
+            </p>
+            <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
+              {formatTotalTime(totalDuration)}
+            </p>
+          </div>
           <div>
-            <p className="text-muted-foreground font-semibold text-sm">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Status
             </p>
-            <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-1">
+            <p className="text-lg font-bold text-green-700 dark:text-green-300 mt-2">
               ✓ Done
-            </p>
-          </div>
-          <div className="rounded-lg bg-white/50 dark:bg-black/20 p-2">
-            <p className="text-muted-foreground font-semibold text-sm">
-              Process Started
-            </p>
-            <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mt-1">
-              {steps.length > 0 && steps[0]?.startedAt
-                ? new Date(steps[0].startedAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "—"}
-            </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400">
-              {steps.length > 0 && steps[0]?.startedAt
-                ? new Date(steps[0].startedAt).toLocaleDateString([], {
-                    month: "short",
-                    day: "numeric",
-                  })
-                : ""}
-            </p>
-          </div>
-          <div className="rounded-lg bg-white/50 dark:bg-black/20 p-2">
-            <p className="text-muted-foreground font-semibold text-sm">
-              Completed
-            </p>
-            <p className="text-sm font-bold text-green-700 dark:text-green-300 mt-1">
-              {ticket.completedAt
-                ? new Date(ticket.completedAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "—"}
-            </p>
-            <p className="text-xs text-green-600 dark:text-green-400">
-              {ticket.completedAt
-                ? new Date(ticket.completedAt).toLocaleDateString([], {
-                    month: "short",
-                    day: "numeric",
-                  })
-                : ""}
             </p>
           </div>
         </div>
