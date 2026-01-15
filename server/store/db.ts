@@ -1865,7 +1865,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         jobTitle: row.job_title || null,
         tellerWindow: row.window_name || null,
         windowId: row.window_id || null,
-        status: row.status,
+        status: "Proceeded", // Set default status as "Proceeded" for all employees initially
         startedAt: row.started_at ? Math.round(Number(row.started_at)) : null,
         endedAt: row.ended_at ? Math.round(Number(row.ended_at)) : null,
         durationMs: durationMs,
