@@ -52,7 +52,7 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   };
 
   return (
-    <div className="mt-3 space-y-2">
+    <div className="mt-3 bg-card rounded-lg border border-border p-3 space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-foreground">
@@ -60,47 +60,36 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
         </span>
       </div>
 
-      {/* Simple List */}
-      <div className="space-y-1.5">
-        {steps.map((step) => (
-          <div key={step.id} className="flex items-center gap-3 p-2 rounded hover:bg-accent/40 text-xs">
-            {/* Step number */}
-            <span className="font-semibold text-muted-foreground w-6 flex-shrink-0">
-              {step.number}.
-            </span>
+      {/* Horizontal Flow */}
+      <div className="overflow-x-auto">
+        <div className="flex items-center gap-3 min-w-min pb-1">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-center gap-3">
+              {/* Step Card */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded border border-border/50 bg-background/50 whitespace-nowrap text-xs flex-shrink-0">
+                <span className="font-semibold text-muted-foreground">
+                  {step.number}.
+                </span>
+                <span className="font-medium text-foreground max-w-[120px] truncate">
+                  {step.employeeName}
+                </span>
+                <span className="text-muted-foreground">
+                  {step.duration}
+                </span>
+                <span
+                  className={`px-1.5 py-0.5 rounded text-xs font-medium ${getActionBadgeColor(step.action)}`}
+                >
+                  {step.action}
+                </span>
+              </div>
 
-            {/* Employee name */}
-            <span className="font-medium text-foreground flex-1 min-w-0 truncate">
-              {step.employeeName}
-            </span>
-
-            {/* Job title if available */}
-            {step.jobTitle && (
-              <span className="text-muted-foreground truncate max-w-[150px]">
-                {step.jobTitle}
-              </span>
-            )}
-
-            {/* Window info if teller */}
-            {step.isTeller && step.windowId && (
-              <span className="text-muted-foreground flex-shrink-0">
-                W{step.windowId}
-              </span>
-            )}
-
-            {/* Duration */}
-            <span className="font-medium text-foreground flex-shrink-0 w-12 text-right">
-              {step.duration}
-            </span>
-
-            {/* Action badge */}
-            <span
-              className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${getActionBadgeColor(step.action)}`}
-            >
-              {step.action}
-            </span>
-          </div>
-        ))}
+              {/* Arrow (except last step) */}
+              {index < steps.length - 1 && (
+                <span className="text-muted-foreground/60 text-lg flex-shrink-0">→</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
