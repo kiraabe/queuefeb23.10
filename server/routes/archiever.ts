@@ -495,6 +495,40 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
       console.error("Failed to update archiver progress record:", err);
     }
 
+    // Check if there are any pending employee steps for this ticket
+    try {
+      const pendingEmployeeStepsRes = await pool.query(
+        `SELECT COUNT(*) as incomplete FROM employee_case_performance
+         WHERE ticket_id = $1 AND step_type = 'employee' AND status != 'completed'`,
+        [ticketId],
+      );
+      const incompleteEmployeeSteps = Number(
+        pendingEmployeeStepsRes.rows[0]?.incomplete || 0,
+      );
+
+      // If there are no pending employee steps, compile and store the progress flow
+      if (incompleteEmployeeSteps === 0) {
+        try {
+          console.log(
+            `📊 Archiver completed ticket ${ticketId}. Compiling progress flow (no pending employee steps)...`,
+          );
+          await compileAndStoreProgressFlow(ticketId);
+          console.log(
+            `✅ Progress flow compiled and stored for ticket ${ticketId}`,
+          );
+        } catch (compileErr) {
+          console.error(
+            `❌ Error storing progress flow for ticket ${ticketId}:`,
+            compileErr,
+          );
+          // Don't fail the retrieval if progress flow storage fails
+        }
+      }
+    } catch (err) {
+      // If checking pending steps fails, continue - it's not critical
+      console.error("Failed to check pending employee steps:", err);
+    }
+
     // Log audit
     await logAudit({
       action: "ticket_retrieved",
