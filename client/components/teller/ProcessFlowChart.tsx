@@ -1,4 +1,6 @@
 import type { Ticket } from "@shared/api";
+import { useState } from "react";
+import { X } from "lucide-react";
 
 interface ProcessStep {
   id: string;
@@ -21,6 +23,9 @@ interface ProcessFlowChartProps {
 }
 
 export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
+  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
+  const selectedStep = steps.find((s) => s.id === selectedStepId);
+
   if (!steps || steps.length === 0) {
     return null;
   }
@@ -40,6 +45,12 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
     return `${hours}h ${minutes}m`;
   };
 
+  const formatDateTime = (timestamp: number | null | undefined) => {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case "Completed":
@@ -52,7 +63,7 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   };
 
   return (
-    <div className="mt-3 bg-card rounded-lg border border-border p-3 space-y-2">
+    <div className="mt-3 bg-card rounded-lg border border-border p-3 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between text-xs">
         <span className="font-semibold text-foreground">
@@ -65,8 +76,19 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
         <div className="flex items-center gap-3 min-w-min pb-1">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center gap-3">
-              {/* Step Card */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded border border-border/50 bg-background/50 whitespace-nowrap text-xs flex-shrink-0">
+              {/* Step Card - Clickable */}
+              <button
+                onClick={() =>
+                  setSelectedStepId(
+                    selectedStepId === step.id ? null : step.id
+                  )
+                }
+                className={`flex items-center gap-2 px-3 py-2 rounded border transition-all whitespace-nowrap text-xs flex-shrink-0 cursor-pointer ${
+                  selectedStepId === step.id
+                    ? "border-primary bg-primary/10 shadow-md"
+                    : "border-border/50 bg-background/50 hover:border-primary/50 hover:bg-background/70"
+                }`}
+              >
                 <span className="font-semibold text-muted-foreground">
                   {step.number}.
                 </span>
@@ -81,7 +103,7 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
                 >
                   {step.action}
                 </span>
-              </div>
+              </button>
 
               {/* Arrow (except last step) */}
               {index < steps.length - 1 && (
@@ -91,6 +113,94 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
           ))}
         </div>
       </div>
+
+      {/* Step Details Panel */}
+      {selectedStep && (
+        <div className="border-t border-border pt-3 bg-background/50 rounded-lg p-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h4 className="font-semibold text-foreground">
+                Step {selectedStep.number} - {selectedStep.employeeName}
+              </h4>
+              {selectedStep.jobTitle && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {selectedStep.jobTitle}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setSelectedStepId(null)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <p className="text-muted-foreground font-semibold mb-1">
+                Status
+              </p>
+              <p className={`font-medium ${getActionBadgeColor(selectedStep.action)} px-2 py-1 rounded inline-block`}>
+                {selectedStep.action}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-muted-foreground font-semibold mb-1">
+                Duration
+              </p>
+              <p className="font-medium text-foreground">
+                {selectedStep.duration}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-muted-foreground font-semibold mb-1">
+                Started At
+              </p>
+              <p className="font-medium text-foreground">
+                {formatDateTime(selectedStep.startedAt)}
+              </p>
+            </div>
+
+            {selectedStep.endedAt && (
+              <div>
+                <p className="text-muted-foreground font-semibold mb-1">
+                  Ended At
+                </p>
+                <p className="font-medium text-foreground">
+                  {formatDateTime(selectedStep.endedAt)}
+                </p>
+              </div>
+            )}
+
+            {selectedStep.isTeller && selectedStep.windowId && (
+              <div>
+                <p className="text-muted-foreground font-semibold mb-1">
+                  Window
+                </p>
+                <p className="font-medium text-foreground">
+                  Window {selectedStep.windowId}
+                </p>
+              </div>
+            )}
+
+            {selectedStep.isArchiver && (
+              <div>
+                <p className="text-muted-foreground font-semibold mb-1">
+                  Role
+                </p>
+                <p className="font-medium text-foreground">
+                  Archiever
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
