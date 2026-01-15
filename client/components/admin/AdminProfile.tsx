@@ -344,28 +344,6 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
-      <Card className="border-red-200">
-        <CardHeader className="bg-red-50 dark:bg-red-950">
-          <CardTitle className="text-red-900">Danger Zone</CardTitle>
-          <CardDescription className="text-red-800">
-            Irreversible and destructive actions
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-4">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              These actions cannot be undone. Please contact your system
-              administrator for account deletion requests.
-            </AlertDescription>
-          </Alert>
-
-          <Button variant="destructive" disabled>
-            Delete Account (Contact Admin)
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }
