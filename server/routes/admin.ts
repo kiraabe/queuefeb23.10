@@ -228,7 +228,6 @@ export const getQueueSettings: RequestHandler = async (_req, res) => {
         max_tickets_per_day,
         daily_reset_time_utc,
         fifo_mode,
-        enable_ticket_transfers,
         extract(epoch from updated_at)*1000 as updated_at
       FROM queue_settings WHERE id = 1`,
     );
@@ -242,7 +241,6 @@ export const getQueueSettings: RequestHandler = async (_req, res) => {
       maxTicketsPerDay: row.max_tickets_per_day,
       dailyResetTimeUtc: row.daily_reset_time_utc,
       fifoMode: row.fifo_mode,
-      enableTicketTransfers: row.enable_ticket_transfers,
       updatedAt: Math.round(Number(row.updated_at)),
     };
 
