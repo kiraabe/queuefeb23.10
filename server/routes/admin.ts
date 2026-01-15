@@ -260,8 +260,11 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
   }
 
   try {
-    const { maxTicketsPerDay, dailyResetTimeUtc, fifoMode } =
-      req.body as UpdateQueueSettingsRequest;
+    const {
+      maxTicketsPerDay,
+      dailyResetTimeUtc,
+      fifoMode,
+    } = req.body as UpdateQueueSettingsRequest;
 
     // Validate input
     if (
@@ -294,16 +297,14 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
          max_tickets_per_day = $1,
          daily_reset_time_utc = $2,
          fifo_mode = $3,
-         enable_ticket_transfers = $4,
          updated_at = now()
        WHERE id = 1
        RETURNING
          max_tickets_per_day,
          daily_reset_time_utc,
          fifo_mode,
-         enable_ticket_transfers,
          extract(epoch from updated_at)*1000 as updated_at`,
-      [maxTicketsPerDay, dailyResetTimeUtc, fifoMode, enableTicketTransfers],
+      [maxTicketsPerDay, dailyResetTimeUtc, fifoMode],
     );
 
     if (!rows.length) {
