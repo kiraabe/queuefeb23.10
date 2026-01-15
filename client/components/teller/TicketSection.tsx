@@ -301,7 +301,7 @@ function TicketRow({
       <div
         className={`rounded-lg border transition-all ${
           ticket.status === "done"
-            ? "border-green-200 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10"
+            ? "border-border bg-card"
             : "border-border/50 bg-background/50"
         }`}
       >
