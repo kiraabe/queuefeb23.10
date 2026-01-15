@@ -264,7 +264,6 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
       maxTicketsPerDay,
       dailyResetTimeUtc,
       fifoMode,
-      enableTicketTransfers,
     } = req.body as UpdateQueueSettingsRequest;
 
     // Validate input
