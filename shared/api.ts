@@ -233,7 +233,6 @@ export interface QueueSettings {
   maxTicketsPerDay: number;
   dailyResetTimeUtc: string; // HH:MM format
   fifoMode: boolean;
-  enableTicketTransfers: boolean;
   updatedAt?: number;
 }
 
@@ -245,7 +244,6 @@ export interface UpdateQueueSettingsRequest {
   maxTicketsPerDay: number;
   dailyResetTimeUtc: string;
   fifoMode: boolean;
-  enableTicketTransfers: boolean;
 }
 
 export interface UpdateQueueSettingsResponse {
