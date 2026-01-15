@@ -982,7 +982,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         jobTitleId: r.job_title_id,
         startedAt: r.started_at ? Math.round(r.started_at) : null,
         endedAt: r.ended_at ? Math.round(r.ended_at) : null,
-        status: r.status,
+        status: "Proceeded", // Set default status as "Proceeded" for all employees initially
         durationSeconds: r.duration_seconds
           ? Math.round(r.duration_seconds)
           : null,
