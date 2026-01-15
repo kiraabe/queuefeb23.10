@@ -9,7 +9,6 @@ import {
   Calendar,
   ChevronDown,
 } from "lucide-react";
-import { CaseWorkflowTimeline } from "./CaseWorkflowTimeline";
 import { CompletedTicketSummary } from "./CompletedTicketSummary";
 import { ProcessFlowChart } from "./ProcessFlowChart";
 import { useQuery } from "@tanstack/react-query";
