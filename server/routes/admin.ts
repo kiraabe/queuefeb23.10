@@ -217,7 +217,6 @@ export const getQueueSettings: RequestHandler = async (_req, res) => {
         maxTicketsPerDay: 200,
         dailyResetTimeUtc: "00:00",
         fifoMode: true,
-        enableTicketTransfers: true,
       },
     } as GetQueueSettingsResponse);
   }
