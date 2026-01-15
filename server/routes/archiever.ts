@@ -484,10 +484,10 @@ export const markTicketRetrieved: RequestHandler = async (req, res) => {
       return res.status(500).json({ error: "Failed to update ticket status" });
     }
 
-    // Update archiver progress record to mark as completed
+    // Update archiver progress record to mark as retrieved
     try {
       await pool.query(
-        `UPDATE employee_case_performance SET ended_at=now(), status='completed' WHERE ticket_id=$1 AND step_type='archiver' AND employee_id=$2 AND status='in_progress'`,
+        `UPDATE employee_case_performance SET ended_at=now(), status='retrieved' WHERE ticket_id=$1 AND step_type='archiver' AND employee_id=$2 AND status='in_progress'`,
         [ticketId, userId],
       );
     } catch (err) {
