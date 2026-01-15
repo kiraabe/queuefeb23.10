@@ -316,7 +316,6 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
       maxTicketsPerDay: row.max_tickets_per_day,
       dailyResetTimeUtc: row.daily_reset_time_utc,
       fifoMode: row.fifo_mode,
-      enableTicketTransfers: row.enable_ticket_transfers,
       updatedAt: Math.round(Number(row.updated_at)),
     };
 
