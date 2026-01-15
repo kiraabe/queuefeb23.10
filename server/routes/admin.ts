@@ -647,7 +647,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      WHERE t.created_at >= $1 AND t.created_at <= $2
+      WHERE t.created_at >= $1 AND t.created_at <= $2 AND ecp.step_type = 'employee'
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
       [fromDate, toDate],
@@ -819,7 +819,7 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))) as total_time_spent_seconds
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
-      WHERE ecp.started_at IS NOT NULL AND ecp.ended_at IS NOT NULL
+      WHERE ecp.started_at IS NOT NULL AND ecp.ended_at IS NOT NULL AND ecp.step_type = 'employee'
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
     );
