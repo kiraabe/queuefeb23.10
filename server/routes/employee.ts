@@ -992,11 +992,11 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
       });
     });
 
-    // Mark the last non-archiver item in the workflow as "Completed"
+    // Mark the last employee (not archiver, not teller) in the workflow as "Completed"
     if (items.length > 0) {
-      // Find the last item that is NOT an archiver
+      // Find the last item that is NOT an archiver AND NOT a teller
       for (let i = items.length - 1; i >= 0; i--) {
-        if (!items[i].isArchiver) {
+        if (!items[i].isArchiver && !items[i].isTeller) {
           items[i].status = "Completed";
           break;
         }
