@@ -187,7 +187,6 @@ export default function AdminSettings() {
             </p>
           </div>
 
-
           <Button
             onClick={handleSaveSettings}
             disabled={!unsavedChanges || isSaving || isLoading}
