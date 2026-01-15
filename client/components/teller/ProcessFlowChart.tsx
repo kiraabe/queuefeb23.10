@@ -1,6 +1,12 @@
 import type { Ticket } from "@shared/api";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  ArrowRight,
+  Clock,
+  Briefcase,
+  Monitor,
+} from "lucide-react";
 
 interface ProcessStep {
   id: string;
@@ -12,6 +18,9 @@ interface ProcessStep {
   durationSeconds: number | null;
   startedAt?: number | null;
   endedAt?: number | null;
+  windowId?: number | null;
+  isTeller?: boolean;
+  isArchiver?: boolean;
 }
 
 interface ProcessFlowChartProps {
@@ -55,170 +64,166 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   const getStepColor = (action: string) => {
     switch (action) {
       case "Completed":
-        return "bg-green-500 dark:bg-green-600 text-white";
+        return "bg-green-500 dark:bg-green-600";
       case "Proceeded":
-        return "bg-blue-500 dark:bg-blue-600 text-white";
+        return "bg-blue-500 dark:bg-blue-600";
       default:
-        return "bg-purple-500 dark:bg-purple-600 text-white";
+        return "bg-purple-500 dark:bg-purple-600";
     }
   };
 
   const formatDateTime = (timestamp: number | null | undefined) => {
     if (!timestamp) return null;
     const date = new Date(timestamp);
-    return {
-      date: date.toLocaleDateString([], { month: "short", day: "numeric" }),
-      time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   return (
-    <div className="mt-6 space-y-4">
-      {/* Header */}
+    <div className="mt-4 space-y-2">
+      {/* Horizontal Flow - Compact Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">
-            Process Timeline
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            {steps.length} step{steps.length !== 1 ? "s" : ""} • Total time:{" "}
-            <span className="font-semibold text-foreground">
-              {formatTotalTime(totalDuration)}
-            </span>
-          </p>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
-          <span className="text-green-700 dark:text-green-300 font-semibold text-sm">
-            ✓ Completed
-          </span>
+        <div className="text-sm font-semibold text-foreground">
+          {steps.length} step{steps.length !== 1 ? "s" : ""} • {formatTotalTime(totalDuration)}
         </div>
       </div>
 
-      {/* Timeline steps */}
-      <div className="space-y-2">
-        {steps.map((step, index) => {
-          const isExpanded = expandedStep === step.id;
-          const isLast = index === steps.length - 1;
+      {/* Horizontal Process Flow */}
+      <div className="overflow-x-auto">
+        <div className="flex items-center gap-1 min-w-min pb-2">
+          {steps.map((step, index) => {
+            const isExpanded = expandedStep === step.id;
 
-          return (
-            <div key={step.id}>
-              {/* Step connector line (except for last step) */}
-              {!isLast && (
-                <div className="flex items-start ml-6 h-2">
-                  <div className="w-0.5 bg-gradient-to-b from-green-400 to-green-300 dark:from-green-600 dark:to-green-700 h-full" />
-                </div>
-              )}
+            return (
+              <div key={step.id} className="flex items-center">
+                {/* Step Card */}
+                <button
+                  onClick={() => setExpandedStep(isExpanded ? null : step.id)}
+                  className="group flex-shrink-0 w-32 hover:bg-accent/30 rounded-lg p-2 transition-all duration-200 text-left border border-border/50 hover:border-primary/50"
+                >
+                  <div className="space-y-1">
+                    {/* Step indicator and icon */}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs text-white ${getStepColor(step.action)} shadow-sm`}
+                      >
+                        {getStepIcon(step.action)}
+                      </div>
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        {step.number}
+                      </span>
+                    </div>
 
-              {/* Step card */}
-              <button
-                onClick={() =>
-                  setExpandedStep(isExpanded ? null : step.id)
-                }
-                className="w-full text-left transition-all duration-200"
-              >
-                <div className="flex gap-4 items-start hover:bg-accent/50 dark:hover:bg-accent/20 p-3 rounded-lg group">
-                  {/* Step circle */}
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${getStepColor(step.action)} shadow-sm group-hover:shadow-md transition-all duration-200`}
-                  >
-                    {getStepIcon(step.action)}
+                    {/* Employee name - truncated */}
+                    <p className="text-xs font-semibold text-foreground truncate">
+                      {step.employeeName}
+                    </p>
+
+                    {/* Duration and action */}
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs text-muted-foreground">
+                        {step.duration}
+                      </span>
+                      <ChevronDown
+                        className={`w-3 h-3 text-muted-foreground transition-transform duration-200 flex-shrink-0 ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
                   </div>
+                </button>
 
-                  {/* Step content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
+                {/* Expanded Details - Popover under step */}
+                {isExpanded && (
+                  <div className="absolute z-20 ml-0 mt-0 w-64 bg-white dark:bg-slate-900 border border-border rounded-lg shadow-lg p-3 text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="space-y-2">
+                      {/* Employee Info */}
                       <div>
-                        <h4 className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
+                        <p className="text-xs font-semibold text-foreground">
                           {step.employeeName}
-                        </h4>
+                        </p>
                         {step.jobTitle && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <Briefcase className="h-3 w-3" />
                             {step.jobTitle}
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="text-right">
-                          <p className="text-xs font-medium text-foreground">
+
+                      {/* Window info if teller */}
+                      {step.isTeller && step.windowId && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Monitor className="h-3 w-3" />
+                          Window {step.windowId}
+                        </p>
+                      )}
+
+                      {/* Time Info */}
+                      {step.startedAt && (
+                        <div className="border-t border-border pt-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <p className="text-xs font-semibold text-muted-foreground">
+                                Started
+                              </p>
+                              <p className="text-xs font-semibold text-foreground">
+                                {formatDateTime(step.startedAt)}
+                              </p>
+                            </div>
+                            {step.endedAt && (
+                              <div>
+                                <p className="text-xs font-semibold text-muted-foreground">
+                                  Ended
+                                </p>
+                                <p className="text-xs font-semibold text-foreground">
+                                  {formatDateTime(step.endedAt)}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Duration */}
+                      <div className="border-t border-border pt-2 flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Duration
+                          </p>
+                          <p className="text-xs font-semibold text-foreground">
                             {step.duration}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            {step.action}
-                          </p>
                         </div>
-                        <ChevronDown
-                          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
-                        />
                       </div>
                     </div>
                   </div>
-                </div>
-              </button>
+                )}
 
-              {/* Expanded details */}
-              {isExpanded && step.startedAt && (
-                <div className="ml-14 mb-2 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                        Started
-                      </p>
-                      <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                        {formatDateTime(step.startedAt)?.time}
-                      </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
-                        {formatDateTime(step.startedAt)?.date}
-                      </p>
-                    </div>
-                    {step.endedAt && (
-                      <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                          Completed
-                        </p>
-                        <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                          {formatDateTime(step.endedAt)?.time}
-                        </p>
-                        <p className="text-xs text-green-600 dark:text-green-400">
-                          {formatDateTime(step.endedAt)?.date}
-                        </p>
-                      </div>
-                    )}
+                {/* Arrow connector (except last step) */}
+                {index < steps.length - 1 && (
+                  <div className="flex-shrink-0 mx-1 text-muted-foreground/50">
+                    <ArrowRight className="h-4 w-4" />
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Summary footer */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 rounded-lg">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Total Steps
-            </p>
-            <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
-              {steps.length}
-            </p>
-          </div>
-          <div className="border-l border-r border-green-200 dark:border-green-800">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Total Time
-            </p>
-            <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
-              {formatTotalTime(totalDuration)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Status
-            </p>
-            <p className="text-lg font-bold text-green-700 dark:text-green-300 mt-2">
-              ✓ Done
-            </p>
-          </div>
+      {/* Summary Footer - Compact */}
+      <div className="pt-1 flex items-center justify-between text-xs border-t border-border/50">
+        <div className="flex items-center gap-4">
+          <span className="text-muted-foreground">
+            Total: <span className="font-semibold text-foreground">{formatTotalTime(totalDuration)}</span>
+          </span>
+          <span className="text-muted-foreground">
+            Steps: <span className="font-semibold text-foreground">{steps.length}</span>
+          </span>
         </div>
+        <span className="font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
+          ✓ Completed
+        </span>
       </div>
     </div>
   );
