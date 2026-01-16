@@ -9,21 +9,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  CheckCircle2,
-  ArrowRight,
-  Clock,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import type { Ticket } from "@shared/api";
 
@@ -80,33 +71,7 @@ const formatSeconds = (seconds: number | null) => {
   return `${mins}m ${secs}s`;
 };
 
-const getStatusColor = (status: "in_progress" | "proceeded" | "completed") => {
-  switch (status) {
-    case "completed":
-      return "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300";
-    case "in_progress":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
-    case "proceeded":
-      return "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-const getStatusLabel = (status: "in_progress" | "proceeded" | "completed") => {
-  switch (status) {
-    case "in_progress":
-      return "In Progress";
-    case "proceeded":
-      return "Forwarded";
-    case "completed":
-      return "Completed";
-    default:
-      return status;
-  }
-};
-
-// Convert workflow items to ProcessStep format
+// Process Step interface for ProcessFlowChart
 interface ProcessStep {
   id: string;
   number: number;
@@ -125,7 +90,7 @@ interface ProcessStep {
 const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
   return items.map((item, index) => {
     let action: "Started" | "Proceeded" | "Completed" = "Started";
-
+    
     if (item.status === "completed") {
       action = "Completed";
     } else if (item.status === "proceeded") {
@@ -190,7 +155,6 @@ export default function CaseWorkflowTracker({
         );
 
         if (workflowsRes.items && workflowsRes.items.length > 0) {
-          console.log("Workflows received:", workflowsRes.items);
           setWorkflows(workflowsRes.items);
           setTotalItems(workflowsRes.total || 0);
         } else {
@@ -315,341 +279,7 @@ export default function CaseWorkflowTracker({
       {!loading && !error && workflows.length > 0 && (
         <>
           {workflows.map((workflow) => (
-            <Card
-              key={workflow.ticketId}
-              className="border-2 border-blue-200 dark:border-blue-900 w-full"
-            >
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                        Ticket{" "}
-                        {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
-                      </CardTitle>
-                      {workflow.createdAt &&
-                        (() => {
-                          try {
-                            const date = new Date(workflow.createdAt);
-                            if (!isNaN(date.getTime())) {
-                              return (
-                                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
-                                  {format(date, "MMM dd, yyyy HH:mm")}
-                                </div>
-                              );
-                            }
-                            return null;
-                          } catch {
-                            return null;
-                          }
-                        })()}
-                    </div>
-                    {workflow.ticketInfo?.serviceCategory && (
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className="bg-blue-600 text-white dark:bg-blue-700"
-                        >
-                          Service Category
-                        </Badge>
-                        <span className="text-sm font-semibold text-foreground">
-                          {workflow.ticketInfo.serviceCategory}
-                        </span>
-                      </div>
-                    )}
-                    {workflow.ticketInfo?.selectedServices &&
-                      workflow.ticketInfo.selectedServices.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-muted-foreground">
-                            Selected Services:
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {workflow.ticketInfo.selectedServices.map(
-                              (service, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="outline"
-                                  className="bg-white dark:bg-background text-xs"
-                                >
-                                  {service}
-                                </Badge>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      )}
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-6 pb-6">
-                <Accordion
-                  type="single"
-                  collapsible
-                  defaultValue="flow"
-                  className="w-full"
-                >
-                  <AccordionItem value="flow" className="border-none">
-                    <AccordionTrigger className="text-base font-semibold text-blue-900 dark:text-blue-100 hover:text-blue-700 dark:hover:text-blue-300 px-0">
-                      Horizontal Process Flow Visualization
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-6 pb-4">
-                      <div className="overflow-x-auto">
-                        <div className="space-y-8 min-w-max">
-                          {/* Horizontal Process Flow */}
-                          {workflow.items.length > 0 ? (
-                            <div className="space-y-6">
-                              {/* Flow Diagram */}
-                              <div className="flex items-start gap-2 pb-4">
-                                {workflow.items.map((step, index) => (
-                                  <div
-                                    key={step.id}
-                                    className="flex items-start gap-2 flex-shrink-0"
-                                  >
-                                    {/* Step Node */}
-                                    <div className="flex flex-col items-center">
-                                      <div
-                                        className={`flex items-center justify-center w-14 h-14 rounded-full text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950 ${
-                                          step.isArchiever
-                                            ? "bg-gradient-to-br from-amber-500 to-amber-600"
-                                            : step.isWindowService
-                                              ? "bg-gradient-to-br from-teal-500 to-teal-600"
-                                              : step.isTeller
-                                                ? "bg-gradient-to-br from-cyan-500 to-cyan-600"
-                                                : "bg-gradient-to-br from-blue-500 to-blue-600"
-                                        }`}
-                                      >
-                                        {index + 1}
-                                      </div>
-                                      <div
-                                        className={`mt-3 rounded-lg border-2 p-3 min-w-56 hover:shadow-md transition-shadow ${
-                                          step.isArchiever
-                                            ? "border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50"
-                                            : step.isWindowService
-                                              ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/50 ring-1 ring-teal-200 dark:ring-teal-800"
-                                              : step.isTeller
-                                                ? "border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/50"
-                                                : "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50"
-                                        }`}
-                                      >
-                                        <div className="space-y-2">
-                                          {/* Employee Info */}
-                                          <div className="space-y-1">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                              {step.isArchiever && (
-                                                <Badge className="bg-amber-600 text-white text-xs">
-                                                  Archiver
-                                                </Badge>
-                                              )}
-                                              {step.isWindowService && (
-                                                <Badge className="bg-teal-600 text-white text-xs font-semibold">
-                                                  Window {step.windowId}
-                                                </Badge>
-                                              )}
-                                              {step.isTeller &&
-                                                !step.isWindowService && (
-                                                  <Badge className="bg-cyan-600 text-white text-xs">
-                                                    Teller
-                                                  </Badge>
-                                                )}
-                                              <p className="font-bold text-sm text-foreground line-clamp-2">
-                                                {step.employeeName}
-                                              </p>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">
-                                              {step.jobTitle || "N/A"}
-                                            </p>
-                                          </div>
-
-                                          {/* Status Badge */}
-                                          {!step.isArchiever &&
-                                            !step.isTeller && (
-                                              <Badge
-                                                className={`inline-flex items-center gap-1 text-xs ${getStatusColor(step.status)}`}
-                                              >
-                                                <CheckCircle2 className="h-3 w-3" />
-                                                {getStatusLabel(step.status)}
-                                              </Badge>
-                                            )}
-                                          {step.isArchiever && (
-                                            <Badge className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                                              <CheckCircle2 className="h-3 w-3" />
-                                              Documents Retrieved
-                                            </Badge>
-                                          )}
-                                          {step.isWindowService && (
-                                            <Badge className="inline-flex items-center gap-1 text-xs bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 font-semibold">
-                                              <CheckCircle2 className="h-3 w-3" />
-                                              Service Delivered
-                                            </Badge>
-                                          )}
-                                          {step.isTeller &&
-                                            !step.isWindowService && (
-                                              <Badge className="inline-flex items-center gap-1 text-xs bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
-                                                <CheckCircle2 className="h-3 w-3" />
-                                                Service Completed
-                                              </Badge>
-                                            )}
-
-                                          {/* Timeline & Window Service Details */}
-                                          <div className="border-t border-gray-200 dark:border-gray-700 pt-2 space-y-1 text-xs">
-                                            {step.startedAt && (
-                                              <div className="flex items-center gap-1">
-                                                <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                                <span className="text-muted-foreground">
-                                                  {step.isWindowService
-                                                    ? "Entered:"
-                                                    : "Started:"}{" "}
-                                                  {format(
-                                                    new Date(step.startedAt),
-                                                    "HH:mm:ss",
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
-                                            <div
-                                              className={`font-semibold ${step.isWindowService ? "text-teal-600 dark:text-teal-400" : "text-blue-600 dark:text-blue-400"}`}
-                                            >
-                                              Duration:{" "}
-                                              {formatSeconds(
-                                                step.durationSeconds,
-                                              )}
-                                            </div>
-                                            {step.endedAt && (
-                                              <div className="flex items-center gap-1">
-                                                <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                                <span className="text-muted-foreground">
-                                                  {step.isWindowService
-                                                    ? "Proceeded:"
-                                                    : "Ended:"}{" "}
-                                                  {format(
-                                                    new Date(step.endedAt),
-                                                    "HH:mm:ss",
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Arrow to next step */}
-                                    {index < workflow.items.length - 1 && (
-                                      <div className="flex items-center justify-center px-2 mt-7">
-                                        <ArrowRight className="h-6 w-6 text-blue-400 dark:text-blue-500 flex-shrink-0" />
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-
-                                {/* Final Completion Node */}
-                                <div className="flex items-start gap-2 flex-shrink-0 ml-2">
-                                  <div className="flex flex-col items-center">
-                                    <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white font-bold text-lg flex-shrink-0 shadow-lg border-4 border-white dark:border-slate-950">
-                                      <CheckCircle2 className="h-8 w-8" />
-                                    </div>
-                                    <div className="mt-3 rounded-lg border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/50 p-3 min-w-48">
-                                      <p className="font-bold text-sm text-foreground">
-                                        Complete
-                                      </p>
-                                      <p className="text-xs text-muted-foreground mt-2">
-                                        Total Time:
-                                      </p>
-                                      <p className="font-bold text-green-600 dark:text-green-400 text-sm">
-                                        {formatSeconds(workflow.totalDuration)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Summary Stats */}
-                              <div className="pt-6 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                                <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
-                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    Total Employees
-                                  </p>
-                                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-                                    {
-                                      new Set(
-                                        workflow.items.map((i) => i.employeeId),
-                                      ).size
-                                    }
-                                  </p>
-                                </div>
-                                <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
-                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    Archivers Involved
-                                  </p>
-                                  <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
-                                    {
-                                      new Set(
-                                        workflow.items
-                                          .filter((i) => i.isArchiever)
-                                          .map((i) => i.employeeId),
-                                      ).size
-                                    }
-                                  </p>
-                                </div>
-                                <div className="text-center p-4 rounded-lg bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800">
-                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    Windows Used
-                                  </p>
-                                  <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
-                                    {(() => {
-                                      // Find all unique window IDs from items that have a windowId property
-                                      const uniqueWindows = new Set<number>();
-                                      workflow.items.forEach((item) => {
-                                        if (
-                                          item.windowId &&
-                                          typeof item.windowId === "number"
-                                        ) {
-                                          uniqueWindows.add(item.windowId);
-                                        }
-                                      });
-                                      console.log(
-                                        "All workflow items:",
-                                        workflow.items,
-                                      );
-                                      console.log(
-                                        "Unique windows found:",
-                                        Array.from(uniqueWindows),
-                                      );
-                                      return uniqueWindows.size;
-                                    })()}
-                                  </p>
-                                </div>
-                                <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
-                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    Total Process Time
-                                  </p>
-                                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                                    {formatSeconds(workflow.totalDuration)}
-                                  </p>
-                                </div>
-                                <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
-                                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    Process Steps
-                                  </p>
-                                  <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-                                    {workflow.items.length}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-center py-8 text-muted-foreground">
-                              No workflow steps found for this case
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
+            <WorkflowCard key={workflow.ticketId} workflow={workflow} />
           ))}
 
           {/* Pagination Controls */}
@@ -685,24 +315,174 @@ export default function CaseWorkflowTracker({
                   </Button>
                 </div>
               </div>
-              <div className="mt-4 text-center text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages || 1}
-              </div>
             </CardContent>
           </Card>
         </>
       )}
-
-      {/* Empty State */}
-      {!loading && !error && workflows.length === 0 && totalItems === 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-12 text-muted-foreground">
-              No process flow data available for the selected timeframe
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
+  );
+}
+
+// Workflow Card Component
+function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const processSteps = useMemo(
+    () => convertToProcessSteps(workflow.items),
+    [workflow.items],
+  );
+
+  // Create a dummy ticket object for ProcessFlowChart
+  const dummyTicket: Ticket = {
+    id: workflow.ticketId,
+    code: workflow.ticketCode,
+    status: "done",
+    service: workflow.ticketInfo?.serviceCategory || "Service",
+    ownerName: "",
+    woreda: "",
+    selectedServices: workflow.ticketInfo?.selectedServices || [],
+    createdAt: workflow.createdAt || Date.now(),
+    startedAt: workflow.items[0]?.startedAt || null,
+    completedAt:
+      workflow.items[workflow.items.length - 1]?.endedAt || Date.now(),
+    notes: "",
+    windowId: null,
+    skippedAt: null,
+    skippedByWindow: null,
+    remark: "",
+    transferredAt: null,
+    transferredFromWindow: null,
+    transferredToWindow: null,
+    transferredToUserId: null,
+  } as unknown as Ticket;
+
+  return (
+    <Card className="border-2 border-blue-200 dark:border-blue-900 w-full">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-4">
+            <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              Ticket {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
+            </CardTitle>
+            {workflow.createdAt &&
+              (() => {
+                try {
+                  const date = new Date(workflow.createdAt);
+                  if (!isNaN(date.getTime())) {
+                    return (
+                      <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
+                        {format(date, "MMM dd, yyyy HH:mm")}
+                      </div>
+                    );
+                  }
+                  return null;
+                } catch {
+                  return null;
+                }
+              })()}
+          </div>
+          {workflow.ticketInfo?.serviceCategory && (
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="bg-blue-600 text-white dark:bg-blue-700"
+              >
+                Service Category
+              </Badge>
+              <span className="text-sm font-semibold text-foreground">
+                {workflow.ticketInfo.serviceCategory}
+              </span>
+            </div>
+          )}
+          {workflow.ticketInfo?.selectedServices &&
+            workflow.ticketInfo.selectedServices.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground">
+                  Selected Services:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {workflow.ticketInfo.selectedServices.map((service, idx) => (
+                    <Badge
+                      key={idx}
+                      variant="outline"
+                      className="bg-white dark:bg-background text-xs"
+                    >
+                      {service}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-6 pb-6">
+        <div className="space-y-4">
+          {/* Toggle Button */}
+          <Button
+            onClick={() => setIsExpanded(!isExpanded)}
+            variant="outline"
+            className="w-full"
+          >
+            {isExpanded
+              ? "Hide Process Flow"
+              : `Show Process Flow (${workflow.items.length} steps • ${formatSeconds(workflow.totalDuration)})`}
+          </Button>
+
+          {/* Process Flow Chart */}
+          {isExpanded && processSteps.length > 0 && (
+            <ProcessFlowChart ticket={dummyTicket} steps={processSteps} />
+          )}
+
+          {/* Summary Stats */}
+          {isExpanded && (
+            <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Total Employees
+                </p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                  {new Set(workflow.items.map((i) => i.employeeId)).size}
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Total Steps
+                </p>
+                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+                  {workflow.items.length}
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Total Duration
+                </p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                  {formatSeconds(workflow.totalDuration)}
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Status
+                </p>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                  Complete
+                </p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200 dark:border-cyan-800">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Avg Step Time
+                </p>
+                <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-2">
+                  {workflow.totalDuration && workflow.items.length > 0
+                    ? formatSeconds(Math.round(workflow.totalDuration / workflow.items.length))
+                    : "N/A"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
