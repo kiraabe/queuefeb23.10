@@ -2044,7 +2044,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
        FROM employee_case_performance ecp
        JOIN users u ON ecp.employee_id = u.id
        LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
-       WHERE ecp.ticket_id = $1
+       WHERE ecp.ticket_id = $1 AND ecp.status = 'in_progress'
        ORDER BY ecp.started_at DESC
        LIMIT 1`,
       [t.id],
