@@ -8,11 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
@@ -110,15 +106,9 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
     let action: "Started" | "Proceeded" | "Completed" = "Started";
     if (displayStatus === "Completed" || displayStatus === "completed") {
       action = "Completed";
-    } else if (
-      displayStatus === "Proceeded" ||
-      displayStatus === "proceeded"
-    ) {
+    } else if (displayStatus === "Proceeded" || displayStatus === "proceeded") {
       action = "Proceeded";
-    } else if (
-      displayStatus === "Retrieved" ||
-      displayStatus === "retrieved"
-    ) {
+    } else if (displayStatus === "Retrieved" || displayStatus === "retrieved") {
       // Treat Retrieved as Started for process flow (archiver retrieving documents)
       action = "Started";
     }
@@ -495,7 +485,11 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                 </p>
                 <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-2">
                   {workflow.totalDuration && workflow.items.length > 0
-                    ? formatSeconds(Math.round(workflow.totalDuration / workflow.items.length))
+                    ? formatSeconds(
+                        Math.round(
+                          workflow.totalDuration / workflow.items.length,
+                        ),
+                      )
                     : "N/A"}
                 </p>
               </div>
