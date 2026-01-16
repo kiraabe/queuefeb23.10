@@ -412,6 +412,11 @@ export default function Queue() {
                                   <p className="text-xs text-muted-foreground">
                                     {ticket.currentEmployee.jobTitle}
                                   </p>
+                                  {ticket.currentEmployee.jobTitleAmharic && (
+                                    <p className="text-xs text-muted-foreground font-medium">
+                                      {ticket.currentEmployee.jobTitleAmharic}
+                                    </p>
+                                  )}
                                 </div>
                               ) : (
                                 <span className="text-muted-foreground">Employee</span>
@@ -567,6 +572,11 @@ export default function Queue() {
                                   <p className="text-xs text-muted-foreground">
                                     {ticket.currentEmployee.jobTitle}
                                   </p>
+                                  {ticket.currentEmployee.jobTitleAmharic && (
+                                    <p className="text-xs text-muted-foreground font-medium">
+                                      {ticket.currentEmployee.jobTitleAmharic}
+                                    </p>
+                                  )}
                                 </div>
                               ) : (
                                 <span className="text-muted-foreground">Employee</span>
