@@ -1977,20 +1977,46 @@ export async function displayStateDb(): Promise<DisplayState> {
        ORDER BY created_at, number`,
   );
 
-  const mapRow = (row: any): DisplayTicket => ({
-    id: row.id,
-    code: row.code,
-    service: row.service,
-    status: row.status,
-    windowId: row.window_id ?? null,
-    createdAt: Math.round(Number(row.created_at)),
-    updatedAt:
-      row.updated_at !== undefined && row.updated_at !== null
-        ? Math.round(Number(row.updated_at))
-        : undefined,
-  });
+  const mapRow = async (row: any): Promise<DisplayTicket> => {
+    const ticket: DisplayTicket = {
+      id: row.id,
+      code: row.code,
+      service: row.service,
+      status: row.status,
+      windowId: row.window_id ?? null,
+      createdAt: Math.round(Number(row.created_at)),
+      updatedAt:
+        row.updated_at !== undefined && row.updated_at !== null
+          ? Math.round(Number(row.updated_at))
+          : undefined,
+    };
 
-  const current = currentRes.rows.map(mapRow);
+    // If ticket is being handled by an employee (serving status with no window), fetch employee info
+    if (row.status === "serving" && !row.window_id) {
+      const empRes = await p.query(
+        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+         FROM employee_case_performance ecp
+         JOIN users u ON ecp.employee_id = u.id
+         LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+         WHERE ecp.ticket_id = $1 AND ecp.status = 'in_progress'
+         ORDER BY ecp.started_at DESC
+         LIMIT 1`,
+        [row.id],
+      );
+      if (empRes.rowCount > 0) {
+        const emp = empRes.rows[0];
+        ticket.currentEmployee = {
+          id: emp.id,
+          fullName: emp.full_name || "Unknown",
+          jobTitle: emp.job_title || "Employee",
+        };
+      }
+    }
+
+    return ticket;
+  };
+
+  const current = await Promise.all(currentRes.rows.map(mapRow));
   const waitingTickets = waitingRes.rows.map(mapRow);
   const [next, nextAfter, ...rest] = waitingTickets;
 
