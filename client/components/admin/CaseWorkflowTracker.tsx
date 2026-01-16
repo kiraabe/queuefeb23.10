@@ -106,6 +106,67 @@ const getStatusLabel = (status: "in_progress" | "proceeded" | "completed") => {
   }
 };
 
+// Convert workflow items to ProcessStep format
+interface ProcessStep {
+  id: string;
+  number: number;
+  employeeName: string;
+  jobTitle?: string;
+  action: "Started" | "Proceeded" | "Completed";
+  duration: string;
+  durationSeconds: number | null;
+  startedAt?: number | null;
+  endedAt?: number | null;
+  windowId?: number | null;
+  isTeller?: boolean;
+  isArchiver?: boolean;
+}
+
+const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
+  return items.map((item, index) => {
+    let action: "Started" | "Proceeded" | "Completed" = "Started";
+
+    if (item.status === "completed") {
+      action = "Completed";
+    } else if (item.status === "proceeded") {
+      action = "Proceeded";
+    }
+
+    if (item.isArchiever) {
+      action = "Completed";
+    } else if (item.isTeller || item.isWindowService) {
+      action = "Proceeded";
+    }
+
+    const formatTime = (seconds: number | null) => {
+      if (!seconds) return "—";
+      if (seconds < 60) return `${Math.round(seconds)}s`;
+      if (seconds < 3600) {
+        const minutes = Math.round(seconds / 60);
+        return `${minutes}m`;
+      }
+      const hours = Math.round(seconds / 3600);
+      const minutes = Math.round((seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    };
+
+    return {
+      id: item.id,
+      number: index + 1,
+      employeeName: item.employeeName,
+      jobTitle: item.jobTitle,
+      action,
+      duration: formatTime(item.durationSeconds),
+      durationSeconds: item.durationSeconds,
+      startedAt: item.startedAt,
+      endedAt: item.endedAt,
+      windowId: item.windowId,
+      isTeller: item.isTeller,
+      isArchiver: item.isArchiever,
+    };
+  });
+};
+
 export default function CaseWorkflowTracker({
   defaultTimeframe = "today",
 }: CaseWorkflowTrackerProps = {}) {
