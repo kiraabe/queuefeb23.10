@@ -363,7 +363,7 @@ export default function Track() {
                   Status
                 </p>
                 <p className="mt-2 text-xl font-semibold">
-                  {getStatusMessage(state.ticket)}
+                  {getStatusMessage(state.ticket, state.currentEmployee)}
                 </p>
               </div>
 
