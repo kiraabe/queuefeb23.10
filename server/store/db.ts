@@ -2033,7 +2033,11 @@ export async function getTicketByCodeDb(code: string): Promise<{
   }
 
   // Fetch current employee handling the ticket
-  let currentEmployee: { id: string; fullName: string; jobTitle: string } | null = null;
+  let currentEmployee: {
+    id: string;
+    fullName: string;
+    jobTitle: string;
+  } | null = null;
   if (t.status === "serving" || t.status === "transferred") {
     const empRes = await p.query(
       `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
@@ -2056,7 +2060,12 @@ export async function getTicketByCodeDb(code: string): Promise<{
   }
 
   if (t.status !== "waiting")
-    return { ticket: t, positionInQueue: null, estimatedWaitSeconds: null, currentEmployee };
+    return {
+      ticket: t,
+      positionInQueue: null,
+      estimatedWaitSeconds: null,
+      currentEmployee,
+    };
   const posRes = await p.query(
     `SELECT COUNT(*) AS ahead FROM tickets
      WHERE status='waiting' AND created_at < (SELECT created_at FROM tickets WHERE id=$1)`,

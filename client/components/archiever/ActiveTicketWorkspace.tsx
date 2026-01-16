@@ -94,7 +94,6 @@ export function ActiveTicketWorkspace({
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-
   // Update document checklist mutation
   const { mutate: updateDocument, isPending: isUpdatingDocument } = useMutation(
     {
@@ -217,7 +216,6 @@ export function ActiveTicketWorkspace({
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [ticket?.archiverStartedAt]);
-
 
   if (isLoading) {
     return (
