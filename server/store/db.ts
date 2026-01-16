@@ -1751,7 +1751,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
         ecp.status,
         u.full_name,
         u.username,
-        jt.name_english as job_title,
+        COALESCE(jt.name_amharic, jt.name_english) as job_title,
         w.name as window_name
        FROM employee_case_performance ecp
        LEFT JOIN users u ON ecp.employee_id = u.id
@@ -1795,7 +1795,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
           archiverData.full_name || archiverData.username || "Unknown Archiver",
         actorId: archiverData.archived_by_user_id,
         jobTitle:
-          archiverData.name_english || archiverData.name_amharic || "Archiver",
+          archiverData.name_amharic || archiverData.name_english || "Archiver",
         tellerWindow: null,
         windowId: null,
         status: "Retrieved",
@@ -1832,7 +1832,7 @@ export async function compileAndStoreProgressFlow(ticketId: string) {
           tellerData.full_name || tellerData.username || "Unknown Teller",
         actorId: tellerData.user_id || null,
         jobTitle:
-          tellerData.name_english || tellerData.name_amharic || "Teller",
+          tellerData.name_amharic || tellerData.name_english || "Teller",
         tellerWindow: `Window ${tellerData.window_id}` || null,
         windowId: tellerData.window_id || null,
         status: "Proceeded",
