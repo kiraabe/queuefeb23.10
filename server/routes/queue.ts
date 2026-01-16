@@ -670,6 +670,7 @@ export const getTicketStatus: RequestHandler = async (req, res) => {
       ticket,
       positionInQueue: result.positionInQueue,
       estimatedWaitSeconds: result.estimatedWaitSeconds,
+      currentEmployee: result.currentEmployee || null,
     };
     return res.json(payload);
   } catch (e: any) {
