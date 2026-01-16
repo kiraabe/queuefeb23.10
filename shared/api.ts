@@ -163,6 +163,7 @@ export interface CurrentEmployee {
   id: string;
   fullName: string;
   jobTitle: string;
+  jobTitleAmharic?: string;
 }
 
 export interface TicketStatusResponse {
