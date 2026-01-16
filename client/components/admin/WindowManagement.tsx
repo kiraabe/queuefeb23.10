@@ -163,9 +163,18 @@ export default function WindowManagement() {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
+        signal: AbortSignal.timeout(5000), // 5 second timeout
       });
       if (!response.ok) {
-        throw new Error(`Failed to load window services: ${response.status}`);
+        console.warn(
+          `Failed to load window services: ${response.status} for window ${windowId}`,
+        );
+        // Set empty array on failure
+        setWindowServices((prev) => ({
+          ...prev,
+          [windowId]: [],
+        }));
+        return;
       }
       const data = await response.json();
       const serviceCodes = data.services || [];
@@ -190,7 +199,15 @@ export default function WindowManagement() {
         [windowId]: assignedServices,
       }));
     } catch (error) {
-      console.error(`Failed to load services for window ${windowId}`, error);
+      console.warn(
+        `Failed to load services for window ${windowId}`,
+        error instanceof Error ? error.message : String(error),
+      );
+      // Silently fail - set empty array so UI doesn't stay in loading state
+      setWindowServices((prev) => ({
+        ...prev,
+        [windowId]: [],
+      }));
     }
   };
 
