@@ -563,33 +563,38 @@ export default function WindowManagement() {
                   <>
                     <div className="flex-1">
                       <p className="font-medium text-sm">{window.name}</p>
-                      <div className="mt-1 space-y-1">
+                      <div className="mt-2 space-y-2">
                         <p className="text-xs text-muted-foreground">
                           {window.tellerCount} teller
                           {window.tellerCount !== 1 ? "s" : ""} assigned
                         </p>
-                        {windowServices[window.id] &&
-                          windowServices[window.id].length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {windowServices[window.id].map((service) => (
-                                <span
-                                  key={service.code}
-                                  className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
-                                >
-                                  {service.name}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        {!windowServices[window.id] ? (
-                          <p className="text-xs text-muted-foreground">
-                            Click icon to configure services
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">
+                            Service Type
                           </p>
-                        ) : windowServices[window.id].length === 0 ? (
-                          <p className="text-xs text-amber-600">
-                            No service categories assigned
-                          </p>
-                        ) : null}
+                          {windowServices[window.id] &&
+                            windowServices[window.id].length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {windowServices[window.id].map((service) => (
+                                  <span
+                                    key={service.code}
+                                    className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                                  >
+                                    {service.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          {!windowServices[window.id] ? (
+                            <p className="text-xs text-muted-foreground italic">
+                              Loading...
+                            </p>
+                          ) : windowServices[window.id].length === 0 ? (
+                            <p className="text-xs text-amber-600">
+                              No service categories assigned
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                     <Button
