@@ -227,18 +227,30 @@ export default function Track() {
     }
   };
 
-  const getStatusMessage = (ticket: Ticket) => {
+  const getStatusMessage = (ticket: Ticket, currentEmployee?: { id: string; fullName: string; jobTitle: string } | null) => {
     if (ticket.status === "waiting") {
       return "Waiting in queue";
     }
     if (ticket.status === "serving") {
-      return `Now Serving at Window ${ticket.windowId}`;
+      if (currentEmployee) {
+        return `Being handled by ${currentEmployee.fullName}`;
+      }
+      if (ticket.windowId) {
+        return `Now Serving at Window ${ticket.windowId}`;
+      }
+      return "Now Serving";
     }
     if (ticket.status === "done") {
       return "Completed";
     }
     if (ticket.status === "skipped") {
       return "Skipped";
+    }
+    if (ticket.status === "transferred") {
+      if (currentEmployee) {
+        return `Transferred to ${currentEmployee.fullName}`;
+      }
+      return "Transferred";
     }
     return ticket.status;
   };
