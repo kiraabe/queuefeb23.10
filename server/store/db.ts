@@ -2039,7 +2039,7 @@ export async function displayStateDb(): Promise<DisplayState> {
   };
 
   const current = await Promise.all(currentRes.rows.map(mapRow));
-  const waitingTickets = waitingRes.rows.map(mapRow);
+  const waitingTickets = await Promise.all(waitingRes.rows.map(mapRow));
   const [next, nextAfter, ...rest] = waitingTickets;
 
   return {
