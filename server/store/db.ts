@@ -2006,6 +2006,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
   ticket: Ticket | null;
   positionInQueue: number | null;
   estimatedWaitSeconds: number | null;
+  currentEmployee?: { id: string; fullName: string; jobTitle: string } | null;
 }> {
   const p = getPool();
   console.log("🔎 getTicketByCodeDb - Searching for code:", code);
@@ -2031,8 +2032,31 @@ export async function getTicketByCodeDb(code: string): Promise<{
     return { ticket: null, positionInQueue: null, estimatedWaitSeconds: null };
   }
 
+  // Fetch current employee handling the ticket
+  let currentEmployee: { id: string; fullName: string; jobTitle: string } | null = null;
+  if (t.status === "serving" || t.status === "transferred") {
+    const empRes = await p.query(
+      `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+       FROM employee_case_performance ecp
+       JOIN users u ON ecp.employee_id = u.id
+       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+       WHERE ecp.ticket_id = $1
+       ORDER BY ecp.started_at DESC
+       LIMIT 1`,
+      [t.id],
+    );
+    if (empRes.rowCount > 0) {
+      const emp = empRes.rows[0];
+      currentEmployee = {
+        id: emp.id,
+        fullName: emp.full_name || "Unknown",
+        jobTitle: emp.job_title || "Employee",
+      };
+    }
+  }
+
   if (t.status !== "waiting")
-    return { ticket: t, positionInQueue: null, estimatedWaitSeconds: null };
+    return { ticket: t, positionInQueue: null, estimatedWaitSeconds: null, currentEmployee };
   const posRes = await p.query(
     `SELECT COUNT(*) AS ahead FROM tickets
      WHERE status='waiting' AND created_at < (SELECT created_at FROM tickets WHERE id=$1)`,
