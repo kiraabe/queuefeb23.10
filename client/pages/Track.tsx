@@ -377,9 +377,16 @@ export default function Track() {
                     <p className="mt-2 text-lg font-semibold text-green-900 dark:text-green-100">
                       {state.currentEmployee.fullName}
                     </p>
-                    <p className="mt-1 text-sm text-green-700 dark:text-green-300">
-                      {state.currentEmployee.jobTitle}
-                    </p>
+                    <div className="mt-1 space-y-1">
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        {state.currentEmployee.jobTitle}
+                      </p>
+                      {state.currentEmployee.jobTitleAmharic && (
+                        <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                          {state.currentEmployee.jobTitleAmharic}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
 
