@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { ProcessFlowChart } from "./CaseWorkflowTracker";
+import type { Ticket } from "@shared/api";
 
 interface WorkflowEntry {
   id: string;
