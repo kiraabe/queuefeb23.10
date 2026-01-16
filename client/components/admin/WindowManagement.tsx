@@ -159,12 +159,16 @@ export default function WindowManagement() {
 
   const loadWindowServices = async (windowId: number) => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
       const response = await fetch(`/api/admin/windows/${windowId}/services`, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
-        signal: AbortSignal.timeout(5000), // 5 second timeout
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (!response.ok) {
         console.warn(
           `Failed to load window services: ${response.status} for window ${windowId}`,
