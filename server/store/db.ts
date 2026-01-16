@@ -2093,7 +2093,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
   if (t.status === "serving" || t.status === "transferred") {
     // First, try to find someone actively working on it (in_progress)
     const empRes = await p.query(
-      `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+      `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
        FROM employee_case_performance ecp
        JOIN users u ON ecp.employee_id = u.id
        LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
@@ -2109,12 +2109,13 @@ export async function getTicketByCodeDb(code: string): Promise<{
         id: emp.id,
         fullName: emp.full_name || "Unknown",
         jobTitle: emp.job_title || "Employee",
+        jobTitleAmharic: emp.job_title_amharic || undefined,
       };
       console.log("👤 Found in-progress employee for ticket", t.id, ":", currentEmployee);
     } else {
       // No one actively working, get the last one who handled it (e.g., who proceeded it)
       const lastEmpRes = await p.query(
-        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
          FROM employee_case_performance ecp
          JOIN users u ON ecp.employee_id = u.id
          LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
@@ -2133,6 +2134,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
           id: emp.id,
           fullName: emp.full_name || "Unknown",
           jobTitle: emp.job_title || "Employee",
+          jobTitleAmharic: emp.job_title_amharic || undefined,
         };
       }
     }
