@@ -158,10 +158,17 @@ export interface TellerTicketsResponse {
   total: number;
 }
 
+export interface CurrentEmployee {
+  id: string;
+  fullName: string;
+  jobTitle: string;
+}
+
 export interface TicketStatusResponse {
   ticket: Ticket | null;
   positionInQueue: number | null; // 1-based position if waiting, else null
   estimatedWaitSeconds: number | null; // null if not applicable or unknown
+  currentEmployee?: CurrentEmployee | null; // Employee currently handling the ticket
 }
 
 // Auth
