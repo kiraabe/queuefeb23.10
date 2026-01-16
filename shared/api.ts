@@ -69,6 +69,7 @@ export interface DisplayTicket {
   windowId: number | null;
   createdAt: number;
   updatedAt?: number;
+  currentEmployee?: { id: string; fullName: string; jobTitle: string } | null;
 }
 
 export interface DisplayState {
