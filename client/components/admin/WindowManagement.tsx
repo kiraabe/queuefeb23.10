@@ -599,8 +599,8 @@ export default function WindowManagement() {
                           <p className="text-xs font-semibold text-muted-foreground mb-1">
                             Service Type
                           </p>
-                          {windowServices[window.id] &&
-                            windowServices[window.id].length > 0 && (
+                          {windowServices[window.id] !== undefined ? (
+                            windowServices[window.id].length > 0 ? (
                               <div className="flex flex-wrap gap-1">
                                 {windowServices[window.id].map((service) => (
                                   <span
@@ -611,16 +611,16 @@ export default function WindowManagement() {
                                   </span>
                                 ))}
                               </div>
-                            )}
-                          {!windowServices[window.id] ? (
+                            ) : (
+                              <p className="text-xs text-amber-600">
+                                No service categories assigned
+                              </p>
+                            )
+                          ) : (
                             <p className="text-xs text-muted-foreground italic">
                               Loading...
                             </p>
-                          ) : windowServices[window.id].length === 0 ? (
-                            <p className="text-xs text-amber-600">
-                              No service categories assigned
-                            </p>
-                          ) : null}
+                          )}
                         </div>
                       </div>
                     </div>
