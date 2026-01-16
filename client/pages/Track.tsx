@@ -227,7 +227,7 @@ export default function Track() {
     }
   };
 
-  const getStatusMessage = (ticket: Ticket, currentEmployee?: { id: string; fullName: string; jobTitle: string } | null) => {
+  const getStatusMessage = (ticket: Ticket, currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null) => {
     if (ticket.status === "waiting") {
       return "Waiting in queue";
     }
