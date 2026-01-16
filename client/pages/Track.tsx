@@ -355,6 +355,20 @@ export default function Track() {
                 </p>
               </div>
 
+              {state.currentEmployee && (state.ticket.status === "serving" || state.ticket.status === "transferred") && (
+                <div className="rounded-lg border border-green-500/40 bg-green-500/10 p-6">
+                  <p className="text-xs uppercase tracking-widest font-semibold text-green-700 dark:text-green-300">
+                    Currently Handled By
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-green-900 dark:text-green-100">
+                    {state.currentEmployee.fullName}
+                  </p>
+                  <p className="mt-1 text-sm text-green-700 dark:text-green-300">
+                    {state.currentEmployee.jobTitle}
+                  </p>
+                </div>
+              )}
+
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-border/60 bg-background/70 p-4">
                   <p className="text-xs uppercase text-muted-foreground">
