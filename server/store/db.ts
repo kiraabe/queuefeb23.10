@@ -1993,6 +1993,7 @@ export async function displayStateDb(): Promise<DisplayState> {
 
     // If ticket is being handled by an employee (serving status with no window), fetch employee info
     if (row.status === "serving" && !row.window_id) {
+      // First try in_progress, then fall back to latest handler
       const empRes = await p.query(
         `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
          FROM employee_case_performance ecp
@@ -2003,6 +2004,7 @@ export async function displayStateDb(): Promise<DisplayState> {
          LIMIT 1`,
         [row.id],
       );
+
       if (empRes.rowCount > 0) {
         const emp = empRes.rows[0];
         ticket.currentEmployee = {
@@ -2010,6 +2012,26 @@ export async function displayStateDb(): Promise<DisplayState> {
           fullName: emp.full_name || "Unknown",
           jobTitle: emp.job_title || "Employee",
         };
+      } else {
+        // No in_progress, get the latest employee who handled it
+        const lastEmpRes = await p.query(
+          `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+           FROM employee_case_performance ecp
+           JOIN users u ON ecp.employee_id = u.id
+           LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+           WHERE ecp.ticket_id = $1
+           ORDER BY COALESCE(ecp.ended_at, ecp.started_at) DESC
+           LIMIT 1`,
+          [row.id],
+        );
+        if (lastEmpRes.rowCount > 0) {
+          const emp = lastEmpRes.rows[0];
+          ticket.currentEmployee = {
+            id: emp.id,
+            fullName: emp.full_name || "Unknown",
+            jobTitle: emp.job_title || "Employee",
+          };
+        }
       }
     }
 
