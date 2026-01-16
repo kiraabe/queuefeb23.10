@@ -110,6 +110,8 @@ export default function WindowManagement() {
   useEffect(() => {
     const loadData = async () => {
       await loadServiceCategories();
+      // Load windows after service categories are available
+      await new Promise((resolve) => setTimeout(resolve, 100));
     };
     loadData();
   }, []);
