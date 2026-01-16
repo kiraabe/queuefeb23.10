@@ -81,6 +81,7 @@ export default function Track() {
           estSeconds: data.estimatedWaitSeconds ?? null,
           error: null,
           searchedCode: normalizedCode,
+          currentEmployee: data.currentEmployee ?? null,
         });
       } else {
         console.log("Ticket not found for code:", normalizedCode);
