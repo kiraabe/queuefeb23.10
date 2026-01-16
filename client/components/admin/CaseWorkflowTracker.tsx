@@ -24,7 +24,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { ProcessFlowChart } from "./CaseWorkflowTracker";
+import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import type { Ticket } from "@shared/api";
 
 interface WorkflowEntry {
