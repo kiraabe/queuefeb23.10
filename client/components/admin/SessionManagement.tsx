@@ -181,11 +181,11 @@ export default function SessionManagement() {
   const getStatusDescription = (status: string): string => {
     switch (status) {
       case "active":
-        return "Session is currently active and valid";
+        return "User is logged in";
       case "revoked":
-        return "Session was terminated by admin, security event, or manual logout";
+        return "User has logged out (or admin terminated / security event)";
       case "expired":
-        return "Session has exceeded its maximum lifetime";
+        return "Session exceeded maximum lifetime";
       default:
         return "Unknown session status";
     }
