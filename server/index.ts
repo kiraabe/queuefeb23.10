@@ -484,7 +484,15 @@ export function createServer() {
   // Window service restrictions endpoints
   app.get(
     "/api/admin/windows/:windowId/services",
-    requireTellerForWindowParam("windowId"),
+    async (req, res, next) => {
+      // Allow admin to read all window services, or teller for their window
+      const result = await (requireRole(["admin"]) as any)(req, res, () => {});
+      if ((req as any).auth) {
+        return next();
+      }
+      // If not admin, check if teller for window
+      return requireTellerForWindowParam("windowId")(req, res, next);
+    },
     getWindowServices,
   );
   app.put(
