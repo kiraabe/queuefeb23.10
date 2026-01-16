@@ -139,6 +139,19 @@ export default function SessionManagement() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active":
+        return "login";
+      case "revoked":
+        return "logout";
+      case "expired":
+        return "expired";
+      default:
+        return status;
+    }
+  };
+
   const getRoleColor = (role: string) => {
     switch (role) {
       case "admin":
