@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,7 +51,6 @@ export function ActiveTicketWorkspace({
   onReleaseTicket,
 }: ActiveTicketWorkspaceProps) {
   const queryClient = useQueryClient();
-  const [notes, setNotes] = useState("");
   const [processingTime, setProcessingTime] = useState("0m");
 
   // Fetch ticket details
@@ -97,40 +95,6 @@ export function ActiveTicketWorkspace({
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  // Add internal notes mutation
-  const { mutate: addNotes, isPending: isAddingNotes } = useMutation({
-    mutationFn: async (notesText: string) => {
-      const response = await fetch(`/api/archiever/tickets/${ticketId}/notes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: JSON.stringify({ notes: notesText }),
-      });
-
-      if (response.status === 401 || response.status === 403) {
-        throw new Error("Your session has expired. Please log in again.");
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to add notes");
-      }
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["archiever-ticket-details", ticketId],
-      });
-      toast.success("Notes saved");
-    },
-    onError: (error: any) => {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to save notes",
-      );
-    },
-  });
 
   // Update document checklist mutation
   const { mutate: updateDocument, isPending: isUpdatingDocument } = useMutation(
@@ -255,12 +219,6 @@ export function ActiveTicketWorkspace({
     return () => clearInterval(interval);
   }, [ticket?.archiverStartedAt]);
 
-  // Initialize notes from ticket
-  useEffect(() => {
-    if (ticket?.internalNotes) {
-      setNotes(ticket.internalNotes);
-    }
-  }, [ticket?.internalNotes]);
 
   if (isLoading) {
     return (
@@ -445,39 +403,6 @@ export function ActiveTicketWorkspace({
               })}
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Internal Notes */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            Internal Notes (Archiver Only)
-          </CardTitle>
-          <CardDescription>Not visible to customer</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add internal notes about this ticket..."
-            className="resize-none"
-            rows={4}
-          />
-          <Button
-            onClick={() => addNotes(notes)}
-            disabled={isAddingNotes}
-            size="sm"
-          >
-            {isAddingNotes ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saving...
-              </>
-            ) : (
-              "Save Notes"
-            )}
-          </Button>
         </CardContent>
       </Card>
 
