@@ -671,7 +671,7 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
         u.username,
         u.full_name,
         t.code as ticket_code,
-        COALESCE(jt.name_english, jt.name_amharic, 'No Title') as job_title_name
+        COALESCE(jt.name_amharic, jt.name_english, 'No Title') as job_title_name
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
@@ -923,7 +923,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
         employeeName:
           archiverData.full_name || archiverData.username || "Unknown Archiver",
         jobTitle:
-          archiverData.name_english || archiverData.name_amharic || "Archiver",
+          archiverData.name_amharic || archiverData.name_english || "Archiver",
         ticketCode: ticketId,
         isArchiver: true,
       });
@@ -944,7 +944,7 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
       // Build job title with window number if available
       let jobTitle =
-        tellerData.name_english || tellerData.name_amharic || "Teller";
+        tellerData.name_amharic || tellerData.name_english || "Teller";
       if (tellerData.window_id) {
         jobTitle = `${jobTitle} - Window ${tellerData.window_id}`;
       }
