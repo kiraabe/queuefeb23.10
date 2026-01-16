@@ -1995,7 +1995,7 @@ export async function displayStateDb(): Promise<DisplayState> {
     if (row.status === "serving" && !row.window_id) {
       // First try in_progress, then fall back to latest handler
       const empRes = await p.query(
-        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
          FROM employee_case_performance ecp
          JOIN users u ON ecp.employee_id = u.id
          LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
@@ -2011,11 +2011,12 @@ export async function displayStateDb(): Promise<DisplayState> {
           id: emp.id,
           fullName: emp.full_name || "Unknown",
           jobTitle: emp.job_title || "Employee",
+          jobTitleAmharic: emp.job_title_amharic || undefined,
         };
       } else {
         // No in_progress, get the latest employee who handled it
         const lastEmpRes = await p.query(
-          `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+          `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
            FROM employee_case_performance ecp
            JOIN users u ON ecp.employee_id = u.id
            LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
@@ -2030,6 +2031,7 @@ export async function displayStateDb(): Promise<DisplayState> {
             id: emp.id,
             fullName: emp.full_name || "Unknown",
             jobTitle: emp.job_title || "Employee",
+            jobTitleAmharic: emp.job_title_amharic || undefined,
           };
         }
       }
