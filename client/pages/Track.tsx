@@ -174,6 +174,7 @@ export default function Track() {
               ...prev,
               position: d.positionInQueue,
               estSeconds: d.estimatedWaitSeconds ?? null,
+              currentEmployee: d.currentEmployee || null,
             }));
           })
           .catch(() => {});
@@ -189,6 +190,7 @@ export default function Track() {
             ticket: d.ticket,
             position: d.positionInQueue,
             estSeconds: d.estimatedWaitSeconds ?? null,
+            currentEmployee: d.currentEmployee || null,
           }));
         })
         .catch(() => {});
