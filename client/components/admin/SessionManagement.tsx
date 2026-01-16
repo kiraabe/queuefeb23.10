@@ -304,7 +304,7 @@ export default function SessionManagement() {
                                   className={getStatusColor(session.status)}
                                 >
                                   {getStatusIcon(session.status)}{" "}
-                                  {session.status}
+                                  {getStatusLabel(session.status)}
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
