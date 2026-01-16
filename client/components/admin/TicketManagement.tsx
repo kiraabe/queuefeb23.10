@@ -303,7 +303,7 @@ function AdminTicketRow({ ticket }: AdminTicketRowProps) {
   const { data: performanceData } = useQuery({
     queryKey: ["admin-case-workflow-process", ticket.id],
     queryFn: async () => {
-      const response = await apiFetch(
+      const response = await apiFetch<{ items: any[] }>(
         `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
       );
       return response;
