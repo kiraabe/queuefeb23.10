@@ -2075,6 +2075,10 @@ export async function getTicketByCodeDb(code: string): Promise<{
        LIMIT 1`,
       [t.id],
     );
+    console.log("👤 Employee query result for ticket", t.id, ":", {
+      rowCount: empRes.rowCount,
+      rows: empRes.rows,
+    });
     if (empRes.rowCount > 0) {
       const emp = empRes.rows[0];
       currentEmployee = {
