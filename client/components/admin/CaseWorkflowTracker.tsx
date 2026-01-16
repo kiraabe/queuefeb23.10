@@ -89,21 +89,37 @@ interface ProcessStep {
 
 const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
   return items.map((item, index) => {
-    let displayStatus = item.status || "in_progress";
+    let displayName = item.employeeName || "Unknown";
+    let displayStatus = item.status || "Started";
 
-    // For teller steps, ensure action is "Proceeded"
+    // For archiver steps, use a descriptive label
+    if (item.isArchiever) {
+      displayName = `${displayName} (Archiever)`;
+    }
+
+    // For teller steps, include window number and use a descriptive label
     if (item.isTeller) {
-      displayStatus = "proceeded";
+      if (item.windowId) {
+        displayName = `${displayName} - Window ${item.windowId}`;
+      }
+      // Ensure teller action is "Proceeded"
+      displayStatus = "Proceeded";
     }
 
     // Map backend status to action status
     let action: "Started" | "Proceeded" | "Completed" = "Started";
-    if (displayStatus === "completed") {
+    if (displayStatus === "Completed" || displayStatus === "completed") {
       action = "Completed";
-    } else if (displayStatus === "proceeded") {
+    } else if (
+      displayStatus === "Proceeded" ||
+      displayStatus === "proceeded"
+    ) {
       action = "Proceeded";
-    } else if (displayStatus === "in_progress") {
-      // Treat in_progress (archiver retrieving documents) as Started
+    } else if (
+      displayStatus === "Retrieved" ||
+      displayStatus === "retrieved"
+    ) {
+      // Treat Retrieved as Started for process flow (archiver retrieving documents)
       action = "Started";
     }
 
