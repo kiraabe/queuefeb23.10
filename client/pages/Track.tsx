@@ -29,7 +29,7 @@ interface TrackingState {
   estSeconds: number | null;
   error: string | null;
   searchedCode: string;
-  currentEmployee?: { id: string; fullName: string; jobTitle: string } | null;
+  currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null;
 }
 
 export default function Track() {
