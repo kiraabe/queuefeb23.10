@@ -226,10 +226,16 @@ export default function WindowManagement() {
       const data: ListWindowsResponse = await response.json();
       setWindows(data.windows);
 
-      // Load services for all windows
-      for (const window of data.windows) {
-        await loadWindowServices(window.id);
-      }
+      // Load services for all windows in parallel but with a small delay between starts
+      // to avoid overwhelming the server
+      const delayMs = 50; // 50ms delay between requests
+      data.windows.forEach((window, index) => {
+        setTimeout(() => {
+          loadWindowServices(window.id).catch(() => {
+            // Error already handled in loadWindowServices, just catch to avoid unhandled promise rejection
+          });
+        }, index * delayMs);
+      });
     } catch (error) {
       const errorMsg =
         error instanceof Error ? error.message : "Failed to load windows";
