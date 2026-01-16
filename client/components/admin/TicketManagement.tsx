@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSSE } from "@/hooks/use-sse";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
