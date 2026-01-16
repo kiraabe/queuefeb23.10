@@ -208,6 +208,11 @@ export default function WindowManagement() {
       }
       const data: ListWindowsResponse = await response.json();
       setWindows(data.windows);
+
+      // Load services for all windows
+      for (const window of data.windows) {
+        await loadWindowServices(window.id);
+      }
     } catch (error) {
       const errorMsg =
         error instanceof Error ? error.message : "Failed to load windows";
