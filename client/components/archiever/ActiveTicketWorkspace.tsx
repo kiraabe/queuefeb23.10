@@ -35,7 +35,6 @@ interface TicketDetails {
   archiverStartedAt: number;
   requiredDocuments: string[];
   documentChecklist: Record<string, { status: string; verifiedAt?: string }>;
-  internalNotes: string;
   documentsFetched: boolean;
 }
 
