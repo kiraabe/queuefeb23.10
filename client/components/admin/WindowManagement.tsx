@@ -165,9 +165,12 @@ export default function WindowManagement() {
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
       const response = await fetch(`/api/admin/windows/${windowId}/services`, {
+        method: "GET",
         headers: {
           "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
         },
+        credentials: "include",
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
