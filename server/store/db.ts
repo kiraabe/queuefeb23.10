@@ -2090,6 +2090,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
     ticket: t,
     positionInQueue: position,
     estimatedWaitSeconds: position * avg,
+    currentEmployee,
   };
 }
 
