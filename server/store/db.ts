@@ -2089,6 +2089,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
     id: string;
     fullName: string;
     jobTitle: string;
+    jobTitleAmharic?: string;
   } | null = null;
   if (t.status === "serving" || t.status === "transferred") {
     // First, try to find someone actively working on it (in_progress)
