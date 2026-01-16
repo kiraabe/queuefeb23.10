@@ -1314,8 +1314,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
 
           // Build job title emphasizing window number and teller information
           let jobTitle = "Teller";
-          if (tellerData.name_english || tellerData.name_amharic) {
-            jobTitle = tellerData.name_english || tellerData.name_amharic;
+          if (tellerData.name_amharic || tellerData.name_english) {
+            jobTitle = tellerData.name_amharic || tellerData.name_english;
           }
 
           // Window information is now explicitly in windowId field for frontend to handle
