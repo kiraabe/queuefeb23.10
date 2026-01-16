@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSSE } from "@/hooks/use-sse";
+import { useQuery } from "@tanstack/react-query";
+import { apiFetch } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -21,9 +23,14 @@ import {
   SkipForward,
   Clock,
   ArrowRightLeft,
+  ChevronDown,
+  ArrowRight,
+  Calendar,
 } from "lucide-react";
 import { format } from "date-fns";
-import type { QueueSnapshot, Ticket } from "@shared/api";
+import type { QueueSnapshot, Ticket, ListUsersResponse } from "@shared/api";
+import { ProcessFlowChart } from "../teller/ProcessFlowChart";
+import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 
 export default function TicketManagement() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
