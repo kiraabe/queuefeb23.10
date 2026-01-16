@@ -125,7 +125,7 @@ export function CaseActionDialog({
                 <SelectContent>
                   {jobTitles.map((jt) => (
                     <SelectItem key={jt.id} value={jt.id}>
-                      {jt.nameEnglish || jt.nameAmharic}
+                      {jt.nameAmharic || jt.nameEnglish}
                     </SelectItem>
                   ))}
                 </SelectContent>

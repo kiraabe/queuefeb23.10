@@ -44,7 +44,7 @@ export default function Archiever() {
         const jobTitle = jobTitles.find((jt) => jt.id === user.jobTitleId);
         if (jobTitle) {
           const jobTitleName =
-            jobTitle.nameEnglish || jobTitle.nameAmharic || "No Title";
+            jobTitle.nameAmharic || jobTitle.nameEnglish || "No Title";
           title = `${user.fullName} - ${jobTitleName}`;
         }
       }

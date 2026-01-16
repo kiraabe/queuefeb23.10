@@ -589,7 +589,7 @@ export default function Employee() {
     const jobTitle = jobTitlesQuery.data.jobTitles.find(
       (jt) => jt.id === user.jobTitleId,
     );
-    return jobTitle?.nameEnglish || jobTitle?.nameAmharic || null;
+    return jobTitle?.nameAmharic || jobTitle?.nameEnglish || null;
   }, [user?.jobTitleId, jobTitlesQuery.data]);
 
   const tabItems = useMemo(() => {
