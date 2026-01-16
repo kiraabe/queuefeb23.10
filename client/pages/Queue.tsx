@@ -403,7 +403,9 @@ export default function Queue() {
                             </span>
                             <div className="text-sm text-right">
                               {window?.name ? (
-                                <span className="text-muted-foreground">{window.name}</span>
+                                <span className="text-muted-foreground">
+                                  {window.name}
+                                </span>
                               ) : ticket.currentEmployee ? (
                                 <div className="space-y-0.5">
                                   <p className="font-medium text-foreground">
@@ -419,7 +421,9 @@ export default function Queue() {
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-muted-foreground">Employee</span>
+                                <span className="text-muted-foreground">
+                                  Employee
+                                </span>
                               )}
                             </div>
                           </div>
@@ -563,7 +567,9 @@ export default function Queue() {
                             </span>
                             <div className="text-sm text-right">
                               {window?.name ? (
-                                <span className="text-muted-foreground">{window.name}</span>
+                                <span className="text-muted-foreground">
+                                  {window.name}
+                                </span>
                               ) : ticket.currentEmployee ? (
                                 <div className="space-y-0.5">
                                   <p className="font-medium text-foreground">
@@ -579,7 +585,9 @@ export default function Queue() {
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-muted-foreground">Employee</span>
+                                <span className="text-muted-foreground">
+                                  Employee
+                                </span>
                               )}
                             </div>
                           </div>

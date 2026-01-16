@@ -29,7 +29,12 @@ interface TrackingState {
   estSeconds: number | null;
   error: string | null;
   searchedCode: string;
-  currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null;
+  currentEmployee?: {
+    id: string;
+    fullName: string;
+    jobTitle: string;
+    jobTitleAmharic?: string;
+  } | null;
 }
 
 export default function Track() {
@@ -227,7 +232,15 @@ export default function Track() {
     }
   };
 
-  const getStatusMessage = (ticket: Ticket, currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null) => {
+  const getStatusMessage = (
+    ticket: Ticket,
+    currentEmployee?: {
+      id: string;
+      fullName: string;
+      jobTitle: string;
+      jobTitleAmharic?: string;
+    } | null,
+  ) => {
     if (ticket.status === "waiting") {
       return "Waiting in queue";
     }

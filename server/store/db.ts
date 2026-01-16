@@ -2112,7 +2112,12 @@ export async function getTicketByCodeDb(code: string): Promise<{
         jobTitle: emp.job_title || "Employee",
         jobTitleAmharic: emp.job_title_amharic || undefined,
       };
-      console.log("👤 Found in-progress employee for ticket", t.id, ":", currentEmployee);
+      console.log(
+        "👤 Found in-progress employee for ticket",
+        t.id,
+        ":",
+        currentEmployee,
+      );
     } else {
       // No one actively working, get the last one who handled it (e.g., who proceeded it)
       const lastEmpRes = await p.query(
