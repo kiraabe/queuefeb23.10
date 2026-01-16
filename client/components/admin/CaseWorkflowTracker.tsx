@@ -89,18 +89,22 @@ interface ProcessStep {
 
 const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
   return items.map((item, index) => {
-    let action: "Started" | "Proceeded" | "Completed" = "Started";
-    
-    if (item.status === "completed") {
-      action = "Completed";
-    } else if (item.status === "proceeded") {
-      action = "Proceeded";
+    let displayStatus = item.status || "in_progress";
+
+    // For teller steps, ensure action is "Proceeded"
+    if (item.isTeller) {
+      displayStatus = "proceeded";
     }
 
-    if (item.isArchiever) {
+    // Map backend status to action status
+    let action: "Started" | "Proceeded" | "Completed" = "Started";
+    if (displayStatus === "completed") {
       action = "Completed";
-    } else if (item.isTeller || item.isWindowService) {
+    } else if (displayStatus === "proceeded") {
       action = "Proceeded";
+    } else if (displayStatus === "in_progress") {
+      // Treat in_progress (archiver retrieving documents) as Started
+      action = "Started";
     }
 
     const formatTime = (seconds: number | null) => {
