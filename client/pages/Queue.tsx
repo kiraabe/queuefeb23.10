@@ -401,9 +401,22 @@ export default function Queue() {
                             >
                               {ticket.code}
                             </span>
-                            <span className="text-sm text-muted-foreground">
-                              {window?.name || "Employee"}
-                            </span>
+                            <div className="text-sm text-right">
+                              {window?.name ? (
+                                <span className="text-muted-foreground">{window.name}</span>
+                              ) : ticket.currentEmployee ? (
+                                <div className="space-y-0.5">
+                                  <p className="font-medium text-foreground">
+                                    {ticket.currentEmployee.fullName}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {ticket.currentEmployee.jobTitle}
+                                  </p>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">Employee</span>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
