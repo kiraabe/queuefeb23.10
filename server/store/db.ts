@@ -2059,12 +2059,15 @@ export async function getTicketByCodeDb(code: string): Promise<{
   }
 
   // Fetch current employee handling the ticket
+  // For 'serving' status: first try to find the one that's still 'in_progress'
+  // If not found, get the latest one (regardless of status) - this handles cases where ticket is waiting for next employee to start
   let currentEmployee: {
     id: string;
     fullName: string;
     jobTitle: string;
   } | null = null;
   if (t.status === "serving" || t.status === "transferred") {
+    // First, try to find someone actively working on it (in_progress)
     const empRes = await p.query(
       `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
        FROM employee_case_performance ecp
@@ -2075,10 +2078,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
        LIMIT 1`,
       [t.id],
     );
-    console.log("👤 Employee query result for ticket", t.id, ":", {
-      rowCount: empRes.rowCount,
-      rows: empRes.rows,
-    });
+
     if (empRes.rowCount > 0) {
       const emp = empRes.rows[0];
       currentEmployee = {
@@ -2086,6 +2086,31 @@ export async function getTicketByCodeDb(code: string): Promise<{
         fullName: emp.full_name || "Unknown",
         jobTitle: emp.job_title || "Employee",
       };
+      console.log("👤 Found in-progress employee for ticket", t.id, ":", currentEmployee);
+    } else {
+      // No one actively working, get the last one who handled it (e.g., who proceeded it)
+      const lastEmpRes = await p.query(
+        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title
+         FROM employee_case_performance ecp
+         JOIN users u ON ecp.employee_id = u.id
+         LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+         WHERE ecp.ticket_id = $1
+         ORDER BY COALESCE(ecp.ended_at, ecp.started_at) DESC
+         LIMIT 1`,
+        [t.id],
+      );
+      console.log("👤 Last employee query result for ticket", t.id, ":", {
+        rowCount: lastEmpRes.rowCount,
+        rows: lastEmpRes.rows,
+      });
+      if (lastEmpRes.rowCount > 0) {
+        const emp = lastEmpRes.rows[0];
+        currentEmployee = {
+          id: emp.id,
+          fullName: emp.full_name || "Unknown",
+          jobTitle: emp.job_title || "Employee",
+        };
+      }
     }
   }
 
