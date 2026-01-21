@@ -365,16 +365,16 @@ export default function Index() {
         <div className="w-full px-4 sm:px-6 lg:px-8 grid items-center gap-8 sm:gap-12 py-12 sm:py-16 md:py-20 lg:py-24 md:grid-cols-2">
           <div className="space-y-6 sm:space-y-8">
             <Badge className="w-fit rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary">
-              QR-powered virtual queuing
+              Case Tracking & Compliance
             </Badge>
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground">
-              Keep your queues moving with{" "}
+              Track cases and ensure{" "}
               <span className="bg-gradient-to-r from-primary via-sky-500 to-indigo-500 bg-clip-text text-transparent">
-                QR smart tickets
+                time compliance
               </span>
             </h1>
             <p className="max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Fast, contactless queueing with QR tickets and live updates.
+              Monitor case workflows, track employee performance, and maintain compliance with real-time dashboards and automated reporting.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
               <Button

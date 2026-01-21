@@ -31,15 +31,15 @@ const SiteHeader = () => {
         <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink-0">
           <img
             src="/logos/aa-landholding-logo.webp"
-            alt="AA Landholding Reg & Info Agency logo"
+            alt="CTTCS Solution logo"
             className="h-9 sm:h-10 w-9 sm:w-10 rounded-full object-cover flex-shrink-0"
           />
           <div className="hidden sm:flex flex-col min-w-0">
             <span className="font-display text-sm sm:text-base font-semibold tracking-tight text-foreground truncate">
-              AA Landholding Reg & Info Agency
+              CTTCS Solution
             </span>
             <span className="text-xs text-muted-foreground truncate">
-              Scan, wait freely, stay informed
+              Track cases, ensure compliance
             </span>
           </div>
         </Link>

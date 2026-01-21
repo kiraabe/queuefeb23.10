@@ -10,17 +10,15 @@ const SiteFooter = () => {
           <div className="flex items-center gap-2">
             <img
               src="/logos/aa-landholding-logo.webp"
-              alt="AA Landholding Reg & Info Agency logo"
+              alt="CTTCS Solution logo"
               className="h-10 w-10 rounded-full object-cover"
             />
             <span className="font-display text-xl font-semibold tracking-tight text-foreground">
-              AA Landholding Reg & Info Agency
+              CTTCS Solution
             </span>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Transform long lines into effortless experiences. Our QR-powered
-            virtual queuing gives teams real-time control and guests the freedom
-            to wait comfortably from anywhere.
+            Streamline case management and track time compliance in real-time. CTTCS Solution empowers organizations with comprehensive tracking, performance metrics, and automated workflows to ensure efficiency and accountability.
           </p>
           <div className="flex flex-wrap gap-3 text-sm font-medium text-muted-foreground">
             <a
