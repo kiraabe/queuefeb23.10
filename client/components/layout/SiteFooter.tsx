@@ -18,7 +18,10 @@ const SiteFooter = () => {
             </span>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            Streamline case management and track time compliance in real-time. CTTCS Solution empowers organizations with comprehensive tracking, performance metrics, and automated workflows to ensure efficiency and accountability.
+            Streamline case management and track time compliance in real-time.
+            CTTCS Solution empowers organizations with comprehensive tracking,
+            performance metrics, and automated workflows to ensure efficiency
+            and accountability.
           </p>
           <div className="flex flex-wrap gap-3 text-sm font-medium text-muted-foreground">
             <a

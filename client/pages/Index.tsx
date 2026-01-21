@@ -374,7 +374,8 @@ export default function Index() {
               </span>
             </h1>
             <p className="max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Monitor case workflows, track employee performance, and maintain compliance with real-time dashboards and automated reporting.
+              Monitor case workflows, track employee performance, and maintain
+              compliance with real-time dashboards and automated reporting.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
               <Button
