@@ -637,7 +637,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       FROM employee_case_performance ecp
       LEFT JOIN users u ON ecp.employee_id = u.id
       LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      WHERE t.created_at >= $1 AND t.created_at <= $2 AND ecp.step_type = 'employee'
+      WHERE t.created_at >= $1 AND t.created_at <= $2
       GROUP BY ecp.employee_id, u.full_name, u.username
       ORDER BY cases_completed DESC`,
       [fromDate, toDate],
