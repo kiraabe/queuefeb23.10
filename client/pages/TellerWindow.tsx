@@ -860,6 +860,11 @@ export default function TellerWindow() {
                   <span className="font-display text-xl font-semibold tracking-tight">
                     {tellerFullName ? `${tellerFullName} - ${w.name}` : w.name}
                   </span>
+                  {tellerJobTitle && (
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {tellerJobTitle}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     {new Date(w.updatedAt).toLocaleTimeString()}
                   </span>
