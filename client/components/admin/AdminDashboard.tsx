@@ -142,13 +142,15 @@ export default function AdminDashboard() {
       return ticketDate === today;
     });
 
-    // Serving time calculations
+    // All-time serving time calculations from completed tickets
     const completedWithTiming = completed.filter(
       (t) => t.startedAt && t.completedAt,
     );
     const servingTimes = completedWithTiming.map(
       (t) => (t.completedAt! - t.startedAt!) / 1000,
     );
+
+    // Average handling time from all completed tickets with timing data
     const avgHandlingTime =
       servingTimes.length > 0
         ? Math.round(
