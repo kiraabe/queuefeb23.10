@@ -156,14 +156,29 @@ export default function AdminDashboard() {
           )
         : null;
 
-    // Wait time calculations
-    const waitingTimes = waiting.map((t) => (now - t.createdAt) / 1000);
+    // All-time wait time calculations (from all tickets that have had wait time)
+    const allTicketsWithWaitTime = ticketList.filter(
+      (t) => t.createdAt && t.startedAt,
+    );
+    const allWaitTimes = allTicketsWithWaitTime.map(
+      (t) => (t.startedAt! - t.createdAt) / 1000,
+    );
+
+    // For currently waiting tickets, calculate current wait time
+    const currentWaitingTimes = waiting.map((t) => (now - t.createdAt) / 1000);
+
+    // Combine all historical wait times with current wait times for longest wait
+    const allWaitsForLongestCalc = [...allWaitTimes, ...currentWaitingTimes];
     const longestWait =
-      waitingTimes.length > 0 ? Math.round(Math.max(...waitingTimes)) : null;
+      allWaitsForLongestCalc.length > 0
+        ? Math.round(Math.max(...allWaitsForLongestCalc))
+        : null;
+
+    // Average wait time from all tickets that have completed waiting
     const avgWait =
-      waitingTimes.length > 0
+      allWaitTimes.length > 0
         ? Math.round(
-            waitingTimes.reduce((a, b) => a + b, 0) / waitingTimes.length,
+            allWaitTimes.reduce((a, b) => a + b, 0) / allWaitTimes.length,
           )
         : null;
 
