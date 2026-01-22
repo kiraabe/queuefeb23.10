@@ -364,134 +364,132 @@ export default function Queue() {
         <div className="relative w-full h-full p-4 sm:p-6 lg:p-8 overflow-auto">
           <div className="absolute -inset-6 sm:-inset-8 -z-10 rounded-2xl sm:rounded-[36px] bg-gradient-to-br from-primary/20 via-sky-400/10 to-indigo-500/10 blur-2xl" />
           <Card className="w-full h-full border-border/60 bg-card/90 p-3 sm:p-4 md:p-6 lg:p-8 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
-              <CardHeader className="space-y-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  <SignalHigh className="h-4 w-4" />{" "}
-                  {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
-                </div>
-                <CardTitle className="text-2xl">Live Queue</CardTitle>
-                <CardDescription>
-                  Global first-in-first-out view
-                </CardDescription>
-              </CardHeader>
-          <CardContent className="w-full space-y-3 sm:space-y-4 flex-1 overflow-auto">
-            {/* Aggregated current/next list */}
-            <div className="w-full space-y-2 sm:space-y-3">
-              <div className="w-full rounded-lg sm:rounded-2xl border border-green-500/40 bg-green-500/10 p-3 sm:p-4">
-                <p className="text-xs uppercase tracking-widest text-green-600 font-medium">
-                  Now Serving
-                </p>
-                {serving.length ? (
-                  <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
-                    {serving.map(({ window, ticket }) => (
-                      <div
-                        key={ticket.id}
-                        className="flex items-center justify-between rounded-xl bg-card/80 p-3"
-                      >
-                        <span
-                          className={cn(
-                            "font-display text-2xl font-semibold",
-                            blinkingTicketIds.has(ticket.id)
-                              ? "animate-blink"
-                              : "",
-                          )}
+            <CardHeader className="space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <SignalHigh className="h-4 w-4" />{" "}
+                {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
+              </div>
+              <CardTitle className="text-2xl">Live Queue</CardTitle>
+              <CardDescription>Global first-in-first-out view</CardDescription>
+            </CardHeader>
+            <CardContent className="w-full space-y-3 sm:space-y-4 flex-1 overflow-auto">
+              {/* Aggregated current/next list */}
+              <div className="w-full space-y-2 sm:space-y-3">
+                <div className="w-full rounded-lg sm:rounded-2xl border border-green-500/40 bg-green-500/10 p-3 sm:p-4">
+                  <p className="text-xs uppercase tracking-widest text-green-600 font-medium">
+                    Now Serving
+                  </p>
+                  {serving.length ? (
+                    <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
+                      {serving.map(({ window, ticket }) => (
+                        <div
+                          key={ticket.id}
+                          className="flex items-center justify-between rounded-xl bg-card/80 p-3"
                         >
-                          {ticket.code}
-                        </span>
-                        <div className="text-sm text-right">
-                          {window?.name ? (
-                            <span className="text-muted-foreground">
-                              {window.name}
-                            </span>
-                          ) : ticket.currentEmployee ? (
-                            <div className="space-y-0.5">
-                              <p className="font-medium text-foreground">
-                                {ticket.currentEmployee.fullName}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {ticket.currentEmployee.jobTitle}
-                              </p>
-                              {ticket.currentEmployee.jobTitleAmharic && (
-                                <p className="text-xs text-muted-foreground font-medium">
-                                  {ticket.currentEmployee.jobTitleAmharic}
+                          <span
+                            className={cn(
+                              "font-display text-2xl font-semibold",
+                              blinkingTicketIds.has(ticket.id)
+                                ? "animate-blink"
+                                : "",
+                            )}
+                          >
+                            {ticket.code}
+                          </span>
+                          <div className="text-sm text-right">
+                            {window?.name ? (
+                              <span className="text-muted-foreground">
+                                {window.name}
+                              </span>
+                            ) : ticket.currentEmployee ? (
+                              <div className="space-y-0.5">
+                                <p className="font-medium text-foreground">
+                                  {ticket.currentEmployee.fullName}
                                 </p>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Employee
-                            </span>
-                          )}
+                                <p className="text-xs text-muted-foreground">
+                                  {ticket.currentEmployee.jobTitle}
+                                </p>
+                                {ticket.currentEmployee.jobTitleAmharic && (
+                                  <p className="text-xs text-muted-foreground font-medium">
+                                    {ticket.currentEmployee.jobTitleAmharic}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                Employee
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-muted-foreground">—</p>
+                  )}
+                </div>
+
+                <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 w-full">
+                  <div className="w-full rounded-lg sm:rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-4">
+                    <p className="text-xs uppercase tracking-widest text-amber-600 font-medium">
+                      Next
+                    </p>
+                    <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
+                      {nextTicket?.code ?? "—"}
+                    </p>
                   </div>
-                ) : (
-                  <p className="mt-1 text-muted-foreground">—</p>
+                  <div className="w-full rounded-lg sm:rounded-2xl border border-sky-500/40 bg-sky-500/10 p-3 sm:p-4">
+                    <p className="text-xs uppercase tracking-widest text-sky-600 font-medium">
+                      Next After
+                    </p>
+                    <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
+                      {nextAfterTicket?.code ?? "—"}
+                    </p>
+                  </div>
+                </div>
+
+                {restTickets.length > 0 && (
+                  <div className="w-full rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
+                    <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground font-medium">
+                      Waiting
+                    </p>
+                    <ol className="grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
+                      {restTickets.map((entry) => (
+                        <li
+                          key={entry.id}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Ticket ${entry.code}`}
+                          className="rounded-xl bg-card/80 p-3 font-medium outline-none focus:ring-2 focus:ring-primary/50"
+                          onClick={() => activateEntry(entry.code)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              activateEntry(entry.code);
+                            }
+                          }}
+                        >
+                          {entry.code}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 )}
               </div>
 
-              <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 w-full">
-                <div className="w-full rounded-lg sm:rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-4">
-                  <p className="text-xs uppercase tracking-widest text-amber-600 font-medium">
-                    Next
+              <div className="w-full flex items-start justify-between gap-3 rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 text-xs sm:text-sm text-primary">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-widest font-medium">
+                    Action
                   </p>
-                  <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
-                    {nextTicket?.code ?? "—"}
-                  </p>
-                </div>
-                <div className="w-full rounded-lg sm:rounded-2xl border border-sky-500/40 bg-sky-500/10 p-3 sm:p-4">
-                  <p className="text-xs uppercase tracking-widest text-sky-600 font-medium">
-                    Next After
-                  </p>
-                  <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
-                    {nextAfterTicket?.code ?? "—"}
+                  <p className="font-semibold text-sm sm:text-base break-words">
+                    {actionMessage}
                   </p>
                 </div>
+                <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
               </div>
-
-              {restTickets.length > 0 && (
-                <div className="w-full rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
-                  <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    Waiting
-                  </p>
-                  <ol className="grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
-                    {restTickets.map((entry) => (
-                      <li
-                        key={entry.id}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`Ticket ${entry.code}`}
-                        className="rounded-xl bg-card/80 p-3 font-medium outline-none focus:ring-2 focus:ring-primary/50"
-                        onClick={() => activateEntry(entry.code)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            activateEntry(entry.code);
-                          }
-                        }}
-                      >
-                        {entry.code}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-            </div>
-
-            <div className="w-full flex items-start justify-between gap-3 rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 text-xs sm:text-sm text-primary">
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-widest font-medium">
-                  Action
-                </p>
-                <p className="font-semibold text-sm sm:text-base break-words">
-                  {actionMessage}
-                </p>
-              </div>
-              <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
