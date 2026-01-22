@@ -541,6 +541,18 @@ export default function TellerWindow() {
       apiFetch<ListJobTitlesResponse>("/api/admin/job-titles"),
   });
 
+  // Load teller job title from auth user's jobTitleId
+  useEffect(() => {
+    if (user?.jobTitleId && jobTitlesQuery.data?.jobTitles) {
+      const jobTitle = jobTitlesQuery.data.jobTitles.find(
+        (jt) => jt.id === user.jobTitleId,
+      );
+      if (jobTitle) {
+        setTellerJobTitle(jobTitle.nameAmharic || jobTitle.nameEnglish);
+      }
+    }
+  }, [user?.jobTitleId, jobTitlesQuery.data?.jobTitles]);
+
   // Fetch users with selected job title for transfer dialog
   const usersQuery = useQuery({
     queryKey: ["users-for-transfer", selectedJobTitleId],
