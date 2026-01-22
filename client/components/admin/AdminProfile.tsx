@@ -61,25 +61,6 @@ export default function AdminProfile() {
     }
   };
 
-  const handleSaveEmail = async () => {
-    if (!email || !email.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
-    setIsSavingEmail(true);
-    try {
-      // Simulate email save (in a real app, this would call an API)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      toast.success("Email saved successfully");
-      setIsEditingEmail(false);
-    } catch (error) {
-      toast.error("Failed to save email");
-    } finally {
-      setIsSavingEmail(false);
-    }
-  };
-
   const getInitials = (username: string) => {
     return username
       .split(" ")
