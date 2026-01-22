@@ -412,24 +412,24 @@ export default function Queue() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-6 text-5xl lg:text-6xl text-muted-foreground font-light">—</p>
+                    <p className="mt-2 text-2xl lg:text-4xl text-muted-foreground font-light">—</p>
                   )}
                 </div>
 
-                <div className="grid gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-2 w-full">
-                  <div className="w-full rounded-3xl border-3 border-amber-500/50 bg-amber-500/15 p-8 lg:p-10">
-                    <p className="text-base lg:text-3xl uppercase tracking-wider text-amber-700 font-bold">
+                <div className="grid gap-2 lg:gap-3 grid-cols-1 lg:grid-cols-2 w-full">
+                  <div className="w-full rounded-xl lg:rounded-2xl border-2 border-amber-500/50 bg-amber-500/15 p-3 lg:p-5">
+                    <p className="text-xs lg:text-lg uppercase tracking-wider text-amber-700 font-bold">
                       Next
                     </p>
-                    <p className="mt-6 lg:mt-8 font-display text-5xl lg:text-7xl font-bold text-foreground">
+                    <p className="mt-2 lg:mt-3 font-display text-2xl lg:text-4xl font-bold text-foreground">
                       {nextTicket?.code ?? "—"}
                     </p>
                   </div>
-                  <div className="w-full rounded-3xl border-3 border-sky-500/50 bg-sky-500/15 p-8 lg:p-10">
-                    <p className="text-base lg:text-3xl uppercase tracking-wider text-sky-700 font-bold">
+                  <div className="w-full rounded-xl lg:rounded-2xl border-2 border-sky-500/50 bg-sky-500/15 p-3 lg:p-5">
+                    <p className="text-xs lg:text-lg uppercase tracking-wider text-sky-700 font-bold">
                       Next After
                     </p>
-                    <p className="mt-6 lg:mt-8 font-display text-5xl lg:text-7xl font-bold text-foreground">
+                    <p className="mt-2 lg:mt-3 font-display text-2xl lg:text-4xl font-bold text-foreground">
                       {nextAfterTicket?.code ?? "—"}
                     </p>
                   </div>
