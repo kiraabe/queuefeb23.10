@@ -385,25 +385,25 @@ export default function Queue() {
                           </span>
                           <div className="text-sm lg:text-xl text-right">
                             {window?.name ? (
-                              <span className="text-muted-foreground font-bold text-lg lg:text-2xl">
+                              <span className="text-muted-foreground font-bold text-xs lg:text-lg">
                                 {window.name}
                               </span>
                             ) : ticket.currentEmployee ? (
-                              <div className="space-y-2">
-                                <p className="font-bold text-foreground text-lg lg:text-2xl">
+                              <div className="space-y-0.5">
+                                <p className="font-bold text-foreground text-xs lg:text-base">
                                   {ticket.currentEmployee.fullName}
                                 </p>
-                                <p className="text-base lg:text-xl text-muted-foreground">
+                                <p className="text-xs lg:text-sm text-muted-foreground">
                                   {ticket.currentEmployee.jobTitle}
                                 </p>
                                 {ticket.currentEmployee.jobTitleAmharic && (
-                                  <p className="text-base lg:text-xl text-muted-foreground font-semibold">
+                                  <p className="text-xs lg:text-sm text-muted-foreground font-semibold">
                                     {ticket.currentEmployee.jobTitleAmharic}
                                   </p>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-muted-foreground font-bold text-lg lg:text-2xl">
+                              <span className="text-muted-foreground font-bold text-xs lg:text-lg">
                                 Employee
                               </span>
                             )}
