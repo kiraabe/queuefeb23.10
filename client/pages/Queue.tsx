@@ -371,11 +371,11 @@ export default function Queue() {
                       {serving.map(({ window, ticket }) => (
                         <div
                           key={ticket.id}
-                          className="flex items-center justify-between rounded-3xl bg-card/95 p-8 lg:p-10 border-2 border-green-500/30 shadow-lg"
+                          className="flex items-center justify-between rounded-xl lg:rounded-2xl bg-card/95 p-3 lg:p-5 border-2 border-green-500/30"
                         >
                           <span
                             className={cn(
-                              "font-display text-6xl lg:text-8xl font-bold text-green-600",
+                              "font-display text-4xl lg:text-6xl font-bold text-green-600",
                               blinkingTicketIds.has(ticket.id)
                                 ? "animate-blink"
                                 : "",
@@ -383,7 +383,7 @@ export default function Queue() {
                           >
                             {ticket.code}
                           </span>
-                          <div className="text-lg lg:text-3xl text-right">
+                          <div className="text-sm lg:text-xl text-right">
                             {window?.name ? (
                               <span className="text-muted-foreground font-bold text-lg lg:text-2xl">
                                 {window.name}
