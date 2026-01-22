@@ -779,6 +779,9 @@ export default function TellerWindow() {
             ? `${tellerFullName} – Window ${windowId}`
             : `Window ${windowId}`}
         </h1>
+        {tellerJobTitle && (
+          <p className="mb-3 text-sm text-muted-foreground">{tellerJobTitle}</p>
+        )}
         {windowServiceNames.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {windowServiceNames.map((serviceName) => (
