@@ -412,24 +412,24 @@ export default function Queue() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-4 text-4xl lg:text-5xl text-muted-foreground font-light">—</p>
+                    <p className="mt-6 text-5xl lg:text-6xl text-muted-foreground font-light">—</p>
                   )}
                 </div>
 
-                <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 w-full">
-                  <div className="w-full rounded-lg sm:rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-4">
-                    <p className="text-xs uppercase tracking-widest text-amber-600 font-medium">
+                <div className="grid gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-2 w-full">
+                  <div className="w-full rounded-3xl border-3 border-amber-500/50 bg-amber-500/15 p-8 lg:p-10">
+                    <p className="text-base lg:text-3xl uppercase tracking-wider text-amber-700 font-bold">
                       Next
                     </p>
-                    <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
+                    <p className="mt-6 lg:mt-8 font-display text-5xl lg:text-7xl font-bold text-foreground">
                       {nextTicket?.code ?? "—"}
                     </p>
                   </div>
-                  <div className="w-full rounded-lg sm:rounded-2xl border border-sky-500/40 bg-sky-500/10 p-3 sm:p-4">
-                    <p className="text-xs uppercase tracking-widest text-sky-600 font-medium">
+                  <div className="w-full rounded-3xl border-3 border-sky-500/50 bg-sky-500/15 p-8 lg:p-10">
+                    <p className="text-base lg:text-3xl uppercase tracking-wider text-sky-700 font-bold">
                       Next After
                     </p>
-                    <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
+                    <p className="mt-6 lg:mt-8 font-display text-5xl lg:text-7xl font-bold text-foreground">
                       {nextAfterTicket?.code ?? "—"}
                     </p>
                   </div>
