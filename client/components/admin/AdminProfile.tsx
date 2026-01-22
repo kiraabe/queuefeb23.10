@@ -130,7 +130,9 @@ export default function AdminProfile() {
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Primary Role</Label>
+              <Label className="text-xs text-muted-foreground">
+                Primary Role
+              </Label>
               <p className="font-medium capitalize">{user.role}</p>
             </div>
 
@@ -144,19 +146,28 @@ export default function AdminProfile() {
             )}
 
             <div>
-              <Label className="text-xs text-muted-foreground">Account Type</Label>
+              <Label className="text-xs text-muted-foreground">
+                Account Type
+              </Label>
               <p className="font-medium">System Administrator</p>
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Created Date</Label>
+              <Label className="text-xs text-muted-foreground">
+                Created Date
+              </Label>
               <p className="font-medium">
-                {format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), "MMM d, yyyy")}
+                {format(
+                  new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                  "MMM d, yyyy",
+                )}
               </p>
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Last Login</Label>
+              <Label className="text-xs text-muted-foreground">
+                Last Login
+              </Label>
               <p className="font-medium">
                 {format(new Date(), "MMM d, yyyy HH:mm:ss")}
               </p>
