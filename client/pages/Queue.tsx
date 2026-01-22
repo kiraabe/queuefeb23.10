@@ -359,23 +359,23 @@ export default function Queue() {
               <CardTitle className="text-4xl lg:text-6xl font-bold">Live Queue</CardTitle>
               <CardDescription className="text-lg lg:text-2xl">Global first-in-first-out view</CardDescription>
             </CardHeader>
-            <CardContent className="w-full space-y-3 sm:space-y-4 flex-1 overflow-auto">
+            <CardContent className="w-full space-y-6 lg:space-y-8 flex-1 overflow-auto">
               {/* Aggregated current/next list */}
-              <div className="w-full space-y-2 sm:space-y-3">
-                <div className="w-full rounded-lg sm:rounded-2xl border border-green-500/40 bg-green-500/10 p-3 sm:p-4">
-                  <p className="text-xs uppercase tracking-widest text-green-600 font-medium">
+              <div className="w-full space-y-4 lg:space-y-6">
+                <div className="w-full rounded-2xl lg:rounded-3xl border-2 border-green-500/40 bg-green-500/10 p-6 lg:p-8">
+                  <p className="text-sm lg:text-2xl uppercase tracking-widest text-green-600 font-bold">
                     Now Serving
                   </p>
                   {serving.length ? (
-                    <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
+                    <div className="mt-6 grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2 w-full">
                       {serving.map(({ window, ticket }) => (
                         <div
                           key={ticket.id}
-                          className="flex items-center justify-between rounded-xl bg-card/80 p-3"
+                          className="flex items-center justify-between rounded-2xl bg-card/90 p-6 lg:p-8 border border-border/40"
                         >
                           <span
                             className={cn(
-                              "font-display text-2xl font-semibold",
+                              "font-display text-5xl lg:text-7xl font-bold",
                               blinkingTicketIds.has(ticket.id)
                                 ? "animate-blink"
                                 : "",
@@ -383,27 +383,27 @@ export default function Queue() {
                           >
                             {ticket.code}
                           </span>
-                          <div className="text-sm text-right">
+                          <div className="text-base lg:text-2xl text-right">
                             {window?.name ? (
-                              <span className="text-muted-foreground">
+                              <span className="text-muted-foreground font-medium">
                                 {window.name}
                               </span>
                             ) : ticket.currentEmployee ? (
-                              <div className="space-y-0.5">
-                                <p className="font-medium text-foreground">
+                              <div className="space-y-1">
+                                <p className="font-bold text-foreground">
                                   {ticket.currentEmployee.fullName}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-base lg:text-lg text-muted-foreground">
                                   {ticket.currentEmployee.jobTitle}
                                 </p>
                                 {ticket.currentEmployee.jobTitleAmharic && (
-                                  <p className="text-xs text-muted-foreground font-medium">
+                                  <p className="text-base lg:text-lg text-muted-foreground font-medium">
                                     {ticket.currentEmployee.jobTitleAmharic}
                                   </p>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-muted-foreground">
+                              <span className="text-muted-foreground font-medium">
                                 Employee
                               </span>
                             )}
@@ -412,7 +412,7 @@ export default function Queue() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-1 text-muted-foreground">—</p>
+                    <p className="mt-4 text-4xl lg:text-5xl text-muted-foreground font-light">—</p>
                   )}
                 </div>
 
