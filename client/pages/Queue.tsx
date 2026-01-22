@@ -385,25 +385,25 @@ export default function Queue() {
                           </span>
                           <div className="text-lg lg:text-3xl text-right">
                             {window?.name ? (
-                              <span className="text-muted-foreground font-medium">
+                              <span className="text-muted-foreground font-bold text-lg lg:text-2xl">
                                 {window.name}
                               </span>
                             ) : ticket.currentEmployee ? (
-                              <div className="space-y-1">
-                                <p className="font-bold text-foreground">
+                              <div className="space-y-2">
+                                <p className="font-bold text-foreground text-lg lg:text-2xl">
                                   {ticket.currentEmployee.fullName}
                                 </p>
-                                <p className="text-base lg:text-lg text-muted-foreground">
+                                <p className="text-base lg:text-xl text-muted-foreground">
                                   {ticket.currentEmployee.jobTitle}
                                 </p>
                                 {ticket.currentEmployee.jobTitleAmharic && (
-                                  <p className="text-base lg:text-lg text-muted-foreground font-medium">
+                                  <p className="text-base lg:text-xl text-muted-foreground font-semibold">
                                     {ticket.currentEmployee.jobTitleAmharic}
                                   </p>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-muted-foreground font-medium">
+                              <span className="text-muted-foreground font-bold text-lg lg:text-2xl">
                                 Employee
                               </span>
                             )}
