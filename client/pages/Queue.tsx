@@ -360,14 +360,14 @@ export default function Queue() {
               <CardDescription className="text-base lg:text-xl">Global first-in-first-out view</CardDescription>
             </CardHeader>
             <CardContent className="w-full space-y-3 lg:space-y-4 flex-1 overflow-hidden flex flex-col">
-              {/* Aggregated current/next list - TV Optimized */}
-              <div className="w-full space-y-4 lg:space-y-6">
-                <div className="w-full rounded-3xl border-3 border-green-500/50 bg-green-500/15 p-8 lg:p-10">
-                  <p className="text-base lg:text-3xl uppercase tracking-wider text-green-700 font-bold">
+              {/* Aggregated current/next list - TV Optimized No Scroll */}
+              <div className="w-full space-y-2 lg:space-y-3">
+                <div className="w-full rounded-2xl lg:rounded-3xl border-2 lg:border-3 border-green-500/50 bg-green-500/15 p-4 lg:p-6">
+                  <p className="text-sm lg:text-2xl uppercase tracking-wider text-green-700 font-bold">
                     Now Serving
                   </p>
                   {serving.length ? (
-                    <div className="mt-8 grid gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-2 w-full">
+                    <div className="mt-3 lg:mt-4 grid gap-3 lg:gap-4 grid-cols-1 lg:grid-cols-2 w-full">
                       {serving.map(({ window, ticket }) => (
                         <div
                           key={ticket.id}
