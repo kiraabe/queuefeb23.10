@@ -243,6 +243,18 @@ export default function TellerWindow() {
     }
   }, [user?.fullName]);
 
+  // Load teller job title from auth user's jobTitleId
+  useEffect(() => {
+    if (user?.jobTitleId && jobTitlesQuery.data?.jobTitles) {
+      const jobTitle = jobTitlesQuery.data.jobTitles.find(
+        (jt) => jt.id === user.jobTitleId,
+      );
+      if (jobTitle) {
+        setTellerJobTitle(jobTitle.nameAmharic || jobTitle.nameEnglish);
+      }
+    }
+  }, [user?.jobTitleId, jobTitlesQuery.data?.jobTitles]);
+
   // Reset tab selection and clear ticket data every 24 hours when tickets reset
   useEffect(() => {
     const now = new Date();
