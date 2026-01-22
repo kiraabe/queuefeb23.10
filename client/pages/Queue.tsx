@@ -356,8 +356,12 @@ export default function Queue() {
                 <SignalHigh className="h-4 lg:h-5 w-4 lg:w-5" />{" "}
                 {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
               </div>
-              <CardTitle className="text-3xl lg:text-5xl font-bold">Live Queue</CardTitle>
-              <CardDescription className="text-base lg:text-xl">Global first-in-first-out view</CardDescription>
+              <CardTitle className="text-3xl lg:text-5xl font-bold">
+                Live Queue
+              </CardTitle>
+              <CardDescription className="text-base lg:text-xl">
+                Global first-in-first-out view
+              </CardDescription>
             </CardHeader>
             <CardContent className="w-full space-y-3 lg:space-y-4 flex-1 overflow-hidden flex flex-col">
               {/* Aggregated current/next list - TV Optimized No Scroll */}
@@ -412,7 +416,9 @@ export default function Queue() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-2xl lg:text-4xl text-muted-foreground font-light">—</p>
+                    <p className="mt-2 text-2xl lg:text-4xl text-muted-foreground font-light">
+                      —
+                    </p>
                   )}
                 </div>
 
@@ -436,47 +442,47 @@ export default function Queue() {
                 </div>
 
                 {restTickets.length > 0 && (
-                    <div className="w-full rounded-xl lg:rounded-2xl border-2 border-border/60 bg-background/70 p-3 lg:p-4">
-                      <p className="mb-2 text-xs lg:text-lg uppercase tracking-wider text-muted-foreground font-bold">
-                        Waiting
-                      </p>
-                      <ol className="grid gap-2 lg:gap-3 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 w-full">
-                        {restTickets.slice(0, 12).map((entry) => (
-                          <li
-                            key={entry.id}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Ticket ${entry.code}`}
-                            className="rounded-lg bg-card/95 p-2 lg:p-3 font-bold text-sm lg:text-2xl outline-none focus:ring-2 focus:ring-primary/60 border border-border/40 cursor-pointer hover:bg-card transition-colors text-center"
-                            onClick={() => activateEntry(entry.code)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                activateEntry(entry.code);
-                              }
-                            }}
-                          >
-                            {entry.code}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full flex items-center justify-between gap-3 lg:gap-4 rounded-xl lg:rounded-2xl border-2 border-primary/40 bg-primary/10 p-3 lg:p-4 text-xs lg:text-lg text-primary">
-                  <div className="min-w-0">
-                    <p className="text-xs lg:text-lg uppercase tracking-wider font-bold">
-                      Action
+                  <div className="w-full rounded-xl lg:rounded-2xl border-2 border-border/60 bg-background/70 p-3 lg:p-4">
+                    <p className="mb-2 text-xs lg:text-lg uppercase tracking-wider text-muted-foreground font-bold">
+                      Waiting
                     </p>
-                    <p className="font-bold text-sm lg:text-xl break-words">
-                      {actionMessage}
-                    </p>
+                    <ol className="grid gap-2 lg:gap-3 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 w-full">
+                      {restTickets.slice(0, 12).map((entry) => (
+                        <li
+                          key={entry.id}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Ticket ${entry.code}`}
+                          className="rounded-lg bg-card/95 p-2 lg:p-3 font-bold text-sm lg:text-2xl outline-none focus:ring-2 focus:ring-primary/60 border border-border/40 cursor-pointer hover:bg-card transition-colors text-center"
+                          onClick={() => activateEntry(entry.code)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              activateEntry(entry.code);
+                            }
+                          }}
+                        >
+                          {entry.code}
+                        </li>
+                      ))}
+                    </ol>
                   </div>
-                  <Sparkles className="h-5 lg:h-7 w-5 lg:w-7 flex-shrink-0" />
+                )}
+              </div>
+
+              <div className="w-full flex items-center justify-between gap-3 lg:gap-4 rounded-xl lg:rounded-2xl border-2 border-primary/40 bg-primary/10 p-3 lg:p-4 text-xs lg:text-lg text-primary">
+                <div className="min-w-0">
+                  <p className="text-xs lg:text-lg uppercase tracking-wider font-bold">
+                    Action
+                  </p>
+                  <p className="font-bold text-sm lg:text-xl break-words">
+                    {actionMessage}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+                <Sparkles className="h-5 lg:h-7 w-5 lg:w-7 flex-shrink-0" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
