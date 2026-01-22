@@ -22,7 +22,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
