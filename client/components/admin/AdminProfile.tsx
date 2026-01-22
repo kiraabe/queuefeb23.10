@@ -222,49 +222,6 @@ export default function AdminProfile() {
           </Alert>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <div className="flex gap-2">
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={!isEditingEmail}
-              />
-              {isEditingEmail ? (
-                <>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveEmail}
-                    disabled={isSavingEmail}
-                  >
-                    <Check className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setIsEditingEmail(false);
-                      setEmail(`${user.username}@system.local`);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsEditingEmail(true)}
-                >
-                  Edit
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="theme">Theme Preference</Label>
             {mounted && (
               <div className="flex gap-2">
