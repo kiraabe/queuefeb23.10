@@ -348,18 +348,18 @@ export default function Queue() {
         ref={containerRef}
         className="fixed inset-0 w-full h-full bg-background overflow-hidden"
       >
-        {/* Live Queue Card - Full Screen TV Optimized */}
-        <div className="relative w-full h-full p-6 lg:p-12 overflow-auto flex flex-col">
-          <Card className="w-full h-full border-border/60 bg-card/95 p-8 lg:p-12 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
-            <CardHeader className="space-y-4 lg:space-y-6 mb-4">
-              <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-base lg:text-xl font-semibold text-primary w-fit">
-                <SignalHigh className="h-5 lg:h-6 w-5 lg:w-6" />{" "}
+        {/* Live Queue Card - Full Screen TV Optimized (No Scroll) */}
+        <div className="relative w-full h-full p-4 lg:p-8 flex flex-col">
+          <Card className="w-full h-full border-border/60 bg-card/95 p-6 lg:p-8 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
+            <CardHeader className="space-y-2 lg:space-y-3 mb-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm lg:text-lg font-semibold text-primary w-fit">
+                <SignalHigh className="h-4 lg:h-5 w-4 lg:w-5" />{" "}
                 {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
               </div>
-              <CardTitle className="text-4xl lg:text-6xl font-bold">Live Queue</CardTitle>
-              <CardDescription className="text-lg lg:text-2xl">Global first-in-first-out view</CardDescription>
+              <CardTitle className="text-3xl lg:text-5xl font-bold">Live Queue</CardTitle>
+              <CardDescription className="text-base lg:text-xl">Global first-in-first-out view</CardDescription>
             </CardHeader>
-            <CardContent className="w-full space-y-6 lg:space-y-8 flex-1 overflow-auto">
+            <CardContent className="w-full space-y-3 lg:space-y-4 flex-1 overflow-hidden flex flex-col">
               {/* Aggregated current/next list - TV Optimized */}
               <div className="w-full space-y-4 lg:space-y-6">
                 <div className="w-full rounded-3xl border-3 border-green-500/50 bg-green-500/15 p-8 lg:p-10">
