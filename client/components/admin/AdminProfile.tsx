@@ -31,18 +31,11 @@ export default function AdminProfile() {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [email, setEmail] = useState("");
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [loginTime] = useState(new Date());
 
   useEffect(() => {
     setMounted(true);
-    // Set default email based on username
-    if (user && !email) {
-      setEmail(`${user.username}@system.local`);
-    }
-  }, [user, email]);
+  }, []);
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
