@@ -341,36 +341,23 @@ export default function Queue() {
     } catch {}
   };
 
-  // Fullscreen view with just the Live Queue card
+  // Fullscreen view optimized for TV display
   if (isFs) {
     return (
       <div
         ref={containerRef}
         className="fixed inset-0 w-full h-full bg-background overflow-hidden"
       >
-        {/* Exit Button - Positioned in corner */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={toggleFs}
-          aria-pressed={isFs}
-          aria-label="Exit full screen"
-          className="absolute top-4 right-4 z-50 text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4"
-        >
-          Exit FS
-        </Button>
-
-        {/* Live Queue Card - Full Screen */}
-        <div className="relative w-full h-full p-4 sm:p-6 lg:p-8 overflow-auto">
-          <div className="absolute -inset-6 sm:-inset-8 -z-10 rounded-2xl sm:rounded-[36px] bg-gradient-to-br from-primary/20 via-sky-400/10 to-indigo-500/10 blur-2xl" />
-          <Card className="w-full h-full border-border/60 bg-card/90 p-3 sm:p-4 md:p-6 lg:p-8 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
-            <CardHeader className="space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <SignalHigh className="h-4 w-4" />{" "}
+        {/* Live Queue Card - Full Screen TV Optimized */}
+        <div className="relative w-full h-full p-6 lg:p-12 overflow-auto flex flex-col">
+          <Card className="w-full h-full border-border/60 bg-card/95 p-8 lg:p-12 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
+            <CardHeader className="space-y-4 lg:space-y-6 mb-4">
+              <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-base lg:text-xl font-semibold text-primary w-fit">
+                <SignalHigh className="h-5 lg:h-6 w-5 lg:w-6" />{" "}
                 {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
               </div>
-              <CardTitle className="text-2xl">Live Queue</CardTitle>
-              <CardDescription>Global first-in-first-out view</CardDescription>
+              <CardTitle className="text-4xl lg:text-6xl font-bold">Live Queue</CardTitle>
+              <CardDescription className="text-lg lg:text-2xl">Global first-in-first-out view</CardDescription>
             </CardHeader>
             <CardContent className="w-full space-y-3 sm:space-y-4 flex-1 overflow-auto">
               {/* Aggregated current/next list */}
