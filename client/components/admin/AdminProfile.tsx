@@ -157,28 +157,8 @@ export default function AdminProfile() {
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Email</Label>
-              <p className="font-medium">{email}</p>
-            </div>
-
-            <div>
               <Label className="text-xs text-muted-foreground">Primary Role</Label>
               <p className="font-medium capitalize">{user.role}</p>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">Available Roles</Label>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {user.roles && user.roles.length > 0 ? (
-                  user.roles.map((role) => (
-                    <Badge key={role} variant="outline" className="capitalize">
-                      {role}
-                    </Badge>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">None</p>
-                )}
-              </div>
             </div>
 
             {user.windowId && (
