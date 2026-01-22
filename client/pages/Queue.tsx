@@ -436,18 +436,18 @@ export default function Queue() {
                 </div>
 
                 {restTickets.length > 0 && (
-                    <div className="w-full rounded-3xl border-3 border-border/60 bg-background/70 p-8 lg:p-10">
-                      <p className="mb-6 text-base lg:text-3xl uppercase tracking-wider text-muted-foreground font-bold">
-                        Waiting Queue
+                    <div className="w-full rounded-xl lg:rounded-2xl border-2 border-border/60 bg-background/70 p-3 lg:p-4">
+                      <p className="mb-2 text-xs lg:text-lg uppercase tracking-wider text-muted-foreground font-bold">
+                        Waiting
                       </p>
-                      <ol className="grid gap-4 lg:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 w-full">
-                        {restTickets.map((entry) => (
+                      <ol className="grid gap-2 lg:gap-3 grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 w-full">
+                        {restTickets.slice(0, 12).map((entry) => (
                           <li
                             key={entry.id}
                             role="button"
                             tabIndex={0}
                             aria-label={`Ticket ${entry.code}`}
-                            className="rounded-2xl bg-card/95 p-4 lg:p-6 font-bold text-2xl lg:text-4xl outline-none focus:ring-3 focus:ring-primary/60 border-2 border-border/40 cursor-pointer hover:bg-card transition-colors text-center"
+                            className="rounded-lg bg-card/95 p-2 lg:p-3 font-bold text-sm lg:text-2xl outline-none focus:ring-2 focus:ring-primary/60 border border-border/40 cursor-pointer hover:bg-card transition-colors text-center"
                             onClick={() => activateEntry(entry.code)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
@@ -464,16 +464,16 @@ export default function Queue() {
                   )}
                 </div>
 
-                <div className="w-full flex items-start justify-between gap-6 lg:gap-8 rounded-3xl border-3 border-primary/40 bg-primary/10 p-8 lg:p-10 text-base lg:text-2xl text-primary">
+                <div className="w-full flex items-center justify-between gap-3 lg:gap-4 rounded-xl lg:rounded-2xl border-2 border-primary/40 bg-primary/10 p-3 lg:p-4 text-xs lg:text-lg text-primary">
                   <div className="min-w-0">
-                    <p className="text-base lg:text-3xl uppercase tracking-wider font-bold">
-                      Action Required
+                    <p className="text-xs lg:text-lg uppercase tracking-wider font-bold">
+                      Action
                     </p>
-                    <p className="font-bold text-2xl lg:text-4xl break-words mt-3 lg:mt-4">
+                    <p className="font-bold text-sm lg:text-xl break-words">
                       {actionMessage}
                     </p>
                   </div>
-                  <Sparkles className="h-7 lg:h-10 w-7 lg:w-10 flex-shrink-0 mt-1" />
+                  <Sparkles className="h-5 lg:h-7 w-5 lg:w-7 flex-shrink-0" />
                 </div>
               </CardContent>
             </Card>
