@@ -436,47 +436,47 @@ export default function Queue() {
                 </div>
 
                 {restTickets.length > 0 && (
-                  <div className="w-full rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
-                    <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                      Waiting
-                    </p>
-                    <ol className="grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
-                      {restTickets.map((entry) => (
-                        <li
-                          key={entry.id}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Ticket ${entry.code}`}
-                          className="rounded-xl bg-card/80 p-3 font-medium outline-none focus:ring-2 focus:ring-primary/50"
-                          onClick={() => activateEntry(entry.code)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              activateEntry(entry.code);
-                            }
-                          }}
-                        >
-                          {entry.code}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full flex items-start justify-between gap-3 rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 text-xs sm:text-sm text-primary">
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-widest font-medium">
-                    Action
-                  </p>
-                  <p className="font-semibold text-sm sm:text-base break-words">
-                    {actionMessage}
-                  </p>
+                    <div className="w-full rounded-3xl border-3 border-border/60 bg-background/70 p-8 lg:p-10">
+                      <p className="mb-6 text-base lg:text-3xl uppercase tracking-wider text-muted-foreground font-bold">
+                        Waiting Queue
+                      </p>
+                      <ol className="grid gap-4 lg:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 w-full">
+                        {restTickets.map((entry) => (
+                          <li
+                            key={entry.id}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Ticket ${entry.code}`}
+                            className="rounded-2xl bg-card/95 p-4 lg:p-6 font-bold text-2xl lg:text-4xl outline-none focus:ring-3 focus:ring-primary/60 border-2 border-border/40 cursor-pointer hover:bg-card transition-colors text-center"
+                            onClick={() => activateEntry(entry.code)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                activateEntry(entry.code);
+                              }
+                            }}
+                          >
+                            {entry.code}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
                 </div>
-                <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="w-full flex items-start justify-between gap-6 lg:gap-8 rounded-3xl border-3 border-primary/40 bg-primary/10 p-8 lg:p-10 text-base lg:text-2xl text-primary">
+                  <div className="min-w-0">
+                    <p className="text-base lg:text-3xl uppercase tracking-wider font-bold">
+                      Action Required
+                    </p>
+                    <p className="font-bold text-2xl lg:text-4xl break-words mt-3 lg:mt-4">
+                      {actionMessage}
+                    </p>
+                  </div>
+                  <Sparkles className="h-7 lg:h-10 w-7 lg:w-10 flex-shrink-0 mt-1" />
+                </div>
+              </CardContent>
+            </Card>
         </div>
       </div>
     );
