@@ -1876,6 +1876,35 @@ export async function compileAndStoreProgressFlow(
       [ticketId],
     );
 
+    // Fetch hold records for this ticket
+    const holdsRes = await client.query(
+      `SELECT
+        id, ticket_id, held_by_user_id, subject, description,
+        extract(epoch from held_at)*1000 as held_at,
+        extract(epoch from resumed_at)*1000 as resumed_at,
+        hold_duration_seconds
+       FROM case_holds
+       WHERE ticket_id = $1
+       ORDER BY held_at ASC`,
+      [ticketId],
+    );
+
+    let totalHoldDurationSeconds = 0;
+    const holds = holdsRes.rows.map((row: any) => {
+      const durationSeconds = row.hold_duration_seconds || 0;
+      totalHoldDurationSeconds += durationSeconds;
+      return {
+        id: row.id,
+        ticketId: row.ticket_id,
+        heldByUserId: row.held_by_user_id,
+        subject: row.subject,
+        description: row.description,
+        heldAt: Math.round(Number(row.held_at)),
+        resumedAt: row.resumed_at ? Math.round(Number(row.resumed_at)) : null,
+        holdDurationSeconds: durationSeconds,
+      };
+    });
+
     // Fetch ticket info for context
     const ticketRes = await client.query(
       `SELECT
