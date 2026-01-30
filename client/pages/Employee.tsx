@@ -86,10 +86,22 @@ interface PerformanceMetricsResponse {
   sumEmployeesDurationSeconds?: number | null;
 }
 
+interface CaseHold {
+  id: string;
+  ticketId: string;
+  heldByUserId: string;
+  subject: string;
+  description: string;
+  heldAt: number;
+  resumedAt?: number | null;
+  holdDurationSeconds?: number | null;
+}
+
 const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   const [performanceDetails, setPerformanceDetails] = useState<
     PerformanceMetric[]
   >([]);
+  const [holds, setHolds] = useState<CaseHold[]>([]);
   const [sumEmployeesDuration, setSumEmployeesDuration] = useState<
     number | null
   >(null);
