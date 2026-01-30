@@ -393,6 +393,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   // For in-progress cases, calculate elapsed time from start until now
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
+  const [holds, setHolds] = useState<CaseHold[]>([]);
 
   // Debug logging
   useEffect(() => {
