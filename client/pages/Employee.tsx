@@ -16,6 +16,7 @@ import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
+import { HoldCaseDialog } from "@/components/employee/HoldCaseDialog";
 import type {
   Ticket,
   ListUsersResponse,
