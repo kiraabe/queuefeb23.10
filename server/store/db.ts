@@ -938,7 +938,7 @@ export async function initDb() {
     // Field Visit Workflow Support
     // Add columns to tickets table for field visit tracking
     await p.query(
-      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS field_visit_case_id uuid;`,
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS field_visit_case_id uuid references field_visit_cases(id) on delete set null;`,
     );
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS is_field_visit_generated boolean default false;`,
