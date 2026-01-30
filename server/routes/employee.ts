@@ -1457,3 +1457,174 @@ export const getStoredProgressFlow: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// ===== FIELD VISIT WORKFLOW ENDPOINTS =====
+
+export const requireFieldVisit: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { ticketId, fieldWorkNotes, assignmentPolicy, assignedEmployeeId } =
+    req.body;
+
+  if (!ticketId) {
+    return res.status(400).json({ error: "Missing ticketId" });
+  }
+  if (!assignmentPolicy || !["queue_new_ticket", "direct_assignment"].includes(assignmentPolicy)) {
+    return res.status(400).json({ error: "Invalid assignmentPolicy" });
+  }
+
+  try {
+    const {
+      requireFieldVisitDb,
+    } = await import("../store/db");
+
+    const result = await requireFieldVisitDb(
+      ticketId,
+      userId,
+      fieldWorkNotes || "",
+      assignmentPolicy,
+      assignedEmployeeId,
+    );
+
+    res.json({
+      ok: true,
+      fieldVisitCase: result.fieldVisitCase,
+      ticket: result.ticket,
+    });
+  } catch (error) {
+    console.error("Failed to require field visit:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to require field visit",
+    });
+  }
+};
+
+export const startFieldWork: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { caseId } = req.params;
+  const { startNotes } = req.body;
+
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing caseId" });
+  }
+
+  try {
+    const {
+      startFieldWorkDb,
+    } = await import("../store/db");
+
+    const fieldVisitCase = await startFieldWorkDb(
+      caseId,
+      userId,
+      startNotes,
+    );
+
+    res.json({
+      ok: true,
+      fieldVisitCase,
+    });
+  } catch (error) {
+    console.error("Failed to start field work:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to start field work",
+    });
+  }
+};
+
+export const completeFieldWork: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { caseId } = req.params;
+  const { completionNotes } = req.body;
+
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing caseId" });
+  }
+
+  try {
+    const {
+      completeFieldWorkDb,
+    } = await import("../store/db");
+
+    const fieldVisitCase = await completeFieldWorkDb(
+      caseId,
+      userId,
+      completionNotes,
+    );
+
+    res.json({
+      ok: true,
+      fieldVisitCase,
+    });
+  } catch (error) {
+    console.error("Failed to complete field work:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to complete field work",
+    });
+  }
+};
+
+export const listFieldVisitCases: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const {
+      getFieldVisitCasesDb,
+    } = await import("../store/db");
+
+    const cases = await getFieldVisitCasesDb(userId);
+
+    res.json({
+      cases,
+      total: cases.length,
+    });
+  } catch (error) {
+    console.error("Failed to list field visit cases:", error);
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Failed to list field visit cases",
+    });
+  }
+};
+
+export const getFieldVisitCase: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { caseId } = req.params;
+
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing caseId" });
+  }
+
+  try {
+    const {
+      getFieldVisitCaseDb,
+    } = await import("../store/db");
+
+    const fieldVisitCase = await getFieldVisitCaseDb(caseId);
+
+    res.json({
+      case: fieldVisitCase,
+    });
+  } catch (error) {
+    console.error("Failed to get field visit case:", error);
+    res.status(404).json({
+      error: error instanceof Error ? error.message : "Field visit case not found",
+    });
+  }
+};
