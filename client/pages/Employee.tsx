@@ -468,7 +468,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           </p>
         )}
         {ticket && (
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-2 flex-wrap">
             {isReceived && !hasStarted && !isCompleted && (
               <Button size="sm" onClick={handleStart}>
                 Start
@@ -482,6 +482,10 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                 <Button size="sm" onClick={handleComplete}>
                   Complete
                 </Button>
+                <FieldVisitActionButton
+                  ticket={ticket}
+                  onSuccess={() => onComplete?.(ticket.id)}
+                />
               </>
             )}
           </div>
