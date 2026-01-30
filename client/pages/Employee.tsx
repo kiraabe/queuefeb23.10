@@ -403,6 +403,20 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     }
   };
 
+  const handleResume = async () => {
+    try {
+      await apiFetch(`/api/employee/cases/${ticket.id}/resume`, {
+        method: "POST",
+      });
+      toast.success("Case resumed successfully");
+      onComplete?.(ticket.id);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to resume case",
+      );
+    }
+  };
+
   const isReceived = ticket.transferredToUserId != null;
   const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
