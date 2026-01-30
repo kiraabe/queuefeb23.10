@@ -1628,3 +1628,202 @@ export const getFieldVisitCase: RequestHandler = async (req, res) => {
     });
   }
 };
+
+export const readyForService: RequestHandler = async (req, res) => {
+  const userId = (req as any).auth?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const { caseId } = req.params;
+  const { policy, assignedEmployeeId, newTicketServiceCategory } = req.body;
+
+  if (!caseId) {
+    return res.status(400).json({ error: "Missing caseId" });
+  }
+  if (!policy || !["queue_new_ticket", "direct_assignment"].includes(policy)) {
+    return res.status(400).json({ error: "Invalid policy" });
+  }
+
+  try {
+    const p = getPool();
+    const client = await p.connect();
+    try {
+      await client.query("BEGIN");
+
+      // 1. Get field visit case
+      const fvcRes = await client.query(
+        `SELECT * FROM field_visit_cases WHERE id=$1 FOR UPDATE`,
+        [caseId],
+      );
+      if (!fvcRes.rowCount) {
+        throw new Error("Field visit case not found");
+      }
+      const fieldVisitCase = fvcRes.rows[0];
+
+      if (fieldVisitCase.status !== "ready_for_service") {
+        throw new Error(
+          `Field visit case must be in 'ready_for_service' status, got '${fieldVisitCase.status}'`,
+        );
+      }
+
+      // 2. Get original ticket
+      const ticketRes = await client.query(
+        `SELECT * FROM tickets WHERE id=$1 FOR UPDATE`,
+        [fieldVisitCase.ticket_id],
+      );
+      if (!ticketRes.rowCount) {
+        throw new Error("Original ticket not found");
+      }
+      const originalTicket = ticketRes.rows[0];
+
+      let result: any = {};
+
+      if (policy === "queue_new_ticket") {
+        // 3a. Create new ticket
+        if (!newTicketServiceCategory) {
+          throw new Error("newTicketServiceCategory required for queue_new_ticket policy");
+        }
+
+        const { randomUUID } = await import("crypto");
+        const newTicketId = randomUUID();
+
+        // Get next number for this service
+        const { rows: counterRows } = await client.query(
+          `SELECT next_number FROM service_counters WHERE service=$1 FOR UPDATE`,
+          [newTicketServiceCategory],
+        );
+        let nextNum = counterRows[0]?.next_number || 1;
+
+        // Format code
+        const code = String(((nextNum - 1) % 200) + 1).padStart(3, "0");
+
+        // Create new ticket
+        const createRes = await client.query(
+          `INSERT INTO tickets (
+            id, service, number, code, status, service_category, selected_services,
+            owner_name, woreda, notes, created_at, is_field_visit_generated, field_visit_case_id
+          ) VALUES ($1, $2, $3, $4, 'waiting', $5, $6, $7, $8, $9, now(), true, $10)
+          RETURNING *`,
+          [
+            newTicketId,
+            newTicketServiceCategory,
+            nextNum,
+            code,
+            newTicketServiceCategory,
+            originalTicket.selected_services || null,
+            originalTicket.owner_name || null,
+            originalTicket.woreda || null,
+            originalTicket.notes || null,
+            fieldVisitCase.id,
+          ],
+        );
+
+        // Increment counter
+        await client.query(
+          `UPDATE service_counters SET next_number = next_number + 1 WHERE service=$1`,
+          [newTicketServiceCategory],
+        );
+
+        // 3b. Update field visit case
+        await client.query(
+          `UPDATE field_visit_cases
+           SET status='completed', new_ticket_id=$1, ready_for_service_at=now(),
+               ready_for_service_by_user_id=$2, updated_at=now()
+           WHERE id=$3`,
+          [newTicketId, userId, caseId],
+        );
+
+        // 4. Log audit
+        await client.query(
+          `INSERT INTO audit_logs (action, user_id, details) VALUES ('field_visit.new_ticket_generated', $1, $2)`,
+          [userId, JSON.stringify({ fieldVisitCaseId: caseId, newTicketId })],
+        );
+
+        await client.query(
+          `INSERT INTO field_visit_audit_logs (field_visit_case_id, action, user_id, details)
+           VALUES ($1, 'ready_for_service', $2, $3)`,
+          [caseId, userId, JSON.stringify({ policy, newTicketId })],
+        );
+
+        result = {
+          ok: true,
+          action: "queue_new_ticket",
+          newTicketId,
+        };
+      } else if (policy === "direct_assignment") {
+        // 3c. Direct assignment
+        if (!assignedEmployeeId) {
+          throw new Error("assignedEmployeeId required for direct_assignment policy");
+        }
+
+        // Verify employee exists
+        const empRes = await client.query(
+          `SELECT id FROM users WHERE id=$1`,
+          [assignedEmployeeId],
+        );
+        if (!empRes.rowCount) {
+          throw new Error("Assigned employee not found");
+        }
+
+        // Update field visit case
+        await client.query(
+          `UPDATE field_visit_cases
+           SET status='completed', assigned_employee_id=$1, ready_for_service_at=now(),
+               ready_for_service_by_user_id=$2, updated_at=now()
+           WHERE id=$3`,
+          [assignedEmployeeId, userId, caseId],
+        );
+
+        // Update original ticket for direct assignment
+        await client.query(
+          `UPDATE tickets
+           SET status='transferred', transferred_to_user_id=$1, transferred_at=now(),
+               updated_at=now()
+           WHERE id=$2`,
+          [assignedEmployeeId, fieldVisitCase.ticket_id],
+        );
+
+        // Create employee_case_performance entry
+        const { randomUUID } = await import("crypto");
+        await client.query(
+          `INSERT INTO employee_case_performance (
+            id, ticket_id, employee_id, status, created_at
+          ) VALUES ($1, $2, $3, 'in_progress', now())`,
+          [randomUUID(), fieldVisitCase.ticket_id, assignedEmployeeId],
+        );
+
+        // Log audit
+        await client.query(
+          `INSERT INTO audit_logs (action, user_id, details) VALUES ('field_visit.direct_assignment', $1, $2)`,
+          [userId, JSON.stringify({ fieldVisitCaseId: caseId, assignedEmployeeId })],
+        );
+
+        await client.query(
+          `INSERT INTO field_visit_audit_logs (field_visit_case_id, action, user_id, details)
+           VALUES ($1, 'ready_for_service', $2, $3)`,
+          [caseId, userId, JSON.stringify({ policy, assignedEmployeeId })],
+        );
+
+        result = {
+          ok: true,
+          action: "direct_assignment",
+          assignedEmployeeId,
+        };
+      }
+
+      await client.query("COMMIT");
+      res.json(result);
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Failed to ready for service:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to ready for service",
+    });
+  }
+};
