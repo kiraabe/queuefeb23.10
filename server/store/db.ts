@@ -2227,6 +2227,25 @@ export async function getTicketByCodeDb(code: string): Promise<{
     }
   }
 
+  // Handle field_visit status - provide field work status information
+  if (t.status === "field_visit" && tRes.rows[0].field_visit_case_id) {
+    const fvRes = await p.query(
+      `SELECT status, field_work_started_at, field_work_completed_at FROM field_visit_cases WHERE id=$1`,
+      [tRes.rows[0].field_visit_case_id],
+    );
+    if (fvRes.rowCount > 0) {
+      const fv = fvRes.rows[0];
+      // Add field work status to ticket for display
+      (t as any).fieldVisitStatus = fv.status;
+      (t as any).fieldWorkStartedAt = fv.field_work_started_at
+        ? Math.round(Number(fv.field_work_started_at) * 1000)
+        : null;
+      (t as any).fieldWorkCompletedAt = fv.field_work_completed_at
+        ? Math.round(Number(fv.field_work_completed_at) * 1000)
+        : null;
+    }
+  }
+
   if (t.status !== "waiting")
     return {
       ticket: t,
