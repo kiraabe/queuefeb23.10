@@ -935,6 +935,87 @@ export async function initDb() {
       );
     }
 
+    // Field Visit Workflow Support
+    // Add columns to tickets table for field visit tracking
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS field_visit_case_id uuid;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS is_field_visit_generated boolean default false;`,
+    );
+
+    // Create field_visit_cases table for multi-day field work tracking
+    await p.query(`CREATE TABLE IF NOT EXISTS field_visit_cases (
+      id uuid primary key default gen_random_uuid(),
+      ticket_id uuid not null unique references tickets(id) on delete cascade,
+      case_id uuid not null,
+      status text not null check (status in ('initiated', 'in_progress', 'ready_for_service', 'completed')) default 'initiated',
+      initiated_by_user_id uuid not null references users(id) on delete restrict,
+      initiated_at timestamptz not null default now(),
+
+      field_work_started_at timestamptz,
+      field_work_started_by_user_id uuid references users(id) on delete set null,
+      field_work_completed_at timestamptz,
+      field_work_completed_by_user_id uuid references users(id) on delete set null,
+
+      ready_for_service_at timestamptz,
+      ready_for_service_by_user_id uuid references users(id) on delete set null,
+
+      assignment_policy text check (assignment_policy in ('queue_new_ticket', 'direct_assignment')) default 'queue_new_ticket',
+      assigned_employee_id uuid references users(id) on delete set null,
+
+      new_ticket_id uuid unique references tickets(id) on delete set null,
+
+      field_work_notes text,
+      field_work_metadata jsonb,
+
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );`);
+
+    // Create indexes for field_visit_cases
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_cases_ticket_id ON field_visit_cases(ticket_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_cases_case_id ON field_visit_cases(case_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_cases_status ON field_visit_cases(status)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_cases_initiated_at ON field_visit_cases(initiated_at)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_tickets_field_visit_case_id ON tickets(field_visit_case_id)`,
+    );
+
+    // Add field visit case tracking to employee_case_performance
+    await p.query(
+      `ALTER TABLE employee_case_performance ADD COLUMN IF NOT EXISTS field_visit_case_id uuid references field_visit_cases(id) on delete set null;`,
+    );
+
+    // Create field_visit_audit_logs table for detailed tracking
+    await p.query(`CREATE TABLE IF NOT EXISTS field_visit_audit_logs (
+      id uuid primary key default gen_random_uuid(),
+      field_visit_case_id uuid not null references field_visit_cases(id) on delete cascade,
+      action text not null,
+      user_id uuid references users(id) on delete set null,
+      username text,
+      action_at timestamptz not null default now(),
+      details jsonb,
+      created_at timestamptz not null default now()
+    );`);
+
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_audit_logs_case_id ON field_visit_audit_logs(field_visit_case_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_field_visit_audit_logs_action_at ON field_visit_audit_logs(action_at)`,
+    );
+
+    console.log("✅ Field visit workflow schema initialized");
+
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
     console.log(
       "ℹ️  Database initialization complete. No demo users or test data created.",
