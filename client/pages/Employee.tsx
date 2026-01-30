@@ -433,7 +433,11 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             className={`text-xs whitespace-nowrap ${statusColor}`}
             variant="secondary"
           >
-            {ticket.status === "done" ? "Completed" : "Received"}
+            {ticket.status === "done"
+              ? "Completed"
+              : ticket.status === "on_hold"
+                ? "On Hold"
+                : "Received"}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground mb-2">
