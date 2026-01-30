@@ -1834,3 +1834,329 @@ export const readyForService: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Hold Case Handler
+export const holdCase: RequestHandler = async (req, res) => {
+  const ticketId = req.params.id as string;
+  const userId = (req as any).auth?.id;
+  const { subject, description } = req.body as {
+    subject?: string;
+    description?: string;
+  };
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (!subject || !description) {
+    return res.status(400).json({
+      error: "Subject and description are required",
+    });
+  }
+
+  const p = getPool();
+
+  try {
+    // Fetch current ticket
+    const ticketRes = await p.query(
+      `SELECT id, status FROM tickets WHERE id = $1`,
+      [ticketId],
+    );
+
+    if (!ticketRes.rows.length) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    const ticket = ticketRes.rows[0];
+
+    // Only allow hold if ticket is in serving status
+    if (ticket.status !== "serving" && ticket.status !== "transferred") {
+      return res.status(400).json({
+        error: "Only serving or transferred cases can be placed on hold",
+      });
+    }
+
+    // Create hold record and update ticket status
+    await p.query(
+      `INSERT INTO case_holds (ticket_id, held_by_user_id, subject, description)
+       VALUES ($1, $2, $3, $4)`,
+      [ticketId, userId, subject, description],
+    );
+
+    await p.query(`UPDATE tickets SET status = 'on_hold' WHERE id = $1`, [
+      ticketId,
+    ]);
+
+    // Log action
+    await p.query(
+      `INSERT INTO audit_logs (action, user_id, details) VALUES ('case.held', $1, $2)`,
+      [
+        userId,
+        JSON.stringify({
+          ticketId,
+          subject,
+          description,
+        }),
+      ],
+    );
+
+    // Fetch updated ticket and hold record
+    const updatedTicket = await p.query(
+      `SELECT
+        id, service, number, code, status, window_id,
+        extract(epoch from created_at)*1000 as created_at,
+        extract(epoch from started_at)*1000 as started_at,
+        extract(epoch from completed_at)*1000 as completed_at,
+        notes, owner_name, woreda, remark, service_category, selected_services,
+        transferred_from_window, transferred_to_window, transferred_to_user_id,
+        extract(epoch from transferred_at)*1000 as transferred_at,
+        started_by_user_id,
+        extract(epoch from proceeded_at)*1000 as proceeded_at,
+        job_title_for_proceed
+      FROM tickets WHERE id = $1`,
+      [ticketId],
+    );
+
+    const holdRes = await p.query(
+      `SELECT id, ticket_id, held_by_user_id, subject, description,
+              extract(epoch from held_at)*1000 as held_at,
+              extract(epoch from resumed_at)*1000 as resumed_at,
+              hold_duration_seconds,
+              extract(epoch from created_at)*1000 as created_at
+       FROM case_holds WHERE ticket_id = $1 ORDER BY held_at DESC LIMIT 1`,
+      [ticketId],
+    );
+
+    const ticketRow = updatedTicket.rows[0];
+    const holdRow = holdRes.rows[0];
+
+    const formattedTicket = formatTicketResponse(ticketRow);
+    const formattedHold = {
+      id: holdRow.id,
+      ticketId: holdRow.ticket_id,
+      heldByUserId: holdRow.held_by_user_id,
+      subject: holdRow.subject,
+      description: holdRow.description,
+      heldAt: Math.round(Number(holdRow.held_at)),
+      resumedAt: holdRow.resumed_at
+        ? Math.round(Number(holdRow.resumed_at))
+        : null,
+      holdDurationSeconds: holdRow.hold_duration_seconds,
+      createdAt: Math.round(Number(holdRow.created_at)),
+    };
+
+    res.json({
+      ticket: formattedTicket,
+      hold: formattedHold,
+      message: "Case placed on hold successfully",
+    });
+  } catch (error) {
+    console.error("Failed to hold case:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to hold case",
+    });
+  }
+};
+
+// Resume Case Handler
+export const resumeCase: RequestHandler = async (req, res) => {
+  const ticketId = req.params.id as string;
+  const userId = (req as any).auth?.id;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const p = getPool();
+  const client = await p.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Fetch current ticket
+    const ticketRes = await client.query(
+      `SELECT id, status FROM tickets WHERE id = $1 FOR UPDATE`,
+      [ticketId],
+    );
+
+    if (!ticketRes.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    const ticket = ticketRes.rows[0];
+
+    if (ticket.status !== "on_hold") {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: "Only on-hold cases can be resumed",
+      });
+    }
+
+    // Get the most recent hold record
+    const holdRes = await client.query(
+      `SELECT id, held_at FROM case_holds
+       WHERE ticket_id = $1 AND resumed_at IS NULL
+       ORDER BY held_at DESC LIMIT 1`,
+      [ticketId],
+    );
+
+    if (!holdRes.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: "No active hold found for this case",
+      });
+    }
+
+    const hold = holdRes.rows[0];
+    const now = new Date();
+    const heldAt = new Date(hold.held_at);
+    const holdDurationSeconds = Math.floor(
+      (now.getTime() - heldAt.getTime()) / 1000,
+    );
+
+    // Update hold record
+    await client.query(
+      `UPDATE case_holds
+       SET resumed_at = now(), hold_duration_seconds = $1
+       WHERE id = $2`,
+      [holdDurationSeconds, hold.id],
+    );
+
+    // Update ticket status back to serving
+    await client.query(
+      `UPDATE tickets SET status = 'serving' WHERE id = $1`,
+      [ticketId],
+    );
+
+    // Get hold details for logging
+    const holdDetailsRes = await client.query(
+      `SELECT id, subject, description FROM case_holds WHERE id = $1`,
+      [hold.id],
+    );
+
+    const holdDetails = holdDetailsRes.rows[0];
+
+    // Log action
+    await client.query(
+      `INSERT INTO audit_logs (action, user_id, details) VALUES ('case.resumed', $1, $2)`,
+      [
+        userId,
+        JSON.stringify({
+          ticketId,
+          holdId: hold.id,
+          holdDurationSeconds,
+          subject: holdDetails.subject,
+        }),
+      ],
+    );
+
+    // Compile and update progress flow
+    await compileAndStoreProgressFlow(ticketId, client);
+
+    await client.query("COMMIT");
+
+    // Fetch updated ticket and hold record
+    const updatedTicketRes = await p.query(
+      `SELECT
+        id, service, number, code, status, window_id,
+        extract(epoch from created_at)*1000 as created_at,
+        extract(epoch from started_at)*1000 as started_at,
+        extract(epoch from completed_at)*1000 as completed_at,
+        notes, owner_name, woreda, remark, service_category, selected_services,
+        transferred_from_window, transferred_to_window, transferred_to_user_id,
+        extract(epoch from transferred_at)*1000 as transferred_at,
+        started_by_user_id,
+        extract(epoch from proceeded_at)*1000 as proceeded_at,
+        job_title_for_proceed
+      FROM tickets WHERE id = $1`,
+      [ticketId],
+    );
+
+    const updatedHoldRes = await p.query(
+      `SELECT id, ticket_id, held_by_user_id, subject, description,
+              extract(epoch from held_at)*1000 as held_at,
+              extract(epoch from resumed_at)*1000 as resumed_at,
+              hold_duration_seconds,
+              extract(epoch from created_at)*1000 as created_at
+       FROM case_holds WHERE id = $1`,
+      [hold.id],
+    );
+
+    const ticketRow = updatedTicketRes.rows[0];
+    const holdRow = updatedHoldRes.rows[0];
+
+    const formattedTicket = formatTicketResponse(ticketRow);
+    const formattedHold = {
+      id: holdRow.id,
+      ticketId: holdRow.ticket_id,
+      heldByUserId: holdRow.held_by_user_id,
+      subject: holdRow.subject,
+      description: holdRow.description,
+      heldAt: Math.round(Number(holdRow.held_at)),
+      resumedAt: holdRow.resumed_at
+        ? Math.round(Number(holdRow.resumed_at))
+        : null,
+      holdDurationSeconds: holdRow.hold_duration_seconds,
+      createdAt: Math.round(Number(holdRow.created_at)),
+    };
+
+    res.json({
+      ticket: formattedTicket,
+      hold: formattedHold,
+      message: "Case resumed successfully",
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Failed to resume case:", error);
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to resume case",
+    });
+  } finally {
+    client.release();
+  }
+};
+
+// Get Case Holds Handler
+export const getCaseHolds: RequestHandler = async (req, res) => {
+  const ticketId = req.query.ticketId as string;
+  const userId = (req as any).auth?.id;
+
+  if (!userId || !ticketId) {
+    return res.status(400).json({ error: "Ticket ID is required" });
+  }
+
+  const p = getPool();
+
+  try {
+    const { rows } = await p.query(
+      `SELECT id, ticket_id, held_by_user_id, subject, description,
+              extract(epoch from held_at)*1000 as held_at,
+              extract(epoch from resumed_at)*1000 as resumed_at,
+              hold_duration_seconds,
+              extract(epoch from created_at)*1000 as created_at
+       FROM case_holds WHERE ticket_id = $1 ORDER BY held_at DESC`,
+      [ticketId],
+    );
+
+    const holds = rows.map((r) => ({
+      id: r.id,
+      ticketId: r.ticket_id,
+      heldByUserId: r.held_by_user_id,
+      subject: r.subject,
+      description: r.description,
+      heldAt: Math.round(Number(r.held_at)),
+      resumedAt: r.resumed_at ? Math.round(Number(r.resumed_at)) : null,
+      holdDurationSeconds: r.hold_duration_seconds,
+      createdAt: Math.round(Number(r.created_at)),
+    }));
+
+    res.json({ holds });
+  } catch (error) {
+    console.error("Failed to get case holds:", error);
+    res.status(400).json({
+      error:
+        error instanceof Error ? error.message : "Failed to get case holds",
+    });
+  }
+};
