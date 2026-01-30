@@ -481,10 +481,6 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                 <Button size="sm" onClick={handleComplete}>
                   Complete
                 </Button>
-                <FieldVisitActionButton
-                  ticket={ticket}
-                  onSuccess={() => onComplete?.(ticket.id)}
-                />
               </>
             )}
           </div>
