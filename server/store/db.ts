@@ -2028,6 +2028,21 @@ export async function compileAndStoreProgressFlow(
       }
     }
 
+    // Calculate total duration excluding hold time
+    let totalDurationMs: number | null = null;
+    if (
+      flowSteps.length > 0 &&
+      flowSteps[0].startedAt &&
+      flowSteps[flowSteps.length - 1].endedAt
+    ) {
+      totalDurationMs =
+        flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt;
+      // Subtract hold duration from total
+      if (totalHoldDurationSeconds > 0) {
+        totalDurationMs -= totalHoldDurationSeconds * 1000;
+      }
+    }
+
     const progressFlow = {
       ticketId,
       ticketCode: ticketInfo.code,
@@ -2037,12 +2052,9 @@ export async function compileAndStoreProgressFlow(
       caseCompletedAt: Math.round(Number(ticketInfo.completed_at)),
       totalSteps: flowSteps.length,
       steps: flowSteps,
-      totalDurationMs:
-        flowSteps.length > 0 &&
-        flowSteps[0].startedAt &&
-        flowSteps[flowSteps.length - 1].endedAt
-          ? flowSteps[flowSteps.length - 1].endedAt - flowSteps[0].startedAt
-          : null,
+      totalDurationMs,
+      totalHoldDurationMs: totalHoldDurationSeconds * 1000,
+      holds,
       storedAt: new Date().toISOString(),
     };
 
