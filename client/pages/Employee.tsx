@@ -585,6 +585,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             {isReceived &&
               hasStarted &&
               !isCompleted &&
+              !hasActiveHold &&
               ticket.status !== "on_hold" && (
                 <>
                   <Button size="sm" onClick={handleComplete}>
@@ -603,7 +604,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                   </Button>
                 </>
               )}
-            {ticket.status === "on_hold" && (
+            {(hasActiveHold || ticket.status === "on_hold") && (
               <Button
                 size="sm"
                 onClick={handleResume}
