@@ -407,6 +407,15 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     });
   }, [ticket]);
 
+  // Fetch hold records to check for active holds
+  useEffect(() => {
+    apiFetch<{ holds: CaseHold[] }>(`/api/employee/holds?ticketId=${ticket.id}`)
+      .then((data) => {
+        setHolds(data.holds || []);
+      })
+      .catch(() => {});
+  }, [ticket.id]);
+
   useEffect(() => {
     // Only skip elapsed time if the case is completed (status = 'done')
     // Don't skip if ticket.proceededAt is set from a previous employee
