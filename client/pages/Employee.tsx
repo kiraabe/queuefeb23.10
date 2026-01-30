@@ -128,6 +128,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
 
   const isProceed = ticket.proceededAt != null;
   const isComplete = ticket.completedAt != null;
+  const hasActiveHold = holds.some((h) => h.resumedAt == null);
 
   // For completed cases, show total duration from creation to completion (initiation to final)
   // For proceeded cases, show duration to the point it was forwarded
@@ -138,14 +139,18 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   );
   const status = isComplete
     ? "Completed"
-    : isProceed
-      ? "Forwarded"
-      : "In Progress";
+    : hasActiveHold
+      ? "On Hold"
+      : isProceed
+        ? "Forwarded"
+        : "In Progress";
   const statusColor = isComplete
     ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-    : isProceed
-      ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
-      : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
+    : hasActiveHold
+      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
+      : isProceed
+        ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+        : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
 
   return (
     <div className="space-y-2">
