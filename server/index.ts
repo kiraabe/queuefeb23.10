@@ -64,6 +64,7 @@ import {
   completeFieldWork,
   listFieldVisitCases,
   getFieldVisitCase,
+  readyForService,
 } from "./routes/employee";
 import {
   listUsers,
