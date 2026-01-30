@@ -525,6 +525,14 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
           </div>
         )}
       </div>
+
+      {/* Hold Case Dialog */}
+      <HoldCaseDialog
+        ticket={ticket}
+        open={holdDialogOpen}
+        onOpenChange={setHoldDialogOpen}
+        onSuccess={() => onComplete?.(ticket.id)}
+      />
     </div>
   );
 };
