@@ -719,7 +719,14 @@ export const employeePerformanceMetrics: RequestHandler = async (req, res) => {
     let sumEmployeesDurationSeconds: number | null = null;
     if (ticketId) {
       const sumRes = await p.query(
-        `SELECT SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))) as total_duration
+        `SELECT SUM(
+          EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) -
+          COALESCE((
+            SELECT SUM(COALESCE(hold_duration_seconds, 0))
+            FROM case_holds
+            WHERE ticket_id = ecp.ticket_id AND held_by_user_id = ecp.employee_id
+          ), 0)
+        ) as total_duration
          FROM employee_case_performance ecp
          WHERE ecp.ticket_id = $1
            AND ecp.ended_at IS NOT NULL`,
