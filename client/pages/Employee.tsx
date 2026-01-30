@@ -508,7 +508,6 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
   const isCompleted = ticket.completedAt != null;
-  const hasActiveHold = holds.some((h) => h.resumedAt == null);
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
