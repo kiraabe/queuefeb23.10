@@ -3108,6 +3108,290 @@ export async function callNextForWindowDb(
   }
 }
 
+// ===== FIELD VISIT WORKFLOW FUNCTIONS =====
+
+import { randomUUID } from "crypto";
+
+export async function requireFieldVisitDb(
+  ticketId: string,
+  employeeId: string,
+  fieldWorkNotes: string,
+  assignmentPolicy: "queue_new_ticket" | "direct_assignment",
+  assignedEmployeeId?: string,
+): Promise<{
+  fieldVisitCase: any;
+  ticket: Ticket;
+}> {
+  const p = getPool();
+  const client = await p.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1. Verify ticket exists and is in correct status
+    const ticketRes = await client.query(
+      `SELECT id, status, window_id, service, number, code, service_category, selected_services FROM tickets WHERE id=$1 FOR UPDATE`,
+      [ticketId],
+    );
+    if (!ticketRes.rowCount) {
+      throw new Error("Ticket not found");
+    }
+    const ticket = ticketRes.rows[0];
+    if (!["serving", "transferred"].includes(ticket.status)) {
+      throw new Error(
+        `Ticket must be in 'serving' or 'transferred' status, got '${ticket.status}'`,
+      );
+    }
+
+    // 2. Create field_visit_cases record
+    const caseId = randomUUID();
+    const fvcId = randomUUID();
+    const fvRes = await client.query(
+      `INSERT INTO field_visit_cases (
+        id, ticket_id, case_id, status, initiated_by_user_id,
+        field_work_notes, assignment_policy, assigned_employee_id
+      ) VALUES ($1, $2, $3, 'initiated', $4, $5, $6, $7)
+      RETURNING *`,
+      [
+        fvcId,
+        ticketId,
+        caseId,
+        employeeId,
+        fieldWorkNotes,
+        assignmentPolicy,
+        assignedEmployeeId || null,
+      ],
+    );
+    const fieldVisitCase = fvRes.rows[0];
+
+    // 3. Update ticket status to 'field_visit'
+    await client.query(
+      `UPDATE tickets SET status='field_visit', field_visit_case_id=$1, updated_at=now() WHERE id=$2`,
+      [fieldVisitCase.id, ticketId],
+    );
+
+    // 4. Clear window assignment if applicable
+    if (ticket.window_id) {
+      await client.query(
+        `UPDATE windows SET current_ticket_id=NULL, busy=false, updated_at=now() WHERE id=$1`,
+        [ticket.window_id],
+      );
+    }
+
+    // 5. Log audit
+    await client.query(
+      `INSERT INTO audit_logs (action, user_id, details) VALUES ('field_visit.initiated', $1, $2)`,
+      [employeeId, JSON.stringify({ ticketId, fieldVisitCaseId: fieldVisitCase.id })],
+    );
+
+    // 6. Log field visit audit
+    await client.query(
+      `INSERT INTO field_visit_audit_logs (field_visit_case_id, action, user_id, details)
+       VALUES ($1, 'initiated', $2, $3)`,
+      [
+        fieldVisitCase.id,
+        employeeId,
+        JSON.stringify({ fieldWorkNotes, assignmentPolicy }),
+      ],
+    );
+
+    await client.query("COMMIT");
+
+    // Format response
+    const updatedTicket = await getTicketByIdDb(ticketId);
+    if (!updatedTicket) throw new Error("Failed to retrieve updated ticket");
+
+    return {
+      fieldVisitCase: {
+        id: fieldVisitCase.id,
+        ticketId: fieldVisitCase.ticket_id,
+        status: fieldVisitCase.status,
+        initiatedAt: Math.round(Number(fieldVisitCase.initiated_at) * 1000),
+        initiatedByUserId: fieldVisitCase.initiated_by_user_id,
+      },
+      ticket: updatedTicket,
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function startFieldWorkDb(
+  fieldVisitCaseId: string,
+  employeeId: string,
+  startNotes?: string,
+): Promise<any> {
+  const p = getPool();
+  const res = await p.query(
+    `UPDATE field_visit_cases
+     SET field_work_started_at=now(),
+         field_work_started_by_user_id=$1,
+         status='in_progress',
+         updated_at=now()
+     WHERE id=$2 AND status='initiated'
+     RETURNING *`,
+    [employeeId, fieldVisitCaseId],
+  );
+  if (!res.rowCount) {
+    throw new Error(
+      "Field visit case not found or not in 'initiated' status",
+    );
+  }
+
+  const fieldVisitCase = res.rows[0];
+
+  // Log field visit audit
+  await p.query(
+    `INSERT INTO field_visit_audit_logs (field_visit_case_id, action, user_id, details)
+     VALUES ($1, 'work_started', $2, $3)`,
+    [fieldVisitCaseId, employeeId, JSON.stringify({ startNotes })],
+  );
+
+  return {
+    id: fieldVisitCase.id,
+    status: fieldVisitCase.status,
+    fieldWorkStartedAt: Math.round(
+      Number(fieldVisitCase.field_work_started_at) * 1000,
+    ),
+  };
+}
+
+export async function completeFieldWorkDb(
+  fieldVisitCaseId: string,
+  employeeId: string,
+  completionNotes?: string,
+): Promise<any> {
+  const p = getPool();
+  const res = await p.query(
+    `UPDATE field_visit_cases
+     SET field_work_completed_at=now(),
+         field_work_completed_by_user_id=$1,
+         status='ready_for_service',
+         updated_at=now()
+     WHERE id=$2 AND status='in_progress'
+     RETURNING *`,
+    [employeeId, fieldVisitCaseId],
+  );
+  if (!res.rowCount) {
+    throw new Error(
+      "Field visit case not found or not in 'in_progress' status",
+    );
+  }
+
+  const fieldVisitCase = res.rows[0];
+
+  // Log field visit audit
+  await p.query(
+    `INSERT INTO field_visit_audit_logs (field_visit_case_id, action, user_id, details)
+     VALUES ($1, 'work_completed', $2, $3)`,
+    [fieldVisitCaseId, employeeId, JSON.stringify({ completionNotes })],
+  );
+
+  return {
+    id: fieldVisitCase.id,
+    status: fieldVisitCase.status,
+    fieldWorkCompletedAt: Math.round(
+      Number(fieldVisitCase.field_work_completed_at) * 1000,
+    ),
+  };
+}
+
+export async function getFieldVisitCasesDb(
+  employeeId: string,
+): Promise<any[]> {
+  const p = getPool();
+  const res = await p.query(
+    `SELECT id, ticket_id, status,
+            extract(epoch from initiated_at)*1000 as initiated_at,
+            extract(epoch from field_work_started_at)*1000 as field_work_started_at,
+            extract(epoch from field_work_completed_at)*1000 as field_work_completed_at,
+            extract(epoch from ready_for_service_at)*1000 as ready_for_service_at,
+            assignment_policy, field_work_notes
+     FROM field_visit_cases
+     WHERE initiated_by_user_id=$1 OR field_work_started_by_user_id=$1 OR field_work_completed_by_user_id=$1
+     ORDER BY initiated_at DESC`,
+    [employeeId],
+  );
+
+  return res.rows.map((r) => ({
+    id: r.id,
+    ticketId: r.ticket_id,
+    status: r.status,
+    initiatedAt: Math.round(Number(r.initiated_at)),
+    fieldWorkStartedAt: r.field_work_started_at
+      ? Math.round(Number(r.field_work_started_at))
+      : null,
+    fieldWorkCompletedAt: r.field_work_completed_at
+      ? Math.round(Number(r.field_work_completed_at))
+      : null,
+    readyForServiceAt: r.ready_for_service_at
+      ? Math.round(Number(r.ready_for_service_at))
+      : null,
+    assignmentPolicy: r.assignment_policy,
+    fieldWorkNotes: r.field_work_notes,
+  }));
+}
+
+export async function getFieldVisitCaseDb(
+  fieldVisitCaseId: string,
+): Promise<any> {
+  const p = getPool();
+  const res = await p.query(
+    `SELECT * FROM field_visit_cases WHERE id=$1`,
+    [fieldVisitCaseId],
+  );
+  if (!res.rowCount) {
+    throw new Error("Field visit case not found");
+  }
+
+  const fvc = res.rows[0];
+  return {
+    id: fvc.id,
+    ticketId: fvc.ticket_id,
+    caseId: fvc.case_id,
+    status: fvc.status,
+    initiatedAt: Math.round(Number(fvc.initiated_at) * 1000),
+    fieldWorkStartedAt: fvc.field_work_started_at
+      ? Math.round(Number(fvc.field_work_started_at) * 1000)
+      : null,
+    fieldWorkCompletedAt: fvc.field_work_completed_at
+      ? Math.round(Number(fvc.field_work_completed_at) * 1000)
+      : null,
+    readyForServiceAt: fvc.ready_for_service_at
+      ? Math.round(Number(fvc.ready_for_service_at) * 1000)
+      : null,
+    assignmentPolicy: fvc.assignment_policy,
+    assignedEmployeeId: fvc.assigned_employee_id,
+    newTicketId: fvc.new_ticket_id,
+    fieldWorkNotes: fvc.field_work_notes,
+  };
+}
+
+// Helper to get a ticket by ID
+async function getTicketByIdDb(ticketId: string): Promise<Ticket | null> {
+  const p = getPool();
+  const res = await p.query(
+    `SELECT id, service, number, code, status, window_id,
+            extract(epoch from created_at)*1000 as created_at,
+            extract(epoch from started_at)*1000 as started_at,
+            extract(epoch from completed_at)*1000 as completed_at,
+            notes, owner_name, woreda, service_category, selected_services,
+            remark, skipped_at, skipped_by_window,
+            transferred_from_window, transferred_to_window, transferred_to_user_id,
+            extract(epoch from transferred_at)*1000 as transferred_at,
+            started_by_user_id, extract(epoch from proceeded_at)*1000 as proceeded_at,
+            job_title_for_proceed,extract(epoch from expired_at)*1000 as expired_at,
+            documents_fetched, extract(epoch from documents_fetched_at)*1000 as documents_fetched_at,
+            field_visit_case_id
+     FROM tickets WHERE id=$1`,
+    [ticketId],
+  );
+  if (!res.rowCount) return null;
+  return rowToTicket(res.rows[0]);
+}
+
 // initialize on import (non-blocking with timeout)
 const initDbWithTimeout = async () => {
   const ms =
