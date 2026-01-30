@@ -2038,17 +2038,23 @@ export async function compileAndStoreProgressFlow(
       storeRes.rows[0],
     );
 
-    await client.query("COMMIT");
+    if (!isProvidedClient) {
+      await client.query("COMMIT");
+    }
     return progressFlow;
   } catch (error) {
-    await client.query("ROLLBACK");
+    if (!isProvidedClient) {
+      await client.query("ROLLBACK");
+    }
     console.error(
       `❌ Error compiling and storing progress flow for ticket ${ticketId}:`,
       error,
     );
     throw error;
   } finally {
-    client.release();
+    if (!isProvidedClient) {
+      client.release();
+    }
   }
 }
 
