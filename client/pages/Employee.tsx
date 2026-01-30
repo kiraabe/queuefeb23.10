@@ -242,11 +242,59 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
       </div>
 
       {/* Performance Details - Workflow Chain */}
-      {showDetails && performanceDetails.length > 0 && (
+      {showDetails && (performanceDetails.length > 0 || holds.length > 0) && (
         <div className="ml-0 sm:ml-4 space-y-3 border-l-2 border-blue-200 dark:border-blue-900 pl-4">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
             Workflow Chain
           </p>
+          {/* Hold Records */}
+          {holds.map((hold) => {
+            const holdDurationSeconds = hold.holdDurationSeconds || 0;
+
+            return (
+              <div
+                key={hold.id}
+                className="rounded-lg border border-yellow-200 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950/30 p-3 text-xs"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium text-foreground">
+                        Case On Hold
+                      </p>
+                      <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs">
+                        Paused
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground mt-1 font-medium">
+                      <span className="font-bold">Subject:</span> {hold.subject}
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      <span className="font-medium">Details:</span>{" "}
+                      {hold.description}
+                    </p>
+                    <p className="text-muted-foreground mt-1">
+                      <span className="font-medium">Held:</span>{" "}
+                      {new Date(hold.heldAt).toLocaleTimeString()}
+                    </p>
+                    {hold.resumedAt && (
+                      <p className="text-muted-foreground">
+                        <span className="font-medium">Resumed:</span>{" "}
+                        {new Date(hold.resumedAt).toLocaleTimeString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground">
+                      {formatDuration(holdDurationSeconds)}
+                    </p>
+                    <p className="text-muted-foreground text-xs">on hold</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {/* Employee Performance Details */}
           {performanceDetails.map((perf, index) => {
             const isFirst = index === 0;
             const isCompleted = perf.status === "completed";
