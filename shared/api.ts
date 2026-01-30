@@ -19,7 +19,8 @@ export interface Ticket {
     | "done"
     | "skipped"
     | "transferred"
-    | "waiting_archive";
+    | "waiting_archive"
+    | "field_visit";
   windowId: number | null;
   createdAt: number;
   startedAt?: number | null; // when serving started
