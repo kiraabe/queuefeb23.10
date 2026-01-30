@@ -1986,14 +1986,7 @@ export const resumeCase: RequestHandler = async (req, res) => {
 
     const ticket = ticketRes.rows[0];
 
-    if (ticket.status !== "on_hold") {
-      await client.query("ROLLBACK");
-      return res.status(400).json({
-        error: "Only on-hold cases can be resumed",
-      });
-    }
-
-    // Get the most recent hold record
+    // Get the most recent hold record to check if case is actually on hold
     const holdRes = await client.query(
       `SELECT id, held_at FROM case_holds
        WHERE ticket_id = $1 AND resumed_at IS NULL
@@ -2004,7 +1997,7 @@ export const resumeCase: RequestHandler = async (req, res) => {
     if (!holdRes.rows.length) {
       await client.query("ROLLBACK");
       return res.status(400).json({
-        error: "No active hold found for this case",
+        error: "No active hold found for this case. Only cases with active holds can be resumed.",
       });
     }
 
