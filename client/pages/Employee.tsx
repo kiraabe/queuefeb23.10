@@ -577,9 +577,9 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                     size="sm"
                     onClick={() => setHoldDialogOpen(true)}
                     variant="outline"
-                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:border-yellow-600 dark:text-yellow-400"
+                    className="border-2 border-yellow-500 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-600 dark:text-yellow-400 dark:hover:bg-yellow-950/20"
                   >
-                    Hold
+                    ⏸ Hold
                   </Button>
                 </>
               )}
