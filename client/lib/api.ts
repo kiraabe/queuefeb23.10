@@ -98,6 +98,20 @@ export function apiUrl(path: string): string {
   return `${base}${path}`;
 }
 
+export async function apiCall<T = any>(
+  method: string,
+  path: string,
+  body?: any,
+): Promise<T> {
+  const opts: RequestInit = {
+    method,
+  };
+  if (body) {
+    opts.body = JSON.stringify(body);
+  }
+  return apiFetch<T>(path, opts);
+}
+
 export async function apiFetch<T>(
   path: string,
   opts?: RequestInit,
