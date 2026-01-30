@@ -59,6 +59,11 @@ import {
   caseWorkflow,
   listCaseWorkflows,
   getStoredProgressFlow,
+  requireFieldVisit,
+  startFieldWork,
+  completeFieldWork,
+  listFieldVisitCases,
+  getFieldVisitCase,
 } from "./routes/employee";
 import {
   listUsers,
