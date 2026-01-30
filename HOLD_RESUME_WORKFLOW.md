@@ -25,6 +25,7 @@ CREATE TABLE case_holds (
 ```
 
 **Key Fields:**
+
 - `held_at`: Timestamp when the case was placed on hold
 - `resumed_at`: Timestamp when the case was resumed (null if still on hold)
 - `hold_duration_seconds`: Total seconds the case was on hold
@@ -34,9 +35,11 @@ CREATE TABLE case_holds (
 ### API Endpoints
 
 #### 1. Place Case On Hold
+
 **POST** `/api/employee/cases/:id/hold`
 
 Request body:
+
 ```json
 {
   "subject": "Waiting for customer documents",
@@ -45,6 +48,7 @@ Request body:
 ```
 
 Response:
+
 ```json
 {
   "ticket": { ... },
@@ -65,9 +69,11 @@ Response:
 **Status Change:** Case status changes from `serving` → `on_hold`
 
 #### 2. Resume Case
+
 **POST** `/api/employee/cases/:id/resume`
 
 Response:
+
 ```json
 {
   "ticket": { ... },
@@ -83,9 +89,11 @@ Response:
 **Status Change:** Case status changes from `on_hold` → `serving`
 
 #### 3. Get Case Holds
+
 **GET** `/api/employee/holds?ticketId={ticketId}`
 
 Response:
+
 ```json
 {
   "holds": [
@@ -106,6 +114,7 @@ Response:
 ### User Interface
 
 #### Hold Case Dialog
+
 - **Trigger:** Click "⏸ Hold" button on in-progress case
 - **Form Fields:**
   - Subject (required): Reason for hold
@@ -118,11 +127,13 @@ Response:
 #### Case Display
 
 **Received Cases Tab:**
+
 - On-hold cases are displayed alongside active cases
 - Status badge shows "On Hold" with yellow highlight
 - Resume button replaces standard action buttons
 
 **History Tab:**
+
 - Cases show complete workflow chain
 - Hold entries display:
   - Subject and description
@@ -132,11 +143,13 @@ Response:
 ### Case Status Handling
 
 #### Visibility Rules
+
 - On-hold cases remain visible in "Received Cases" tab
 - Cases are NOT auto-archived at end of day if on hold
 - Cases persist across multiple days while on hold
 
 #### Query Updates
+
 The following queries were updated to include `on_hold` status:
 
 1. **employeeReceivedTickets** (both tab-specific and default)
@@ -150,19 +163,21 @@ The following queries were updated to include `on_hold` status:
 #### Time Tracking
 
 **Hold Duration Calculation:**
+
 ```
 holdDurationSeconds = floor((resumedAt - heldAt) / 1000)
 ```
 
 **Metrics Exclusion:**
 Hold time is automatically excluded from performance metrics:
+
 ```sql
 SUM(
   EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) -
   COALESCE((
     SELECT SUM(COALESCE(hold_duration_seconds, 0))
     FROM case_holds
-    WHERE ticket_id = ecp.ticket_id 
+    WHERE ticket_id = ecp.ticket_id
       AND held_by_user_id = ecp.employee_id
   ), 0)
 ) as total_duration
@@ -213,11 +228,13 @@ Cases display a complete workflow history including:
 ## Metrics and Reporting
 
 ### Processing Time Calculation
+
 - **Active Time:** Total work time minus hold durations
 - **Hold Time:** Tracked separately for analysis
 - **Total Case Time:** Includes all hold periods
 
 ### Dashboard Display
+
 - Stats show "Cases Received" including on-hold cases
 - Performance metrics exclude hold durations
 - History view shows all hold instances with durations
@@ -225,6 +242,7 @@ Cases display a complete workflow history including:
 ## Implementation Status
 
 ✅ **Completed Features:**
+
 - [x] Hold/Resume dialog with form validation
 - [x] Database schema with case_holds table
 - [x] API endpoints for hold, resume, and get holds

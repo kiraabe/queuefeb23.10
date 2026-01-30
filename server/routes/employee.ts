@@ -2004,7 +2004,8 @@ export const resumeCase: RequestHandler = async (req, res) => {
     if (!holdRes.rows.length) {
       await client.query("ROLLBACK");
       return res.status(400).json({
-        error: "No active hold found for this case. Only cases with active holds can be resumed.",
+        error:
+          "No active hold found for this case. Only cases with active holds can be resumed.",
       });
     }
 

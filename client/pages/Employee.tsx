@@ -411,7 +411,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const fetchHolds = async () => {
     try {
       const data = await apiFetch<{ holds: CaseHold[] }>(
-        `/api/employee/holds?ticketId=${ticket.id}`
+        `/api/employee/holds?ticketId=${ticket.id}`,
       );
       setHolds(data.holds || []);
     } catch (error) {
