@@ -359,11 +359,7 @@ export function createServer() {
     requireRole(["employee"]),
     completeCase,
   );
-  app.post(
-    "/api/employee/cases/:id/hold",
-    requireRole(["employee"]),
-    holdCase,
-  );
+  app.post("/api/employee/cases/:id/hold", requireRole(["employee"]), holdCase);
   app.post(
     "/api/employee/cases/:id/resume",
     requireRole(["employee"]),

@@ -2024,10 +2024,9 @@ export const resumeCase: RequestHandler = async (req, res) => {
     );
 
     // Update ticket status back to serving
-    await client.query(
-      `UPDATE tickets SET status = 'serving' WHERE id = $1`,
-      [ticketId],
-    );
+    await client.query(`UPDATE tickets SET status = 'serving' WHERE id = $1`, [
+      ticketId,
+    ]);
 
     // Get hold details for logging
     const holdDetailsRes = await client.query(

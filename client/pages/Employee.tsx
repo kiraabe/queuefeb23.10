@@ -562,24 +562,27 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                 Start
               </Button>
             )}
-            {isReceived && hasStarted && !isCompleted && ticket.status !== "on_hold" && (
-              <>
-                <Button size="sm" onClick={handleProceed} variant="outline">
-                  Proceed
-                </Button>
-                <Button size="sm" onClick={handleComplete}>
-                  Complete
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setHoldDialogOpen(true)}
-                  variant="outline"
-                  className="text-yellow-600 border-yellow-600 hover:bg-yellow-50"
-                >
-                  Hold
-                </Button>
-              </>
-            )}
+            {isReceived &&
+              hasStarted &&
+              !isCompleted &&
+              ticket.status !== "on_hold" && (
+                <>
+                  <Button size="sm" onClick={handleProceed} variant="outline">
+                    Proceed
+                  </Button>
+                  <Button size="sm" onClick={handleComplete}>
+                    Complete
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setHoldDialogOpen(true)}
+                    variant="outline"
+                    className="text-yellow-600 border-yellow-600 hover:bg-yellow-50"
+                  >
+                    Hold
+                  </Button>
+                </>
+              )}
             {ticket.status === "on_hold" && (
               <Button
                 size="sm"

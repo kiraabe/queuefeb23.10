@@ -48,14 +48,10 @@ export function HoldCaseDialog({
     setError(null);
 
     try {
-      await apiCall(
-        "POST",
-        `/api/employee/cases/${ticket.id}/hold`,
-        {
-          subject,
-          description,
-        },
-      );
+      await apiCall("POST", `/api/employee/cases/${ticket.id}/hold`, {
+        subject,
+        description,
+      });
 
       setSubject("");
       setDescription("");
