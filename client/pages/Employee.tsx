@@ -408,12 +408,19 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   }, [ticket]);
 
   // Fetch hold records to check for active holds
+  const fetchHolds = async () => {
+    try {
+      const data = await apiFetch<{ holds: CaseHold[] }>(
+        `/api/employee/holds?ticketId=${ticket.id}`
+      );
+      setHolds(data.holds || []);
+    } catch (error) {
+      console.error("Failed to fetch holds:", error);
+    }
+  };
+
   useEffect(() => {
-    apiFetch<{ holds: CaseHold[] }>(`/api/employee/holds?ticketId=${ticket.id}`)
-      .then((data) => {
-        setHolds(data.holds || []);
-      })
-      .catch(() => {});
+    fetchHolds();
   }, [ticket.id]);
 
   useEffect(() => {
