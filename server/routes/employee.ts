@@ -201,11 +201,11 @@ export const employeeStats: RequestHandler = async (req, res) => {
   try {
     const p = getPool();
 
-    // Count received tickets today (transferred to this employee - includes both 'transferred' and 'serving' status)
+    // Count received tickets today (transferred to this employee - includes 'transferred', 'serving', and 'on_hold' status)
     const { rows: receivedRows } = await p.query(
       `SELECT COUNT(*)::int AS c
        FROM tickets t
-       WHERE (t.status = 'transferred' OR t.status = 'serving')
+       WHERE (t.status = 'transferred' OR t.status = 'serving' OR t.status = 'on_hold')
          AND t.transferred_to_user_id = $1
          AND t.created_at >= date_trunc('day', now())`,
       [userId],
