@@ -361,6 +361,33 @@ export function createServer() {
   app.get("/api/employee/case-workflows", listCaseWorkflows);
   app.get("/api/employee/progress-flow", getStoredProgressFlow);
 
+  // Field Visit Workflow endpoints
+  app.post(
+    "/api/employee/tickets/:ticketId/require-field-visit",
+    requireRole(["employee", "admin"]),
+    requireFieldVisit,
+  );
+  app.post(
+    "/api/employee/field-visit-cases/:caseId/start",
+    requireRole(["employee", "admin"]),
+    startFieldWork,
+  );
+  app.post(
+    "/api/employee/field-visit-cases/:caseId/complete",
+    requireRole(["employee", "admin"]),
+    completeFieldWork,
+  );
+  app.get(
+    "/api/employee/field-visit-cases",
+    requireRole(["employee", "admin"]),
+    listFieldVisitCases,
+  );
+  app.get(
+    "/api/employee/field-visit-cases/:caseId",
+    requireRole(["employee", "admin"]),
+    getFieldVisitCase,
+  );
+
   // Archiever API
   app.get(
     "/api/archiever/documents",
