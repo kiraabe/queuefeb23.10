@@ -65,6 +65,9 @@ import {
   listFieldVisitCases,
   getFieldVisitCase,
   readyForService,
+  holdCase,
+  resumeCase,
+  getCaseHolds,
 } from "./routes/employee";
 import {
   listUsers,
