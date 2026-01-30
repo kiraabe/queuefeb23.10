@@ -1014,6 +1014,29 @@ export async function initDb() {
       `CREATE INDEX IF NOT EXISTS idx_field_visit_audit_logs_action_at ON field_visit_audit_logs(action_at)`,
     );
 
+    // Create case_holds table for hold/resume workflow
+    await p.query(`CREATE TABLE IF NOT EXISTS case_holds (
+      id uuid primary key default gen_random_uuid(),
+      ticket_id uuid not null references tickets(id) on delete cascade,
+      held_by_user_id uuid not null references users(id) on delete set null,
+      subject text not null,
+      description text not null,
+      held_at timestamptz not null default now(),
+      resumed_at timestamptz,
+      hold_duration_seconds int,
+      created_at timestamptz not null default now()
+    );`);
+
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_case_holds_ticket ON case_holds(ticket_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_case_holds_user ON case_holds(held_by_user_id)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_case_holds_held_at ON case_holds(held_at)`,
+    );
+
     console.log("✅ Field visit workflow schema initialized");
 
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
