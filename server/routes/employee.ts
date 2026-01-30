@@ -2008,7 +2008,7 @@ export const resumeCase: RequestHandler = async (req, res) => {
       (now.getTime() - heldAt.getTime()) / 1000,
     );
 
-    // Update hold record
+    // Update hold record with resume time and duration
     await client.query(
       `UPDATE case_holds
        SET resumed_at = now(), hold_duration_seconds = $1
@@ -2016,7 +2016,8 @@ export const resumeCase: RequestHandler = async (req, res) => {
       [holdDurationSeconds, hold.id],
     );
 
-    // Update ticket status back to serving
+    // Update ticket status back to serving (regardless of previous status)
+    // This allows work to continue whether it was transferred or not
     await client.query(`UPDATE tickets SET status = 'serving' WHERE id = $1`, [
       ticketId,
     ]);
