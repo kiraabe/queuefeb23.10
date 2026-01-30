@@ -1087,6 +1087,7 @@ async function nextNumber(
         [service],
       );
       // Archive previous-day tickets to avoid conflicts and clear windows
+      // NOTE: field_visit status tickets are NOT archived - they persist across days as part of multi-day field work
       await client.query(
         `UPDATE tickets
            SET status='done', completed_at = COALESCE(completed_at, now())
