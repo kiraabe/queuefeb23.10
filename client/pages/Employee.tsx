@@ -471,6 +471,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         method: "POST",
       });
       toast.success("Case started");
+      await fetchHolds();
       onComplete?.(ticket.id);
     } catch (error) {
       toast.error(
