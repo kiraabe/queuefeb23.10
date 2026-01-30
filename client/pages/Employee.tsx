@@ -741,7 +741,12 @@ export default function Employee() {
     }
     // received (default) - include on_hold cases so they can be resumed
     return tickets
-      .filter((t) => t.status === "transferred" || t.status === "serving" || t.status === "on_hold")
+      .filter(
+        (t) =>
+          t.status === "transferred" ||
+          t.status === "serving" ||
+          t.status === "on_hold",
+      )
       .sort((a, b) => (b.transferredAt || 0) - (a.transferredAt || 0));
   }, [tickets, tab, historyQuery.data]);
 
