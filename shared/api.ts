@@ -55,6 +55,41 @@ export interface Ticket {
   isFieldVisitGenerated?: boolean;
 }
 
+// Case Hold Tracking
+export interface CaseHold {
+  id: string; // uuid
+  ticketId: string;
+  heldByUserId: string;
+  heldByUserName?: string; // Employee name who placed on hold
+  subject: string; // Subject/reason for hold
+  description: string; // Detailed description
+  heldAt: number; // Hold start time (milliseconds)
+  resumedAt?: number | null; // Hold end time (null until resumed)
+  holdDurationSeconds?: number | null; // Duration in seconds (null until resumed)
+  createdAt: number;
+}
+
+export interface HoldCaseRequest {
+  subject: string;
+  description: string;
+}
+
+export interface HoldCaseResponse {
+  ticket: Ticket;
+  hold: CaseHold;
+  message: string;
+}
+
+export interface ResumeCaseResponse {
+  ticket: Ticket;
+  hold: CaseHold;
+  message: string;
+}
+
+export interface CaseHoldsResponse {
+  holds: CaseHold[];
+}
+
 export interface WindowState {
   id: number; // 1..6
   name: string; // "Window 1" etc
