@@ -1766,14 +1766,20 @@ export async function isLastParticipantCompletingCase(
   return incompleteSteps <= 1;
 }
 
-export async function compileAndStoreProgressFlow(ticketId: string) {
+export async function compileAndStoreProgressFlow(
+  ticketId: string,
+  providedClient?: any,
+) {
   const p = getPool();
-  const client = await p.connect();
+  const isProvidedClient = !!providedClient;
+  const client = providedClient || (await p.connect());
   try {
-    console.log(
-      `📊 Starting progress flow compilation for ticket: ${ticketId}`,
-    );
-    await client.query("BEGIN");
+    if (!isProvidedClient) {
+      console.log(
+        `📊 Starting progress flow compilation for ticket: ${ticketId}`,
+      );
+      await client.query("BEGIN");
+    }
 
     // Fetch archiver information for this ticket
     const archiverRes = await client.query(
