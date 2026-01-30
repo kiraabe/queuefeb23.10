@@ -3203,7 +3203,10 @@ export async function requireFieldVisitDb(
     // 5. Log audit
     await client.query(
       `INSERT INTO audit_logs (action, user_id, details) VALUES ('field_visit.initiated', $1, $2)`,
-      [employeeId, JSON.stringify({ ticketId, fieldVisitCaseId: fieldVisitCase.id })],
+      [
+        employeeId,
+        JSON.stringify({ ticketId, fieldVisitCaseId: fieldVisitCase.id }),
+      ],
     );
 
     // 6. Log field visit audit
@@ -3258,9 +3261,7 @@ export async function startFieldWorkDb(
     [employeeId, fieldVisitCaseId],
   );
   if (!res.rowCount) {
-    throw new Error(
-      "Field visit case not found or not in 'initiated' status",
-    );
+    throw new Error("Field visit case not found or not in 'initiated' status");
   }
 
   const fieldVisitCase = res.rows[0];
@@ -3321,9 +3322,7 @@ export async function completeFieldWorkDb(
   };
 }
 
-export async function getFieldVisitCasesDb(
-  employeeId: string,
-): Promise<any[]> {
+export async function getFieldVisitCasesDb(employeeId: string): Promise<any[]> {
   const p = getPool();
   const res = await p.query(
     `SELECT id, ticket_id, status,
@@ -3361,10 +3360,9 @@ export async function getFieldVisitCaseDb(
   fieldVisitCaseId: string,
 ): Promise<any> {
   const p = getPool();
-  const res = await p.query(
-    `SELECT * FROM field_visit_cases WHERE id=$1`,
-    [fieldVisitCaseId],
-  );
+  const res = await p.query(`SELECT * FROM field_visit_cases WHERE id=$1`, [
+    fieldVisitCaseId,
+  ]);
   if (!res.rowCount) {
     throw new Error("Field visit case not found");
   }

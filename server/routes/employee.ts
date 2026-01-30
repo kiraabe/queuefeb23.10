@@ -1472,14 +1472,15 @@ export const requireFieldVisit: RequestHandler = async (req, res) => {
   if (!ticketId) {
     return res.status(400).json({ error: "Missing ticketId" });
   }
-  if (!assignmentPolicy || !["queue_new_ticket", "direct_assignment"].includes(assignmentPolicy)) {
+  if (
+    !assignmentPolicy ||
+    !["queue_new_ticket", "direct_assignment"].includes(assignmentPolicy)
+  ) {
     return res.status(400).json({ error: "Invalid assignmentPolicy" });
   }
 
   try {
-    const {
-      requireFieldVisitDb,
-    } = await import("../store/db");
+    const { requireFieldVisitDb } = await import("../store/db");
 
     const result = await requireFieldVisitDb(
       ticketId,
@@ -1497,7 +1498,10 @@ export const requireFieldVisit: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to require field visit:", error);
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Failed to require field visit",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to require field visit",
     });
   }
 };
@@ -1516,15 +1520,9 @@ export const startFieldWork: RequestHandler = async (req, res) => {
   }
 
   try {
-    const {
-      startFieldWorkDb,
-    } = await import("../store/db");
+    const { startFieldWorkDb } = await import("../store/db");
 
-    const fieldVisitCase = await startFieldWorkDb(
-      caseId,
-      userId,
-      startNotes,
-    );
+    const fieldVisitCase = await startFieldWorkDb(caseId, userId, startNotes);
 
     res.json({
       ok: true,
@@ -1533,7 +1531,8 @@ export const startFieldWork: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to start field work:", error);
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Failed to start field work",
+      error:
+        error instanceof Error ? error.message : "Failed to start field work",
     });
   }
 };
@@ -1552,9 +1551,7 @@ export const completeFieldWork: RequestHandler = async (req, res) => {
   }
 
   try {
-    const {
-      completeFieldWorkDb,
-    } = await import("../store/db");
+    const { completeFieldWorkDb } = await import("../store/db");
 
     const fieldVisitCase = await completeFieldWorkDb(
       caseId,
@@ -1569,7 +1566,10 @@ export const completeFieldWork: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to complete field work:", error);
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Failed to complete field work",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to complete field work",
     });
   }
 };
@@ -1581,9 +1581,7 @@ export const listFieldVisitCases: RequestHandler = async (req, res) => {
   }
 
   try {
-    const {
-      getFieldVisitCasesDb,
-    } = await import("../store/db");
+    const { getFieldVisitCasesDb } = await import("../store/db");
 
     const cases = await getFieldVisitCasesDb(userId);
 
@@ -1594,7 +1592,10 @@ export const listFieldVisitCases: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to list field visit cases:", error);
     res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to list field visit cases",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to list field visit cases",
     });
   }
 };
@@ -1612,9 +1613,7 @@ export const getFieldVisitCase: RequestHandler = async (req, res) => {
   }
 
   try {
-    const {
-      getFieldVisitCaseDb,
-    } = await import("../store/db");
+    const { getFieldVisitCaseDb } = await import("../store/db");
 
     const fieldVisitCase = await getFieldVisitCaseDb(caseId);
 
@@ -1624,7 +1623,8 @@ export const getFieldVisitCase: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to get field visit case:", error);
     res.status(404).json({
-      error: error instanceof Error ? error.message : "Field visit case not found",
+      error:
+        error instanceof Error ? error.message : "Field visit case not found",
     });
   }
 };
@@ -1682,7 +1682,9 @@ export const readyForService: RequestHandler = async (req, res) => {
       if (policy === "queue_new_ticket") {
         // 3a. Create new ticket
         if (!newTicketServiceCategory) {
-          throw new Error("newTicketServiceCategory required for queue_new_ticket policy");
+          throw new Error(
+            "newTicketServiceCategory required for queue_new_ticket policy",
+          );
         }
 
         const { randomUUID } = await import("crypto");
@@ -1754,14 +1756,15 @@ export const readyForService: RequestHandler = async (req, res) => {
       } else if (policy === "direct_assignment") {
         // 3c. Direct assignment
         if (!assignedEmployeeId) {
-          throw new Error("assignedEmployeeId required for direct_assignment policy");
+          throw new Error(
+            "assignedEmployeeId required for direct_assignment policy",
+          );
         }
 
         // Verify employee exists
-        const empRes = await client.query(
-          `SELECT id FROM users WHERE id=$1`,
-          [assignedEmployeeId],
-        );
+        const empRes = await client.query(`SELECT id FROM users WHERE id=$1`, [
+          assignedEmployeeId,
+        ]);
         if (!empRes.rowCount) {
           throw new Error("Assigned employee not found");
         }
@@ -1796,7 +1799,10 @@ export const readyForService: RequestHandler = async (req, res) => {
         // Log audit
         await client.query(
           `INSERT INTO audit_logs (action, user_id, details) VALUES ('field_visit.direct_assignment', $1, $2)`,
-          [userId, JSON.stringify({ fieldVisitCaseId: caseId, assignedEmployeeId })],
+          [
+            userId,
+            JSON.stringify({ fieldVisitCaseId: caseId, assignedEmployeeId }),
+          ],
         );
 
         await client.query(
@@ -1823,7 +1829,8 @@ export const readyForService: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Failed to ready for service:", error);
     res.status(400).json({
-      error: error instanceof Error ? error.message : "Failed to ready for service",
+      error:
+        error instanceof Error ? error.message : "Failed to ready for service",
     });
   }
 };

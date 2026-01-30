@@ -42,10 +42,14 @@ export function FieldVisitActionButton({
     setError(null);
 
     try {
-      await apiCall("POST", `/employee/tickets/${ticket.id}/require-field-visit`, {
-        fieldWorkNotes,
-        assignmentPolicy,
-      });
+      await apiCall(
+        "POST",
+        `/employee/tickets/${ticket.id}/require-field-visit`,
+        {
+          fieldWorkNotes,
+          assignmentPolicy,
+        },
+      );
 
       setOpen(false);
       setFieldWorkNotes("");
@@ -53,7 +57,7 @@ export function FieldVisitActionButton({
       onSuccess?.();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to initiate field visit"
+        err instanceof Error ? err.message : "Failed to initiate field visit",
       );
     } finally {
       setLoading(false);
@@ -120,17 +124,19 @@ export function FieldVisitActionButton({
                 value={assignmentPolicy}
                 onValueChange={(value) =>
                   setAssignmentPolicy(
-                    value as "queue_new_ticket" | "direct_assignment"
+                    value as "queue_new_ticket" | "direct_assignment",
                   )
                 }
               >
                 <div className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50">
-                  <RadioGroupItem
-                    value="queue_new_ticket"
-                    id="policy-queue"
-                  />
-                  <Label htmlFor="policy-queue" className="cursor-pointer flex-1">
-                    <span className="font-medium">Generate New Daily Ticket</span>
+                  <RadioGroupItem value="queue_new_ticket" id="policy-queue" />
+                  <Label
+                    htmlFor="policy-queue"
+                    className="cursor-pointer flex-1"
+                  >
+                    <span className="font-medium">
+                      Generate New Daily Ticket
+                    </span>
                     <p className="text-xs text-gray-600">
                       Create a new ticket to rejoin the queue (FIFO from
                       readiness time)
