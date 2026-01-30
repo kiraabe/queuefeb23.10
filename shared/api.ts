@@ -50,6 +50,9 @@ export interface Ticket {
   // Document tracking for archiever
   documentsFetched?: boolean;
   documentsFetchedAt?: number | null;
+  // Field visit tracking
+  fieldVisitCaseId?: string | null;
+  isFieldVisitGenerated?: boolean;
 }
 
 export interface WindowState {
