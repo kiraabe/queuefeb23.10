@@ -567,17 +567,17 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
               !isCompleted &&
               ticket.status !== "on_hold" && (
                 <>
-                  <Button size="sm" onClick={handleProceed} variant="outline">
-                    Proceed
-                  </Button>
                   <Button size="sm" onClick={handleComplete}>
                     Complete
+                  </Button>
+                  <Button size="sm" onClick={handleProceed} variant="outline">
+                    Proceed
                   </Button>
                   <Button
                     size="sm"
                     onClick={() => setHoldDialogOpen(true)}
                     variant="outline"
-                    className="text-yellow-600 border-yellow-600 hover:bg-yellow-50"
+                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:border-yellow-600 dark:text-yellow-400"
                   >
                     Hold
                   </Button>
