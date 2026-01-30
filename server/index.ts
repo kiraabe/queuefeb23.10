@@ -378,6 +378,11 @@ export function createServer() {
     requireRole(["employee", "admin"]),
     completeFieldWork,
   );
+  app.post(
+    "/api/employee/field-visit-cases/:caseId/ready-for-service",
+    requireRole(["employee", "admin"]),
+    readyForService,
+  );
   app.get(
     "/api/employee/field-visit-cases",
     requireRole(["employee", "admin"]),
