@@ -1134,6 +1134,7 @@ async function nextGlobalNumber(
       await client.query(
         `UPDATE service_counters SET next_number=1, counter_date=current_date WHERE service='GLOBAL'`,
       );
+      // NOTE: field_visit status tickets are NOT archived - they persist across days as part of multi-day field work
       await client.query(
         `UPDATE tickets
            SET status='done', completed_at = COALESCE(completed_at, now())
