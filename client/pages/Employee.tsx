@@ -108,13 +108,20 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    // Fetch performance metrics for this ticket
+    // Fetch performance metrics and hold records for this ticket
     apiFetch<PerformanceMetricsResponse>(
       `/api/employee/performance?ticketId=${ticket.id}`,
     )
       .then((data) => {
         setPerformanceDetails(data.items);
         setSumEmployeesDuration(data.sumEmployeesDurationSeconds || null);
+      })
+      .catch(() => {});
+
+    // Fetch hold records
+    apiFetch<{ holds: CaseHold[] }>(`/api/employee/holds?ticketId=${ticket.id}`)
+      .then((data) => {
+        setHolds(data.holds || []);
       })
       .catch(() => {});
   }, [ticket.id]);
