@@ -449,9 +449,11 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const statusColor =
     ticket.status === "done"
       ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-      : ticket.status === "on_hold"
+      : hasActiveHold
         ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
-        : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
+        : ticket.status === "on_hold"
+          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
+          : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300";
 
   const handleStart = async () => {
     try {
