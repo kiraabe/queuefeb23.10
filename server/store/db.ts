@@ -2145,7 +2145,10 @@ export async function displayStateDb(): Promise<DisplayState> {
   const mapRow = async (row: any): Promise<DisplayTicket> => {
     // Enrich selectedServices with actual names if they are IDs
     let enrichedServices: string[] | undefined = undefined;
-    if (Array.isArray(row.selected_services) && row.selected_services.length > 0) {
+    if (
+      Array.isArray(row.selected_services) &&
+      row.selected_services.length > 0
+    ) {
       try {
         const serviceIds = row.selected_services;
         const servicesRes = await p.query(

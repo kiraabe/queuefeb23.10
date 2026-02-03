@@ -108,7 +108,12 @@ export interface DisplayTicket {
   windowId: number | null;
   createdAt: number;
   updatedAt?: number;
-  currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null;
+  currentEmployee?: {
+    id: string;
+    fullName: string;
+    jobTitle: string;
+    jobTitleAmharic?: string;
+  } | null;
   ownerName?: string;
   selectedServices?: string[];
 }
