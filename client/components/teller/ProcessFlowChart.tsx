@@ -1,6 +1,7 @@
-import type { Ticket } from "@shared/api";
-import { useState } from "react";
-import { X } from "lucide-react";
+import type { Ticket, CaseHold } from "@shared/api";
+import { useState, useEffect } from "react";
+import { X, ChevronDown } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 interface ProcessStep {
   id: string;
