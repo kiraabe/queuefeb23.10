@@ -86,6 +86,24 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
     }
   };
 
+  const formatTime = (timestamp: number | null | undefined) => {
+    if (!timestamp) return "—";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDuration = (seconds: number | null | undefined) => {
+    if (!seconds) return "—";
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    if (seconds < 3600) {
+      const minutes = Math.round(seconds / 60);
+      return `${minutes}m`;
+    }
+    const hours = Math.round(seconds / 3600);
+    const minutes = Math.round((seconds % 3600) / 60);
+    return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+  };
+
   return (
     <div className="mt-3 bg-card rounded-lg border border-border p-3 space-y-3">
       {/* Header */}
