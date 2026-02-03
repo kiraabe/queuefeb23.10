@@ -1341,8 +1341,6 @@ export async function createTicketDb(
           : undefined,
       landCertificateKarta:
         r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
-      landCertificateDigital:
-        r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
     };
   } catch (e) {
     await client.query("ROLLBACK");
