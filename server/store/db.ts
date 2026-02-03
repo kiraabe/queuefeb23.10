@@ -1489,7 +1489,7 @@ export async function completeDb(windowId: number) {
     const w = await getWindow(client, windowId);
     if (!w.currentTicketId) throw new Error("No active ticket");
     const tRes = await client.query(
-      `UPDATE tickets SET status='done', completed_at=now() WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
+      `UPDATE tickets SET status='done', completed_at=now() WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
       [w.currentTicketId],
     );
     await client.query(
