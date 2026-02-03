@@ -549,7 +549,8 @@ export default function AdminDashboard() {
                               {display.next.currentEmployee.fullName}
                             </p>
                             <p className="text-xs text-blue-700">
-                              {display.next.currentEmployee.jobTitle}
+                              {display.next.currentEmployee.jobTitleAmharic ||
+                                display.next.currentEmployee.jobTitle}
                             </p>
                           </div>
                         </div>
