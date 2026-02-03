@@ -2119,6 +2119,8 @@ export async function displayStateDb(): Promise<DisplayState> {
             t.code,
             t.status,
             t.window_id,
+            t.owner_name,
+            t.selected_services,
             extract(epoch from t.created_at)*1000 as created_at,
             extract(epoch from COALESCE(w.updated_at, t.proceeded_at, t.started_at, t.created_at))*1000 as updated_at
        FROM tickets t
@@ -2132,6 +2134,8 @@ export async function displayStateDb(): Promise<DisplayState> {
             code,
             status,
             window_id,
+            owner_name,
+            selected_services,
             extract(epoch from created_at)*1000 as created_at
        FROM tickets
        WHERE status='waiting'
