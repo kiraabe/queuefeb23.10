@@ -950,6 +950,26 @@ export default function TellerWindow() {
                       : "—"}
                   </p>
                 </div>
+                {currentTicket?.landCertificateKarta && (
+                  <div className="min-w-0">
+                    <div className="text-xs uppercase text-muted-foreground mb-1">
+                      Land Certificate (ካርታ)
+                    </div>
+                    <p className="truncate text-sm font-medium text-blue-600">
+                      {currentTicket.landCertificateKarta}
+                    </p>
+                  </div>
+                )}
+                {currentTicket?.landCertificateDigital && (
+                  <div className="min-w-0">
+                    <div className="text-xs uppercase text-muted-foreground mb-1">
+                      Digital Certificate (ዲጂታል)
+                    </div>
+                    <p className="truncate text-sm font-medium text-green-600">
+                      {currentTicket.landCertificateDigital}
+                    </p>
+                  </div>
+                )}
                 <div
                   className={`${
                     currentTicket ? "sm:col-span-2" : "sm:col-span-1"
