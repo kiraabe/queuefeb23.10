@@ -526,10 +526,10 @@ export async function initDb() {
     );
     // Add land certificate columns
     await p.query(
-      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS land_certificate_karta text;`,
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
     await p.query(
-      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS land_certificate_digital text;`,
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No." text;`,
     );
     // Case workflow columns - for employee case tracking
     await p.query(
