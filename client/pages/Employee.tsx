@@ -468,7 +468,10 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
       // Total elapsed time since start
       const totalElapsed = Math.round((now - ticket.employeeStartedAt!) / 1000);
       // Subtract hold duration to get active processing time
-      const activeElapsed = Math.max(0, totalElapsed - totalHoldDurationSeconds);
+      const activeElapsed = Math.max(
+        0,
+        totalElapsed - totalHoldDurationSeconds,
+      );
       setElapsedTime(activeElapsed);
     }, 1000);
 
@@ -479,7 +482,13 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     setElapsedTime(activeElapsed);
 
     return () => clearInterval(interval);
-  }, [ticket.employeeStartedAt, ticket.completedAt, hasActiveHold, totalHoldDurationSeconds, holds]);
+  }, [
+    ticket.employeeStartedAt,
+    ticket.completedAt,
+    hasActiveHold,
+    totalHoldDurationSeconds,
+    holds,
+  ]);
 
   // Use elapsed time for in-progress, only calculate from start to end for completed cases
   const duration =

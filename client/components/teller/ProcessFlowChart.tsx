@@ -24,7 +24,11 @@ interface ProcessFlowChartProps {
   userMap?: Map<string, string>;
 }
 
-export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartProps) {
+export function ProcessFlowChart({
+  ticket,
+  steps,
+  userMap,
+}: ProcessFlowChartProps) {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [actionsExpanded, setActionsExpanded] = useState(false);
   const [holds, setHolds] = useState<CaseHold[]>([]);
@@ -38,7 +42,7 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
       try {
         setHoldsLoading(true);
         const data = await apiFetch<{ holds: CaseHold[] }>(
-          `/api/employee/holds?ticketId=${ticket.id}`
+          `/api/employee/holds?ticketId=${ticket.id}`,
         );
         setHolds(data.holds || []);
       } catch (error) {
@@ -122,9 +126,7 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
               {/* Step Card - Clickable */}
               <button
                 onClick={() =>
-                  setSelectedStepId(
-                    selectedStepId === step.id ? null : step.id
-                  )
+                  setSelectedStepId(selectedStepId === step.id ? null : step.id)
                 }
                 className={`flex items-center gap-2 px-3 py-2 rounded border transition-all whitespace-nowrap text-xs flex-shrink-0 cursor-pointer ${
                   selectedStepId === step.id
@@ -138,9 +140,7 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
                 <span className="font-medium text-foreground max-w-[120px] truncate">
                   {step.employeeName}
                 </span>
-                <span className="text-muted-foreground">
-                  {step.duration}
-                </span>
+                <span className="text-muted-foreground">{step.duration}</span>
                 <span
                   className={`px-1.5 py-0.5 rounded text-xs font-medium ${getActionBadgeColor(step.action)}`}
                 >
@@ -150,7 +150,9 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
 
               {/* Arrow (except last step) */}
               {index < steps.length - 1 && (
-                <span className="text-muted-foreground/60 text-lg flex-shrink-0">→</span>
+                <span className="text-muted-foreground/60 text-lg flex-shrink-0">
+                  →
+                </span>
               )}
             </div>
           ))}
@@ -183,10 +185,10 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
           {/* Details Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div>
-              <p className="text-muted-foreground font-semibold mb-1">
-                Status
-              </p>
-              <p className={`font-medium ${getActionBadgeColor(selectedStep.action)} px-2 py-1 rounded inline-block`}>
+              <p className="text-muted-foreground font-semibold mb-1">Status</p>
+              <p
+                className={`font-medium ${getActionBadgeColor(selectedStep.action)} px-2 py-1 rounded inline-block`}
+              >
                 {selectedStep.action}
               </p>
             </div>
@@ -233,12 +235,8 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
 
             {selectedStep.isArchiver && (
               <div>
-                <p className="text-muted-foreground font-semibold mb-1">
-                  Role
-                </p>
-                <p className="font-medium text-foreground">
-                  Archiever
-                </p>
+                <p className="text-muted-foreground font-semibold mb-1">Role</p>
+                <p className="font-medium text-foreground">Archiever</p>
               </div>
             )}
           </div>
