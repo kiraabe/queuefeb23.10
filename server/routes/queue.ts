@@ -240,12 +240,16 @@ export const createTicket: RequestHandler = async (req, res) => {
     woreda,
     serviceCategory,
     selectedServices,
+    landCertificateKarta,
+    landCertificateDigital,
   } = (req.body || {}) as CreateTicketRequest;
   const sanitize = (s?: string) => (s ?? "").toString().slice(0, 500).trim();
   const cleanNotes = sanitize(notes);
   const cleanOwner = sanitize(ownerName);
   const cleanWoreda = sanitize(woreda);
   const cleanCategory = sanitize(serviceCategory);
+  const cleanLandCertKarta = sanitize(landCertificateKarta);
+  const cleanLandCertDigital = sanitize(landCertificateDigital);
 
   try {
     const p = getPool();
@@ -273,6 +277,8 @@ export const createTicket: RequestHandler = async (req, res) => {
       cleanWoreda,
       cleanCategory,
       selectedServices,
+      cleanLandCertKarta,
+      cleanLandCertDigital,
     );
     console.log("✅ Ticket created in DB:", {
       id: t.id,
