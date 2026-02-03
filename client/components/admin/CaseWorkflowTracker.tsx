@@ -461,7 +461,10 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                 </p>
                 <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
                   {formatSeconds(
-                    workflow.items.reduce((sum, item) => sum + (item.durationSeconds || 0), 0)
+                    workflow.items.reduce(
+                      (sum, item) => sum + (item.durationSeconds || 0),
+                      0,
+                    ),
                   )}
                 </p>
               </div>

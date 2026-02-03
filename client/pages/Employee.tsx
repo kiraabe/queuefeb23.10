@@ -221,14 +221,22 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
               <div className="mt-2 pt-2 border-t border-border/40 space-y-1">
                 {ticket.landCertificateKarta && (
                   <div className="text-xs bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
-                    <span className="font-medium text-blue-700 dark:text-blue-400">Land Cert (ካርታ):</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-300">{ticket.landCertificateKarta}</span>
+                    <span className="font-medium text-blue-700 dark:text-blue-400">
+                      Land Cert (ካርታ):
+                    </span>{" "}
+                    <span className="text-blue-600 dark:text-blue-300">
+                      {ticket.landCertificateKarta}
+                    </span>
                   </div>
                 )}
                 {ticket.landCertificateDigital && (
                   <div className="text-xs bg-green-50 dark:bg-green-950/30 p-2 rounded">
-                    <span className="font-medium text-green-700 dark:text-green-400">Digital Cert (ዲጂታል):</span>{" "}
-                    <span className="text-green-600 dark:text-green-300">{ticket.landCertificateDigital}</span>
+                    <span className="font-medium text-green-700 dark:text-green-400">
+                      Digital Cert (ዲጂታል):
+                    </span>{" "}
+                    <span className="text-green-600 dark:text-green-300">
+                      {ticket.landCertificateDigital}
+                    </span>
                   </div>
                 )}
               </div>

@@ -241,13 +241,17 @@ function TicketPreview({
           <div className="space-y-1 text-primary/90 text-sm">
             {details.landCertificateKarta && (
               <p>
-                <span className="font-semibold text-primary">Land Certificate (ካርታ):</span>{" "}
+                <span className="font-semibold text-primary">
+                  Land Certificate (ካርታ):
+                </span>{" "}
                 {details.landCertificateKarta}
               </p>
             )}
             {details.landCertificateDigital && (
               <p>
-                <span className="font-semibold text-primary">Digital Certificate (ዲጂታል ካርታ):</span>{" "}
+                <span className="font-semibold text-primary">
+                  Digital Certificate (ዲጂታል ካርታ):
+                </span>{" "}
                 {details.landCertificateDigital}
               </p>
             )}
@@ -556,25 +560,35 @@ export default function Reception() {
               {/* Land Certificate fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-border/40 pt-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="land-cert-karta" className="text-sm font-medium">
+                  <Label
+                    htmlFor="land-cert-karta"
+                    className="text-sm font-medium"
+                  >
                     Land Holding Rights Certificate (ካርታ) ser no.
                   </Label>
                   <Input
                     id="land-cert-karta"
                     value={landCertificateKarta}
-                    onChange={(event) => setLandCertificateKarta(event.target.value)}
+                    onChange={(event) =>
+                      setLandCertificateKarta(event.target.value)
+                    }
                     placeholder="Enter certificate serial number"
                     className="h-10"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="land-cert-digital" className="text-sm font-medium">
+                  <Label
+                    htmlFor="land-cert-digital"
+                    className="text-sm font-medium"
+                  >
                     Land Holding Rights Certificate (ዲጂታል ካርታ) No.
                   </Label>
                   <Input
                     id="land-cert-digital"
                     value={landCertificateDigital}
-                    onChange={(event) => setLandCertificateDigital(event.target.value)}
+                    onChange={(event) =>
+                      setLandCertificateDigital(event.target.value)
+                    }
                     placeholder="Enter digital certificate number"
                     className="h-10"
                   />
