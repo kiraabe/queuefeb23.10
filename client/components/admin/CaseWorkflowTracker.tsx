@@ -457,10 +457,12 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
               </div>
               <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Total Steps
+                  Total Employee Time
                 </p>
                 <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
-                  {workflow.items.length}
+                  {formatSeconds(
+                    workflow.items.reduce((sum, item) => sum + (item.durationSeconds || 0), 0)
+                  )}
                 </p>
               </div>
               <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
