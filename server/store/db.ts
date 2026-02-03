@@ -1297,9 +1297,9 @@ export async function createTicketDb(
     const serializedRequiredDocuments = null;
 
     const { rows } = await client.query(
-      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services, required_documents, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No.")
-       VALUES ($1, $2, $3, $4, 'waiting_archive', NULL, $5, $6, $7, $8, $9, $10, $11, $12)
-       RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No."`,
+      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services, required_documents, "Land Holding Rights Certificate (ካርታ) ser no.")
+       VALUES ($1, $2, $3, $4, 'waiting_archive', NULL, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, "Land Holding Rights Certificate (ካርታ) ser no."`,
       [
         id,
         service,
@@ -1312,7 +1312,6 @@ export async function createTicketDb(
         serializedServices,
         serializedRequiredDocuments,
         landCertificateKarta ?? null,
-        landCertificateDigital ?? null,
       ],
     );
     await client.query("COMMIT");
