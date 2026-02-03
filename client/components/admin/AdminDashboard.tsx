@@ -631,19 +631,19 @@ export default function AdminDashboard() {
                                     {categoryTickets.length !== 1 ? "s" : ""}
                                   </p>
                                 </div>
-                                <div className="space-y-1 pl-2">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pl-2">
                                   {categoryTickets.map((ticket) => (
                                     <div
                                       key={ticket.id}
-                                      className="flex items-center justify-between rounded border p-2 text-sm hover:bg-muted/50 transition-colors"
+                                      className="rounded border p-3 hover:bg-muted/50 transition-colors text-center"
                                     >
-                                      <span className="font-medium">
+                                      <p className="font-semibold text-lg">
                                         {ticket.code}
-                                      </span>
+                                      </p>
                                       {ticket.ownerName && (
-                                        <span className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                           {ticket.ownerName}
-                                        </span>
+                                        </p>
                                       )}
                                     </div>
                                   ))}
