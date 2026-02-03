@@ -94,9 +94,11 @@ export function GlobalQueuePanel({
       queryClient.invalidateQueries({ queryKey: ["archiever-global-queue"] });
       onTicketSelected(data.ticket.id, data.ticket.code);
       toast.success(`Started working on ticket ${data.ticket.code}`);
+      setStartingTicketId(null);
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to start ticket");
+      setStartingTicketId(null);
     },
   });
 
