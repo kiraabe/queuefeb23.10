@@ -25,6 +25,8 @@ interface QueueTicket {
   queuePosition: number;
   isLocked: boolean;
   waitDuration: number;
+  landCertificateKarta?: string;
+  landCertificateDigital?: string;
 }
 
 interface GlobalQueuePanelProps {
