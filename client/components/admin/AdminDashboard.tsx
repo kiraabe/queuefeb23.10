@@ -498,7 +498,8 @@ export default function AdminDashboard() {
                                   {ticket.currentEmployee.fullName}
                                 </p>
                                 <p className="text-xs text-blue-700">
-                                  {ticket.currentEmployee.jobTitle}
+                                  {ticket.currentEmployee.jobTitleAmharic ||
+                                    ticket.currentEmployee.jobTitle}
                                 </p>
                               </div>
                             </div>
