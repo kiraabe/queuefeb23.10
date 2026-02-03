@@ -31,6 +31,8 @@ export interface Ticket {
   woreda?: string;
   serviceCategory?: string; // Selected service category (e.g. "rights-group")
   selectedServices?: string[]; // Array of selected service names (e.g. ["የንብረት መያዣ ምዝገባ", "የንብረት መያዣ ስረዛ"])
+  landCertificateKarta?: string; // Land Holding Rights Certificate (ካርታ) serial number
+  landCertificateDigital?: string; // Land Holding Rights Certificate (ዲጂታል ካርታ) number
   // Optional fields for skipped/completed tickets
   remark?: string | null;
   skippedAt?: number | null;
@@ -184,6 +186,8 @@ export interface CreateTicketRequest {
   woreda?: string;
   serviceCategory?: string;
   selectedServices?: string[];
+  landCertificateKarta?: string;
+  landCertificateDigital?: string;
 }
 
 export interface DisplayResponse {
