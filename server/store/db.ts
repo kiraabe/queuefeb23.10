@@ -2143,6 +2143,23 @@ export async function displayStateDb(): Promise<DisplayState> {
   );
 
   const mapRow = async (row: any): Promise<DisplayTicket> => {
+    // Enrich selectedServices with actual names if they are IDs
+    let enrichedServices: string[] | undefined = undefined;
+    if (Array.isArray(row.selected_services) && row.selected_services.length > 0) {
+      try {
+        const serviceIds = row.selected_services;
+        const servicesRes = await p.query(
+          `SELECT id, name FROM services WHERE id = ANY($1::uuid[])`,
+          [serviceIds],
+        );
+        enrichedServices = servicesRes.rows.map((r) => r.name);
+      } catch (err) {
+        console.error("Error enriching service names:", err);
+        // Fallback to original IDs if query fails
+        enrichedServices = row.selected_services;
+      }
+    }
+
     const ticket: DisplayTicket = {
       id: row.id,
       code: row.code,
@@ -2155,9 +2172,7 @@ export async function displayStateDb(): Promise<DisplayState> {
           ? Math.round(Number(row.updated_at))
           : undefined,
       ownerName: row.owner_name || undefined,
-      selectedServices: Array.isArray(row.selected_services)
-        ? row.selected_services
-        : undefined,
+      selectedServices: enrichedServices,
     };
 
     // If ticket is being handled by an employee (serving status with no window), fetch employee info
