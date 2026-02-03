@@ -566,7 +566,11 @@ function AdminTicketRow({ ticket }: AdminTicketRowProps) {
           {ticket.status === "done" && (
             <>
               {processSteps.length > 0 ? (
-                <ProcessFlowChart ticket={ticket} steps={processSteps} />
+                <ProcessFlowChart
+                  ticket={ticket}
+                  steps={processSteps}
+                  userMap={userMap}
+                />
               ) : (
                 <CompletedTicketSummary ticket={ticket} />
               )}
