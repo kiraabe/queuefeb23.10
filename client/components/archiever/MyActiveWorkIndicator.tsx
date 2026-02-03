@@ -12,7 +12,6 @@ interface MyActiveWorkIndicatorProps {
 export function MyActiveWorkIndicator({
   ticketCode,
   startTime,
-  onClear,
   isWorkingOnTicket,
 }: MyActiveWorkIndicatorProps) {
   const [elapsedTime, setElapsedTime] = useState("0m 0s");
