@@ -2261,10 +2261,13 @@ export async function getTicketByCodeDb(code: string): Promise<{
   if (t.status === "serving" || t.status === "transferred") {
     // First, try to find someone actively working on it (in_progress)
     const empRes = await p.query(
-      `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
+      `SELECT u.id, u.full_name,
+              COALESCE(jt_ecp.name_amharic, jt_ecp.name_english, jt_user.name_amharic, jt_user.name_english, 'Employee') as job_title,
+              COALESCE(jt_ecp.name_amharic, jt_user.name_amharic) as job_title_amharic
        FROM employee_case_performance ecp
        JOIN users u ON ecp.employee_id = u.id
-       LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+       LEFT JOIN job_title jt_ecp ON ecp.job_title_id = jt_ecp.id
+       LEFT JOIN job_title jt_user ON u.job_title_id = jt_user.id
        WHERE ecp.ticket_id = $1 AND ecp.status = 'in_progress'
        ORDER BY ecp.started_at DESC
        LIMIT 1`,
@@ -2288,10 +2291,13 @@ export async function getTicketByCodeDb(code: string): Promise<{
     } else {
       // No one actively working, get the last one who handled it (e.g., who proceeded it)
       const lastEmpRes = await p.query(
-        `SELECT u.id, u.full_name, COALESCE(jt.name_amharic, jt.name_english, 'Employee') as job_title, jt.name_amharic as job_title_amharic
+        `SELECT u.id, u.full_name,
+                COALESCE(jt_ecp.name_amharic, jt_ecp.name_english, jt_user.name_amharic, jt_user.name_english, 'Employee') as job_title,
+                COALESCE(jt_ecp.name_amharic, jt_user.name_amharic) as job_title_amharic
          FROM employee_case_performance ecp
          JOIN users u ON ecp.employee_id = u.id
-         LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
+         LEFT JOIN job_title jt_ecp ON ecp.job_title_id = jt_ecp.id
+         LEFT JOIN job_title jt_user ON u.job_title_id = jt_user.id
          WHERE ecp.ticket_id = $1
          ORDER BY COALESCE(ecp.ended_at, ecp.started_at) DESC
          LIMIT 1`,
