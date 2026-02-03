@@ -1328,8 +1328,8 @@ export async function createTicketDb(
         : typeof r.selected_services === "string"
           ? JSON.parse(r.selected_services)
           : undefined,
-      landCertificateKarta: r.land_certificate_karta ?? undefined,
-      landCertificateDigital: r.land_certificate_digital ?? undefined,
+      landCertificateKarta: r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
+      landCertificateDigital: r["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
     };
   } catch (e) {
     await client.query("ROLLBACK");
