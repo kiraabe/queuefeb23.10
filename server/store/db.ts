@@ -524,25 +524,31 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS selected_services jsonb;`,
     );
-    // Add land certificate columns
+    // Add land certificate column
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
-    // Drop the new column if it was created (cleanup)
-    await p.query(
-      `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ካርታ) No.";`,
-    );
-    // Rename the digital certificate column to new name
-    await p.query(
-      `ALTER TABLE tickets RENAME COLUMN "Land Holding Rights Certificate (ዲጂታል ካርታ) No." TO "Land Holding Rights Certificate (ካርታ) No.";`,
-    );
     // Drop old column names if they exist
-    await p.query(
-      `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
-    );
-    await p.query(
-      `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_digital;`,
-    );
+    try {
+      await p.query(
+        `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ካርታ) No.";`,
+      );
+    } catch {}
+    try {
+      await p.query(
+        `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No.";`,
+      );
+    } catch {}
+    try {
+      await p.query(
+        `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
+      );
+    } catch {}
+    try {
+      await p.query(
+        `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_digital;`,
+      );
+    } catch {}
     // Case workflow columns - for employee case tracking
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_at timestamptz;`,
