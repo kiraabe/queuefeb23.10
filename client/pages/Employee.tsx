@@ -480,9 +480,6 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
       ? calculateDuration(ticket.employeeStartedAt, ticket.completedAt)
       : null);
 
-  // Check for active holds
-  const hasActiveHold = holds.some((h) => h.resumedAt == null);
-
   const statusColor =
     ticket.status === "done"
       ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
