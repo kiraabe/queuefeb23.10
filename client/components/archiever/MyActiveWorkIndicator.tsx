@@ -80,11 +80,6 @@ export function MyActiveWorkIndicator({
           </div>
         </div>
 
-        <Button onClick={onClear} variant="ghost" size="sm" className="w-full">
-          <X className="h-4 w-4 mr-2" />
-          Clear
-        </Button>
-
         <p className="text-xs text-muted-foreground text-center">
           Note: Other archivists cannot claim this ticket while you're working
           on it
