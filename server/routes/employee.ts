@@ -1887,7 +1887,7 @@ export const holdCase: RequestHandler = async (req, res) => {
     await p.query(
       `INSERT INTO case_holds (ticket_id, held_by_user_id, subject, description)
        VALUES ($1, $2, $3, $4)`,
-      [ticketId, userId, subject, description],
+      [ticketId, userId, subject, description || ""],
     );
 
     await p.query(`UPDATE tickets SET status = 'on_hold' WHERE id = $1`, [
