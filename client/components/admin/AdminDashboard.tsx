@@ -553,46 +553,58 @@ export default function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="next" className="space-y-4">
-                {display.next ? (
-                  <div className="rounded-lg border p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Next Ticket
-                        </p>
-                        <p className="text-3xl font-bold text-blue-600">
-                          {display.next.code}
-                        </p>
-                      </div>
-                      {display.next.currentEmployee && (
-                        <div className="text-right">
-                          <div className="rounded-lg bg-blue-50 px-3 py-2">
-                            <p className="text-xs font-semibold text-blue-700">
-                              Handler
-                            </p>
-                            <p className="text-sm font-bold text-blue-900">
-                              {display.next.currentEmployee.fullName}
-                            </p>
-                            <p className="text-xs text-blue-700">
-                              {display.next.currentEmployee.jobTitleAmharic ||
-                                display.next.currentEmployee.jobTitle}
+                {(() => {
+                  const nextTickets = [display.next, display.nextAfter].filter(
+                    Boolean,
+                  );
+                  return nextTickets.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {nextTickets.map((ticket, index) => (
+                        <div
+                          key={ticket?.id || index}
+                          className="rounded-lg border p-4"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">
+                                {index === 0 ? "Next Ticket" : "After Next"}
+                              </p>
+                              <p className="text-3xl font-bold text-blue-600">
+                                {ticket?.code}
+                              </p>
+                            </div>
+                            {ticket?.currentEmployee && (
+                              <div className="text-right">
+                                <div className="rounded-lg bg-blue-50 px-3 py-2">
+                                  <p className="text-xs font-semibold text-blue-700">
+                                    Handler
+                                  </p>
+                                  <p className="text-sm font-bold text-blue-900">
+                                    {ticket.currentEmployee.fullName}
+                                  </p>
+                                  <p className="text-xs text-blue-700">
+                                    {ticket.currentEmployee.jobTitleAmharic ||
+                                      ticket.currentEmployee.jobTitle}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-3 space-y-2 border-t pt-3">
+                            <p className="text-sm">
+                              <span className="font-medium">Service:</span>{" "}
+                              {ticket?.service}
                             </p>
                           </div>
                         </div>
-                      )}
+                      ))}
                     </div>
-                    <div className="mt-3 space-y-2 border-t pt-3">
-                      <p className="text-sm">
-                        <span className="font-medium">Service:</span>{" "}
-                        {display.next.service}
-                      </p>
+                  ) : (
+                    <div className="rounded-lg border p-4 text-center text-muted-foreground">
+                      No next tickets
                     </div>
-                  </div>
-                ) : (
-                  <div className="rounded-lg border p-4 text-center text-muted-foreground">
-                    No next ticket
-                  </div>
-                )}
+                  );
+                })()}
               </TabsContent>
 
               <TabsContent value="queue" className="space-y-4">
