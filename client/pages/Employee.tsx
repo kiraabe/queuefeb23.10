@@ -539,6 +539,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     }
   };
 
+  const handleHoldSuccess = async () => {
+    // Refetch holds immediately to pause the timer
+    await fetchHolds();
+    onComplete?.(ticket.id);
+  };
+
   const isReceived = ticket.transferredToUserId != null;
   const hasStarted = ticket.employeeStartedAt != null;
   const hasProceeded = ticket.proceededAt != null;
