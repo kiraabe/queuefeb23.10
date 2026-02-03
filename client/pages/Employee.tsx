@@ -423,6 +423,14 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
     fetchHolds();
   }, [ticket.id]);
 
+  // Calculate total hold duration from all completed holds
+  const totalHoldDurationSeconds = holds.reduce((sum, hold) => {
+    return sum + (hold.holdDurationSeconds || 0);
+  }, 0);
+
+  // Check if case currently has an active hold
+  const hasActiveHold = holds.some((h) => h.resumedAt == null);
+
   useEffect(() => {
     // Only skip elapsed time if the case is completed (status = 'done')
     // Don't skip if ticket.proceededAt is set from a previous employee
@@ -431,20 +439,39 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
       return;
     }
 
-    // Update elapsed time every second for in-progress cases
+    // If case is on hold, freeze the timer at current value
+    if (hasActiveHold) {
+      // Calculate the elapsed time up to the hold point (excluding future hold time)
+      const now = Date.now();
+      const activeHold = holds.find((h) => h.resumedAt == null);
+      if (activeHold) {
+        // Elapsed time from start to when hold started
+        const elapsedBeforeHold = Math.round(
+          (activeHold.heldAt - ticket.employeeStartedAt!) / 1000,
+        );
+        setElapsedTime(elapsedBeforeHold);
+      }
+      return; // Don't set up interval while on hold
+    }
+
+    // Update elapsed time every second for in-progress cases (not on hold)
     const interval = setInterval(() => {
       const now = Date.now();
-      const elapsed = Math.round((now - ticket.employeeStartedAt!) / 1000);
-      setElapsedTime(elapsed);
+      // Total elapsed time since start
+      const totalElapsed = Math.round((now - ticket.employeeStartedAt!) / 1000);
+      // Subtract hold duration to get active processing time
+      const activeElapsed = Math.max(0, totalElapsed - totalHoldDurationSeconds);
+      setElapsedTime(activeElapsed);
     }, 1000);
 
     // Initial calculation
     const now = Date.now();
-    const elapsed = Math.round((now - ticket.employeeStartedAt) / 1000);
-    setElapsedTime(elapsed);
+    const totalElapsed = Math.round((now - ticket.employeeStartedAt) / 1000);
+    const activeElapsed = Math.max(0, totalElapsed - totalHoldDurationSeconds);
+    setElapsedTime(activeElapsed);
 
     return () => clearInterval(interval);
-  }, [ticket.employeeStartedAt, ticket.completedAt]);
+  }, [ticket.employeeStartedAt, ticket.completedAt, hasActiveHold, totalHoldDurationSeconds, holds]);
 
   // Use elapsed time for in-progress, only calculate from start to end for completed cases
   const duration =
