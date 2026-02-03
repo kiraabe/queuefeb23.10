@@ -1526,7 +1526,7 @@ export async function skipDb(windowId: number, reason?: string) {
     const remarkBase = `Skipped by window ${windowId} at ${new Date().toISOString()}`;
     const remark = reason ? `${remarkBase}. Reason: ${reason}` : remarkBase;
     const tRes = await client.query(
-      `UPDATE tickets SET status='skipped', skipped_at=now(), skipped_by_window=$2, remark=$3 WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window;`,
+      `UPDATE tickets SET status='skipped', skipped_at=now(), skipped_by_window=$2, remark=$3 WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window, land_certificate_karta, land_certificate_digital;`,
       [w.currentTicketId, windowId, remark],
     );
     await client.query(
