@@ -2154,6 +2154,10 @@ export async function displayStateDb(): Promise<DisplayState> {
         row.updated_at !== undefined && row.updated_at !== null
           ? Math.round(Number(row.updated_at))
           : undefined,
+      ownerName: row.owner_name || undefined,
+      selectedServices: Array.isArray(row.selected_services)
+        ? row.selected_services
+        : undefined,
     };
 
     // If ticket is being handled by an employee (serving status with no window), fetch employee info
