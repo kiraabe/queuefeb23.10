@@ -1387,7 +1387,7 @@ export async function callNextDb(windowId: number, service: ServiceType) {
     }
     const ticketId = nextRes.rows[0].id;
     const tRes = await client.query(
-      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
       [windowId, ticketId],
     );
     await client.query(
@@ -1435,7 +1435,7 @@ export async function callNextAnyDb(windowId: number) {
     }
     const ticketId = nextRes.rows[0].id;
     const tRes = await client.query(
-      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
       [windowId, ticketId],
     );
     await client.query(
@@ -1457,7 +1457,7 @@ export async function callNextAnyDb(windowId: number) {
 export async function clearTicketNotesDb(ticketId: string): Promise<Ticket> {
   const p = getPool();
   const { rows } = await p.query(
-    `UPDATE tickets SET notes=NULL WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+    `UPDATE tickets SET notes=NULL WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
     [ticketId],
   );
   return rowToTicket(rows[0]);
@@ -1506,7 +1506,7 @@ export async function completeDb(windowId: number) {
     const w = await getWindow(client, windowId);
     if (!w.currentTicketId) throw new Error("No active ticket");
     const tRes = await client.query(
-      `UPDATE tickets SET status='done', completed_at=now() WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status='done', completed_at=now() WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
       [w.currentTicketId],
     );
     await client.query(
@@ -1543,7 +1543,7 @@ export async function skipDb(windowId: number, reason?: string) {
     const remarkBase = `Skipped by window ${windowId} at ${new Date().toISOString()}`;
     const remark = reason ? `${remarkBase}. Reason: ${reason}` : remarkBase;
     const tRes = await client.query(
-      `UPDATE tickets SET status='skipped', skipped_at=now(), skipped_by_window=$2, remark=$3 WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status='skipped', skipped_at=now(), skipped_by_window=$2, remark=$3 WHERE id=$1 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window;`,
       [w.currentTicketId, windowId, remark],
     );
     await client.query(
@@ -1690,7 +1690,7 @@ export async function transferDb(
 
     // Reset started_at and started_by_user_id when transferring to an employee (new start)
     const tRes = await client.query(
-      `UPDATE tickets SET status=$7, window_id=$1, transferred_from_window=$2, transferred_to_window=$3, transferred_to_user_id=$6, transferred_at=now(), started_at=NULL, started_by_user_id=NULL, proceeded_at=now(), remark=$5 WHERE id=$4 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, transferred_to_window, transferred_to_user_id, extract(epoch from transferred_at)*1000 as transferred_at, remark, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status=$7, window_id=$1, transferred_from_window=$2, transferred_to_window=$3, transferred_to_user_id=$6, transferred_at=now(), started_at=NULL, started_by_user_id=NULL, proceeded_at=now(), remark=$5 WHERE id=$4 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, transferred_to_window, transferred_to_user_id, extract(epoch from transferred_at)*1000 as transferred_at, remark;`,
       [
         finalTargetWindowId || null,
         windowId,
@@ -3195,7 +3195,7 @@ export async function callNextForWindowDb(
       }
       const ticketId = nextRes.rows[0].id;
       const tRes = await client.query(
-        `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+        `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
         [windowId, ticketId],
       );
       await client.query(
@@ -3247,7 +3247,7 @@ export async function callNextForWindowDb(
     }
     const ticketId = nextRes.rows[0].id;
     const tRes = await client.query(
-      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
+      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
       [windowId, ticketId],
     );
     await client.query(
