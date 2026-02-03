@@ -1249,6 +1249,8 @@ export async function createTicketDb(
   woreda?: string,
   serviceCategory?: string,
   selectedServices?: string[],
+  landCertificateKarta?: string,
+  landCertificateDigital?: string,
 ): Promise<Ticket> {
   const p = getPool();
   const client = await p.connect();
@@ -1283,9 +1285,9 @@ export async function createTicketDb(
     const serializedRequiredDocuments = null;
 
     const { rows } = await client.query(
-      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services, required_documents)
-       VALUES ($1, $2, $3, $4, 'waiting_archive', NULL, $5, $6, $7, $8, $9, $10)
-       RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services;`,
+      `INSERT INTO tickets (id, service, number, code, status, window_id, notes, owner_name, woreda, service_category, selected_services, required_documents, land_certificate_karta, land_certificate_digital)
+       VALUES ($1, $2, $3, $4, 'waiting_archive', NULL, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
       [
         id,
         service,
@@ -1297,6 +1299,8 @@ export async function createTicketDb(
         serviceCategory ?? null,
         serializedServices,
         serializedRequiredDocuments,
+        landCertificateKarta ?? null,
+        landCertificateDigital ?? null,
       ],
     );
     await client.query("COMMIT");
@@ -1324,6 +1328,8 @@ export async function createTicketDb(
         : typeof r.selected_services === "string"
           ? JSON.parse(r.selected_services)
           : undefined,
+      landCertificateKarta: r.land_certificate_karta ?? undefined,
+      landCertificateDigital: r.land_certificate_digital ?? undefined,
     };
   } catch (e) {
     await client.query("ROLLBACK");
