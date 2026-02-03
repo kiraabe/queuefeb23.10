@@ -255,6 +255,8 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
           {/* Hold Records */}
           {holds.map((hold) => {
             const holdDurationSeconds = hold.holdDurationSeconds || 0;
+            const heldByUserName =
+              userMap?.get(hold.heldByUserId) || hold.heldByUserId;
 
             return (
               <div
@@ -271,20 +273,26 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                         Paused
                       </Badge>
                     </div>
+                    <p className="text-muted-foreground mt-1">
+                      <span className="font-medium">Held By:</span>{" "}
+                      {heldByUserName}
+                    </p>
                     <p className="text-muted-foreground mt-1 font-medium">
                       <span className="font-bold">Subject:</span> {hold.subject}
                     </p>
+                    {hold.description && (
+                      <p className="text-muted-foreground mt-1">
+                        <span className="font-medium">Details:</span>{" "}
+                        {hold.description}
+                      </p>
+                    )}
                     <p className="text-muted-foreground mt-1">
-                      <span className="font-medium">Details:</span>{" "}
-                      {hold.description}
-                    </p>
-                    <p className="text-muted-foreground mt-1">
-                      <span className="font-medium">Held:</span>{" "}
+                      <span className="font-medium">Held at:</span>{" "}
                       {new Date(hold.heldAt).toLocaleTimeString()}
                     </p>
                     {hold.resumedAt && (
                       <p className="text-muted-foreground">
-                        <span className="font-medium">Resumed:</span>{" "}
+                        <span className="font-medium">Resumed at:</span>{" "}
                         {new Date(hold.resumedAt).toLocaleTimeString()}
                       </p>
                     )}
