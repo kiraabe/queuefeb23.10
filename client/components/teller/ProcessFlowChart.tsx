@@ -287,7 +287,9 @@ export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartPro
                       className="grid grid-cols-5 gap-4 px-4 py-3 text-xs hover:bg-background/70 transition-colors"
                     >
                       <div className="font-medium text-foreground truncate">
-                        {hold.heldByUserName || "—"}
+                        {userMap?.get(hold.heldByUserId) ||
+                          hold.heldByUserName ||
+                          "—"}
                       </div>
                       <div className="text-muted-foreground truncate">
                         {hold.subject || "—"}
