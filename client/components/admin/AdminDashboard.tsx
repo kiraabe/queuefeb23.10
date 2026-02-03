@@ -601,16 +601,44 @@ export default function AdminDashboard() {
                     Queue Overview ({display.waiting.length} waiting)
                   </p>
                   {display.waiting.length > 0 ? (
-                    <div className="space-y-2">
-                      {display.waiting.map((ticket) => (
-                        <div
-                          key={ticket.id}
-                          className="flex items-center justify-between rounded border p-2 text-sm hover:bg-muted/50 transition-colors"
-                        >
-                          <span className="font-medium">{ticket.code}</span>
-                          <span className="text-xs text-muted-foreground">
-                            Service: {ticket.service}
-                          </span>
+                    <div className="space-y-4">
+                      {Object.entries(
+                        display.waiting.reduce(
+                          (acc, ticket) => {
+                            const category = ticket.service || "Other";
+                            if (!acc[category]) {
+                              acc[category] = [];
+                            }
+                            acc[category].push(ticket);
+                            return acc;
+                          },
+                          {} as Record<string, typeof display.waiting>,
+                        ),
+                      ).map(([category, tickets]) => (
+                        <div key={category} className="space-y-2">
+                          <div className="rounded-lg bg-muted/40 px-3 py-2 border border-muted">
+                            <p className="text-sm font-semibold text-foreground">
+                              {category}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {tickets.length} ticket{tickets.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                          <div className="space-y-1 pl-2">
+                            {tickets.map((ticket) => (
+                              <div
+                                key={ticket.id}
+                                className="flex items-center justify-between rounded border p-2 text-sm hover:bg-muted/50 transition-colors"
+                              >
+                                <span className="font-medium">{ticket.code}</span>
+                                {ticket.ownerName && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {ticket.ownerName}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
