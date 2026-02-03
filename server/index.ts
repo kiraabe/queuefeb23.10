@@ -365,7 +365,11 @@ export function createServer() {
     requireRole(["employee"]),
     resumeCase,
   );
-  app.get("/api/employee/holds", requireRole(["employee"]), getCaseHolds);
+  app.get(
+    "/api/employee/holds",
+    requireRole(["employee", "teller", "admin", "archiever"]),
+    getCaseHolds,
+  );
 
   // Case workflow endpoints (public - for supervisors/tellers viewing completed case workflows)
   app.get("/api/employee/case-workflow", caseWorkflow);
