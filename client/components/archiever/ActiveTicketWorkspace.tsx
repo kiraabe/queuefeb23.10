@@ -36,6 +36,8 @@ interface TicketDetails {
   requiredDocuments: string[];
   documentChecklist: Record<string, { status: string; verifiedAt?: string }>;
   documentsFetched: boolean;
+  landCertificateKarta?: string;
+  landCertificateDigital?: string;
 }
 
 interface ActiveTicketWorkspaceProps {
@@ -318,6 +320,25 @@ export function ActiveTicketWorkspace({
               <p className="font-medium">{ticket.service}</p>
             </div>
           </div>
+          {(ticket.landCertificateKarta || ticket.landCertificateDigital) && (
+            <div className="border-t pt-4 mt-4">
+              <p className="text-sm font-semibold text-muted-foreground mb-3">Land Certificates</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {ticket.landCertificateKarta && (
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-1">Land Certificate (ካርታ) ser no.</p>
+                    <p className="font-medium text-blue-700">{ticket.landCertificateKarta}</p>
+                  </div>
+                )}
+                {ticket.landCertificateDigital && (
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-1">Digital Certificate (ዲጂታል ካርታ) No.</p>
+                    <p className="font-medium text-green-700">{ticket.landCertificateDigital}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
