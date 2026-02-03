@@ -21,6 +21,7 @@ interface ProcessStep {
 interface ProcessFlowChartProps {
   ticket: Ticket;
   steps: ProcessStep[];
+  userMap?: Map<string, string>;
 }
 
 export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
