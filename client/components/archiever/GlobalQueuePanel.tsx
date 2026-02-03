@@ -261,11 +261,11 @@ export function GlobalQueuePanel({
 
                     <Button
                       onClick={() => handleStartTicket(ticket.id)}
-                      disabled={isStarting}
+                      disabled={startingTicketId === ticket.id}
                       className="whitespace-nowrap"
                       size="sm"
                     >
-                      {isStarting ? (
+                      {startingTicketId === ticket.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         "Start"
