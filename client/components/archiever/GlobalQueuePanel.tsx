@@ -107,6 +107,7 @@ export function GlobalQueuePanel({
   const lockedTickets = tickets.filter((t) => t.isLocked);
 
   const handleStartTicket = (ticketId: string) => {
+    setStartingTicketId(ticketId);
     startTicket(ticketId);
   };
 
