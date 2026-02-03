@@ -517,11 +517,11 @@ export default function AdminDashboard() {
                           </p>
                           {ticket.selectedServices &&
                             ticket.selectedServices.length > 0 && (
-                              <p className="text-sm">
-                                <span className="font-medium">
+                              <div className="text-sm">
+                                <p className="font-medium mb-1">
                                   Selected Services:
-                                </span>
-                                <ul className="mt-1 ml-4 space-y-1">
+                                </p>
+                                <ul className="ml-4 space-y-1">
                                   {ticket.selectedServices.map(
                                     (service, index) => (
                                       <li
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
                                     ),
                                   )}
                                 </ul>
-                              </p>
+                              </div>
                             )}
                           {ticket.windowId && (
                             <p className="text-sm">
