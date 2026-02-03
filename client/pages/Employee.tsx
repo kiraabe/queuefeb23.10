@@ -672,7 +672,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         ticket={ticket}
         open={holdDialogOpen}
         onOpenChange={setHoldDialogOpen}
-        onSuccess={() => onComplete?.(ticket.id)}
+        onSuccess={handleHoldSuccess}
       />
     </div>
   );
