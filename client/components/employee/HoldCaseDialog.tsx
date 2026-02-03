@@ -103,7 +103,7 @@ export function HoldCaseDialog({
 
           {/* Description Field */}
           <div className="space-y-2">
-            <Label htmlFor="description">Details *</Label>
+            <Label htmlFor="description">Details (Optional)</Label>
             <Textarea
               id="description"
               placeholder="Describe what is needed or what was done before hold (e.g., 'Awaiting property ownership documents from customer. Already completed initial assessment.')"
