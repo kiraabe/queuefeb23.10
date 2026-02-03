@@ -175,6 +175,8 @@ export const sseHandler: RequestHandler = async (req, res) => {
         transferredAt: r.transferred_at
           ? Math.round(Number(r.transferred_at))
           : undefined,
+        landCertificateKarta: r.land_certificate_karta ?? undefined,
+        landCertificateDigital: r.land_certificate_digital ?? undefined,
       };
       ticketsList.push(ticket);
       ticketsMap[r.id] = ticket;
