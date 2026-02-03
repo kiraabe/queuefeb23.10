@@ -286,7 +286,6 @@ export default function TicketManagement() {
                     <TableHead className="font-semibold">Status</TableHead>
                     <TableHead className="font-semibold">Customer Name</TableHead>
                     <TableHead className="font-semibold">Woreda</TableHead>
-                    <TableHead className="font-semibold">Service</TableHead>
                     <TableHead className="font-semibold">Service Category</TableHead>
                     <TableHead className="font-semibold">Selected Services</TableHead>
                     <TableHead className="font-semibold">ካርታ No.</TableHead>
@@ -313,7 +312,6 @@ export default function TicketManagement() {
                       </TableCell>
                       <TableCell>{ticket.ownerName || "—"}</TableCell>
                       <TableCell>{ticket.woreda || "—"}</TableCell>
-                      <TableCell>{ticket.service || "—"}</TableCell>
                       <TableCell>{ticket.serviceCategory || "—"}</TableCell>
                       <TableCell>
                         {ticket.selectedServices && ticket.selectedServices.length > 0
