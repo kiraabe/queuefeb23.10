@@ -24,7 +24,7 @@ interface ProcessFlowChartProps {
   userMap?: Map<string, string>;
 }
 
-export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
+export function ProcessFlowChart({ ticket, steps, userMap }: ProcessFlowChartProps) {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [actionsExpanded, setActionsExpanded] = useState(false);
   const [holds, setHolds] = useState<CaseHold[]>([]);
