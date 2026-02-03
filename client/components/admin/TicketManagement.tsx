@@ -155,7 +155,7 @@ export default function TicketManagement() {
       "Window ID",
       "Customer Name",
       "Woreda",
-      "Land Certificate (ካርታ) No.",
+      "Land Certificate (ካርታ) ser no.",
       "Land Certificate (ካርታ) No.",
       "Created At",
       "Started At",
