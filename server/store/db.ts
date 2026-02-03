@@ -2660,7 +2660,7 @@ function rowToTicket(r: any): Ticket {
     landCertificateKarta:
       r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
     landCertificateDigital:
-      r["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
+      r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
   };
 }
 
