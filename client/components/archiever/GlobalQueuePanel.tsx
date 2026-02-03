@@ -249,6 +249,26 @@ export function GlobalQueuePanel({
                             {ticket.service || "N/A"}
                           </p>
                         </div>
+                        {ticket.landCertificateKarta && (
+                          <div>
+                            <p className="text-muted-foreground text-xs">
+                              Land Holding Rights Certificate (ካርታ) ser no.
+                            </p>
+                            <p className="font-medium">
+                              {ticket.landCertificateKarta}
+                            </p>
+                          </div>
+                        )}
+                        {ticket.landCertificateDigital && (
+                          <div>
+                            <p className="text-muted-foreground text-xs">
+                              Land Holding Rights Certificate (ዲጂታል ካርታ) No.
+                            </p>
+                            <p className="font-medium">
+                              {ticket.landCertificateDigital}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
