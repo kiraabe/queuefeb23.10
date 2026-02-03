@@ -141,7 +141,7 @@ export const sseHandler: RequestHandler = async (req, res) => {
               notes, owner_name, woreda, service_category, selected_services,
               transferred_from_window, transferred_to_window, transferred_to_user_id, remark,
               extract(epoch from transferred_at)*1000 as transferred_at,
-              land_certificate_karta, land_certificate_digital
+              "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ዲጂታል ካርታ) No."
        FROM tickets`,
     );
     const ticketsList: Ticket[] = [];
