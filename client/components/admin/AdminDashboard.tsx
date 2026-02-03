@@ -479,16 +479,43 @@ export default function AdminDashboard() {
                   <div className="space-y-3">
                     {display.current.map((ticket) => (
                       <div key={ticket.id} className="rounded-lg border p-4">
-                        <p className="text-sm text-muted-foreground">
-                          Now Serving
-                        </p>
-                        <p className="text-3xl font-bold text-green-600">
-                          {ticket.code}
-                        </p>
-                        <p className="mt-2 text-sm">
-                          Window: {ticket.windowId || "Employee"} | Service:{" "}
-                          {ticket.service}
-                        </p>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="text-sm text-muted-foreground">
+                              Now Serving
+                            </p>
+                            <p className="text-3xl font-bold text-green-600">
+                              {ticket.code}
+                            </p>
+                          </div>
+                          {ticket.currentEmployee && (
+                            <div className="text-right">
+                              <div className="rounded-lg bg-blue-50 px-3 py-2">
+                                <p className="text-xs font-semibold text-blue-700">
+                                  Handler
+                                </p>
+                                <p className="text-sm font-bold text-blue-900">
+                                  {ticket.currentEmployee.fullName}
+                                </p>
+                                <p className="text-xs text-blue-700">
+                                  {ticket.currentEmployee.jobTitle}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-3 space-y-2 border-t pt-3">
+                          <p className="text-sm">
+                            <span className="font-medium">Service:</span>{" "}
+                            {ticket.service}
+                          </p>
+                          {ticket.windowId && (
+                            <p className="text-sm">
+                              <span className="font-medium">Window:</span>{" "}
+                              {ticket.windowId}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
