@@ -529,13 +529,37 @@ export default function AdminDashboard() {
               <TabsContent value="next" className="space-y-4">
                 {display.next ? (
                   <div className="rounded-lg border p-4">
-                    <p className="text-sm text-muted-foreground">Next Ticket</p>
-                    <p className="text-3xl font-bold text-blue-600">
-                      {display.next.code}
-                    </p>
-                    <p className="mt-2 text-sm">
-                      Service: {display.next.service}
-                    </p>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Next Ticket
+                        </p>
+                        <p className="text-3xl font-bold text-blue-600">
+                          {display.next.code}
+                        </p>
+                      </div>
+                      {display.next.currentEmployee && (
+                        <div className="text-right">
+                          <div className="rounded-lg bg-blue-50 px-3 py-2">
+                            <p className="text-xs font-semibold text-blue-700">
+                              Handler
+                            </p>
+                            <p className="text-sm font-bold text-blue-900">
+                              {display.next.currentEmployee.fullName}
+                            </p>
+                            <p className="text-xs text-blue-700">
+                              {display.next.currentEmployee.jobTitle}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3 space-y-2 border-t pt-3">
+                      <p className="text-sm">
+                        <span className="font-medium">Service:</span>{" "}
+                        {display.next.service}
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div className="rounded-lg border p-4 text-center text-muted-foreground">
