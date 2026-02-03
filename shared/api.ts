@@ -61,8 +61,8 @@ export interface CaseHold {
   ticketId: string;
   heldByUserId: string;
   heldByUserName?: string; // Employee name who placed on hold
-  subject: string; // Subject/reason for hold
-  description: string; // Detailed description
+  subject: string; // Subject/reason for hold (mandatory)
+  description?: string; // Detailed description (optional)
   heldAt: number; // Hold start time (milliseconds)
   resumedAt?: number | null; // Hold end time (null until resumed)
   holdDurationSeconds?: number | null; // Duration in seconds (null until resumed)
