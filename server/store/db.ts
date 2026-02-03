@@ -524,6 +524,13 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS selected_services jsonb;`,
     );
+    // Add land certificate columns
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS land_certificate_karta text;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS land_certificate_digital text;`,
+    );
     // Case workflow columns - for employee case tracking
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_at timestamptz;`,
