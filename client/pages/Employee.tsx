@@ -592,9 +592,16 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             !ticket.completedAt && (
               <div className="flex items-center gap-1">
                 <span className="text-xs text-muted-foreground">
-                  (in progress
+                  {hasActiveHold ? "(paused" : "(in progress"}
                 </span>
-                <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                <span
+                  className={`inline-flex h-2 w-2 rounded-full ${
+                    hasActiveHold
+                      ? "bg-yellow-500"
+                      : "bg-amber-500 animate-pulse"
+                  }`}
+                  style={hasActiveHold ? {} : undefined}
+                />
                 <span className="text-xs text-muted-foreground">)</span>
               </div>
             )}
