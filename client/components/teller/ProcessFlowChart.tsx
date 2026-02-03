@@ -243,6 +243,71 @@ export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
           </div>
         </div>
       )}
+
+      {/* Actions Section - Accordion */}
+      {holds.length > 0 && (
+        <div className="border-t border-border pt-3">
+          <button
+            onClick={() => setActionsExpanded(!actionsExpanded)}
+            className="flex items-center justify-between w-full px-3 py-2 rounded hover:bg-background/50 transition-colors"
+          >
+            <span className="text-xs font-semibold text-foreground">
+              Actions ({holds.length})
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 text-muted-foreground transition-transform ${
+                actionsExpanded ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Actions Table */}
+          {actionsExpanded && (
+            <div className="mt-3 bg-background/50 rounded-lg border border-border/50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Table Header */}
+              <div className="grid grid-cols-5 gap-4 px-4 py-3 bg-muted/30 border-b border-border/30 text-xs font-semibold text-foreground sticky top-0">
+                <div>Held By</div>
+                <div>Subject</div>
+                <div className="text-center">Start</div>
+                <div className="text-center">End</div>
+                <div className="text-right">Duration</div>
+              </div>
+
+              {/* Table Rows */}
+              <div className="divide-y divide-border/30">
+                {holdsLoading ? (
+                  <div className="col-span-5 px-4 py-4 text-xs text-muted-foreground text-center">
+                    Loading actions...
+                  </div>
+                ) : (
+                  holds.map((hold) => (
+                    <div
+                      key={hold.id}
+                      className="grid grid-cols-5 gap-4 px-4 py-3 text-xs hover:bg-background/70 transition-colors"
+                    >
+                      <div className="font-medium text-foreground truncate">
+                        {hold.heldByUserName || "—"}
+                      </div>
+                      <div className="text-muted-foreground truncate">
+                        {hold.subject || "—"}
+                      </div>
+                      <div className="text-center text-muted-foreground">
+                        {formatTime(hold.heldAt)}
+                      </div>
+                      <div className="text-center text-muted-foreground">
+                        {hold.resumedAt ? formatTime(hold.resumedAt) : "—"}
+                      </div>
+                      <div className="text-right font-medium text-foreground">
+                        {formatDuration(hold.holdDurationSeconds)}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
