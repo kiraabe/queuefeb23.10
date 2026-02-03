@@ -41,6 +41,7 @@ export default function RoleSelector() {
       else if (role === "teller" && user.windowId)
         navigate(`/teller/${user.windowId}`);
       else if (role === "employee") navigate("/employee");
+      else if (role === "archiever") navigate("/archiever");
       else navigate("/");
     }
   }, [user, navigate]);
