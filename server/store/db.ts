@@ -529,7 +529,7 @@ export async function initDb() {
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
     await p.query(
-      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No." text;`,
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) No." text;`,
     );
     // Drop old column names if they exist
     await p.query(
