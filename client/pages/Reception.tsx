@@ -581,7 +581,7 @@ export default function Reception() {
                     htmlFor="land-cert-digital"
                     className="text-sm font-medium"
                   >
-                    Land Holding Rights Certificate (ካርታ) No. no digital
+                    Land Holding Rights Certificate (ካርታ) No.
                   </Label>
                   <Input
                     id="land-cert-digital"
