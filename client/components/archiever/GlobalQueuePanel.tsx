@@ -37,7 +37,7 @@ export function GlobalQueuePanel({
   selectedTicketId,
 }: GlobalQueuePanelProps) {
   const queryClient = useQueryClient();
-  const [startingTicketId, setStartingTicketId] = React.useState<string | null>(null);
+  const [startingTicketId, setStartingTicketId] = useState<string | null>(null);
 
   // Fetch global queue
   const { data, isLoading, error, refetch } = useQuery({
