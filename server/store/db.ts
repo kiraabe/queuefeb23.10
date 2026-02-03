@@ -2267,7 +2267,7 @@ export async function getTicketByCodeDb(code: string): Promise<{
   const p = getPool();
   console.log("🔎 getTicketByCodeDb - Searching for code:", code);
   const tRes = await p.query(
-    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, extract(epoch from transferred_at)*1000 as transferred_at, field_visit_case_id
+    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, transferred_from_window, extract(epoch from transferred_at)*1000 as transferred_at, field_visit_case_id, land_certificate_karta, land_certificate_digital
      FROM tickets WHERE code=$1 ORDER BY created_at DESC LIMIT 1`,
     [code],
   );
