@@ -487,6 +487,11 @@ export default function AdminDashboard() {
                             <p className="text-3xl font-bold text-green-600">
                               {ticket.code}
                             </p>
+                            {ticket.ownerName && (
+                              <p className="text-sm font-medium text-foreground mt-1">
+                                {ticket.ownerName}
+                              </p>
+                            )}
                           </div>
                           {ticket.currentEmployee && (
                             <div className="text-right">
@@ -510,6 +515,26 @@ export default function AdminDashboard() {
                             <span className="font-medium">Service:</span>{" "}
                             {ticket.service}
                           </p>
+                          {ticket.selectedServices &&
+                            ticket.selectedServices.length > 0 && (
+                              <p className="text-sm">
+                                <span className="font-medium">
+                                  Selected Services:
+                                </span>
+                                <ul className="mt-1 ml-4 space-y-1">
+                                  {ticket.selectedServices.map(
+                                    (service, index) => (
+                                      <li
+                                        key={index}
+                                        className="text-sm text-muted-foreground list-disc"
+                                      >
+                                        {service}
+                                      </li>
+                                    ),
+                                  )}
+                                </ul>
+                              </p>
+                            )}
                           {ticket.windowId && (
                             <p className="text-sm">
                               <span className="font-medium">Window:</span>{" "}
