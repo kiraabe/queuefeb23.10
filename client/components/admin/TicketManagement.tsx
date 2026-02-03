@@ -295,9 +295,7 @@ export default function TicketManagement() {
                       Selected Services
                     </TableHead>
                     <TableHead className="font-semibold">ካርታ ser no.</TableHead>
-                    <TableHead className="font-semibold">
-                      ካርታ No.
-                    </TableHead>
+                    <TableHead className="font-semibold">ካርታ No.</TableHead>
                     <TableHead className="font-semibold">Created At</TableHead>
                   </TableRow>
                 </TableHeader>
