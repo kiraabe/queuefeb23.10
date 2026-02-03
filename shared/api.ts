@@ -109,6 +109,8 @@ export interface DisplayTicket {
   createdAt: number;
   updatedAt?: number;
   currentEmployee?: { id: string; fullName: string; jobTitle: string; jobTitleAmharic?: string } | null;
+  ownerName?: string;
+  selectedServices?: string[];
 }
 
 export interface DisplayState {
