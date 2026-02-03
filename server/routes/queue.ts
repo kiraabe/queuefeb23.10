@@ -175,8 +175,10 @@ export const sseHandler: RequestHandler = async (req, res) => {
         transferredAt: r.transferred_at
           ? Math.round(Number(r.transferred_at))
           : undefined,
-        landCertificateKarta: r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
-        landCertificateDigital: r["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
+        landCertificateKarta:
+          r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
+        landCertificateDigital:
+          r["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
       };
       ticketsList.push(ticket);
       ticketsMap[r.id] = ticket;

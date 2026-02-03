@@ -35,8 +35,10 @@ export const getGlobalQueue: RequestHandler = async (req, res) => {
       waitDuration: Math.floor(
         (Date.now() - new Date(row.created_at).getTime()) / 1000 / 60,
       ), // minutes
-      landCertificateKarta: row["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
-      landCertificateDigital: row["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
+      landCertificateKarta:
+        row["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
+      landCertificateDigital:
+        row["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
     }));
 
     res.json({ tickets });
