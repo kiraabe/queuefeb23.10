@@ -88,6 +88,8 @@ type CreateTicketPayload = {
   woreda: string;
   serviceCategory?: string;
   selectedServices?: string[];
+  landCertificateKarta?: string;
+  landCertificateDigital?: string;
 };
 
 import { apiFetch } from "@/lib/api";
@@ -101,6 +103,8 @@ async function createTicketRequest(
     woreda: payload.woreda,
     serviceCategory: payload.serviceCategory,
     selectedServices: payload.selectedServices,
+    landCertificateKarta: payload.landCertificateKarta,
+    landCertificateDigital: payload.landCertificateDigital,
   };
   return apiFetch<Ticket>("/api/tickets", {
     method: "POST",
@@ -115,6 +119,8 @@ type DraftDetails = {
   serviceCategory?: string;
   selectedServices?: string[];
   selectedServiceNames?: string[];
+  landCertificateKarta?: string;
+  landCertificateDigital?: string;
 };
 
 interface TicketPreviewProps {
@@ -321,6 +327,8 @@ function TicketPreview({
 export default function Reception() {
   const [ownerName, setOwnerName] = useState("");
   const [woreda, setWoreda] = useState("");
+  const [landCertificateKarta, setLandCertificateKarta] = useState("");
+  const [landCertificateDigital, setLandCertificateDigital] = useState("");
   const [service, setService] = useState<ServiceType>("");
   const [generatedTicket, setGeneratedTicket] = useState<Ticket | null>(null);
   const [lastSubmission, setLastSubmission] = useState<DraftDetails | null>(
@@ -416,10 +424,14 @@ export default function Reception() {
         serviceCategory: variables.serviceCategory,
         selectedServices: variables.selectedServices,
         selectedServiceNames,
+        landCertificateKarta: variables.landCertificateKarta,
+        landCertificateDigital: variables.landCertificateDigital,
       });
       toast.success(`Ticket ${ticket.code} generated`);
       setOwnerName("");
       setWoreda("");
+      setLandCertificateKarta("");
+      setLandCertificateDigital("");
       setSelectedCategory("");
       setSelectedServices(new Set());
     },
@@ -448,6 +460,8 @@ export default function Reception() {
       woreda,
       serviceCategory: serviceCode, // Use the code, not the ID, for proper window routing
       selectedServices: Array.from(selectedServices),
+      landCertificateKarta: landCertificateKarta.trim(),
+      landCertificateDigital: landCertificateDigital.trim(),
     });
   };
 
