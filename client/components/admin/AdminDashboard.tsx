@@ -601,23 +601,20 @@ export default function AdminDashboard() {
                     Queue Overview ({display.waiting.length} waiting)
                   </p>
                   {display.waiting.length > 0 ? (
-                    <div className="space-y-2">
-                      {display.waiting.slice(0, 5).map((ticket) => (
-                        <div
-                          key={ticket.id}
-                          className="flex items-center justify-between rounded border p-2 text-sm"
-                        >
-                          <span className="font-medium">{ticket.code}</span>
-                          <span className="text-xs text-muted-foreground">
-                            Service: {ticket.service}
-                          </span>
-                        </div>
-                      ))}
-                      {display.waiting.length > 5 && (
-                        <p className="text-xs text-muted-foreground">
-                          +{display.waiting.length - 5} more tickets...
-                        </p>
-                      )}
+                    <div className="max-h-96 overflow-y-auto border rounded-lg">
+                      <div className="space-y-2 p-2">
+                        {display.waiting.map((ticket) => (
+                          <div
+                            key={ticket.id}
+                            className="flex items-center justify-between rounded border p-2 text-sm hover:bg-muted/50 transition-colors"
+                          >
+                            <span className="font-medium">{ticket.code}</span>
+                            <span className="text-xs text-muted-foreground">
+                              Service: {ticket.service}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <p className="text-center text-sm text-muted-foreground">
