@@ -262,7 +262,7 @@ export function GlobalQueuePanel({
                         {ticket.landCertificateDigital && (
                           <div>
                             <p className="text-muted-foreground text-xs">
-                              Land Holding Rights Certificate (ዲጂታል ካርታ) No.
+                              Land Holding Rights Certificate (ካርታ) No.
                             </p>
                             <p className="font-medium">
                               {ticket.landCertificateDigital}

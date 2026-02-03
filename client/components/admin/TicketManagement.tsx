@@ -156,7 +156,7 @@ export default function TicketManagement() {
       "Customer Name",
       "Woreda",
       "Land Certificate (ካርታ) No.",
-      "Land Certificate (ዲጂታል ካርታ) No.",
+      "Land Certificate (ካርታ) No.",
       "Created At",
       "Started At",
       "Completed At",
@@ -296,7 +296,7 @@ export default function TicketManagement() {
                     </TableHead>
                     <TableHead className="font-semibold">ካርታ No.</TableHead>
                     <TableHead className="font-semibold">
-                      ዲጂታል ካርታ No.
+                      ካርታ No.
                     </TableHead>
                     <TableHead className="font-semibold">Created At</TableHead>
                   </TableRow>

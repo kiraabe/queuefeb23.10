@@ -339,7 +339,7 @@ export function ActiveTicketWorkspace({
                 {ticket.landCertificateDigital && (
                   <div className="bg-green-50 p-3 rounded-lg">
                     <p className="text-xs text-muted-foreground mb-1">
-                      Digital Certificate (ዲጂታል ካርታ) No.
+                      Digital Certificate (ካርታ) No.
                     </p>
                     <p className="font-medium text-green-700">
                       {ticket.landCertificateDigital}
