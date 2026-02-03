@@ -178,7 +178,7 @@ export const sseHandler: RequestHandler = async (req, res) => {
         landCertificateKarta:
           r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
         landCertificateDigital:
-          r["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
+          r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
       };
       ticketsList.push(ticket);
       ticketsMap[r.id] = ticket;
