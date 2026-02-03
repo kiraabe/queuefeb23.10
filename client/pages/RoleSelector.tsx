@@ -26,6 +26,11 @@ const roleConfig = {
     description: "Handle transferred tickets and case workflows",
     icon: UserCheck,
   },
+  archiever: {
+    label: "Archiever",
+    description: "Manage document storage and retrieval",
+    icon: Building2,
+  },
 };
 
 export default function RoleSelector() {
