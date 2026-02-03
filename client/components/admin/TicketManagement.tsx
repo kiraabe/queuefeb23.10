@@ -561,11 +561,37 @@ function AdminTicketRow({ ticket }: AdminTicketRowProps) {
             </div>
           )}
 
+          {/* Service Category */}
+          {ticket.serviceCategory && (
+            <p className="text-xs text-muted-foreground">
+              Service Category: {ticket.serviceCategory}
+            </p>
+          )}
+
           {/* Woreda */}
           {ticket.woreda && (
             <p className="text-xs text-muted-foreground">
               Woreda: {ticket.woreda}
             </p>
+          )}
+
+          {/* Land Certificate Numbers */}
+          {(ticket.landCertificateKarta || ticket.landCertificateDigital) && (
+            <div className="space-y-1 rounded bg-green-50/50 p-2 dark:bg-green-950/20">
+              <p className="text-xs font-medium text-green-700 dark:text-green-300">
+                Land Holding Rights Certificates
+              </p>
+              {ticket.landCertificateKarta && (
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  ካርታ: {ticket.landCertificateKarta}
+                </p>
+              )}
+              {ticket.landCertificateDigital && (
+                <p className="text-xs text-green-600 dark:text-green-400">
+                  ዲጂታል ካርታ: {ticket.landCertificateDigital}
+                </p>
+              )}
+            </div>
           )}
 
           {/* Process Flow Chart for completed tickets */}
