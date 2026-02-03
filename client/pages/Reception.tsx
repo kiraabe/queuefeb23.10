@@ -250,7 +250,7 @@ function TicketPreview({
             {details.landCertificateDigital && (
               <p>
                 <span className="font-semibold text-primary">
-                  Digital Certificate (ዲጂታል ካርታ):
+                  Digital Certificate (ካርታ):
                 </span>{" "}
                 {details.landCertificateDigital}
               </p>
