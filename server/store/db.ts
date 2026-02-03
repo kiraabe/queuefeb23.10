@@ -531,6 +531,13 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No." text;`,
     );
+    // Drop old column names if they exist
+    await p.query(
+      `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
+    );
+    await p.query(
+      `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_digital;`,
+    );
     // Case workflow columns - for employee case tracking
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_at timestamptz;`,
