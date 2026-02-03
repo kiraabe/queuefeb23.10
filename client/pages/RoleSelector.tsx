@@ -62,6 +62,7 @@ export default function RoleSelector() {
       else if (role === "teller" && user.windowId)
         navigate(`/teller/${user.windowId}`);
       else if (role === "employee") navigate("/employee");
+      else if (role === "archiever") navigate("/archiever");
       else navigate("/");
     } else {
       // Switch role
@@ -73,6 +74,7 @@ export default function RoleSelector() {
         else if (role === "teller" && user.windowId)
           navigate(`/teller/${user.windowId}`);
         else if (role === "employee") navigate("/employee");
+        else if (role === "archiever") navigate("/archiever");
         else navigate("/");
       } catch (error) {
         console.error("Failed to switch role:", error);
