@@ -25,7 +25,30 @@ interface ProcessFlowChartProps {
 
 export function ProcessFlowChart({ ticket, steps }: ProcessFlowChartProps) {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
+  const [actionsExpanded, setActionsExpanded] = useState(false);
+  const [holds, setHolds] = useState<CaseHold[]>([]);
+  const [holdsLoading, setHoldsLoading] = useState(false);
+
   const selectedStep = steps.find((s) => s.id === selectedStepId);
+
+  // Fetch holds for this ticket
+  useEffect(() => {
+    const fetchHolds = async () => {
+      try {
+        setHoldsLoading(true);
+        const data = await apiFetch<{ holds: CaseHold[] }>(
+          `/api/employee/holds?ticketId=${ticket.id}`
+        );
+        setHolds(data.holds || []);
+      } catch (error) {
+        console.error("Failed to fetch holds:", error);
+      } finally {
+        setHoldsLoading(false);
+      }
+    };
+
+    fetchHolds();
+  }, [ticket.id]);
 
   if (!steps || steps.length === 0) {
     return null;
