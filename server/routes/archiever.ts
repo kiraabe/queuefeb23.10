@@ -38,7 +38,7 @@ export const getGlobalQueue: RequestHandler = async (req, res) => {
       landCertificateKarta:
         row["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
       landCertificateDigital:
-        row["Land Holding Rights Certificate (ዲጂታል ካርታ) No."] ?? undefined,
+        row["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
     }));
 
     res.json({ tickets });
