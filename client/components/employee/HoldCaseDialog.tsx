@@ -39,11 +39,6 @@ export function HoldCaseDialog({
       return;
     }
 
-    if (!description.trim()) {
-      setError("Description is required");
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
