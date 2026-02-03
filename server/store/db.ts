@@ -529,8 +529,16 @@ export async function initDb() {
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
     await p.query(
-      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) No." text;`,
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No." text;`,
     );
+    // Rename the digital certificate column
+    try {
+      await p.query(
+        `ALTER TABLE tickets RENAME COLUMN "Land Holding Rights Certificate (ዲጂታል ካርታ) No." TO "Land Holding Rights Certificate (ካርታ) No.";`,
+      );
+    } catch {
+      // Column may have already been renamed
+    }
     // Drop old column names if they exist
     await p.query(
       `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
