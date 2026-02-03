@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 interface MyActiveWorkIndicatorProps {
   ticketCode?: string;
   startTime?: number;
-  onClear?: () => void;
   isWorkingOnTicket?: boolean;
 }
 
