@@ -71,7 +71,7 @@ export interface CaseHold {
 
 export interface HoldCaseRequest {
   subject: string;
-  description: string;
+  description?: string;
 }
 
 export interface HoldCaseResponse {
