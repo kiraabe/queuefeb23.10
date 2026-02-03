@@ -537,6 +537,34 @@ export default function Reception() {
                 </div>
               </div>
 
+              {/* Land Certificate fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 border-t border-border/40 pt-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="land-cert-karta" className="text-sm font-medium">
+                    Land Holding Rights Certificate (ካርታ) ser no.
+                  </Label>
+                  <Input
+                    id="land-cert-karta"
+                    value={landCertificateKarta}
+                    onChange={(event) => setLandCertificateKarta(event.target.value)}
+                    placeholder="Enter certificate serial number"
+                    className="h-10"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="land-cert-digital" className="text-sm font-medium">
+                    Land Holding Rights Certificate (ዲጂታል ካርታ) No.
+                  </Label>
+                  <Input
+                    id="land-cert-digital"
+                    value={landCertificateDigital}
+                    onChange={(event) => setLandCertificateDigital(event.target.value)}
+                    placeholder="Enter digital certificate number"
+                    className="h-10"
+                  />
+                </div>
+              </div>
+
               {/* Service Category section */}
               {serviceCategories.length > 0 && (
                 <div className="space-y-3 border-t border-border/40 pt-6">
