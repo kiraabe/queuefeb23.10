@@ -1370,7 +1370,7 @@ export async function callNextDb(windowId: number, service: ServiceType) {
     }
     const ticketId = nextRes.rows[0].id;
     const tRes = await client.query(
-      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda;`,
+      `UPDATE tickets SET status='serving', window_id=$1, started_at=COALESCE(started_at, now()) WHERE id=$2 RETURNING id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, service_category, selected_services, land_certificate_karta, land_certificate_digital;`,
       [windowId, ticketId],
     );
     await client.query(
