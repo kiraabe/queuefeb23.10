@@ -284,19 +284,29 @@ export default function TicketManagement() {
                   <TableRow className="bg-muted/50">
                     <TableHead className="font-semibold">Code</TableHead>
                     <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">Customer Name</TableHead>
+                    <TableHead className="font-semibold">
+                      Customer Name
+                    </TableHead>
                     <TableHead className="font-semibold">Woreda</TableHead>
-                    <TableHead className="font-semibold">Service Category</TableHead>
-                    <TableHead className="font-semibold">Selected Services</TableHead>
+                    <TableHead className="font-semibold">
+                      Service Category
+                    </TableHead>
+                    <TableHead className="font-semibold">
+                      Selected Services
+                    </TableHead>
                     <TableHead className="font-semibold">ካርታ No.</TableHead>
-                    <TableHead className="font-semibold">ዲጂታል ካርታ No.</TableHead>
+                    <TableHead className="font-semibold">
+                      ዲጂታል ካርታ No.
+                    </TableHead>
                     <TableHead className="font-semibold">Created At</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTickets.map((ticket) => (
                     <TableRow key={ticket.id}>
-                      <TableCell className="font-medium">{ticket.code}</TableCell>
+                      <TableCell className="font-medium">
+                        {ticket.code}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -314,13 +324,20 @@ export default function TicketManagement() {
                       <TableCell>{ticket.woreda || "—"}</TableCell>
                       <TableCell>{ticket.serviceCategory || "—"}</TableCell>
                       <TableCell>
-                        {ticket.selectedServices && ticket.selectedServices.length > 0
+                        {ticket.selectedServices &&
+                        ticket.selectedServices.length > 0
                           ? ticket.selectedServices.join(", ")
                           : "—"}
                       </TableCell>
-                      <TableCell>{ticket.landCertificateKarta || "—"}</TableCell>
-                      <TableCell>{ticket.landCertificateDigital || "—"}</TableCell>
-                      <TableCell>{format(new Date(ticket.createdAt), "MMM dd, HH:mm")}</TableCell>
+                      <TableCell>
+                        {ticket.landCertificateKarta || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {ticket.landCertificateDigital || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
