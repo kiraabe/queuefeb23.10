@@ -2661,8 +2661,6 @@ function rowToTicket(r: any): Ticket {
     expiredAt: r.expired_at ? Math.round(Number(r.expired_at)) : undefined,
     landCertificateKarta:
       r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
-    landCertificateDigital:
-      r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
   };
 }
 
