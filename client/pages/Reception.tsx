@@ -237,6 +237,22 @@ function TicketPreview({
               </ul>
             </div>
           )}
+        {(details.landCertificateKarta || details.landCertificateDigital) && (
+          <div className="space-y-1 text-primary/90 text-sm">
+            {details.landCertificateKarta && (
+              <p>
+                <span className="font-semibold text-primary">Land Certificate (ካርታ):</span>{" "}
+                {details.landCertificateKarta}
+              </p>
+            )}
+            {details.landCertificateDigital && (
+              <p>
+                <span className="font-semibold text-primary">Digital Certificate (ዲጂታል ካርታ):</span>{" "}
+                {details.landCertificateDigital}
+              </p>
+            )}
+          </div>
+        )}
         {noteLines.length > 0 && (
           <div>
             <p className="font-semibold text-primary mb-1">Notes:</p>
