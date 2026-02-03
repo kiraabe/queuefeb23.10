@@ -2648,6 +2648,8 @@ function rowToTicket(r: any): Ticket {
       : undefined,
     transferredToUserId: r.transferred_to_user_id ?? undefined,
     expiredAt: r.expired_at ? Math.round(Number(r.expired_at)) : undefined,
+    landCertificateKarta: r.land_certificate_karta ?? undefined,
+    landCertificateDigital: r.land_certificate_digital ?? undefined,
   };
 }
 
