@@ -1855,9 +1855,9 @@ export const holdCase: RequestHandler = async (req, res) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  if (!subject || !description) {
+  if (!subject) {
     return res.status(400).json({
-      error: "Subject and description are required",
+      error: "Subject is required",
     });
   }
 
