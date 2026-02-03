@@ -140,7 +140,8 @@ export const sseHandler: RequestHandler = async (req, res) => {
               extract(epoch from completed_at)*1000 as completed_at,
               notes, owner_name, woreda, service_category, selected_services,
               transferred_from_window, transferred_to_window, transferred_to_user_id, remark,
-              extract(epoch from transferred_at)*1000 as transferred_at
+              extract(epoch from transferred_at)*1000 as transferred_at,
+              land_certificate_karta, land_certificate_digital
        FROM tickets`,
     );
     const ticketsList: Ticket[] = [];
