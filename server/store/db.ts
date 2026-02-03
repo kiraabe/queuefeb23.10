@@ -528,17 +528,14 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
-    // Rename the digital certificate column if old name exists
-    try {
-      await p.query(
-        `ALTER TABLE tickets RENAME COLUMN "Land Holding Rights Certificate (ዲጂታል ካርታ) No." TO "Land Holding Rights Certificate (ካርታ) No.";`,
-      );
-    } catch {
-      // Column doesn't exist with old name, create with new name if it doesn't exist
-      await p.query(
-        `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) No." text;`,
-      );
-    }
+    // Drop the new column if it was created (cleanup)
+    await p.query(
+      `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ካርታ) No.";`,
+    );
+    // Rename the digital certificate column to new name
+    await p.query(
+      `ALTER TABLE tickets RENAME COLUMN "Land Holding Rights Certificate (ዲጂታል ካርታ) No." TO "Land Holding Rights Certificate (ካርታ) No.";`,
+    );
     // Drop old column names if they exist
     await p.query(
       `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
