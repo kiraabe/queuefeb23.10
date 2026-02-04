@@ -232,7 +232,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                 {ticket.landCertificateDigital && (
                   <div className="text-xs bg-green-50 dark:bg-green-950/30 p-2 rounded">
                     <span className="font-medium text-green-700 dark:text-green-400">
-                      Digital Cert (ዲጂታል):
+                      Cert (ካርታ):
                     </span>{" "}
                     <span className="text-green-600 dark:text-green-300">
                       {ticket.landCertificateDigital}
