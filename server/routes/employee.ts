@@ -2117,12 +2117,18 @@ export const resumeCase: RequestHandler = async (req, res) => {
         : null,
       holdDurationSeconds: holdRow.hold_duration_seconds,
       createdAt: Math.round(Number(holdRow.created_at)),
+      expiresAt: Math.round(Number(holdRow.held_at)) + HOLD_EXPIRATION_SECONDS * 1000,
+      timeRemainingSeconds: timeRemainingSeconds,
     };
 
     res.json({
       ticket: formattedTicket,
       hold: formattedHold,
       message: "Case resumed successfully",
+      timeRemaining: {
+        hours: hoursRemaining,
+        seconds: timeRemainingSeconds,
+      },
     });
   } catch (error) {
     await client.query("ROLLBACK");
