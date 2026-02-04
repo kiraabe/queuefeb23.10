@@ -90,7 +90,7 @@ const SiteHeader = () => {
           {user ? (
             <>
               <span className="text-sm text-muted-foreground">
-                {user.username} · {user.role}
+                {user.role} - {user.fullName || user.username}
               </span>
               <Button
                 variant="outline"
