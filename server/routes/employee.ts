@@ -2016,6 +2016,23 @@ export const resumeCase: RequestHandler = async (req, res) => {
       (now.getTime() - heldAt.getTime()) / 1000,
     );
 
+    // Check if 72 hours (259200 seconds) have passed since hold was placed
+    const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
+    if (holdDurationSeconds > HOLD_EXPIRATION_SECONDS) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error:
+          "Cannot resume case: 3-day hold period has expired. The case will be automatically cancelled.",
+        holdExpired: true,
+        holdDurationHours: Math.floor(holdDurationSeconds / 3600),
+      });
+    }
+
+    // Calculate time remaining in hold period
+    const timeRemainingSeconds =
+      HOLD_EXPIRATION_SECONDS - holdDurationSeconds;
+    const hoursRemaining = Math.floor(timeRemainingSeconds / 3600);
+
     // Update hold record with resume time and duration
     await client.query(
       `UPDATE case_holds
