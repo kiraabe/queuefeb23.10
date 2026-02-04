@@ -52,6 +52,20 @@ app.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
+
+  // Start periodic task to auto-cancel expired holds (check every 5 minutes)
+  const HOLD_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+  console.log("⏱️  Starting periodic hold expiration check (every 5 minutes)");
+  setInterval(async () => {
+    try {
+      await autoCancelExpiredHolds();
+    } catch (error) {
+      console.error(
+        "Error in periodic hold expiration check:",
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }, HOLD_CHECK_INTERVAL);
 });
 
 // Memory management
