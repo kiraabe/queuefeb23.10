@@ -312,7 +312,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
     [windowId],
   );
   const { rows } = await p.query(
-    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services
+    `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, service_category, selected_services, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No."
        FROM tickets t
       WHERE t.status = 'done'
         AND t.completed_at >= date_trunc('day', now())
