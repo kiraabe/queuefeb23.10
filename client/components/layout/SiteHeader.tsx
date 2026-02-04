@@ -89,7 +89,7 @@ const SiteHeader = () => {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm font-semibold text-primary">
                 {user.role} - {user.fullName || user.username}
               </span>
               <Button
