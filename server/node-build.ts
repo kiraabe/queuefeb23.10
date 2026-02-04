@@ -2,6 +2,7 @@ import path from "node:path";
 import fs from "node:fs";
 import express from "express";
 import { createServer } from "./index";
+import { autoCancelExpiredHolds } from "./store/db";
 
 const app = createServer();
 const parsedPort = Number.parseInt(process.env.PORT ?? "", 10);
