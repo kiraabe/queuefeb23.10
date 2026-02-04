@@ -464,6 +464,45 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   // Check if case currently has an active hold
   const hasActiveHold = holds.some((h) => h.resumedAt == null);
 
+  // Calculate time remaining for active hold (72 hours = 259200 seconds)
+  const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60;
+  useEffect(() => {
+    if (!hasActiveHold) {
+      setTimeUntilExpiration(null);
+      return;
+    }
+
+    const activeHold = holds.find((h) => h.resumedAt == null);
+    if (!activeHold) return;
+
+    // Update countdown every second
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const heldAt = activeHold.heldAt;
+      const expiresAt = heldAt + HOLD_EXPIRATION_SECONDS * 1000;
+      const timeRemaining = Math.max(0, expiresAt - now);
+      setTimeUntilExpiration(timeRemaining);
+    }, 1000);
+
+    // Initial calculation
+    const now = Date.now();
+    const expiresAt = activeHold.heldAt + HOLD_EXPIRATION_SECONDS * 1000;
+    const timeRemaining = Math.max(0, expiresAt - now);
+    setTimeUntilExpiration(timeRemaining);
+
+    return () => clearInterval(interval);
+  }, [hasActiveHold, holds]);
+
+  // Format time remaining for display
+  const formatTimeRemaining = (ms: number | null) => {
+    if (ms === null || ms === 0) return null;
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
+
   useEffect(() => {
     // Only skip elapsed time if the case is completed (status = 'done')
     // Don't skip if ticket.proceededAt is set from a previous employee
