@@ -493,7 +493,7 @@ export default function Teller() {
                         {tickets[w.currentTicketId]?.landCertificateKarta && (
                           <div className="flex items-center justify-between">
                             <span className="text-muted-foreground">
-                              Certificate (ካርታ) ser no.
+                              karta (ካርታ) ser no.
                             </span>
                             <span className="font-medium text-blue-600">
                               {tickets[w.currentTicketId].landCertificateKarta}
@@ -503,7 +503,7 @@ export default function Teller() {
                         {tickets[w.currentTicketId]?.landCertificateDigital && (
                           <div className="flex items-center justify-between">
                             <span className="text-muted-foreground">
-                              Certificate (ካርታ) No.
+                              karta (ካርታ) No.
                             </span>
                             <span className="font-medium text-green-600">
                               {tickets[w.currentTicketId].landCertificateDigital}
