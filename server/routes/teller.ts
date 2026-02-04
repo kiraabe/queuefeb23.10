@@ -281,6 +281,10 @@ export const tellerTickets: RequestHandler = async (req, res) => {
         : typeof r.selected_services === "string"
           ? JSON.parse(r.selected_services)
           : undefined,
+      landCertificateKarta:
+        r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
+      landCertificateDigital:
+        r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
     }));
 
     // Enrich tickets with service names
