@@ -182,7 +182,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       [windowId],
     );
     const { rows } = await p.query(
-      `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window, transferred_from_window, extract(epoch from transferred_at)*1000 as transferred_at, service_category, selected_services
+      `SELECT id, service, number, code, status, window_id, extract(epoch from created_at)*1000 as created_at, extract(epoch from started_at)*1000 as started_at, extract(epoch from completed_at)*1000 as completed_at, notes, owner_name, woreda, remark, extract(epoch from skipped_at)*1000 as skipped_at, skipped_by_window, transferred_from_window, extract(epoch from transferred_at)*1000 as transferred_at, service_category, selected_services, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No."
          FROM tickets
         WHERE skipped_by_window = $1 AND status = 'skipped' AND skipped_at >= date_trunc('day', now())
         ORDER BY skipped_at DESC
