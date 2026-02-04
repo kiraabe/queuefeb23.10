@@ -242,7 +242,7 @@ function TicketPreview({
             {details.landCertificateKarta && (
               <p>
                 <span className="font-semibold text-primary">
-                  Land Certificate (ካርታ):
+                  karta (ካርታ) ser no.:
                 </span>{" "}
                 {details.landCertificateKarta}
               </p>
@@ -250,7 +250,7 @@ function TicketPreview({
             {details.landCertificateDigital && (
               <p>
                 <span className="font-semibold text-primary">
-                  Digital Certificate (ካርታ):
+                  karta (ካርታ) No.:
                 </span>{" "}
                 {details.landCertificateDigital}
               </p>
