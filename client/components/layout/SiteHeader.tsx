@@ -176,11 +176,11 @@ const SiteHeader = () => {
           <div className="flex flex-col gap-2 border-t border-border/40 pt-4 mt-2">
             {user ? (
               <>
-                <div className="px-5 py-2 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground capitalize">
+                <div className="px-5 py-2 text-sm">
+                  <p className="font-bold text-primary capitalize">
                     {user.role}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-semibold text-primary">
                     {user.fullName || user.username}
                   </p>
                 </div>
