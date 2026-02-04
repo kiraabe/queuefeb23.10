@@ -1938,24 +1938,35 @@ export const holdCase: RequestHandler = async (req, res) => {
     const holdRow = holdRes.rows[0];
 
     const formattedTicket = formatTicketResponse(ticketRow);
+    const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
+    const heldAtMs = Math.round(Number(holdRow.held_at));
+    const expiresAtMs = heldAtMs + HOLD_EXPIRATION_SECONDS * 1000;
+
     const formattedHold = {
       id: holdRow.id,
       ticketId: holdRow.ticket_id,
       heldByUserId: holdRow.held_by_user_id,
       subject: holdRow.subject,
       description: holdRow.description,
-      heldAt: Math.round(Number(holdRow.held_at)),
+      heldAt: heldAtMs,
       resumedAt: holdRow.resumed_at
         ? Math.round(Number(holdRow.resumed_at))
         : null,
       holdDurationSeconds: holdRow.hold_duration_seconds,
       createdAt: Math.round(Number(holdRow.created_at)),
+      expiresAt: expiresAtMs,
+      holdExpirationSeconds: HOLD_EXPIRATION_SECONDS,
     };
 
     res.json({
       ticket: formattedTicket,
       hold: formattedHold,
       message: "Case placed on hold successfully",
+      holdInfo: {
+        expiresAt: new Date(expiresAtMs).toISOString(),
+        durationHours: 72,
+        resumeDeadline: new Date(expiresAtMs).toISOString(),
+      },
     });
   } catch (error) {
     console.error("Failed to hold case:", error);
