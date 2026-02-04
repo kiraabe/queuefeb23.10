@@ -462,7 +462,11 @@ export default function Reception() {
     },
   });
 
-  const isFormValid = ownerName.trim().length > 0 && woreda.length > 0;
+  const isFormValid =
+    ownerName.trim().length > 0 &&
+    woreda.length > 0 &&
+    selectedCategory.length > 0 &&
+    selectedServices.size > 0;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
