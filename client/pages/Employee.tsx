@@ -776,7 +776,17 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
               <Button
                 size="sm"
                 onClick={handleResume}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={timeUntilExpiration === 0}
+                className={`${
+                  timeUntilExpiration === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                } text-white`}
+                title={
+                  timeUntilExpiration === 0
+                    ? "Hold period has expired. Case will be auto-cancelled."
+                    : "Click to resume case"
+                }
               >
                 Resume
               </Button>
