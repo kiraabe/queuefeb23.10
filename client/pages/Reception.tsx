@@ -570,7 +570,7 @@ export default function Reception() {
                     htmlFor="land-cert-karta"
                     className="text-sm font-medium"
                   >
-                    Land Holding Rights Certificate (ካርታ) ser no.
+                    karta (ካርታ) ser no.
                   </Label>
                   <Input
                     id="land-cert-karta"
