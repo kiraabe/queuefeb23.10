@@ -426,6 +426,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
   const [holds, setHolds] = useState<CaseHold[]>([]);
+  const [timeUntilExpiration, setTimeUntilExpiration] = useState<number | null>(null);
 
   // Debug logging
   useEffect(() => {
