@@ -634,7 +634,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 rounded-lg border border-border/60 bg-card/50 p-3 sm:p-4 hover:bg-card/80 transition-colors">
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h3 className="font-display font-semibold text-foreground truncate">
             Ticket {ticket.code}
           </h3>
@@ -650,6 +650,20 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                   ? "On Hold"
                   : "Received"}
           </Badge>
+          {hasActiveHold && timeUntilExpiration !== null && (
+            <Badge
+              variant="outline"
+              className={`text-xs ${
+                timeUntilExpiration < 3600000
+                  ? "border-red-500 text-red-600 dark:text-red-400"
+                  : timeUntilExpiration < 86400000
+                    ? "border-orange-500 text-orange-600 dark:text-orange-400"
+                    : "border-yellow-500 text-yellow-600 dark:text-yellow-400"
+              }`}
+            >
+              Expires: {formatTimeRemaining(timeUntilExpiration)}
+            </Badge>
+          )}
         </div>
         <p className="text-xs text-muted-foreground mb-2">
           Owner: {ticket.ownerName || "—"} · Woreda: {ticket.woreda || "—"}
