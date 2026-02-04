@@ -8,7 +8,8 @@ export const getGlobalQueue: RequestHandler = async (req, res) => {
     const result = await pool.query(
       `SELECT id, code, service, number, owner_name, woreda, created_at,
               status, documents_fetched, archiver_id, archiver_started_at,
-              service_category, "Land Holding Rights Certificate (ካርታ) ser no."
+              service_category, "Land Holding Rights Certificate (ካርታ) ser no.",
+              "Land Holding Rights Certificate (ካርታ) No."
        FROM tickets
        WHERE status = 'waiting_archive'
        AND DATE(created_at AT TIME ZONE 'UTC') = CURRENT_DATE AT TIME ZONE 'UTC'
