@@ -953,7 +953,7 @@ export default function TellerWindow() {
                 {currentTicket?.landCertificateKarta && (
                   <div className="min-w-0">
                     <div className="text-xs uppercase text-muted-foreground mb-1">
-                      Land Certificate (ካርታ)
+                      karta (ካርታ) ser no.
                     </div>
                     <p className="truncate text-sm font-medium text-blue-600">
                       {currentTicket.landCertificateKarta}
@@ -963,7 +963,7 @@ export default function TellerWindow() {
                 {currentTicket?.landCertificateDigital && (
                   <div className="min-w-0">
                     <div className="text-xs uppercase text-muted-foreground mb-1">
-                      Digital Certificate (ዲጂታል)
+                      karta (ካርታ) No.
                     </div>
                     <p className="truncate text-sm font-medium text-green-600">
                       {currentTicket.landCertificateDigital}
