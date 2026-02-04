@@ -116,36 +116,36 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
         items: enrichedItems,
         total: Number(countRes.rows[0]?.total || 0),
       });
+    } else {
+      // default: received
+      const countRes = await p.query(
+        `SELECT COUNT(*)::int AS total
+         FROM tickets t
+         WHERE (t.status = 'transferred' OR t.status = 'serving' OR t.status = 'on_hold')
+           AND t.transferred_to_user_id = $1
+           AND (t.status = 'on_hold' OR t.created_at >= date_trunc('day', now()))`,
+        [userId],
+      );
+
+      const { rows } = await p.query(
+        `SELECT ${selectTicketColumns}
+         FROM tickets t
+         LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id AND ecp.employee_id = $1 AND ecp.status = 'in_progress'
+         WHERE (t.status = 'transferred' OR t.status = 'serving' OR t.status = 'on_hold')
+           AND t.transferred_to_user_id = $1
+           AND (t.status = 'on_hold' OR t.created_at >= date_trunc('day', now()))
+         ORDER BY t.transferred_at DESC
+         LIMIT $2 OFFSET $3`,
+        [userId, limit, offset],
+      );
+
+      const items = rows.map((r) => formatTicketResponse(r));
+      const enrichedItems = await enrichMultipleTicketsWithServiceNames(items);
+      return res.json({
+        items: enrichedItems,
+        total: Number(countRes.rows[0]?.total || 0),
+      });
     }
-
-    // default: received
-    const countRes = await p.query(
-      `SELECT COUNT(*)::int AS total
-       FROM tickets t
-       WHERE (t.status = 'transferred' OR t.status = 'serving' OR t.status = 'on_hold')
-         AND t.transferred_to_user_id = $1
-         AND (t.status = 'on_hold' OR t.created_at >= date_trunc('day', now()))`,
-      [userId],
-    );
-
-    const { rows } = await p.query(
-      `SELECT ${selectTicketColumns}
-       FROM tickets t
-       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id AND ecp.employee_id = $1 AND ecp.status = 'in_progress'
-       WHERE (t.status = 'transferred' OR t.status = 'serving' OR t.status = 'on_hold')
-         AND t.transferred_to_user_id = $1
-         AND (t.status = 'on_hold' OR t.created_at >= date_trunc('day', now()))
-       ORDER BY t.transferred_at DESC
-       LIMIT $2 OFFSET $3`,
-      [userId, limit, offset],
-    );
-
-    const items = rows.map((r) => formatTicketResponse(r));
-    const enrichedItems = await enrichMultipleTicketsWithServiceNames(items);
-    return res.json({
-      items: enrichedItems,
-      total: Number(countRes.rows[0]?.total || 0),
-    });
   } catch (error) {
     console.error("Failed to fetch employee tickets:", error);
     res.status(500).json({
