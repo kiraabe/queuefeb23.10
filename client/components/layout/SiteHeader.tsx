@@ -177,9 +177,11 @@ const SiteHeader = () => {
             {user ? (
               <>
                 <div className="px-5 py-2 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground">{user.username}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
+                  <p className="font-medium text-foreground capitalize">
                     {user.role}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {user.fullName || user.username}
                   </p>
                 </div>
                 <Button
