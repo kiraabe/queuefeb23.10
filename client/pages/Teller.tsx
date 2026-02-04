@@ -506,7 +506,10 @@ export default function Teller() {
                               karta (ካርታ) No.
                             </span>
                             <span className="font-medium text-green-600">
-                              {tickets[w.currentTicketId].landCertificateDigital}
+                              {
+                                tickets[w.currentTicketId]
+                                  .landCertificateDigital
+                              }
                             </span>
                           </div>
                         )}
