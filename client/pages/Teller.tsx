@@ -490,6 +490,26 @@ export default function Teller() {
                             {tickets[w.currentTicketId]?.woreda ?? "—"}
                           </span>
                         </div>
+                        {tickets[w.currentTicketId]?.landCertificateKarta && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">
+                              Certificate (ካርታ) ser no.
+                            </span>
+                            <span className="font-medium text-blue-600">
+                              {tickets[w.currentTicketId].landCertificateKarta}
+                            </span>
+                          </div>
+                        )}
+                        {tickets[w.currentTicketId]?.landCertificateDigital && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">
+                              Certificate (ካርታ) No.
+                            </span>
+                            <span className="font-medium text-green-600">
+                              {tickets[w.currentTicketId].landCertificateDigital}
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                             Notes
