@@ -244,7 +244,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       [windowId],
     );
     const { rows } = await p.query(
-      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id as current_window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, th.from_window as transferred_from_window, th.to_window as transferred_to_window, extract(epoch from th.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No."
          FROM transfer_history th
          JOIN tickets t ON t.id = th.ticket_id
         WHERE (th.to_window = $1 OR th.from_window = $1) AND t.status = 'transferred' AND t.created_at >= date_trunc('day', now())
