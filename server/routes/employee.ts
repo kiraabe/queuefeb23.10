@@ -2049,8 +2049,7 @@ export const resumeCase: RequestHandler = async (req, res) => {
     }
 
     // Calculate time remaining in hold period
-    const timeRemainingSeconds =
-      HOLD_EXPIRATION_SECONDS - holdDurationSeconds;
+    const timeRemainingSeconds = HOLD_EXPIRATION_SECONDS - holdDurationSeconds;
     const hoursRemaining = Math.floor(timeRemainingSeconds / 3600);
 
     // Update hold record with resume time and duration
@@ -2137,7 +2136,8 @@ export const resumeCase: RequestHandler = async (req, res) => {
         : null,
       holdDurationSeconds: holdRow.hold_duration_seconds,
       createdAt: Math.round(Number(holdRow.created_at)),
-      expiresAt: Math.round(Number(holdRow.held_at)) + HOLD_EXPIRATION_SECONDS * 1000,
+      expiresAt:
+        Math.round(Number(holdRow.held_at)) + HOLD_EXPIRATION_SECONDS * 1000,
       timeRemainingSeconds: timeRemainingSeconds,
     };
 

@@ -426,7 +426,9 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
   const [holds, setHolds] = useState<CaseHold[]>([]);
-  const [timeUntilExpiration, setTimeUntilExpiration] = useState<number | null>(null);
+  const [timeUntilExpiration, setTimeUntilExpiration] = useState<number | null>(
+    null,
+  );
 
   // Debug logging
   useEffect(() => {
@@ -627,7 +629,8 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
       await fetchHolds();
       onComplete?.(ticket.id);
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Failed to resume case";
+      const errorMsg =
+        error instanceof Error ? error.message : "Failed to resume case";
 
       // Check for hold expiration in error message
       if (errorMsg.includes("3-day hold period has expired")) {
