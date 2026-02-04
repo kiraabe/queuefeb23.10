@@ -606,17 +606,40 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
 
   const handleResume = async () => {
     try {
-      await apiFetch(`/api/employee/cases/${ticket.id}/resume`, {
-        method: "POST",
-      });
+      const response = await apiFetch<any>(
+        `/api/employee/cases/${ticket.id}/resume`,
+        { method: "POST" },
+      );
+
+      // Check if hold has expired
+      if (response.holdExpired) {
+        toast.error(
+          "Cannot resume: 3-day hold period has expired. This case will be automatically cancelled.",
+        );
+        // Refetch to get updated case status
+        await fetchHolds();
+        onComplete?.(ticket.id);
+        return;
+      }
+
       toast.success("Case resumed successfully");
       // Refetch holds to update the UI immediately
       await fetchHolds();
       onComplete?.(ticket.id);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to resume case",
-      );
+      const errorMsg = error instanceof Error ? error.message : "Failed to resume case";
+
+      // Check for hold expiration in error message
+      if (errorMsg.includes("3-day hold period has expired")) {
+        toast.error(
+          "Cannot resume: 3-day hold period has expired. This case will be automatically cancelled.",
+        );
+      } else {
+        toast.error(errorMsg);
+      }
+
+      // Refetch to ensure UI is in sync
+      await fetchHolds();
     }
   };
 
