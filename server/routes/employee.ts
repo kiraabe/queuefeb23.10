@@ -601,18 +601,22 @@ export const employeeHistory: RequestHandler = async (req, res) => {
                 extract(epoch from t.transferred_at)*1000 as transferred_at,
                 t.started_by_user_id,
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
-                t.job_title_for_proceed`;
+                t.job_title_for_proceed,
+                "Land Holding Rights Certificate (ካርታ) ser no.",
+                "Land Holding Rights Certificate (ካርታ) No."`;
 
     // Get all cases this employee started OR worked on within the selected time period
     // This includes:
     // 1. Cases they initiated (started_by_user_id)
     // 2. Cases they worked on (in employee_case_performance)
     // Include cases where creation, completion, or proceed happened within the time period
+    // EXCLUDE on_hold cases - they should only appear in Received Cases tab until they expire
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
+         AND t.status != 'on_hold'
          AND (t.created_at >= ${dateThreshold}
               OR t.completed_at >= ${dateThreshold}
               OR t.proceeded_at >= ${dateThreshold})`,
@@ -626,6 +630,7 @@ export const employeeHistory: RequestHandler = async (req, res) => {
          FROM tickets t
          LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
          WHERE (t.started_by_user_id = $1 OR ecp.employee_id = $1)
+           AND t.status != 'on_hold'
            AND (t.created_at >= ${dateThreshold}
                 OR t.completed_at >= ${dateThreshold}
                 OR t.proceeded_at >= ${dateThreshold})
