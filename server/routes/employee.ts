@@ -191,10 +191,8 @@ function formatTicketResponse(r: any) {
     employeeStartedAt: r.employee_started_at
       ? Math.round(Number(r.employee_started_at))
       : undefined,
-    landCertificateKarta:
-      r["Land Holding Rights Certificate (ካርታ) ser no."] ?? undefined,
-    landCertificateDigital:
-      r["Land Holding Rights Certificate (ካርታ) No."] ?? undefined,
+    landCertificateKarta: r.land_cert_karta ?? undefined,
+    landCertificateDigital: r.land_cert_digital ?? undefined,
   };
 }
 
