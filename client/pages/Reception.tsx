@@ -465,6 +465,8 @@ export default function Reception() {
   const isFormValid =
     ownerName.trim().length > 0 &&
     woreda.length > 0 &&
+    landCertificateKarta.trim().length > 0 &&
+    landCertificateDigital.trim().length > 0 &&
     selectedCategory.length > 0 &&
     selectedServices.size > 0;
 
