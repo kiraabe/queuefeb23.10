@@ -596,7 +596,7 @@ export default function Reception() {
                     onChange={(event) =>
                       setLandCertificateDigital(event.target.value)
                     }
-                    placeholder="Enter digital certificate number"
+                    placeholder="Enter certificate number"
                     required
                     className="h-10"
                   />
