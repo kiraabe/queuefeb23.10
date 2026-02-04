@@ -524,31 +524,13 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS selected_services jsonb;`,
     );
-    // Add land certificate column
+    // Add land certificate columns - NEVER DROP COLUMNS unless explicitly commanded
+    await p.query(
+      `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) No." text;`,
+    );
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS "Land Holding Rights Certificate (ካርታ) ser no." text;`,
     );
-    // Drop old column names if they exist
-    try {
-      await p.query(
-        `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ካርታ) No.";`,
-      );
-    } catch {}
-    try {
-      await p.query(
-        `ALTER TABLE tickets DROP COLUMN IF EXISTS "Land Holding Rights Certificate (ዲጂታል ካርታ) No.";`,
-      );
-    } catch {}
-    try {
-      await p.query(
-        `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_karta;`,
-      );
-    } catch {}
-    try {
-      await p.query(
-        `ALTER TABLE tickets DROP COLUMN IF EXISTS land_certificate_digital;`,
-      );
-    } catch {}
     // Case workflow columns - for employee case tracking
     await p.query(
       `ALTER TABLE tickets ADD COLUMN IF NOT EXISTS started_at timestamptz;`,
