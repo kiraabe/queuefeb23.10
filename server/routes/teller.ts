@@ -122,7 +122,7 @@ export const tellerTickets: RequestHandler = async (req, res) => {
       [windowId],
     );
     const { rows } = await p.query(
-      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, extract(epoch from t.skipped_at)*1000 as skipped_at, t.skipped_by_window, t.transferred_from_window, t.transferred_to_window, extract(epoch from t.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services
+      `SELECT t.id, t.service, t.number, t.code, t.status, t.window_id, extract(epoch from t.created_at)*1000 as created_at, extract(epoch from t.started_at)*1000 as started_at, extract(epoch from t.completed_at)*1000 as completed_at, t.notes, t.owner_name, t.woreda, t.remark, extract(epoch from t.skipped_at)*1000 as skipped_at, t.skipped_by_window, t.transferred_from_window, t.transferred_to_window, extract(epoch from t.transferred_at)*1000 as transferred_at, t.service_category, t.selected_services, "Land Holding Rights Certificate (ካርታ) ser no.", "Land Holding Rights Certificate (ካርታ) No."
          FROM tickets t
         WHERE t.status IN ('serving','transferred')
           AND (t.window_id = $1 OR t.transferred_from_window = $1 OR t.transferred_to_window = $1)
