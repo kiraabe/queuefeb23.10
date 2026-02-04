@@ -49,6 +49,8 @@ export const employeeReceivedTickets: RequestHandler = async (req, res) => {
                 t.started_by_user_id,
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
                 t.job_title_for_proceed,
+                "Land Holding Rights Certificate (ካርታ) ser no.",
+                "Land Holding Rights Certificate (ካርታ) No.",
                 CASE WHEN ecp.id IS NOT NULL THEN extract(epoch from ecp.started_at)*1000 ELSE NULL END as employee_started_at`;
 
     // For employees, show tickets transferred to them
