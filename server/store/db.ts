@@ -3546,6 +3546,97 @@ async function getTicketByIdDb(ticketId: string): Promise<Ticket | null> {
   return rowToTicket(res.rows[0]);
 }
 
+// Auto-cancel holds that have expired (72 hours)
+export async function autoCancelExpiredHolds(): Promise<void> {
+  const p = getPool();
+  const HOLD_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours in milliseconds
+  const DEFAULT_SKIP_REMARK =
+    "Case automatically skipped due to no customer response within the 3-day hold period.";
+  const SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000"; // System user identifier
+
+  try {
+    // Find all cases with active holds that have exceeded 72 hours
+    const expiredRes = await p.query(
+      `SELECT ch.id, ch.ticket_id, ch.held_by_user_id, ch.held_at
+       FROM case_holds ch
+       JOIN tickets t ON ch.ticket_id = t.id
+       WHERE ch.resumed_at IS NULL
+         AND t.status = 'on_hold'
+         AND ch.held_at < now() - interval '72 hours'
+       ORDER BY ch.held_at ASC`,
+    );
+
+    if (!expiredRes.rows.length) {
+      console.log("ℹ️  No expired holds to process");
+      return;
+    }
+
+    console.log(`⏳ Processing ${expiredRes.rows.length} expired holds...`);
+
+    for (const hold of expiredRes.rows) {
+      const client = await p.connect();
+      try {
+        await client.query("BEGIN");
+
+        // Update ticket status to skipped
+        await client.query(
+          `UPDATE tickets
+           SET status = 'skipped',
+               skipped_at = now(),
+               skipped_by_window = NULL,
+               remark = $1
+           WHERE id = $2`,
+          [DEFAULT_SKIP_REMARK, hold.ticket_id],
+        );
+
+        // Mark hold as expired (we'll add an expired_at column conceptually, but for now just log)
+        // Get hold duration
+        const holdDurationMs = Date.now() - new Date(hold.held_at).getTime();
+        const holdDurationSeconds = Math.floor(holdDurationMs / 1000);
+
+        // Log the auto-cancel action
+        await client.query(
+          `INSERT INTO audit_logs (action, user_id, details, created_at)
+           VALUES ('case.auto_skipped_expired_hold', $1, $2, now())`,
+          [
+            SYSTEM_USER_ID,
+            JSON.stringify({
+              ticketId: hold.ticket_id,
+              holdId: hold.id,
+              originallyHeldBy: hold.held_by_user_id,
+              heldDuration: holdDurationSeconds,
+              holdStartTime: hold.held_at,
+              reason: "3-day hold period expired",
+            }),
+          ],
+        );
+
+        await client.query("COMMIT");
+        console.log(
+          `✅ Auto-skipped ticket ${hold.ticket_id} - hold expired after 72 hours`,
+        );
+      } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(
+          `❌ Failed to auto-cancel hold for ticket ${hold.ticket_id}:`,
+          error instanceof Error ? error.message : error,
+        );
+      } finally {
+        client.release();
+      }
+    }
+
+    console.log(
+      `✅ Completed processing expired holds. Processed: ${expiredRes.rows.length}`,
+    );
+  } catch (error) {
+    console.error(
+      "❌ Error in autoCancelExpiredHolds:",
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
 // initialize on import (non-blocking with timeout)
 const initDbWithTimeout = async () => {
   const ms =
