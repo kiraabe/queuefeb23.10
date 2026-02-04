@@ -116,11 +116,13 @@ export function HoldCaseDialog({
 
           {/* Note */}
           <div className="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
-            <p className="font-medium mb-1">Note:</p>
+            <p className="font-medium mb-1">Important:</p>
             <ul className="space-y-1 list-disc pl-4">
+              <li><strong>3-day Hold Deadline:</strong> The case remains on hold for exactly 72 hours (3 days)</li>
+              <li>Resume the case when customer returns with required documents</li>
+              <li>If customer does not respond within 72 hours, the case will be automatically cancelled</li>
               <li>Time on hold will not count toward processing metrics</li>
-              <li>Case will remain visible across multiple days</li>
-              <li>Resume the case when customer returns with documents</li>
+              <li>Case will remain visible in "Received Cases" during the hold period</li>
             </ul>
           </div>
         </div>
