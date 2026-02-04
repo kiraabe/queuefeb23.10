@@ -577,6 +577,7 @@ export default function Reception() {
                       setLandCertificateKarta(event.target.value)
                     }
                     placeholder="Enter certificate serial number"
+                    required
                     className="h-10"
                   />
                 </div>
@@ -594,6 +595,7 @@ export default function Reception() {
                       setLandCertificateDigital(event.target.value)
                     }
                     placeholder="Enter digital certificate number"
+                    required
                     className="h-10"
                   />
                 </div>
