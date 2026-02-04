@@ -32,7 +32,7 @@ export interface Ticket {
   serviceCategory?: string; // Selected service category (e.g. "rights-group")
   selectedServices?: string[]; // Array of selected service names (e.g. ["የንብረት መያዣ ምዝገባ", "የንብረት መያዣ ስረዛ"])
   landCertificateKarta?: string; // Land Holding Rights Certificate (ካርታ) serial number
-  landCertificateDigital?: string; // Land Holding Rights Certificate (ካርታ) number
+  landCertificateDigital?: string; // Land Holding Rights Certificate (ካርታ) certificate number
   // Optional fields for skipped/completed tickets
   remark?: string | null;
   skippedAt?: number | null;
