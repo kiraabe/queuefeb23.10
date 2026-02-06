@@ -584,21 +584,26 @@ export default function Queue() {
                         <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
                           Now Serving
                         </p>
-                        <div className="mt-3 space-y-1 max-h-24 overflow-y-auto">
+                        <div className="mt-3 flex flex-wrap gap-2">
                           {data.serving.length > 0 ? (
-                            data.serving.slice(0, 3).map((ticket) => (
-                              <p
-                                key={ticket.id}
-                                className={cn(
-                                  "font-display text-3xl font-bold text-green-600",
-                                  blinkingTicketIds.has(ticket.id)
-                                    ? "animate-blink"
-                                    : "",
-                                )}
-                              >
-                                {ticket.code}
-                              </p>
-                            ))
+                            data.serving.map((ticket) => {
+                              let fontSize = "text-3xl";
+                              if (data.serving.length > 4) fontSize = "text-xl";
+                              else if (data.serving.length > 2) fontSize = "text-2xl";
+                              return (
+                                <p
+                                  key={ticket.id}
+                                  className={cn(
+                                    `font-display ${fontSize} font-bold text-green-600`,
+                                    blinkingTicketIds.has(ticket.id)
+                                      ? "animate-blink"
+                                      : "",
+                                  )}
+                                >
+                                  {ticket.code}
+                                </p>
+                              );
+                            })
                           ) : (
                             <p className="font-display text-3xl font-bold text-green-600">—</p>
                           )}
@@ -610,16 +615,21 @@ export default function Queue() {
                         <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
                           Next in Queue
                         </p>
-                        <div className="mt-3 space-y-1 max-h-24 overflow-y-auto">
+                        <div className="mt-3 flex flex-wrap gap-2">
                           {data.waiting.length > 0 ? (
-                            data.waiting.slice(0, 3).map((ticket) => (
-                              <p
-                                key={ticket.id}
-                                className="font-display text-3xl font-bold text-amber-600"
-                              >
-                                {ticket.code}
-                              </p>
-                            ))
+                            data.waiting.map((ticket) => {
+                              let fontSize = "text-3xl";
+                              if (data.waiting.length > 4) fontSize = "text-xl";
+                              else if (data.waiting.length > 2) fontSize = "text-2xl";
+                              return (
+                                <p
+                                  key={ticket.id}
+                                  className={`font-display ${fontSize} font-bold text-amber-600`}
+                                >
+                                  {ticket.code}
+                                </p>
+                              );
+                            })
                           ) : (
                             <p className="font-display text-3xl font-bold text-amber-600">—</p>
                           )}
