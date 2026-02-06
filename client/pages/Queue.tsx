@@ -612,10 +612,10 @@ export default function Queue() {
               onClick={toggleFs}
               aria-pressed={isFs}
               aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-              className="w-auto mt-4 sm:mt-0"
+              className="w-auto mt-4 sm:mt-0 whitespace-nowrap"
             >
               <Maximize2 className="h-4 w-4 mr-2" />
-              Full Screen
+              {isFs ? "Exit Full Screen" : "Full Screen"}
             </Button>
           </div>
 
