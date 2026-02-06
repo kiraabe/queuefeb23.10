@@ -30,28 +30,32 @@ async function detectApiBase(): Promise<string> {
   if (typeof window === "undefined") return "";
   const tryPing = async (base: string) => {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 2500);
+    const id = setTimeout(() => controller.abort(), 3000);
     try {
       const res = await fetch(`${sanitizeBase(base)}/api/ping`, {
         headers: { "X-Requested-With": "fetch" },
         credentials: "include",
         signal: controller.signal,
+        method: "GET",
       });
-      if (res.ok) return true;
-      return false;
-    } catch {
-      return false;
-    } finally {
       clearTimeout(id);
+      // Accept any successful response (not just 200)
+      return res.ok || res.status === 200 || res.status === 401;
+    } catch (err) {
+      clearTimeout(id);
+      // Timeout or network error
+      return false;
     }
   };
 
-  // 1) Same origin
+  // 1) Same origin (most common case)
   if (await tryPing("")) return "";
+
   // 2) Netlify Functions
   if (await tryPing("/.netlify/functions/api"))
     return "/.netlify/functions/api";
-  // 3) No detection, fallback to same-origin
+
+  // 3) No detection found, default to same-origin (usually works)
   return "";
 }
 
