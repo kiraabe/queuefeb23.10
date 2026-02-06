@@ -595,22 +595,26 @@ export default function Queue() {
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {data.serving.length > 0 ? (
-                            data.serving.map((ticket) => {
+                            data.serving.map((item) => {
                               let fontSize = "text-3xl";
                               if (data.serving.length > 4) fontSize = "text-xl";
                               else if (data.serving.length > 2) fontSize = "text-2xl";
                               return (
-                                <p
-                                  key={ticket.id}
-                                  className={cn(
-                                    `font-display ${fontSize} font-bold text-green-600`,
-                                    blinkingTicketIds.has(ticket.id)
-                                      ? "animate-blink"
-                                      : "",
-                                  )}
-                                >
-                                  {ticket.code}
-                                </p>
+                                <div key={item.ticket.id} className="flex flex-col">
+                                  <p
+                                    className={cn(
+                                      `font-display ${fontSize} font-bold text-green-600`,
+                                      blinkingTicketIds.has(item.ticket.id)
+                                        ? "animate-blink"
+                                        : "",
+                                    )}
+                                  >
+                                    {item.ticket.code}
+                                  </p>
+                                  <p className="text-xs text-green-600">
+                                    @ {item.window?.name || "—"}
+                                  </p>
+                                </div>
                               );
                             })
                           ) : (
