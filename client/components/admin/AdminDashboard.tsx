@@ -319,7 +319,7 @@ export default function AdminDashboard() {
               </div>
               <p className="text-2xl font-bold">
                 {employeeStats.avgDuration !== null
-                  ? `${Math.round(employeeStats.avgDuration)}s`
+                  ? formatSeconds(employeeStats.avgDuration)
                   : "N/A"}
               </p>
               <p className="text-xs text-muted-foreground">per case</p>
