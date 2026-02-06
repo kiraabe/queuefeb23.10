@@ -17,7 +17,13 @@ async function fetchStatus(code: string): Promise<TicketStatusResponse> {
   const res = await fetch(`/api/tickets/${encodeURIComponent(code)}`);
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || "Ticket not found");
+    let errorMsg = text || "Ticket not found";
+    // Try to parse JSON error response
+    try {
+      const json = JSON.parse(text);
+      errorMsg = json.error || json.message || errorMsg;
+    } catch {}
+    throw new Error(errorMsg);
   }
   return res.json();
 }
