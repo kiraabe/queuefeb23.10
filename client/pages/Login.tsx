@@ -106,16 +106,53 @@ export default function Login() {
         if (redirectParam) {
           // Map allowed redirect destinations by role
           const allowedByRole: Record<string, string[]> = {
-            admin: ["/", "/role-selector", "/admin", "/teller", "/reception", "/queue", "/display", "/tickets/"],
-            teller: ["/", "/role-selector", "/teller", "/queue", "/display", "/tickets/"],
-            reception: ["/", "/role-selector", "/reception", "/queue", "/display", "/tickets/"],
-            employee: ["/", "/role-selector", "/employee", "/queue", "/display", "/tickets/"],
-            archiever: ["/", "/role-selector", "/archiever", "/queue", "/display", "/tickets/"],
+            admin: [
+              "/",
+              "/role-selector",
+              "/admin",
+              "/teller",
+              "/reception",
+              "/queue",
+              "/display",
+              "/tickets/",
+            ],
+            teller: [
+              "/",
+              "/role-selector",
+              "/teller",
+              "/queue",
+              "/display",
+              "/tickets/",
+            ],
+            reception: [
+              "/",
+              "/role-selector",
+              "/reception",
+              "/queue",
+              "/display",
+              "/tickets/",
+            ],
+            employee: [
+              "/",
+              "/role-selector",
+              "/employee",
+              "/queue",
+              "/display",
+              "/tickets/",
+            ],
+            archiever: [
+              "/",
+              "/role-selector",
+              "/archiever",
+              "/queue",
+              "/display",
+              "/tickets/",
+            ],
           };
 
           const allowed = allowedByRole[user.role] || ["/"];
-          const isAllowed = allowed.some(path =>
-            redirectParam === path || redirectParam.startsWith(path)
+          const isAllowed = allowed.some(
+            (path) => redirectParam === path || redirectParam.startsWith(path),
           );
 
           if (isAllowed && redirectParam !== defaultRedirect) {
