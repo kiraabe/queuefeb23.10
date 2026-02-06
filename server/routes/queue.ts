@@ -691,6 +691,8 @@ export const getTicketStatus: RequestHandler = async (req, res) => {
       error: errorMsg,
       stack: e?.stack,
     });
-    return res.status(500).json({ error: errorMsg || "Failed to fetch ticket" });
+    return res
+      .status(500)
+      .json({ error: errorMsg || "Failed to fetch ticket" });
   }
 };

@@ -607,66 +607,73 @@ export default function Queue() {
 
           {/* Service Category Cards Grid - 2 columns with 3rd card spanning full width */}
           <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
-            {Array.from(categoryMap.entries()).map(([category, data], index) => {
-              const categoryNames: Record<string, string> = {
-                "cadastral-group": "ካድስትራል",
-                "rights-group": "መብቶች",
-                "fixed-property-group": "ቋሚ ንብረት",
-              };
-              const displayName = categoryNames[category] || category;
-              const isThirdCard = index === 2;
-              return (
-              <Card key={category} className={`border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow ${isThirdCard ? "md:col-span-2" : ""}`}>
-                <CardHeader className="pb-3">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
-                    <SignalHigh className="h-3 w-3" /> {displayName}
-                  </div>
-                  <CardTitle className="text-xl">Queue Status</CardTitle>
-                  <CardDescription className="text-xs">
-                    Real-time statistics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Now Serving Box */}
-                  <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-4">
-                    <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
-                      Now Serving
-                    </p>
-                    <p
-                      className={cn(
-                        "mt-3 font-display text-3xl font-bold text-green-600",
-                        data.serving && blinkingTicketIds.has(data.serving.id)
-                          ? "animate-blink"
-                          : "",
-                      )}
-                    >
-                      {data.serving?.code ?? "—"}
-                    </p>
-                  </div>
+            {Array.from(categoryMap.entries()).map(
+              ([category, data], index) => {
+                const categoryNames: Record<string, string> = {
+                  "cadastral-group": "ካድስትራል",
+                  "rights-group": "መብቶች",
+                  "fixed-property-group": "ቋሚ ንብረት",
+                };
+                const displayName = categoryNames[category] || category;
+                const isThirdCard = index === 2;
+                return (
+                  <Card
+                    key={category}
+                    className={`border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow ${isThirdCard ? "md:col-span-2" : ""}`}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
+                        <SignalHigh className="h-3 w-3" /> {displayName}
+                      </div>
+                      <CardTitle className="text-xl">Queue Status</CardTitle>
+                      <CardDescription className="text-xs">
+                        Real-time statistics
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {/* Now Serving Box */}
+                      <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-4">
+                        <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
+                          Now Serving
+                        </p>
+                        <p
+                          className={cn(
+                            "mt-3 font-display text-3xl font-bold text-green-600",
+                            data.serving &&
+                              blinkingTicketIds.has(data.serving.id)
+                              ? "animate-blink"
+                              : "",
+                          )}
+                        >
+                          {data.serving?.code ?? "—"}
+                        </p>
+                      </div>
 
-                  {/* Next in Queue Box */}
-                  <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4">
-                    <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
-                      Next in Queue
-                    </p>
-                    <p className="mt-3 font-display text-3xl font-bold text-amber-600">
-                      {data.next?.code ?? "—"}
-                    </p>
-                  </div>
+                      {/* Next in Queue Box */}
+                      <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4">
+                        <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
+                          Next in Queue
+                        </p>
+                        <p className="mt-3 font-display text-3xl font-bold text-amber-600">
+                          {data.next?.code ?? "—"}
+                        </p>
+                      </div>
 
-                  {/* Waiting Count */}
-                  <div className="rounded-lg border border-border/40 bg-muted/30 p-3">
-                    <p className="text-xs text-muted-foreground font-medium">
-                      Waiting in Queue
-                    </p>
-                    <p className="mt-2 font-display text-lg font-semibold text-foreground">
-                      {data.waiting.length} {data.waiting.length === 1 ? "ticket" : "tickets"}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-            })}
+                      {/* Waiting Count */}
+                      <div className="rounded-lg border border-border/40 bg-muted/30 p-3">
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Waiting in Queue
+                        </p>
+                        <p className="mt-2 font-display text-lg font-semibold text-foreground">
+                          {data.waiting.length}{" "}
+                          {data.waiting.length === 1 ? "ticket" : "tickets"}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              },
+            )}
           </div>
 
           {/* QR Code and Tracking Section */}
@@ -674,7 +681,8 @@ export default function Queue() {
             <CardHeader className="space-y-3">
               <CardTitle>Track Your Ticket Anytime</CardTitle>
               <CardDescription>
-                Scan the QR code or visit the tracking page to monitor your position
+                Scan the QR code or visit the tracking page to monitor your
+                position
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

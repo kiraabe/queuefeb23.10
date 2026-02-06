@@ -291,7 +291,9 @@ export default function SessionManagement() {
                         <TableRow key={session.id}>
                           <TableCell className="font-medium">
                             <div className="flex flex-col">
-                              <span>{session.fullName || session.username}</span>
+                              <span>
+                                {session.fullName || session.username}
+                              </span>
                               {session.jobTitle && (
                                 <span className="text-xs text-muted-foreground">
                                   {session.jobTitle}
