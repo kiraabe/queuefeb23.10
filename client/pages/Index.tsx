@@ -324,6 +324,11 @@ export default function Index() {
     return <Navigate to="/employee" replace />;
   }
 
+  // Redirect archiever users to their archiever page
+  if (user?.role === "archiever") {
+    return <Navigate to="/archiever" replace />;
+  }
+
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [waitingByService, setWaitingByService] = useState<
     Record<string, number>
