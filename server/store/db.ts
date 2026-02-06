@@ -2286,13 +2286,8 @@ export async function getTicketByCodeDb(code: string): Promise<{
     return { ticket: null, positionInQueue: null, estimatedWaitSeconds: null };
   const t = rowToTicket(tRes.rows[0]);
 
-  // Check if ticket is older than 24 hours
-  const now = Date.now();
-  const ticketAge = now - t.createdAt;
-  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-  if (ticketAge > TWENTY_FOUR_HOURS) {
-    return { ticket: null, positionInQueue: null, estimatedWaitSeconds: null };
-  }
+  // Tickets can be tracked indefinitely - no time limit on visibility
+  // Customers should be able to check the status of their tickets at any time
 
   // Fetch current employee handling the ticket
   // For 'serving' status: first try to find the one that's still 'in_progress'
