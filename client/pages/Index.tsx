@@ -312,7 +312,7 @@ export default function Index() {
   const { user } = useAuth();
 
   // Redirect admin users to their admin panel
-  if (user?.role === "admin") {
+  if (user !== undefined && user?.role === "admin") {
     return <Navigate to="/admin" replace />;
   }
 
