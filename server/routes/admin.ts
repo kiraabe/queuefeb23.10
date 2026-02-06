@@ -892,7 +892,7 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         waiting: Number(ticketStats.waiting || 0),
         serving: Number(ticketStats.serving || 0),
         completionRate: overallCompletionRate,
-        averageServiceTime: null,
+        averageServiceTime: overallAvgServiceTime,
         minServiceTime: null,
         maxServiceTime: null,
       },
