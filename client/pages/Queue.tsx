@@ -615,10 +615,8 @@ export default function Queue() {
                 variant="default"
                 size="sm"
                 onClick={toggleFs}
-                disabled={!fsAvailable}
                 aria-pressed={isFs}
                 aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-                title={fsAvailable ? undefined : "Fullscreen not available in this environment"}
                 className="w-full sm:w-auto whitespace-nowrap"
               >
                 <Maximize2 className="h-4 w-4 mr-2" />
