@@ -457,27 +457,49 @@ export default function Queue() {
 
                     {/* Now Serving Cell */}
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div
-                        className={cn(
-                          "bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40",
-                          data.serving &&
-                            blinkingTicketIds.has(data.serving.id)
-                            ? "animate-blink"
-                            : "",
+                      <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 max-h-48 overflow-y-auto">
+                        {data.serving ? (
+                          <div className="space-y-2">
+                            <p
+                              className={cn(
+                                "font-display text-4xl lg:text-5xl font-black text-green-400 leading-none",
+                                blinkingTicketIds.has(data.serving.id)
+                                  ? "animate-blink"
+                                  : "",
+                              )}
+                            >
+                              {data.serving.code}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="font-display text-4xl lg:text-5xl font-black text-green-400 leading-none">
+                            —
+                          </p>
                         )}
-                      >
-                        <p className="font-display text-5xl lg:text-7xl font-black text-green-400 leading-none">
-                          {data.serving?.code ?? "—"}
-                        </p>
                       </div>
                     </td>
 
                     {/* Next Cell */}
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40">
-                        <p className="font-display text-4xl lg:text-6xl font-black text-amber-400 leading-none">
-                          {data.next?.code ?? "—"}
-                        </p>
+                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 max-h-48 overflow-y-auto">
+                        {data.waiting.length > 0 ? (
+                          <div className="space-y-2">
+                            {data.waiting.slice(0, 4).map((ticket, idx) => (
+                              <p key={idx} className="font-display text-2xl lg:text-4xl font-black text-amber-400 leading-none">
+                                {ticket.code}
+                              </p>
+                            ))}
+                            {data.waiting.length > 4 && (
+                              <p className="font-display text-lg lg:text-2xl font-black text-amber-300 leading-none">
+                                +{data.waiting.length - 4}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="font-display text-4xl lg:text-5xl font-black text-amber-400 leading-none">
+                            —
+                          </p>
+                        )}
                       </div>
                     </td>
 
