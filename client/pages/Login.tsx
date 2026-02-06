@@ -99,13 +99,29 @@ export default function Login() {
                     ? "/archiever"
                     : "/";
 
-        // Only use redirect param if it doesn't conflict with user role
-        // This prevents redirecting to /admin when logging in as employee
+        // Only use redirect param if it's safe for this user's role
         const redirectParam = params.get("redirect");
-        const to =
-          redirectParam && redirectParam !== "/admin"
-            ? redirectParam
-            : defaultRedirect;
+        let to = defaultRedirect;
+
+        if (redirectParam) {
+          // Map allowed redirect destinations by role
+          const allowedByRole: Record<string, string[]> = {
+            admin: ["/", "/role-selector", "/admin", "/teller", "/reception", "/queue", "/display", "/tickets/"],
+            teller: ["/", "/role-selector", "/teller", "/queue", "/display", "/tickets/"],
+            reception: ["/", "/role-selector", "/reception", "/queue", "/display", "/tickets/"],
+            employee: ["/", "/role-selector", "/employee", "/queue", "/display", "/tickets/"],
+            archiever: ["/", "/role-selector", "/archiever", "/queue", "/display", "/tickets/"],
+          };
+
+          const allowed = allowedByRole[user.role] || ["/"];
+          const isAllowed = allowed.some(path =>
+            redirectParam === path || redirectParam.startsWith(path)
+          );
+
+          if (isAllowed && redirectParam !== defaultRedirect) {
+            to = redirectParam;
+          }
+        }
 
         navigate(to);
       }
