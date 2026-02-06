@@ -471,11 +471,11 @@ export default function Queue() {
                       </div>
 
                       {/* Waiting Count - Full Width and Prominent */}
-                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-blue-400 rounded-lg p-4 lg:p-5 flex flex-col justify-center">
-                        <p className="text-white text-sm lg:text-base uppercase tracking-widest font-bold mb-2">
+                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-blue-400 rounded-lg p-6 lg:p-8 flex flex-col justify-center items-center min-h-24 lg:min-h-32">
+                        <p className="text-white text-base lg:text-xl uppercase tracking-widest font-bold mb-3 lg:mb-4">
                           Waiting in Queue
                         </p>
-                        <p className="font-display text-5xl lg:text-7xl font-black text-white leading-none">
+                        <p className="font-display text-6xl lg:text-8xl font-black text-white leading-none">
                           {data.waiting.length}
                         </p>
                       </div>
