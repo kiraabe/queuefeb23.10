@@ -569,7 +569,10 @@ export default function Queue() {
 
   // Normal view with service cards in 2-column layout
   return (
-    <div ref={containerRef} className="w-full">
+    <div
+      ref={containerRef}
+      className="min-h-screen w-full bg-background"
+    >
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
         <section className="w-full space-y-6 sm:space-y-8 md:space-y-10">
           <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
