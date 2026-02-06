@@ -413,33 +413,33 @@ export default function Queue() {
     return (
       <div
         ref={containerRef}
-        className="min-h-screen w-full bg-background p-4 lg:p-8"
+        className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-4 lg:p-6"
       >
-        <div className="w-full space-y-6 sm:space-y-8 md:space-y-10">
-          <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
-            <div className="space-y-3 sm:space-y-4 flex-1">
-              <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
-                Live · Queue Status
-              </Badge>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-foreground tracking-tight">
-                Queue Status Overview
-              </h1>
-            </div>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={toggleFs}
-              aria-pressed={isFs}
-              aria-label="Exit full screen"
-              className="w-full sm:w-auto whitespace-nowrap text-lg px-6 py-3 h-auto"
-            >
-              <Maximize2 className="h-6 w-6 mr-2" />
-              Exit Full Screen
-            </Button>
+        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 mb-4 lg:mb-6 flex-shrink-0">
+          <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
+              Live · Queue Status
+            </Badge>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-semibold text-foreground tracking-tight break-words">
+              Queue Status Overview
+            </h1>
           </div>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={toggleFs}
+            aria-pressed={isFs}
+            aria-label="Exit full screen"
+            className="whitespace-nowrap text-base px-4 py-2 h-auto flex-shrink-0"
+          >
+            <Maximize2 className="h-5 w-5 mr-2" />
+            Exit
+          </Button>
+        </div>
 
-          {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
-          <div className="grid gap-8 grid-cols-1 md:grid-cols-2 w-full">
+        {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="grid gap-4 lg:gap-6 grid-cols-1 md:grid-cols-2 w-full h-full auto-rows-fr">
             {Array.from(categoryMap.entries()).map(([category, data], index) => {
               const categoryNames: Record<string, string> = {
                 "cadastral-group": "ካድስትራል",
