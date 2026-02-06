@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   ArrowRight,
   BellRing,
@@ -32,6 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useSSE } from "@/hooks/use-sse";
+import { useAuth } from "@/hooks/use-auth";
 import type { WindowState } from "@shared/api";
 
 // Live system stats are computed from SSE init + updates
