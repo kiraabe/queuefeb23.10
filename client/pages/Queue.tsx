@@ -488,6 +488,34 @@ export default function Queue() {
     );
   }
 
+  // Get all unique services (from display state or default)
+  const allServices = useMemo(() => {
+    const services = new Set<string>();
+
+    // Add services from display state
+    if (display) {
+      display.current.forEach((t) => services.add(t.service));
+      if (display.next) services.add(display.next.service);
+      if (display.nextAfter) services.add(display.nextAfter.service);
+      display.waiting.forEach((t) => services.add(t.service));
+    }
+
+    // Add services from active tickets
+    Object.values(tickets).forEach((t) => {
+      if (["serving", "waiting"].includes(t.status)) {
+        services.add(t.service);
+      }
+    });
+
+    // If no services found, show default services
+    if (services.size === 0) {
+      // Default service list
+      return ["S1", "S2", "S3", "S4"];
+    }
+
+    return Array.from(services).sort();
+  }, [display, tickets]);
+
   // Group tickets by service
   const serviceMap = useMemo(() => {
     const map = new Map<
@@ -499,32 +527,27 @@ export default function Queue() {
       }
     >();
 
-    // Initialize all services from windows
-    windows.forEach((window) => {
-      const ticket = window.currentTicketId ? tickets[window.currentTicketId] : null;
-      if (ticket && !map.has(ticket.service)) {
-        map.set(ticket.service, { serving: null, next: null, waiting: [] });
-      }
+    // Initialize all services
+    allServices.forEach((service) => {
+      map.set(service, { serving: null, next: null, waiting: [] });
     });
 
     // Add serving tickets
     serving.forEach(({ ticket }) => {
-      if (!map.has(ticket.service)) {
-        map.set(ticket.service, { serving: null, next: null, waiting: [] });
+      const service = map.get(ticket.service);
+      if (service && !service.serving) {
+        service.serving = ticket;
       }
-      const service = map.get(ticket.service)!;
-      if (!service.serving) service.serving = ticket;
     });
 
     // Add waiting tickets
     waitingQueue.forEach((entry) => {
       const ticket = tickets[entry.id];
       if (ticket) {
-        if (!map.has(ticket.service)) {
-          map.set(ticket.service, { serving: null, next: null, waiting: [] });
+        const service = map.get(ticket.service);
+        if (service) {
+          service.waiting.push(ticket);
         }
-        const service = map.get(ticket.service)!;
-        service.waiting.push(ticket);
       }
     });
 
@@ -536,7 +559,7 @@ export default function Queue() {
     });
 
     return map;
-  }, [windows, tickets, waitingQueue, serving]);
+  }, [allServices, tickets, waitingQueue, serving]);
 
   // Normal view with service cards in 2-column layout
   return (
