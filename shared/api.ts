@@ -275,6 +275,8 @@ export interface SessionSummary {
   expiresAt: number;
   status: SessionStatus;
   revokeReason?: string | null;
+  fullName?: string | null;
+  jobTitle?: string | null;
 }
 
 export interface ListSessionsResponse {
