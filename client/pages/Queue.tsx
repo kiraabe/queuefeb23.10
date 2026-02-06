@@ -422,8 +422,8 @@ export default function Queue() {
         </div>
 
         {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
-        <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="grid gap-2 lg:gap-3 grid-cols-1 md:grid-cols-2 w-full h-full">
+        <div className="flex-1 overflow-hidden">
+          <div className="grid gap-2 grid-cols-1 md:grid-cols-2 w-full h-full">
             {Array.from(categoryMap.entries()).map(([category, data], index) => {
               const categoryNames: Record<string, string> = {
                 "cadastral-group": "ካድስትራል",
