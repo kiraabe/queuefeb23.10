@@ -128,10 +128,7 @@ export default function ServiceCategoryAnalytics() {
           // Calculate average service time for tickets with both started_at and completed_at
           const ticketsWithTiming = reportData.allTickets
             .filter(
-              (t) =>
-                t.service === cat.category &&
-                t.startedAt &&
-                t.completedAt,
+              (t) => t.service === cat.category && t.startedAt && t.completedAt,
             )
             .map((t) => (t.completedAt - t.startedAt) / 1000); // Convert to seconds
 

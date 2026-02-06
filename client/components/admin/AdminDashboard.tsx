@@ -125,10 +125,7 @@ export default function AdminDashboard() {
             avgDuration: data.avgDuration || null,
           });
         } else {
-          console.warn(
-            "Failed to fetch employee stats: HTTP",
-            response.status,
-          );
+          console.warn("Failed to fetch employee stats: HTTP", response.status);
         }
       } catch (error) {
         console.error("Failed to fetch employee stats:", error);

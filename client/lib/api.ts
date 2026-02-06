@@ -146,8 +146,7 @@ export async function apiFetch<T>(
     } catch (err) {
       clearTimeout(timeoutId);
       // Log network errors for debugging
-      const errorMsg =
-        err instanceof Error ? err.message : String(err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
       // Don't log abort errors caused by our timeout as they're expected
       if (
         !(

@@ -904,7 +904,8 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
     const totalServed = Number(ticketStats.served || 0);
     const overallCompletionRate =
       totalTickets > 0 ? Math.round((totalServed / totalTickets) * 100) : 0;
-    const overallAvgServiceTime = overallAvgTimeRes.rows[0]?.avg_service_time || null;
+    const overallAvgServiceTime =
+      overallAvgTimeRes.rows[0]?.avg_service_time || null;
 
     // Find highest performer
     const highestPerformer =
