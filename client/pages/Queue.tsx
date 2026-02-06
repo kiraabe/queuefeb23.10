@@ -488,7 +488,57 @@ export default function Queue() {
     );
   }
 
-  // Normal view with ConsoleShell
+  // Group tickets by service
+  const serviceMap = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        serving: Ticket | null;
+        next: Ticket | null;
+        waiting: Ticket[];
+      }
+    >();
+
+    // Initialize all services from windows
+    windows.forEach((window) => {
+      const ticket = window.currentTicketId ? tickets[window.currentTicketId] : null;
+      if (ticket && !map.has(ticket.service)) {
+        map.set(ticket.service, { serving: null, next: null, waiting: [] });
+      }
+    });
+
+    // Add serving tickets
+    serving.forEach(({ ticket }) => {
+      if (!map.has(ticket.service)) {
+        map.set(ticket.service, { serving: null, next: null, waiting: [] });
+      }
+      const service = map.get(ticket.service)!;
+      if (!service.serving) service.serving = ticket;
+    });
+
+    // Add waiting tickets
+    waitingQueue.forEach((entry) => {
+      const ticket = tickets[entry.id];
+      if (ticket) {
+        if (!map.has(ticket.service)) {
+          map.set(ticket.service, { serving: null, next: null, waiting: [] });
+        }
+        const service = map.get(ticket.service)!;
+        service.waiting.push(ticket);
+      }
+    });
+
+    // Set next ticket for each service
+    map.forEach((service) => {
+      if (service.waiting.length > 0) {
+        service.next = service.waiting[0];
+      }
+    });
+
+    return map;
+  }, [windows, tickets, waitingQueue, serving]);
+
+  // Normal view with service cards in 2-column layout
   return (
     <div ref={containerRef} className="w-full">
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
@@ -496,10 +546,10 @@ export default function Queue() {
           <div className="space-y-3 sm:space-y-4 w-full flex items-start justify-between gap-4 flex-col sm:flex-row">
             <div className="space-y-3 sm:space-y-4 w-full">
               <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
-                Phase 2 · Customer View
+                Live · Queue Status
               </Badge>
               <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-foreground tracking-tight break-words">
-                A personal status hub that keeps guests relaxed and ready
+                Queue Status Overview
               </h1>
             </div>
             <Button
@@ -515,220 +565,116 @@ export default function Queue() {
             </Button>
           </div>
 
-          <div className="relative w-full">
-            <div className="absolute -inset-6 sm:-inset-8 -z-10 rounded-2xl sm:rounded-[36px] bg-gradient-to-br from-primary/20 via-sky-400/10 to-indigo-500/10 blur-2xl" />
-            <Card className="w-full max-w-full border-border/60 bg-card/90 p-3 sm:p-4 md:p-6 lg:p-8 shadow-2xl shadow-primary/20 overflow-hidden">
-              <CardHeader className="space-y-3">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  <SignalHigh className="h-4 w-4" />{" "}
-                  {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
-                </div>
-                <CardTitle className="text-2xl">Live Queue</CardTitle>
-                <CardDescription>
-                  Global first-in-first-out view
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="w-full space-y-3 sm:space-y-4">
-                {/* Aggregated current/next list */}
-                <div className="w-full space-y-2 sm:space-y-3">
-                  <div className="w-full rounded-lg sm:rounded-2xl border border-green-500/40 bg-green-500/10 p-3 sm:p-4">
-                    <p className="text-xs uppercase tracking-widest text-green-600 font-medium">
+          {/* Service Cards Grid - 2 columns */}
+          <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
+            {Array.from(serviceMap.entries()).map(([service, data]) => (
+              <Card key={service} className="border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
+                    <SignalHigh className="h-3 w-3" /> Service {service}
+                  </div>
+                  <CardTitle className="text-xl">Queue Status</CardTitle>
+                  <CardDescription className="text-xs">
+                    Real-time statistics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Now Serving Box */}
+                  <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-4">
+                    <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
                       Now Serving
                     </p>
-                    {serving.length ? (
-                      <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
-                        {serving.map(({ window, ticket }) => (
-                          <div
-                            key={ticket.id}
-                            className="flex items-center justify-between rounded-xl bg-card/80 p-3"
-                          >
-                            <span
-                              className={cn(
-                                "font-display text-2xl font-semibold",
-                                blinkingTicketIds.has(ticket.id)
-                                  ? "animate-blink"
-                                  : "",
-                              )}
-                            >
-                              {ticket.code}
-                            </span>
-                            <div className="text-sm text-right">
-                              {window?.name ? (
-                                <span className="text-muted-foreground">
-                                  {window.name}
-                                </span>
-                              ) : ticket.currentEmployee ? (
-                                <div className="space-y-0.5">
-                                  <p className="font-medium text-foreground">
-                                    {ticket.currentEmployee.fullName}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {ticket.currentEmployee.jobTitle}
-                                  </p>
-                                  {ticket.currentEmployee.jobTitleAmharic && (
-                                    <p className="text-xs text-muted-foreground font-medium">
-                                      {ticket.currentEmployee.jobTitleAmharic}
-                                    </p>
-                                  )}
-                                </div>
-                              ) : (
-                                <span className="text-muted-foreground">
-                                  Employee
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="mt-1 text-muted-foreground">—</p>
-                    )}
-                  </div>
-
-                  <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 w-full">
-                    <div className="w-full rounded-lg sm:rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-4">
-                      <p className="text-xs uppercase tracking-widest text-amber-600 font-medium">
-                        Next
-                      </p>
-                      <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
-                        {nextTicket?.code ?? "—"}
-                      </p>
-                    </div>
-                    <div className="w-full rounded-lg sm:rounded-2xl border border-sky-500/40 bg-sky-500/10 p-3 sm:p-4">
-                      <p className="text-xs uppercase tracking-widest text-sky-600 font-medium">
-                        Next After
-                      </p>
-                      <p className="mt-2 font-display text-lg sm:text-xl md:text-2xl font-semibold">
-                        {nextAfterTicket?.code ?? "—"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {restTickets.length > 0 && (
-                    <div className="w-full rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
-                      <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                        Waiting
-                      </p>
-                      <ol className="grid gap-2 grid-cols-1 sm:grid-cols-2 w-full">
-                        {restTickets.map((entry) => (
-                          <li
-                            key={entry.id}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Ticket ${entry.code}`}
-                            className="rounded-xl bg-card/80 p-3 font-medium outline-none focus:ring-2 focus:ring-primary/50"
-                            onClick={() => activateEntry(entry.code)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                activateEntry(entry.code);
-                              }
-                            }}
-                          >
-                            {entry.code}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full flex items-start justify-between gap-3 rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 text-xs sm:text-sm text-primary">
-                  <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-widest font-medium">
-                      Action
-                    </p>
-                    <p className="font-semibold text-sm sm:text-base break-words">
-                      {actionMessage}
-                    </p>
-                  </div>
-                  <Sparkles className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" />
-                </div>
-
-                <div className="w-full rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
-                  <div className="flex items-center justify-between gap-2 text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    <span className="truncate">Scan anytime</span>
-                    <span className="hidden sm:inline whitespace-nowrap">
-                      Updates 30s
-                    </span>
-                  </div>
-                  <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-                    <div className="flex flex-shrink-0 justify-center">
-                      {qrSrc ? (
-                        <img
-                          src={qrSrc}
-                          alt="Queue QR code"
-                          className="h-24 w-24 rounded-xl border border-border/60 bg-white p-2 shadow-inner md:h-28 md:w-28"
-                        />
-                      ) : (
-                        <FallbackQRCode />
+                    <p
+                      className={cn(
+                        "mt-3 font-display text-3xl font-bold text-green-600",
+                        data.serving && blinkingTicketIds.has(data.serving.id)
+                          ? "animate-blink"
+                          : "",
                       )}
-                    </div>
-                    <div className="w-full space-y-2 text-xs text-muted-foreground sm:flex-1">
-                      <p className="text-sm font-semibold text-foreground">
-                        Tracking URL
-                      </p>
-                      <div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap">
-                        <a
-                          href={trackingUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-full truncate rounded-full bg-card px-3 py-1 text-center font-medium text-primary underline-offset-2 hover:underline sm:w-auto"
-                        >
-                          {trackingUrl}
-                        </a>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={copyUrl}
-                          className="w-full sm:w-auto"
-                        >
-                          <Copy className="mr-2 h-4 w-4" /> Copy
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={shareUrl}
-                          className="w-full sm:w-auto"
-                        >
-                          <Share2 className="mr-2 h-4 w-4" /> Share
-                        </Button>
-                      </div>
-                      <p className="text-center sm:text-left">
-                        Save to wallet or share with companions.
-                      </p>
-                    </div>
+                    >
+                      {data.serving?.code ?? "—"}
+                    </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
 
-        <section className="w-full border-t border-border/60 bg-foreground/5 py-8 sm:py-12 md:py-16 -mx-[1rem] sm:-mx-[1.5rem] lg:-mx-[2rem] px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3">
-            {[
-              "Displays mirror Now Serving",
-              "Accessible fallback via concierge",
-              "Multi-language prompts included",
-            ].map((item) => (
-              <Card
-                key={item}
-                className="border-border/60 bg-card/80 p-4 sm:p-6 shadow-md shadow-primary/10 hover:bg-card/90 transition-colors"
-              >
-                <CardHeader className="space-y-3 mb-4">
-                  <Compass className="h-5 sm:h-6 w-5 sm:w-6 text-primary" />
-                  <CardTitle className="text-base sm:text-lg">{item}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    Guests always have a clear path forward, whether via QR
-                    scans, concierge support, or immersive lobby signage.
-                  </CardDescription>
+                  {/* Next in Queue Box */}
+                  <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4">
+                    <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
+                      Next in Queue
+                    </p>
+                    <p className="mt-3 font-display text-3xl font-bold text-amber-600">
+                      {data.next?.code ?? "—"}
+                    </p>
+                  </div>
+
+                  {/* Waiting Count */}
+                  <div className="rounded-lg border border-border/40 bg-muted/30 p-3">
+                    <p className="text-xs text-muted-foreground font-medium">
+                      Waiting in Queue
+                    </p>
+                    <p className="mt-2 font-display text-lg font-semibold text-foreground">
+                      {data.waiting.length} {data.waiting.length === 1 ? "ticket" : "tickets"}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
+
+          {/* QR Code and Tracking Section */}
+          <Card className="border-border/60 bg-card/90 p-4 sm:p-6 lg:p-8 shadow-lg">
+            <CardHeader className="space-y-3">
+              <CardTitle>Track Your Ticket Anytime</CardTitle>
+              <CardDescription>
+                Scan the QR code or visit the tracking page to monitor your position
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+                <div className="flex flex-shrink-0 justify-center">
+                  {qrSrc ? (
+                    <img
+                      src={qrSrc}
+                      alt="Queue QR code"
+                      className="h-24 w-24 rounded-xl border border-border/60 bg-white p-2 shadow-inner md:h-28 md:w-28"
+                    />
+                  ) : (
+                    <FallbackQRCode />
+                  )}
+                </div>
+                <div className="w-full space-y-3 text-xs text-muted-foreground sm:flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Tracking URL
+                  </p>
+                  <div className="flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap">
+                    <a
+                      href={trackingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full truncate rounded-full bg-card px-3 py-1 text-center font-medium text-primary underline-offset-2 hover:underline sm:w-auto"
+                    >
+                      {trackingUrl}
+                    </a>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={copyUrl}
+                      className="w-full sm:w-auto"
+                    >
+                      <Copy className="mr-2 h-4 w-4" /> Copy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={shareUrl}
+                      className="w-full sm:w-auto"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" /> Share
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </section>
       </ConsoleShell>
     </div>
