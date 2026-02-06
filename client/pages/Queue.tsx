@@ -581,13 +581,20 @@ export default function Queue() {
             </Button>
           </div>
 
-          {/* Service Cards Grid - 2 columns */}
+          {/* Service Category Cards Grid - 2 columns */}
           <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
-            {Array.from(serviceMap.entries()).map(([service, data]) => (
-              <Card key={service} className="border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+            {Array.from(categoryMap.entries()).map(([category, data]) => {
+              const categoryNames: Record<string, string> = {
+                "cadastral-group": "ካድስትራል",
+                "rights-group": "መብቶች",
+                "fixed-property-group": "ቋሚ ንብረት",
+              };
+              const displayName = categoryNames[category] || category;
+              return (
+              <Card key={category} className="border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
-                    <SignalHigh className="h-3 w-3" /> Service {service}
+                    <SignalHigh className="h-3 w-3" /> {displayName}
                   </div>
                   <CardTitle className="text-xl">Queue Status</CardTitle>
                   <CardDescription className="text-xs">
@@ -633,7 +640,8 @@ export default function Queue() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );
+            })}
           </div>
 
           {/* QR Code and Tracking Section */}
