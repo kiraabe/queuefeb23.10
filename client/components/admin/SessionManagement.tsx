@@ -290,7 +290,14 @@ export default function SessionManagement() {
                       {paginationData.currentSessions.map((session) => (
                         <TableRow key={session.id}>
                           <TableCell className="font-medium">
-                            {session.username}
+                            <div className="flex flex-col">
+                              <span>{session.fullName || session.username}</span>
+                              {session.jobTitle && (
+                                <span className="text-xs text-muted-foreground">
+                                  {session.jobTitle}
+                                </span>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge className={getRoleColor(session.role)}>
