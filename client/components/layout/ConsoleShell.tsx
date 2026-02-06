@@ -59,6 +59,15 @@ export function ConsoleShell({
               </span>
               <span className="sm:hidden">{online ? "On" : "Off"}</span>
             </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
           </div>
         </div>
 
