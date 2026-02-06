@@ -109,36 +109,9 @@ export default function Queue() {
 
   const toggleFs = async () => {
     try {
-      if (!isFs) {
-        if (!containerRef.current) {
-          return;
-        }
-        await containerRef.current.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (error) {
-      // Fullscreen request failed - try fallback APIs
-      if (!isFs && containerRef.current) {
-        try {
-          const elem = containerRef.current as any;
-          if (elem.webkitRequestFullscreen) {
-            await elem.webkitRequestFullscreen();
-          } else if (elem.mozRequestFullScreen) {
-            await elem.mozRequestFullScreen();
-          } else if (elem.msRequestFullscreen) {
-            await elem.msRequestFullscreen();
-          }
-        } catch {
-          // All fullscreen attempts failed
-          toast({
-            variant: "destructive",
-            title: "Fullscreen unavailable",
-            description: "Your browser or hosting environment doesn't allow fullscreen mode.",
-          });
-        }
-      }
-    }
+      if (!isFs) await containerRef.current?.requestFullscreen();
+      else await document.exitFullscreen();
+    } catch {}
   };
 
   const [display, setDisplay] = useState<DisplayState | null>(null);
