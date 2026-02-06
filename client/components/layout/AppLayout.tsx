@@ -7,7 +7,8 @@ const AppLayout = () => {
   const { pathname } = useLocation();
   const isAdminPage = pathname.startsWith("/admin");
   const isEmployeePage = pathname.startsWith("/employee");
-  const hideNavigation = isAdminPage || isEmployeePage;
+  const isArchieverPage = pathname.startsWith("/archiever");
+  const hideNavigation = isAdminPage || isEmployeePage || isArchieverPage;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
