@@ -328,47 +328,76 @@ export const updateQueueSettings: RequestHandler = async (req, res) => {
 
 export const getEmployeeStats: RequestHandler = async (_req, res) => {
   if (!isDbEnabled) {
-    return res.status(400).json({ error: "Database not enabled" });
+    return res.json({
+      totalEmployees: 0,
+      totalCases: 0,
+      topPerformer: "N/A",
+      avgDuration: null,
+    });
   }
 
   try {
     const p = getPool();
 
     // Get total employees (all staff roles)
-    const employeesRes = await p.query(
-      `SELECT COUNT(DISTINCT u.id) as count FROM users u
-       INNER JOIN user_roles ur ON u.id = ur.user_id
-       WHERE ur.role IN ('employee', 'reception', 'teller')`,
-    );
-    const totalEmployees = Number(employeesRes.rows[0]?.count || 0);
+    let totalEmployees = 0;
+    try {
+      const employeesRes = await p.query(
+        `SELECT COUNT(DISTINCT u.id) as count FROM users u
+         INNER JOIN user_roles ur ON u.id = ur.user_id
+         WHERE ur.role IN ('employee', 'reception', 'teller')`,
+      );
+      totalEmployees = Number(employeesRes.rows[0]?.count || 0);
+    } catch (err) {
+      console.warn("Failed to fetch employee count:", err);
+      totalEmployees = 0;
+    }
 
     // Get total cases
-    const casesRes = await p.query(
-      `SELECT COUNT(DISTINCT id) as count FROM employee_case_performance`,
-    );
-    const totalCases = Number(casesRes.rows[0]?.count || 0);
+    let totalCases = 0;
+    try {
+      const casesRes = await p.query(
+        `SELECT COUNT(DISTINCT id) as count FROM employee_case_performance`,
+      );
+      totalCases = Number(casesRes.rows[0]?.count || 0);
+    } catch (err) {
+      console.warn("Failed to fetch cases count:", err);
+      totalCases = 0;
+    }
 
     // Get top performer (employee with most cases)
-    const topPerformerRes = await p.query(
-      `SELECT
-        u.full_name,
-        COUNT(DISTINCT ecp.id) as case_count
-      FROM employee_case_performance ecp
-      LEFT JOIN users u ON ecp.employee_id = u.id
-      GROUP BY u.id, u.full_name
-      ORDER BY case_count DESC
-      LIMIT 1`,
-    );
-    const topPerformer = topPerformerRes.rows[0]?.full_name || "N/A";
+    let topPerformer = "N/A";
+    try {
+      const topPerformerRes = await p.query(
+        `SELECT
+          u.full_name,
+          COUNT(DISTINCT ecp.id) as case_count
+        FROM employee_case_performance ecp
+        LEFT JOIN users u ON ecp.employee_id = u.id
+        GROUP BY u.id, u.full_name
+        ORDER BY case_count DESC
+        LIMIT 1`,
+      );
+      topPerformer = topPerformerRes.rows[0]?.full_name || "N/A";
+    } catch (err) {
+      console.warn("Failed to fetch top performer:", err);
+      topPerformer = "N/A";
+    }
 
     // Get average case duration
-    const avgDurationRes = await p.query(
-      `SELECT
-        ROUND(AVG(EXTRACT(EPOCH FROM (ended_at - started_at))))::int as avg_duration
-      FROM employee_case_performance
-      WHERE ended_at IS NOT NULL AND started_at IS NOT NULL`,
-    );
-    const avgDuration = avgDurationRes.rows[0]?.avg_duration || null;
+    let avgDuration = null;
+    try {
+      const avgDurationRes = await p.query(
+        `SELECT
+          ROUND(AVG(EXTRACT(EPOCH FROM (ended_at - started_at))))::int as avg_duration
+        FROM employee_case_performance
+        WHERE ended_at IS NOT NULL AND started_at IS NOT NULL`,
+      );
+      avgDuration = avgDurationRes.rows[0]?.avg_duration || null;
+    } catch (err) {
+      console.warn("Failed to fetch average duration:", err);
+      avgDuration = null;
+    }
 
     res.json({
       totalEmployees,
@@ -378,7 +407,13 @@ export const getEmployeeStats: RequestHandler = async (_req, res) => {
     });
   } catch (error) {
     console.error("Failed to fetch employee stats", error);
-    res.status(500).json({ error: "Failed to fetch employee stats" });
+    // Return default values instead of error
+    res.json({
+      totalEmployees: 0,
+      totalCases: 0,
+      topPerformer: "N/A",
+      avgDuration: null,
+    });
   }
 };
 
