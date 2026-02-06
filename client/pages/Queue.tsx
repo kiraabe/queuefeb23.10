@@ -662,7 +662,7 @@ export default function Queue() {
                 position
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
                 <div className="flex flex-shrink-0 justify-center">
                   {qrSrc ? (
@@ -705,6 +705,39 @@ export default function Queue() {
                       <Share2 className="mr-2 h-4 w-4" /> Share
                     </Button>
                   </div>
+                </div>
+              </div>
+
+              {/* Waiting Tickets List */}
+              <div className="border-t pt-4">
+                <p className="text-sm font-semibold text-foreground mb-3">
+                  Tickets Waiting ({waitingQueue.length})
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {waitingQueue.length > 0 ? (
+                    waitingQueue.slice(0, 12).map((entry, index) => {
+                      const ticket = tickets[entry.id];
+                      return (
+                        <div
+                          key={entry.id}
+                          className="flex items-center justify-center rounded-lg bg-primary/10 px-2 py-2 text-center border border-primary/30"
+                        >
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="text-xs text-muted-foreground font-medium">
+                              #{index + 1}
+                            </span>
+                            <span className="font-display text-lg font-bold text-foreground">
+                              {ticket?.code || entry.code}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-muted-foreground col-span-full py-2">
+                      No tickets waiting
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
