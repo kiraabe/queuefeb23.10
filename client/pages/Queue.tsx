@@ -438,35 +438,38 @@ export default function Queue() {
             </Button>
           </div>
 
-          {/* Service Category Cards Grid */}
-          <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
-            {Array.from(categoryMap.entries()).map(([category, data]) => {
+          {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
+          <div className="grid gap-8 grid-cols-1 md:grid-cols-2 w-full">
+            {Array.from(categoryMap.entries()).map(([category, data], index) => {
               const categoryNames: Record<string, string> = {
                 "cadastral-group": "ካድስትራል",
                 "rights-group": "መብቶች",
                 "fixed-property-group": "ቋሚ ንብረት",
               };
               const displayName = categoryNames[category] || category;
+              const isThirdCard = index === 2;
               return (
                 <Card
                   key={category}
-                  className="border-border/60 bg-card/90 shadow-lg"
+                  className={`border-border/60 bg-card/90 shadow-lg ${
+                    isThirdCard ? "md:col-span-2" : ""
+                  }`}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
-                      <SignalHigh className="h-3 w-3" /> {displayName}
+                  <CardHeader className="pb-4">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm lg:text-base font-semibold text-primary w-fit mb-3">
+                      <SignalHigh className="h-4 w-4" /> {displayName}
                     </div>
-                    <CardTitle className="text-2xl lg:text-3xl">Queue Status</CardTitle>
+                    <CardTitle className="text-3xl lg:text-4xl">Queue Status</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     {/* Now Serving Box */}
-                    <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-4">
-                      <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
+                    <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-6 lg:p-8">
+                      <p className="text-sm lg:text-lg uppercase tracking-widest text-green-700 font-bold">
                         Now Serving
                       </p>
                       <p
                         className={cn(
-                          "mt-3 font-display text-4xl lg:text-5xl font-bold text-green-600",
+                          "mt-4 font-display text-6xl lg:text-7xl font-bold text-green-600",
                           data.serving &&
                             blinkingTicketIds.has(data.serving.id)
                             ? "animate-blink"
@@ -478,21 +481,21 @@ export default function Queue() {
                     </div>
 
                     {/* Next in Queue Box */}
-                    <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4">
-                      <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
+                    <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-6 lg:p-8">
+                      <p className="text-sm lg:text-lg uppercase tracking-widest text-amber-700 font-bold">
                         Next in Queue
                       </p>
-                      <p className="mt-3 font-display text-4xl lg:text-5xl font-bold text-amber-600">
+                      <p className="mt-4 font-display text-6xl lg:text-7xl font-bold text-amber-600">
                         {data.next?.code ?? "—"}
                       </p>
                     </div>
 
                     {/* Waiting Count */}
-                    <div className="rounded-lg border border-border/40 bg-muted/30 p-3">
-                      <p className="text-xs text-muted-foreground font-medium">
+                    <div className="rounded-lg border border-border/40 bg-muted/30 p-6 lg:p-8">
+                      <p className="text-sm lg:text-lg text-muted-foreground font-bold">
                         Waiting in Queue
                       </p>
-                      <p className="mt-2 font-display text-2xl lg:text-3xl font-semibold text-foreground">
+                      <p className="mt-3 font-display text-4xl lg:text-5xl font-semibold text-foreground">
                         {data.waiting.length}{" "}
                         {data.waiting.length === 1 ? "ticket" : "tickets"}
                       </p>
