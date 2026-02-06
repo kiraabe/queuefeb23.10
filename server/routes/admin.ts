@@ -857,11 +857,19 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
       categoryPerfRes.rows?.length || 0,
     );
 
+    // Get overall average service time
+    const overallAvgTimeRes = await p.query(
+      `SELECT
+        ROUND(AVG(CASE WHEN started_at IS NOT NULL AND completed_at IS NOT NULL THEN EXTRACT(EPOCH FROM (completed_at - started_at)) ELSE NULL END))::int as avg_service_time
+      FROM tickets`,
+    );
+
     const ticketStats = ticketsRes.rows[0] || {};
     const totalTickets = Number(ticketStats.total || 0);
     const totalServed = Number(ticketStats.served || 0);
     const overallCompletionRate =
       totalTickets > 0 ? Math.round((totalServed / totalTickets) * 100) : 0;
+    const overallAvgServiceTime = overallAvgTimeRes.rows[0]?.avg_service_time || null;
 
     // Find highest performer
     const highestPerformer =
