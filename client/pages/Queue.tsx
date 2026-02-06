@@ -573,17 +573,25 @@ export default function Queue() {
                         <p className="text-xs uppercase tracking-widest text-green-700 font-semibold">
                           Now Serving
                         </p>
-                        <p
-                          className={cn(
-                            "mt-3 font-display text-3xl font-bold text-green-600",
-                            data.serving &&
-                              blinkingTicketIds.has(data.serving.id)
-                              ? "animate-blink"
-                              : "",
+                        <div className="mt-3 space-y-1 max-h-24 overflow-y-auto">
+                          {data.serving.length > 0 ? (
+                            data.serving.slice(0, 3).map((ticket) => (
+                              <p
+                                key={ticket.id}
+                                className={cn(
+                                  "font-display text-3xl font-bold text-green-600",
+                                  blinkingTicketIds.has(ticket.id)
+                                    ? "animate-blink"
+                                    : "",
+                                )}
+                              >
+                                {ticket.code}
+                              </p>
+                            ))
+                          ) : (
+                            <p className="font-display text-3xl font-bold text-green-600">—</p>
                           )}
-                        >
-                          {data.serving?.code ?? "—"}
-                        </p>
+                        </div>
                       </div>
 
                       {/* Next in Queue Box */}
@@ -591,9 +599,20 @@ export default function Queue() {
                         <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
                           Next in Queue
                         </p>
-                        <p className="mt-3 font-display text-3xl font-bold text-amber-600">
-                          {data.next?.code ?? "—"}
-                        </p>
+                        <div className="mt-3 space-y-1 max-h-24 overflow-y-auto">
+                          {data.waiting.length > 0 ? (
+                            data.waiting.slice(0, 3).map((ticket) => (
+                              <p
+                                key={ticket.id}
+                                className="font-display text-3xl font-bold text-amber-600"
+                              >
+                                {ticket.code}
+                              </p>
+                            ))
+                          ) : (
+                            <p className="font-display text-3xl font-bold text-amber-600">—</p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Waiting Count */}
