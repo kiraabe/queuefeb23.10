@@ -701,14 +701,10 @@ export default function DailyReportViewer() {
                               {employee.casesProceed}
                             </TableCell>
                             <TableCell className="text-right">
-                              {employee.averageCaseTime
-                                ? `${Math.round(employee.averageCaseTime)}s`
-                                : "—"}
+                              {formatSeconds(employee.averageCaseTime)}
                             </TableCell>
                             <TableCell className="text-right">
-                              {employee.totalTimeSpent
-                                ? `${Math.round(employee.totalTimeSpent)}s`
-                                : "—"}
+                              {formatSeconds(employee.totalTimeSpent)}
                             </TableCell>
                           </TableRow>
                         ))}
