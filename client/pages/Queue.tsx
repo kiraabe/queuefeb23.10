@@ -365,7 +365,7 @@ export default function Queue() {
     const map = new Map<
       string,
       {
-        serving: Ticket[];
+        serving: Array<{ ticket: Ticket; window: WindowState | null }>;
         waiting: Ticket[];
       }
     >();
@@ -375,12 +375,12 @@ export default function Queue() {
       map.set(category, { serving: [], waiting: [] });
     });
 
-    // Add ALL serving tickets
-    serving.forEach(({ ticket }) => {
+    // Add ALL serving tickets with window info
+    serving.forEach(({ ticket, window: windowState }) => {
       const category = ticket.serviceCategory || "uncategorized";
       const cat = map.get(category);
       if (cat) {
-        cat.serving.push(ticket);
+        cat.serving.push({ ticket, window: windowState });
       }
     });
 
