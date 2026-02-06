@@ -109,13 +109,30 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchEmployeeStats = async () => {
       try {
-        const response = await fetch("/api/admin/employee-stats");
+        const response = await fetch("/api/admin/employee-stats", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         if (response.ok) {
           const data = await response.json();
-          setEmployeeStats(data);
+          setEmployeeStats({
+            totalEmployees: data.totalEmployees || 0,
+            totalCases: data.totalCases || 0,
+            topPerformer: data.topPerformer || "N/A",
+            avgDuration: data.avgDuration || null,
+          });
+        } else {
+          console.warn(
+            "Failed to fetch employee stats: HTTP",
+            response.status,
+          );
         }
       } catch (error) {
         console.error("Failed to fetch employee stats:", error);
+        // Keep existing state on error
       }
     };
 
