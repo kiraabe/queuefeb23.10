@@ -417,7 +417,7 @@ export default function Track() {
                     Created
                   </p>
                   <p className="mt-2 font-display text-sm font-semibold">
-                    {new Date(state.ticket.createdAt).toLocaleTimeString()}
+                    {new Date(state.ticket.createdAt).toLocaleString()}
                   </p>
                 </div>
               </div>
