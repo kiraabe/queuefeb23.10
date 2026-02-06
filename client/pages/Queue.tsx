@@ -25,7 +25,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useSSE } from "@/hooks/use-sse";
 import { apiFetch, apiUrl, resolveApiBase } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
 import type {
   DisplayResponse,
   DisplayState,
