@@ -451,25 +451,25 @@ export default function Queue() {
               return (
                 <Card
                   key={category}
-                  className={`border-border/60 bg-card/90 shadow-lg ${
+                  className={`border-border/60 bg-card/90 shadow-lg overflow-hidden flex flex-col ${
                     isThirdCard ? "md:col-span-2" : ""
                   }`}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs lg:text-sm font-semibold text-primary w-fit mb-2">
-                      <SignalHigh className="h-3 w-3 lg:h-4 lg:w-4" /> {displayName}
+                  <CardHeader className="pb-2 pt-3 px-3">
+                    <div className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary w-fit mb-1">
+                      <SignalHigh className="h-3 w-3" /> {displayName}
                     </div>
-                    <CardTitle className="text-2xl lg:text-3xl">Queue Status</CardTitle>
+                    <CardTitle className="text-lg lg:text-xl">Queue Status</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2 lg:space-y-3">
+                  <CardContent className="space-y-1.5 px-3 pb-3 flex-1">
                     {/* Now Serving Box */}
-                    <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-4 lg:p-5">
-                      <p className="text-xs lg:text-sm uppercase tracking-widest text-green-700 font-bold">
+                    <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-2 lg:p-3">
+                      <p className="text-xs uppercase tracking-widest text-green-700 font-bold">
                         Now Serving
                       </p>
                       <p
                         className={cn(
-                          "mt-2 lg:mt-3 font-display text-5xl lg:text-6xl font-bold text-green-600",
+                          "mt-1 lg:mt-2 font-display text-3xl lg:text-4xl font-bold text-green-600 leading-none",
                           data.serving &&
                             blinkingTicketIds.has(data.serving.id)
                             ? "animate-blink"
@@ -481,21 +481,21 @@ export default function Queue() {
                     </div>
 
                     {/* Next in Queue Box */}
-                    <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4 lg:p-5">
-                      <p className="text-xs lg:text-sm uppercase tracking-widest text-amber-700 font-bold">
+                    <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-2 lg:p-3">
+                      <p className="text-xs uppercase tracking-widest text-amber-700 font-bold">
                         Next in Queue
                       </p>
-                      <p className="mt-2 lg:mt-3 font-display text-5xl lg:text-6xl font-bold text-amber-600">
+                      <p className="mt-1 lg:mt-2 font-display text-3xl lg:text-4xl font-bold text-amber-600 leading-none">
                         {data.next?.code ?? "—"}
                       </p>
                     </div>
 
                     {/* Waiting Count */}
-                    <div className="rounded-lg border border-border/40 bg-muted/30 p-4 lg:p-5">
-                      <p className="text-xs lg:text-sm text-muted-foreground font-bold">
+                    <div className="rounded-lg border border-border/40 bg-muted/30 p-2 lg:p-3">
+                      <p className="text-xs text-muted-foreground font-bold">
                         Waiting in Queue
                       </p>
-                      <p className="mt-2 font-display text-3xl lg:text-4xl font-semibold text-foreground">
+                      <p className="mt-1 font-display text-xl lg:text-2xl font-semibold text-foreground leading-none">
                         {data.waiting.length}{" "}
                         {data.waiting.length === 1 ? "ticket" : "tickets"}
                       </p>
