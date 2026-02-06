@@ -217,10 +217,16 @@ export async function apiFetch<T>(
       }
     } catch {}
 
-    // Log server errors for debugging
-    console.error(`[API] Server error ${res.status} for ${path}: ${message}`);
-    if (data) {
-      console.debug(`[API] Response data:`, data);
+    // Log server errors for debugging (but be more selective about what we log)
+    const isLoginPath = path.startsWith("/api/auth/login");
+    const isPingPath = path.startsWith("/api/ping");
+
+    // Only log 404 and 5xx errors for non-ping endpoints
+    if (res.status !== 404 || !isPingPath) {
+      console.error(`[API] Server error ${res.status} for ${path}: ${message}`);
+      if (data && res.status >= 400 && res.status < 500) {
+        console.debug(`[API] Response data:`, data);
+      }
     }
 
     if (res.status === 400) {
@@ -232,8 +238,7 @@ export async function apiFetch<T>(
           "An unexpected error occurred. Please try again later.";
       }
     } else if (res.status === 401) {
-      const isLogin = path.startsWith("/api/auth/login");
-      if (isLogin) {
+      if (isLoginPath) {
         if (data?.code === "INVALID_CREDENTIALS" || !data?.code) {
           message = "Invalid username or password.";
         } else if (data?.code === "NO_SESSION") {
@@ -258,6 +263,11 @@ export async function apiFetch<T>(
       message =
         data?.message ||
         "Access denied. You do not have permission to perform this action.";
+    } else if (res.status === 404) {
+      // For 404s on auth endpoints, it might be a server routing issue
+      if (isLoginPath) {
+        message = "Login service is unavailable. Please try again.";
+      }
     } else if (res.status >= 500) {
       message =
         data?.message ||
