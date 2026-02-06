@@ -18,6 +18,13 @@ export function ConsoleShell({
   rightPanel?: ReactNode;
 }) {
   const { online } = useNetworkStatus();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
