@@ -415,26 +415,15 @@ export default function Queue() {
         ref={containerRef}
         className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-3 lg:p-4"
       >
-        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3 flex-shrink-0">
-          <div className="space-y-0.5 flex-1 min-w-0">
-            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary w-fit">
+        <div className="w-full mb-3 flex-shrink-0">
+          <div className="space-y-1">
+            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary w-fit">
               Live · Queue Status
             </Badge>
-            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground tracking-tight break-words">
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-foreground tracking-tight break-words">
               Queue Status Overview
             </h1>
           </div>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={toggleFs}
-            aria-pressed={isFs}
-            aria-label="Exit full screen"
-            className="whitespace-nowrap text-sm px-3 py-1.5 h-auto flex-shrink-0"
-          >
-            <Maximize2 className="h-4 w-4 mr-1" />
-            Exit
-          </Button>
         </div>
 
         {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
