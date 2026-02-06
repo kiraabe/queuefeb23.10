@@ -36,18 +36,18 @@ interface EmployeeTicketsResponse {
 
 function formatDuration(seconds: number | null | undefined): string {
   if (seconds == null) return "—";
-  if (seconds < 60) return `${Math.round(seconds)}s`;
 
-  const totalMinutes = Math.floor(seconds / 60);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  const secs = Math.round(seconds % 60);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+    return `${hours}hr ${minutes}min ${secs}sec`;
+  } else if (minutes > 0) {
+    return `${minutes}min ${secs}sec`;
+  } else {
+    return `${secs}sec`;
   }
-
-  return secs === 0 ? `${minutes}m` : `${minutes}m ${secs}s`;
 }
 
 function calculateDuration(
