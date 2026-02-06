@@ -100,15 +100,17 @@ export default function OverallCategoryAnalytics() {
 
   const formatSeconds = (seconds: number | null) => {
     if (seconds === null || seconds === 0) return "N/A";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
-    if (mins === 0) return `${secs}s`;
-    if (mins > 60) {
-      const hours = Math.floor(mins / 60);
-      const remainingMins = mins % 60;
-      return `${hours}h ${remainingMins}m`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return `${hours}hr ${minutes}min ${secs}sec`;
+    } else if (minutes > 0) {
+      return `${minutes}min ${secs}sec`;
+    } else {
+      return `${secs}sec`;
     }
-    return `${mins}m ${secs}s`;
   };
 
   if (loading) {
