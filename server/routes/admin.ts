@@ -907,7 +907,7 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         served: Number(r.served || 0),
         skipped: Number(r.skipped || 0),
         transferred: Number(r.transferred || 0),
-        averageServiceTime: null,
+        averageServiceTime: r.avg_service_time || null,
         completionRate:
           Number(r.total_tickets || 0) > 0
             ? Math.round(
