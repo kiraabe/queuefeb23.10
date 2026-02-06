@@ -485,17 +485,19 @@ export default function Queue() {
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
                       <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
                         {data.waiting.length > 0 ? (
-                          <div className="flex flex-wrap gap-2 items-center justify-center">
-                            {data.waiting.slice(0, 8).map((ticket) => {
+                          <div className="flex items-center justify-center">
+                            {data.waiting.slice(0, 8).map((ticket, idx) => {
                               let fontSize = "text-4xl lg:text-5xl";
                               if (data.waiting.length > 6) fontSize = "text-2xl lg:text-3xl";
                               else if (data.waiting.length > 4) fontSize = "text-3xl lg:text-4xl";
+                              const isLast = idx === Math.min(7, data.waiting.length - 1);
                               return (
                                 <p
                                   key={ticket.id}
                                   className={`font-display ${fontSize} font-black text-amber-400 leading-none`}
                                 >
                                   {ticket.code}
+                                  {!isLast && <span>, </span>}
                                 </p>
                               );
                             })}
