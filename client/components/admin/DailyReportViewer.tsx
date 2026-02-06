@@ -648,9 +648,7 @@ export default function DailyReportViewer() {
                   <div>
                     <p className="text-sm text-muted-foreground">Avg Service</p>
                     <p className="text-2xl font-bold">
-                      {report.summary.averageServiceTime
-                        ? `${report.summary.averageServiceTime}s`
-                        : "—"}
+                      {formatSeconds(report.summary.averageServiceTime)}
                     </p>
                   </div>
                 </div>
