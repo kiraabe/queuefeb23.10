@@ -124,13 +124,32 @@ export default function ServiceCategoryAnalytics() {
 
       // Calculate completion rates and average times
       const categories = Array.from(categoryMap.values())
-        .map((cat) => ({
-          ...cat,
-          completionRate:
-            cat.totalTickets > 0
-              ? Math.round((cat.served / cat.totalTickets) * 100)
-              : 0,
-        }))
+        .map((cat) => {
+          // Calculate average service time for tickets with both started_at and completed_at
+          const ticketsWithTiming = reportData.allTickets
+            .filter(
+              (t) =>
+                t.service === cat.category &&
+                t.startedAt &&
+                t.completedAt,
+            )
+            .map((t) => (t.completedAt - t.startedAt) / 1000); // Convert to seconds
+
+          const avgServiceTime =
+            ticketsWithTiming.length > 0
+              ? ticketsWithTiming.reduce((a, b) => a + b, 0) /
+                ticketsWithTiming.length
+              : null;
+
+          return {
+            ...cat,
+            averageServiceTime: avgServiceTime,
+            completionRate:
+              cat.totalTickets > 0
+                ? Math.round((cat.served / cat.totalTickets) * 100)
+                : 0,
+          };
+        })
         .sort((a, b) => b.totalTickets - a.totalTickets);
 
       // Find top category
