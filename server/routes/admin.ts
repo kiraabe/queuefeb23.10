@@ -845,7 +845,8 @@ export const getOverallAnalytics: RequestHandler = async (_req, res) => {
         COUNT(t.id) as total_tickets,
         SUM(CASE WHEN t.status = 'done' THEN 1 ELSE 0 END) as served,
         SUM(CASE WHEN t.status = 'skipped' THEN 1 ELSE 0 END) as skipped,
-        SUM(CASE WHEN t.status = 'transferred' THEN 1 ELSE 0 END) as transferred
+        SUM(CASE WHEN t.status = 'transferred' THEN 1 ELSE 0 END) as transferred,
+        ROUND(AVG(CASE WHEN t.started_at IS NOT NULL AND t.completed_at IS NOT NULL THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
       FROM tickets t
       GROUP BY t.service
       ORDER BY total_tickets DESC`,
