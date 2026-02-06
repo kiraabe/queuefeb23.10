@@ -107,9 +107,33 @@ export default function Queue() {
 
   const toggleFs = async () => {
     try {
-      if (!isFs) await containerRef.current?.requestFullscreen();
-      else await document.exitFullscreen();
-    } catch {}
+      if (!isFs) {
+        if (!containerRef.current) {
+          console.error("Container ref not available");
+          return;
+        }
+        await containerRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error("Fullscreen error:", error);
+      // Fallback: try alternative fullscreen APIs
+      if (!isFs && containerRef.current) {
+        try {
+          const elem = containerRef.current as any;
+          if (elem.webkitRequestFullscreen) {
+            await elem.webkitRequestFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            await elem.mozRequestFullScreen();
+          } else if (elem.msRequestFullscreen) {
+            await elem.msRequestFullscreen();
+          }
+        } catch (fallbackError) {
+          console.error("Fallback fullscreen failed:", fallbackError);
+        }
+      }
+    }
   };
 
   const [display, setDisplay] = useState<DisplayState | null>(null);
