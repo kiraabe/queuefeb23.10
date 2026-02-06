@@ -61,6 +61,10 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <Routes>
+              {/* Public routes without AppLayout (no header/footer) */}
+              <Route path="/track" element={<Track />} />
+
+              {/* All other routes with AppLayout */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/role-selector" element={<RoleSelector />} />
@@ -113,8 +117,6 @@ const App = () => (
                 <Route path="/tickets/:code" element={<TicketStatus />} />
                 <Route path="/login" element={<Login />} />
               </Route>
-              {/* Public tracking route without AppLayout (no header/footer) */}
-              <Route path="/track" element={<Track />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
