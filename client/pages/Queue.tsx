@@ -415,15 +415,10 @@ export default function Queue() {
         ref={containerRef}
         className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-3 lg:p-4"
       >
-        <div className="w-full mb-3 flex-shrink-0">
-          <div className="space-y-1">
-            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary w-fit">
-              Live · Queue Status
-            </Badge>
-            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-foreground tracking-tight break-words">
-              Queue Status Overview
-            </h1>
-          </div>
+        <div className="w-full mb-2 flex-shrink-0">
+          <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary w-fit">
+            Live · Queue Status
+          </Badge>
         </div>
 
         {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
