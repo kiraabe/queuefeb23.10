@@ -99,6 +99,7 @@ async function getWindows(): Promise<WindowState[]> {
 export default function Queue() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFs, setIsFs] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const onChange = () => setIsFs(Boolean(document.fullscreenElement));
@@ -118,20 +119,32 @@ export default function Queue() {
         await document.exitFullscreen();
       }
     } catch (error) {
-      console.error("Fullscreen error:", error);
-      // Fallback: try alternative fullscreen APIs
-      if (!isFs && containerRef.current) {
-        try {
-          const elem = containerRef.current as any;
-          if (elem.webkitRequestFullscreen) {
-            await elem.webkitRequestFullscreen();
-          } else if (elem.mozRequestFullScreen) {
-            await elem.mozRequestFullScreen();
-          } else if (elem.msRequestFullscreen) {
-            await elem.msRequestFullscreen();
+      // Silently handle fullscreen errors (e.g., permissions policy restrictions)
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Check if it's a permissions policy error
+      if (errorMessage.includes("permissions policy") || errorMessage.includes("Disallowed")) {
+        // Permissions policy prevents fullscreen - this is normal in embedded contexts
+        toast({
+          variant: "destructive",
+          title: "Fullscreen unavailable",
+          description: "Your browser or hosting environment doesn't allow fullscreen mode.",
+        });
+      } else {
+        // Other errors - try fallback APIs
+        if (!isFs && containerRef.current) {
+          try {
+            const elem = containerRef.current as any;
+            if (elem.webkitRequestFullscreen) {
+              await elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+              await elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) {
+              await elem.msRequestFullscreen();
+            }
+          } catch {
+            // Fallback also failed - silently ignore
           }
-        } catch (fallbackError) {
-          console.error("Fallback fullscreen failed:", fallbackError);
         }
       }
     }
