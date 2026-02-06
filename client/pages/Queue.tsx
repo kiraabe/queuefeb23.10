@@ -407,84 +407,93 @@ export default function Queue() {
     return map;
   }, [allCategories, tickets, waitingQueue, serving]);
 
-  // Fullscreen view - Airport Style Display Board
+  // Fullscreen view - Split-Flap Airport Display Style
   if (isFs) {
     return (
       <div
         ref={containerRef}
-        className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-hidden flex flex-col p-4 lg:p-6"
+        className="fixed inset-0 w-screen h-screen bg-slate-950 overflow-hidden flex flex-col p-3 lg:p-4"
       >
-        {/* Airport-Style Board Grid */}
-        <div className="flex-1 overflow-hidden">
-          <div className="grid gap-4 lg:gap-6 grid-cols-1 md:grid-cols-2 w-full h-full">
-            {Array.from(categoryMap.entries()).map(
-              ([category, data], index) => {
+        {/* Split-Flap Table Display */}
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <table className="w-full h-full border-collapse">
+            <thead>
+              <tr className="bg-slate-900 border-b-4 border-yellow-400">
+                <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-left">
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">SERVICE</span>
+                </th>
+                <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-center">
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">NOW SERVING</span>
+                </th>
+                <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-center">
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">NEXT</span>
+                </th>
+                <th className="px-4 lg:px-6 py-2 lg:py-4 text-center">
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">WAITING</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from(categoryMap.entries()).map(([category, data], index) => {
                 const categoryNames: Record<string, string> = {
                   "cadastral-group": "ካድስትራል",
                   "rights-group": "መብቶች",
                   "fixed-property-group": "ቋሚ ንብረት",
                 };
                 const displayName = categoryNames[category] || category;
-                const isThirdCard = index === 2;
                 return (
-                  <div
+                  <tr
                     key={category}
-                    className={`bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 rounded-xl overflow-hidden flex flex-col shadow-2xl ${
-                      isThirdCard ? "md:col-span-2" : ""
-                    }`}
+                    className={`border-b-2 border-yellow-400 ${
+                      index % 2 === 0 ? "bg-slate-900" : "bg-slate-800"
+                    } hover:bg-slate-700 transition-colors`}
                   >
-                    {/* Category Header */}
-                    <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-4 lg:px-6 py-3 lg:py-4">
-                      <p className="text-white text-2xl lg:text-4xl font-black tracking-wider uppercase">
-                        {displayName}
-                      </p>
-                    </div>
+                    {/* Service Name Cell */}
+                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-left">
+                      <div className="bg-slate-700 border-2 border-yellow-400 rounded px-3 py-2 inline-block">
+                        <p className="text-yellow-300 text-lg lg:text-2xl font-black">{displayName}</p>
+                      </div>
+                    </td>
 
-                    {/* Content */}
-                    <div className="flex-1 flex flex-col p-4 lg:p-6 gap-3 lg:gap-4">
-                      {/* Now Serving */}
-                      <div className="flex flex-col flex-1">
-                        <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
-                          NOW SERVING
-                        </p>
-                        <p
-                          className={cn(
-                            "font-display text-5xl lg:text-7xl font-black text-green-400 leading-none",
-                            data.serving &&
-                              blinkingTicketIds.has(data.serving.id)
-                              ? "animate-blink"
-                              : "",
-                          )}
-                        >
+                    {/* Now Serving Cell */}
+                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
+                      <div
+                        className={cn(
+                          "bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40",
+                          data.serving &&
+                            blinkingTicketIds.has(data.serving.id)
+                            ? "animate-blink"
+                            : "",
+                        )}
+                      >
+                        <p className="font-display text-5xl lg:text-7xl font-black text-green-400 leading-none">
                           {data.serving?.code ?? "—"}
                         </p>
                       </div>
+                    </td>
 
-                      {/* Next in Queue */}
-                      <div className="flex flex-col flex-1">
-                        <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
-                          NEXT SERVING
-                        </p>
+                    {/* Next Cell */}
+                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
+                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40">
                         <p className="font-display text-4xl lg:text-6xl font-black text-amber-400 leading-none">
                           {data.next?.code ?? "—"}
                         </p>
                       </div>
+                    </td>
 
-                      {/* Waiting Count - Full Width and Prominent */}
-                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-blue-400 rounded-lg p-6 lg:p-8 flex flex-col justify-center items-center min-h-24 lg:min-h-32">
-                        <p className="text-white text-base lg:text-xl uppercase tracking-widest font-bold mb-3 lg:mb-4">
-                          Waiting in Queue
-                        </p>
-                        <p className="font-display text-6xl lg:text-8xl font-black text-white leading-none">
+                    {/* Waiting Count Cell */}
+                    <td className="px-4 lg:px-6 py-4 lg:py-6 text-center">
+                      <div className="bg-blue-700 border-4 border-blue-300 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40">
+                        <p className="font-display text-5xl lg:text-7xl font-black text-blue-200 leading-none">
                           {data.waiting.length}
                         </p>
                       </div>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
                 );
-              },
-            )}
-          </div>
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     );
