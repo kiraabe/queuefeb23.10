@@ -85,9 +85,9 @@ export default function Login() {
       if (user.roles && user.roles.length > 1) {
         navigate("/role-selector");
       } else {
-        const to =
-          params.get("redirect") ||
-          (user.role === "admin"
+        // Determine default redirect based on user role
+        const defaultRedirect =
+          user.role === "admin"
             ? "/admin"
             : user.role === "teller" && user.windowId
               ? `/teller/${user.windowId}`
@@ -97,7 +97,16 @@ export default function Login() {
                   ? "/employee"
                   : user.role === "archiever"
                     ? "/archiever"
-                    : "/");
+                    : "/";
+
+        // Only use redirect param if it doesn't conflict with user role
+        // This prevents redirecting to /admin when logging in as employee
+        const redirectParam = params.get("redirect");
+        const to =
+          redirectParam && redirectParam !== "/admin"
+            ? redirectParam
+            : defaultRedirect;
+
         navigate(to);
       }
     } catch (e: any) {
