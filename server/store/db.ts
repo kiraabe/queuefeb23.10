@@ -1195,24 +1195,28 @@ async function checkAndResetExpiredTickets(
   ).toISOString();
 
   try {
-    // Find tickets older than 24 hours that aren't already marked as done/skipped
-    // NOTE: Exclude field_visit status tickets - they persist across days as part of multi-day field work
+    // Find tickets older than 24 hours that aren't already marked as done/skipped/on_hold
+    // NOTE: Exclude field_visit and on_hold status tickets
+    // - field_visit tickets persist across days as part of multi-day field work
+    // - on_hold tickets are handled by autoCancelExpiredHolds (72-hour rule)
     const expiredRes = await client.query(
       `SELECT COUNT(*) as count FROM tickets
-       WHERE created_at < $1 AND status NOT IN ('done', 'skipped', 'field_visit')`,
+       WHERE created_at < $1 AND status NOT IN ('done', 'skipped', 'field_visit', 'on_hold')`,
       [expirationThreshold],
     );
     const expiredCount = Number(expiredRes.rows[0]?.count || 0);
 
     if (expiredCount > 0) {
       // Mark all expired tickets as done with expiration reason
-      // NOTE: field_visit status tickets are excluded from expiration
+      // NOTE: field_visit and on_hold status tickets are excluded from this 24-hour expiration
+      // - field_visit tickets persist across days as part of multi-day field work
+      // - on_hold tickets are handled separately by autoCancelExpiredHolds (72-hour rule)
       await client.query(
         `UPDATE tickets
          SET status='done', completed_at=now(), expired_at=now(),
              remark = CASE WHEN remark IS NULL THEN 'Auto-expired: ticket exceeded 24 hours'
                       ELSE remark || E'\nAuto-expired: ticket exceeded 24 hours' END
-         WHERE created_at < $1 AND status NOT IN ('done', 'skipped', 'field_visit')`,
+         WHERE created_at < $1 AND status NOT IN ('done', 'skipped', 'field_visit', 'on_hold')`,
         [expirationThreshold],
       );
 
