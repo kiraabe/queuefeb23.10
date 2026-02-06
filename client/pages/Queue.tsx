@@ -450,18 +450,26 @@ export default function Queue() {
                     {/* Now Serving Cell */}
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
                       <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 max-h-48 overflow-y-auto">
-                        {data.serving ? (
+                        {data.serving.length > 0 ? (
                           <div className="space-y-2">
-                            <p
-                              className={cn(
-                                "font-display text-4xl lg:text-5xl font-black text-green-400 leading-none",
-                                blinkingTicketIds.has(data.serving.id)
-                                  ? "animate-blink"
-                                  : "",
-                              )}
-                            >
-                              {data.serving.code}
-                            </p>
+                            {data.serving.slice(0, 6).map((ticket) => (
+                              <p
+                                key={ticket.id}
+                                className={cn(
+                                  "font-display text-3xl lg:text-4xl font-black text-green-400 leading-none",
+                                  blinkingTicketIds.has(ticket.id)
+                                    ? "animate-blink"
+                                    : "",
+                                )}
+                              >
+                                {ticket.code}
+                              </p>
+                            ))}
+                            {data.serving.length > 6 && (
+                              <p className="font-display text-xl lg:text-2xl font-black text-green-300 leading-none">
+                                +{data.serving.length - 6}
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <p className="font-display text-4xl lg:text-5xl font-black text-green-400 leading-none">
