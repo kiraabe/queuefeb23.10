@@ -693,6 +693,6 @@ export const getTicketStatus: RequestHandler = async (req, res) => {
     });
     return res
       .status(500)
-      .json({ error: errorMsg || "Failed to fetch ticket" });
+      .json({ error: errorMsg || "Failed to fetch ticket status" });
   }
 };
