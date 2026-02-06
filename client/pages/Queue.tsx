@@ -449,30 +449,30 @@ export default function Queue() {
 
                     {/* Now Serving Cell */}
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 max-h-48 overflow-y-auto">
+                      <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
                         {data.serving.length > 0 ? (
-                          <div className="space-y-2">
-                            {data.serving.slice(0, 6).map((ticket) => (
-                              <p
-                                key={ticket.id}
-                                className={cn(
-                                  "font-display text-3xl lg:text-4xl font-black text-green-400 leading-none",
-                                  blinkingTicketIds.has(ticket.id)
-                                    ? "animate-blink"
-                                    : "",
-                                )}
-                              >
-                                {ticket.code}
-                              </p>
-                            ))}
-                            {data.serving.length > 6 && (
-                              <p className="font-display text-xl lg:text-2xl font-black text-green-300 leading-none">
-                                +{data.serving.length - 6}
-                              </p>
-                            )}
+                          <div className="flex flex-wrap gap-2 items-center justify-center">
+                            {data.serving.map((ticket) => {
+                              let fontSize = "text-5xl lg:text-6xl";
+                              if (data.serving.length > 4) fontSize = "text-3xl lg:text-4xl";
+                              else if (data.serving.length > 2) fontSize = "text-4xl lg:text-5xl";
+                              return (
+                                <p
+                                  key={ticket.id}
+                                  className={cn(
+                                    `font-display ${fontSize} font-black text-green-400 leading-none`,
+                                    blinkingTicketIds.has(ticket.id)
+                                      ? "animate-blink"
+                                      : "",
+                                  )}
+                                >
+                                  {ticket.code}
+                                </p>
+                              );
+                            })}
                           </div>
                         ) : (
-                          <p className="font-display text-4xl lg:text-5xl font-black text-green-400 leading-none">
+                          <p className="font-display text-5xl lg:text-6xl font-black text-green-400 leading-none">
                             —
                           </p>
                         )}
@@ -481,22 +481,25 @@ export default function Queue() {
 
                     {/* Next Cell */}
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 max-h-48 overflow-y-auto">
+                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
                         {data.waiting.length > 0 ? (
-                          <div className="space-y-2">
-                            {data.waiting.slice(0, 4).map((ticket, idx) => (
-                              <p key={idx} className="font-display text-2xl lg:text-4xl font-black text-amber-400 leading-none">
-                                {ticket.code}
-                              </p>
-                            ))}
-                            {data.waiting.length > 4 && (
-                              <p className="font-display text-lg lg:text-2xl font-black text-amber-300 leading-none">
-                                +{data.waiting.length - 4}
-                              </p>
-                            )}
+                          <div className="flex flex-wrap gap-2 items-center justify-center">
+                            {data.waiting.slice(0, 8).map((ticket) => {
+                              let fontSize = "text-4xl lg:text-5xl";
+                              if (data.waiting.length > 6) fontSize = "text-2xl lg:text-3xl";
+                              else if (data.waiting.length > 4) fontSize = "text-3xl lg:text-4xl";
+                              return (
+                                <p
+                                  key={ticket.id}
+                                  className={`font-display ${fontSize} font-black text-amber-400 leading-none`}
+                                >
+                                  {ticket.code}
+                                </p>
+                              );
+                            })}
                           </div>
                         ) : (
-                          <p className="font-display text-4xl lg:text-5xl font-black text-amber-400 leading-none">
+                          <p className="font-display text-5xl lg:text-6xl font-black text-amber-400 leading-none">
                             —
                           </p>
                         )}
