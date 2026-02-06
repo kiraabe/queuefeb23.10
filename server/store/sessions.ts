@@ -70,7 +70,12 @@ function mapRow(row: any): SessionRecord {
   };
 }
 
-function toSummary(session: SessionRecord, now = Date.now()): SessionSummary {
+function toSummary(
+  session: SessionRecord,
+  fullName?: string | null,
+  jobTitle?: string | null,
+  now = Date.now(),
+): SessionSummary {
   const expired = now > session.expiresAt.getTime();
   const status = session.revokedAt ? "revoked" : expired ? "expired" : "active";
   return {
@@ -83,6 +88,8 @@ function toSummary(session: SessionRecord, now = Date.now()): SessionSummary {
     expiresAt: session.expiresAt.getTime(),
     status,
     revokeReason: session.revokeReason ?? null,
+    fullName: fullName ?? null,
+    jobTitle: jobTitle ?? null,
   };
 }
 
