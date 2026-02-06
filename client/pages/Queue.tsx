@@ -413,14 +413,14 @@ export default function Queue() {
     return (
       <div
         ref={containerRef}
-        className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-4 lg:p-6"
+        className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-3 lg:p-4"
       >
-        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 mb-4 lg:mb-6 flex-shrink-0">
-          <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
-            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
+        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3 flex-shrink-0">
+          <div className="space-y-0.5 flex-1 min-w-0">
+            <Badge className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary w-fit">
               Live · Queue Status
             </Badge>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-semibold text-foreground tracking-tight break-words">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground tracking-tight break-words">
               Queue Status Overview
             </h1>
           </div>
@@ -430,16 +430,16 @@ export default function Queue() {
             onClick={toggleFs}
             aria-pressed={isFs}
             aria-label="Exit full screen"
-            className="whitespace-nowrap text-base px-4 py-2 h-auto flex-shrink-0"
+            className="whitespace-nowrap text-sm px-3 py-1.5 h-auto flex-shrink-0"
           >
-            <Maximize2 className="h-5 w-5 mr-2" />
+            <Maximize2 className="h-4 w-4 mr-1" />
             Exit
           </Button>
         </div>
 
         {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
         <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="grid gap-4 lg:gap-6 grid-cols-1 md:grid-cols-2 w-full h-full auto-rows-fr">
+          <div className="grid gap-2 lg:gap-3 grid-cols-1 md:grid-cols-2 w-full h-full">
             {Array.from(categoryMap.entries()).map(([category, data], index) => {
               const categoryNames: Record<string, string> = {
                 "cadastral-group": "ካድስትራል",
