@@ -309,6 +309,13 @@ const PhaseCard = ({
 );
 
 export default function Index() {
+  const { user } = useAuth();
+
+  // Redirect admin users to their admin panel
+  if (user?.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [waitingByService, setWaitingByService] = useState<
     Record<string, number>
