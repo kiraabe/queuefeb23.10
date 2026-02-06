@@ -597,7 +597,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         COUNT(CASE WHEN status = 'skipped' THEN 1 END)::int as skipped,
         COUNT(CASE WHEN status = 'transferred' THEN 1 END)::int as transferred,
         COUNT(*)::int as total,
-        ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))))::int as avg_service_time
+        ROUND(AVG(CASE WHEN started_at IS NOT NULL AND completed_at IS NOT NULL THEN EXTRACT(EPOCH FROM (completed_at - started_at)) ELSE NULL END))::int as avg_service_time
       FROM tickets
       WHERE created_at >= $1 AND created_at <= $2`,
       [fromDate, toDate],
