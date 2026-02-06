@@ -341,7 +341,6 @@ export default function Queue() {
     } catch {}
   };
 
-
   // Get all unique service categories
   const allCategories = useMemo(() => {
     const categories = new Set<string>();
@@ -424,68 +423,70 @@ export default function Queue() {
         {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
         <div className="flex-1 overflow-hidden">
           <div className="grid gap-2 grid-cols-1 md:grid-cols-2 w-full h-full">
-            {Array.from(categoryMap.entries()).map(([category, data], index) => {
-              const categoryNames: Record<string, string> = {
-                "cadastral-group": "ካድስትራል",
-                "rights-group": "መብቶች",
-                "fixed-property-group": "ቋሚ ንብረት",
-              };
-              const displayName = categoryNames[category] || category;
-              const isThirdCard = index === 2;
-              return (
-                <Card
-                  key={category}
-                  className={`border-border/60 bg-card/90 shadow-lg overflow-hidden flex flex-col ${
-                    isThirdCard ? "md:col-span-2" : ""
-                  }`}
-                >
-                  <CardHeader className="pb-2 pt-3 px-3">
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-base font-semibold text-primary w-fit">
-                      <SignalHigh className="h-4 w-4" /> {displayName}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-1.5 px-3 pb-3 flex-1 flex flex-col justify-between">
-                    {/* Now Serving Box */}
-                    <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-3 lg:p-4">
-                      <p className="text-sm lg:text-base uppercase tracking-wider text-green-700 font-bold">
-                        Now Serving
-                      </p>
-                      <p
-                        className={cn(
-                          "mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-green-600 leading-tight",
-                          data.serving &&
-                            blinkingTicketIds.has(data.serving.id)
-                            ? "animate-blink"
-                            : "",
-                        )}
-                      >
-                        {data.serving?.code ?? "—"}
-                      </p>
-                    </div>
+            {Array.from(categoryMap.entries()).map(
+              ([category, data], index) => {
+                const categoryNames: Record<string, string> = {
+                  "cadastral-group": "ካድስትራል",
+                  "rights-group": "መብቶች",
+                  "fixed-property-group": "ቋሚ ንብረት",
+                };
+                const displayName = categoryNames[category] || category;
+                const isThirdCard = index === 2;
+                return (
+                  <Card
+                    key={category}
+                    className={`border-border/60 bg-card/90 shadow-lg overflow-hidden flex flex-col ${
+                      isThirdCard ? "md:col-span-2" : ""
+                    }`}
+                  >
+                    <CardHeader className="pb-2 pt-3 px-3">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-base font-semibold text-primary w-fit">
+                        <SignalHigh className="h-4 w-4" /> {displayName}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-1.5 px-3 pb-3 flex-1 flex flex-col justify-between">
+                      {/* Now Serving Box */}
+                      <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-3 lg:p-4">
+                        <p className="text-sm lg:text-base uppercase tracking-wider text-green-700 font-bold">
+                          Now Serving
+                        </p>
+                        <p
+                          className={cn(
+                            "mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-green-600 leading-tight",
+                            data.serving &&
+                              blinkingTicketIds.has(data.serving.id)
+                              ? "animate-blink"
+                              : "",
+                          )}
+                        >
+                          {data.serving?.code ?? "—"}
+                        </p>
+                      </div>
 
-                    {/* Next in Queue Box */}
-                    <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-3 lg:p-4">
-                      <p className="text-sm lg:text-base uppercase tracking-wider text-amber-700 font-bold">
-                        Next in Queue
-                      </p>
-                      <p className="mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-amber-600 leading-tight">
-                        {data.next?.code ?? "—"}
-                      </p>
-                    </div>
+                      {/* Next in Queue Box */}
+                      <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-3 lg:p-4">
+                        <p className="text-sm lg:text-base uppercase tracking-wider text-amber-700 font-bold">
+                          Next in Queue
+                        </p>
+                        <p className="mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-amber-600 leading-tight">
+                          {data.next?.code ?? "—"}
+                        </p>
+                      </div>
 
-                    {/* Waiting Count */}
-                    <div className="rounded-lg border border-border/40 bg-muted/30 p-3 lg:p-4">
-                      <p className="text-xs lg:text-sm text-muted-foreground font-bold">
-                        Waiting in Queue
-                      </p>
-                      <p className="mt-1 font-display text-2xl lg:text-3xl font-semibold text-foreground leading-tight">
-                        {data.waiting.length}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      {/* Waiting Count */}
+                      <div className="rounded-lg border border-border/40 bg-muted/30 p-3 lg:p-4">
+                        <p className="text-xs lg:text-sm text-muted-foreground font-bold">
+                          Waiting in Queue
+                        </p>
+                        <p className="mt-1 font-display text-2xl lg:text-3xl font-semibold text-foreground leading-tight">
+                          {data.waiting.length}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              },
+            )}
           </div>
         </div>
       </div>
@@ -494,10 +495,7 @@ export default function Queue() {
 
   // Normal view with service cards in 2-column layout
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen w-full bg-background"
-    >
+    <div ref={containerRef} className="min-h-screen w-full bg-background">
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
         <section className="w-full space-y-6 sm:space-y-8 md:space-y-10">
           <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
