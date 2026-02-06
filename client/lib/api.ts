@@ -128,26 +128,34 @@ export async function apiFetch<T>(
       ...opts,
     };
 
-    // Create a timeout promise (30 seconds for API requests)
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(
-        () =>
-          reject(
-            new Error("Request timeout - server took too long to respond"),
-          ),
-        30000,
-      );
-    });
+    // Create an AbortController for proper timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
-      // Race between fetch and timeout
-      return await Promise.race([fetch(url, requestInit), timeoutPromise]);
+      const response = await fetch(url, {
+        ...requestInit,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
     } catch (err) {
+      clearTimeout(timeoutId);
       // Log network errors for debugging
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      console.error(
-        `[API] Network error for ${opts?.method || "GET"} ${path}: ${errorMsg}`,
-      );
+      const errorMsg =
+        err instanceof Error ? err.message : String(err);
+      // Don't log abort errors caused by our timeout as they're expected
+      if (
+        !(
+          err instanceof Error &&
+          err.name === "AbortError" &&
+          controller.signal.aborted
+        )
+      ) {
+        console.error(
+          `[API] Network error for ${opts?.method || "GET"} ${path}: ${errorMsg}`,
+        );
+      }
       throw err;
     }
   };
