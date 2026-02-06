@@ -590,13 +590,6 @@ export default function Queue() {
 
           {/* Service Cards Grid - 2 columns */}
           <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
-            {serviceMap.size === 0 && (
-              <div className="col-span-1 md:col-span-2 rounded-lg border-2 border-dashed border-border/40 bg-muted/30 p-8 text-center">
-                <p className="text-muted-foreground text-sm">
-                  {hasLiveQueue ? "Loading queue data..." : "No active queue. Services will appear here when tickets are created."}
-                </p>
-              </div>
-            )}
             {Array.from(serviceMap.entries()).map(([service, data]) => (
               <Card key={service} className="border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                 <CardHeader className="pb-3">
