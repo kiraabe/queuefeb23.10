@@ -99,12 +99,23 @@ async function getWindows(): Promise<WindowState[]> {
 export default function Queue() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFs, setIsFs] = useState(false);
+  const [fsAvailable, setFsAvailable] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const onChange = () => setIsFs(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // Check if fullscreen API is available
+  useEffect(() => {
+    const isSupported =
+      document.fullscreenEnabled ||
+      (document as any).webkitFullscreenEnabled ||
+      (document as any).mozFullScreenEnabled ||
+      (document as any).msFullscreenEnabled;
+    setFsAvailable(Boolean(isSupported));
   }, []);
 
   const toggleFs = async () => {
