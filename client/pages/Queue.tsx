@@ -412,120 +412,140 @@ export default function Queue() {
             <thead>
               <tr className="bg-slate-900 border-b-4 border-yellow-400">
                 <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-left">
-                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">SERVICE</span>
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">
+                    SERVICE
+                  </span>
                 </th>
                 <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-center">
-                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">NOW SERVING</span>
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">
+                    NOW SERVING
+                  </span>
                 </th>
                 <th className="border-r-4 border-yellow-400 px-4 lg:px-6 py-2 lg:py-4 text-center">
-                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">NEXT</span>
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">
+                    NEXT
+                  </span>
                 </th>
                 <th className="px-4 lg:px-6 py-2 lg:py-4 text-center">
-                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">WAITING</span>
+                  <span className="text-yellow-400 text-sm lg:text-xl font-black uppercase tracking-wider">
+                    WAITING
+                  </span>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {Array.from(categoryMap.entries()).map(([category, data], index) => {
-                const categoryNames: Record<string, string> = {
-                  "cadastral-group": "ካድስትራል",
-                  "rights-group": "መብቶች",
-                  "fixed-property-group": "ቋሚ ንብረት",
-                };
-                const displayName = categoryNames[category] || category;
-                return (
-                  <tr
-                    key={category}
-                    className={`border-b-2 border-yellow-400 ${
-                      index % 2 === 0 ? "bg-slate-900" : "bg-slate-800"
-                    } hover:bg-slate-700 transition-colors`}
-                  >
-                    {/* Service Name Cell */}
-                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-left">
-                      <div className="bg-slate-700 border-2 border-yellow-400 rounded px-3 py-2 inline-block">
-                        <p className="text-yellow-300 text-lg lg:text-2xl font-black">{displayName}</p>
-                      </div>
-                    </td>
+              {Array.from(categoryMap.entries()).map(
+                ([category, data], index) => {
+                  const categoryNames: Record<string, string> = {
+                    "cadastral-group": "ካድስትራል",
+                    "rights-group": "መብቶች",
+                    "fixed-property-group": "ቋሚ ንብረት",
+                  };
+                  const displayName = categoryNames[category] || category;
+                  return (
+                    <tr
+                      key={category}
+                      className={`border-b-2 border-yellow-400 ${
+                        index % 2 === 0 ? "bg-slate-900" : "bg-slate-800"
+                      } hover:bg-slate-700 transition-colors`}
+                    >
+                      {/* Service Name Cell */}
+                      <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-left">
+                        <div className="bg-slate-700 border-2 border-yellow-400 rounded px-3 py-2 inline-block">
+                          <p className="text-yellow-300 text-lg lg:text-2xl font-black">
+                            {displayName}
+                          </p>
+                        </div>
+                      </td>
 
-                    {/* Now Serving Cell */}
-                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex flex-col items-center justify-center gap-2">
-                        {data.serving.length > 0 ? (
-                          <>
-                            <div className="flex items-center justify-center flex-wrap">
-                              {data.serving.map((item, idx) => {
+                      {/* Now Serving Cell */}
+                      <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
+                        <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex flex-col items-center justify-center gap-2">
+                          {data.serving.length > 0 ? (
+                            <>
+                              <div className="flex items-center justify-center flex-wrap">
+                                {data.serving.map((item, idx) => {
+                                  let fontSize = "text-4xl lg:text-5xl";
+                                  if (data.serving.length > 4)
+                                    fontSize = "text-2xl lg:text-3xl";
+                                  else if (data.serving.length > 2)
+                                    fontSize = "text-3xl lg:text-4xl";
+                                  const isLast =
+                                    idx === data.serving.length - 1;
+                                  return (
+                                    <p
+                                      key={item.ticket.id}
+                                      className={cn(
+                                        `font-display ${fontSize} font-black text-green-400 leading-none`,
+                                        blinkingTicketIds.has(item.ticket.id)
+                                          ? "animate-blink"
+                                          : "",
+                                      )}
+                                    >
+                                      {item.ticket.code}
+                                      {!isLast && <span>, </span>}
+                                    </p>
+                                  );
+                                })}
+                              </div>
+                              <div className="text-xs lg:text-sm text-green-300 font-semibold">
+                                {data.serving
+                                  .map((item) => item.window?.name || "—")
+                                  .join(" / ")}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="font-display text-5xl lg:text-6xl font-black text-green-400 leading-none">
+                              —
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Next Cell */}
+                      <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
+                        <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
+                          {data.waiting.length > 0 ? (
+                            <div className="flex items-center justify-center">
+                              {data.waiting.slice(0, 8).map((ticket, idx) => {
                                 let fontSize = "text-4xl lg:text-5xl";
-                                if (data.serving.length > 4) fontSize = "text-2xl lg:text-3xl";
-                                else if (data.serving.length > 2) fontSize = "text-3xl lg:text-4xl";
-                                const isLast = idx === data.serving.length - 1;
+                                if (data.waiting.length > 6)
+                                  fontSize = "text-2xl lg:text-3xl";
+                                else if (data.waiting.length > 4)
+                                  fontSize = "text-3xl lg:text-4xl";
+                                const isLast =
+                                  idx === Math.min(7, data.waiting.length - 1);
                                 return (
                                   <p
-                                    key={item.ticket.id}
-                                    className={cn(
-                                      `font-display ${fontSize} font-black text-green-400 leading-none`,
-                                      blinkingTicketIds.has(item.ticket.id)
-                                        ? "animate-blink"
-                                        : "",
-                                    )}
+                                    key={ticket.id}
+                                    className={`font-display ${fontSize} font-black text-amber-400 leading-none`}
                                   >
-                                    {item.ticket.code}
+                                    {ticket.code}
                                     {!isLast && <span>, </span>}
                                   </p>
                                 );
                               })}
                             </div>
-                            <div className="text-xs lg:text-sm text-green-300 font-semibold">
-                              {data.serving.map((item) => item.window?.name || "—").join(" / ")}
-                            </div>
-                          </>
-                        ) : (
-                          <p className="font-display text-5xl lg:text-6xl font-black text-green-400 leading-none">
-                            —
-                          </p>
-                        )}
-                      </div>
-                    </td>
+                          ) : (
+                            <p className="font-display text-5xl lg:text-6xl font-black text-amber-400 leading-none">
+                              —
+                            </p>
+                          )}
+                        </div>
+                      </td>
 
-                    {/* Next Cell */}
-                    <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-slate-700 border-4 border-amber-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
-                        {data.waiting.length > 0 ? (
-                          <div className="flex items-center justify-center">
-                            {data.waiting.slice(0, 8).map((ticket, idx) => {
-                              let fontSize = "text-4xl lg:text-5xl";
-                              if (data.waiting.length > 6) fontSize = "text-2xl lg:text-3xl";
-                              else if (data.waiting.length > 4) fontSize = "text-3xl lg:text-4xl";
-                              const isLast = idx === Math.min(7, data.waiting.length - 1);
-                              return (
-                                <p
-                                  key={ticket.id}
-                                  className={`font-display ${fontSize} font-black text-amber-400 leading-none`}
-                                >
-                                  {ticket.code}
-                                  {!isLast && <span>, </span>}
-                                </p>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="font-display text-5xl lg:text-6xl font-black text-amber-400 leading-none">
-                            —
+                      {/* Waiting Count Cell */}
+                      <td className="px-4 lg:px-6 py-4 lg:py-6 text-center">
+                        <div className="bg-blue-700 border-4 border-blue-300 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40">
+                          <p className="font-display text-5xl lg:text-7xl font-black text-blue-200 leading-none">
+                            {data.waiting.length}
                           </p>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Waiting Count Cell */}
-                    <td className="px-4 lg:px-6 py-4 lg:py-6 text-center">
-                      <div className="bg-blue-700 border-4 border-blue-300 rounded px-4 py-3 lg:px-6 lg:py-4 inline-flex items-center justify-center min-w-28 lg:min-w-40">
-                        <p className="font-display text-5xl lg:text-7xl font-black text-blue-200 leading-none">
-                          {data.waiting.length}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                },
+              )}
             </tbody>
           </table>
         </div>
@@ -598,9 +618,13 @@ export default function Queue() {
                             data.serving.map((item) => {
                               let fontSize = "text-3xl";
                               if (data.serving.length > 4) fontSize = "text-xl";
-                              else if (data.serving.length > 2) fontSize = "text-2xl";
+                              else if (data.serving.length > 2)
+                                fontSize = "text-2xl";
                               return (
-                                <div key={item.ticket.id} className="flex flex-col">
+                                <div
+                                  key={item.ticket.id}
+                                  className="flex flex-col"
+                                >
                                   <p
                                     className={cn(
                                       `font-display ${fontSize} font-bold text-green-600`,
@@ -618,7 +642,9 @@ export default function Queue() {
                               );
                             })
                           ) : (
-                            <p className="font-display text-3xl font-bold text-green-600">—</p>
+                            <p className="font-display text-3xl font-bold text-green-600">
+                              —
+                            </p>
                           )}
                         </div>
                       </div>
@@ -633,7 +659,8 @@ export default function Queue() {
                             data.waiting.map((ticket) => {
                               let fontSize = "text-3xl";
                               if (data.waiting.length > 4) fontSize = "text-xl";
-                              else if (data.waiting.length > 2) fontSize = "text-2xl";
+                              else if (data.waiting.length > 2)
+                                fontSize = "text-2xl";
                               return (
                                 <p
                                   key={ticket.id}
@@ -644,7 +671,9 @@ export default function Queue() {
                               );
                             })
                           ) : (
-                            <p className="font-display text-3xl font-bold text-amber-600">—</p>
+                            <p className="font-display text-3xl font-bold text-amber-600">
+                              —
+                            </p>
                           )}
                         </div>
                       </div>
