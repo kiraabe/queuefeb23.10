@@ -441,15 +441,15 @@ export default function Queue() {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 flex flex-col justify-between p-4 lg:p-6 space-y-3 lg:space-y-4">
+                    <div className="flex-1 flex flex-col p-4 lg:p-6 gap-3 lg:gap-4">
                       {/* Now Serving */}
-                      <div className="flex flex-col">
+                      <div className="flex flex-col flex-1">
                         <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
                           NOW SERVING
                         </p>
                         <p
                           className={cn(
-                            "font-display text-6xl lg:text-8xl font-black text-green-400 leading-none",
+                            "font-display text-5xl lg:text-7xl font-black text-green-400 leading-none",
                             data.serving &&
                               blinkingTicketIds.has(data.serving.id)
                               ? "animate-blink"
@@ -461,21 +461,21 @@ export default function Queue() {
                       </div>
 
                       {/* Next in Queue */}
-                      <div className="flex flex-col">
+                      <div className="flex flex-col flex-1">
                         <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
                           NEXT SERVING
                         </p>
-                        <p className="font-display text-5xl lg:text-7xl font-black text-amber-400 leading-none">
+                        <p className="font-display text-4xl lg:text-6xl font-black text-amber-400 leading-none">
                           {data.next?.code ?? "—"}
                         </p>
                       </div>
 
-                      {/* Waiting Count */}
-                      <div className="bg-slate-600/50 border border-slate-500 rounded-lg p-3 lg:p-4">
-                        <p className="text-slate-400 text-xs lg:text-sm uppercase tracking-wider font-bold">
+                      {/* Waiting Count - Full Width and Prominent */}
+                      <div className="bg-gradient-to-r from-blue-600 to-purple-600 border-2 border-blue-400 rounded-lg p-4 lg:p-5 flex flex-col justify-center">
+                        <p className="text-white text-sm lg:text-base uppercase tracking-widest font-bold mb-2">
                           Waiting in Queue
                         </p>
-                        <p className="font-display text-4xl lg:text-5xl font-black text-white mt-2 leading-none">
+                        <p className="font-display text-5xl lg:text-7xl font-black text-white leading-none">
                           {data.waiting.length}
                         </p>
                       </div>
