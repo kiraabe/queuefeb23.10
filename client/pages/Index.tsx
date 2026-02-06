@@ -319,6 +319,11 @@ export default function Index() {
     return <Navigate to="/admin" replace />;
   }
 
+  // Redirect employee users to their employee page
+  if (user?.role === "employee") {
+    return <Navigate to="/employee" replace />;
+  }
+
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [waitingByService, setWaitingByService] = useState<
     Record<string, number>
