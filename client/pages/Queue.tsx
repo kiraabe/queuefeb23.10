@@ -488,36 +488,27 @@ export default function Queue() {
     );
   }
 
-  // Get all unique services (from display state or default)
-  const allServices = useMemo(() => {
-    const services = new Set<string>();
+  // Get all unique service categories
+  const allCategories = useMemo(() => {
+    const categories = new Set<string>();
 
-    // Add services from display state
-    if (display) {
-      display.current.forEach((t) => services.add(t.service));
-      if (display.next) services.add(display.next.service);
-      if (display.nextAfter) services.add(display.nextAfter.service);
-      display.waiting.forEach((t) => services.add(t.service));
-    }
-
-    // Add services from active tickets
+    // Add categories from tickets
     Object.values(tickets).forEach((t) => {
-      if (["serving", "waiting"].includes(t.status)) {
-        services.add(t.service);
+      if (t.serviceCategory) {
+        categories.add(t.serviceCategory);
       }
     });
 
-    // If no services found, show default services
-    if (services.size === 0) {
-      // Default service list
-      return ["S1", "S2", "S3", "S4"];
+    // If no categories found, show default categories
+    if (categories.size === 0) {
+      return ["cadastral-group", "rights-group", "fixed-property-group"];
     }
 
-    return Array.from(services).sort();
-  }, [display, tickets]);
+    return Array.from(categories).sort();
+  }, [tickets]);
 
-  // Group tickets by service
-  const serviceMap = useMemo(() => {
+  // Group tickets by service category
+  const categoryMap = useMemo(() => {
     const map = new Map<
       string,
       {
@@ -527,16 +518,17 @@ export default function Queue() {
       }
     >();
 
-    // Initialize all services
-    allServices.forEach((service) => {
-      map.set(service, { serving: null, next: null, waiting: [] });
+    // Initialize all categories
+    allCategories.forEach((category) => {
+      map.set(category, { serving: null, next: null, waiting: [] });
     });
 
     // Add serving tickets
     serving.forEach(({ ticket }) => {
-      const service = map.get(ticket.service);
-      if (service && !service.serving) {
-        service.serving = ticket;
+      const category = ticket.serviceCategory || "uncategorized";
+      const cat = map.get(category);
+      if (cat && !cat.serving) {
+        cat.serving = ticket;
       }
     });
 
@@ -544,22 +536,23 @@ export default function Queue() {
     waitingQueue.forEach((entry) => {
       const ticket = tickets[entry.id];
       if (ticket) {
-        const service = map.get(ticket.service);
-        if (service) {
-          service.waiting.push(ticket);
+        const category = ticket.serviceCategory || "uncategorized";
+        const cat = map.get(category);
+        if (cat) {
+          cat.waiting.push(ticket);
         }
       }
     });
 
-    // Set next ticket for each service
-    map.forEach((service) => {
-      if (service.waiting.length > 0) {
-        service.next = service.waiting[0];
+    // Set next ticket for each category
+    map.forEach((cat) => {
+      if (cat.waiting.length > 0) {
+        cat.next = cat.waiting[0];
       }
     });
 
     return map;
-  }, [allServices, tickets, waitingQueue, serving]);
+  }, [allCategories, tickets, waitingQueue, serving]);
 
   // Normal view with service cards in 2-column layout
   return (
