@@ -98,7 +98,6 @@ async function getWindows(): Promise<WindowState[]> {
 export default function Queue() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isFs, setIsFs] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     const onChange = () => setIsFs(Boolean(document.fullscreenElement));
