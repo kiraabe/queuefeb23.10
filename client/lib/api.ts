@@ -168,11 +168,31 @@ export async function apiFetch<T>(
   try {
     res = await doFetch();
   } catch (e) {
-    try {
-      await ensureApiBaseResolved();
-      res = await doFetch();
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
+    // Only retry with API base resolution if first attempt failed
+    // and we haven't already resolved the API base
+    if (dynamicBase === null) {
+      try {
+        const detectedBase = await ensureApiBaseResolved();
+        if (detectedBase !== getApiBase()) {
+          // API base was successfully detected and changed, retry
+          res = await doFetch();
+        } else {
+          // API base didn't change, no point retrying
+          throw e;
+        }
+      } catch (retryErr) {
+        const errorMsg =
+          retryErr instanceof Error ? retryErr.message : String(retryErr);
+        console.error(
+          `[API] Failed to reach server at path ${path}: ${errorMsg}`,
+        );
+        throw new Error(
+          "Unable to reach the server. Please check your connection and try again.",
+        );
+      }
+    } else {
+      // Already tried API base detection, just throw
+      const errorMsg = e instanceof Error ? e.message : String(e);
       console.error(
         `[API] Failed to reach server at path ${path}: ${errorMsg}`,
       );
