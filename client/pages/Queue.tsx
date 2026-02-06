@@ -390,16 +390,29 @@ export default function Queue() {
         <div className="relative w-full h-full p-4 lg:p-8 flex flex-col">
           <Card className="w-full h-full border-border/60 bg-card/95 p-6 lg:p-8 shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
             <CardHeader className="space-y-2 lg:space-y-3 mb-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm lg:text-lg font-semibold text-primary w-fit">
-                <SignalHigh className="h-4 lg:h-5 w-4 lg:w-5" />{" "}
-                {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-2 lg:space-y-3 flex-1">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm lg:text-lg font-semibold text-primary w-fit">
+                    <SignalHigh className="h-4 lg:h-5 w-4 lg:w-5" />{" "}
+                    {hasLiveQueue ? "Live queue synced" : "Waiting for updates"}
+                  </div>
+                  <CardTitle className="text-3xl lg:text-5xl font-bold">
+                    Live Queue
+                  </CardTitle>
+                  <CardDescription className="text-base lg:text-xl">
+                    Global first-in-first-out view
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleFs}
+                  aria-label="Exit full screen"
+                  className="whitespace-nowrap h-10 lg:h-12 px-3 lg:px-4 text-sm lg:text-base flex-shrink-0"
+                >
+                  <Maximize2 className="h-5 w-5 lg:h-6 lg:w-6" />
+                </Button>
               </div>
-              <CardTitle className="text-3xl lg:text-5xl font-bold">
-                Live Queue
-              </CardTitle>
-              <CardDescription className="text-base lg:text-xl">
-                Global first-in-first-out view
-              </CardDescription>
             </CardHeader>
             <CardContent className="w-full space-y-3 lg:space-y-4 flex-1 overflow-hidden flex flex-col">
               {/* Aggregated current/next list - TV Optimized No Scroll */}
