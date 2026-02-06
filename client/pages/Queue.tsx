@@ -122,7 +122,6 @@ export default function Queue() {
     try {
       if (!isFs) {
         if (!containerRef.current) {
-          console.error("Container ref not available");
           return;
         }
         await containerRef.current.requestFullscreen();
@@ -130,32 +129,24 @@ export default function Queue() {
         await document.exitFullscreen();
       }
     } catch (error) {
-      // Silently handle fullscreen errors (e.g., permissions policy restrictions)
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
-      // Check if it's a permissions policy error
-      if (errorMessage.includes("permissions policy") || errorMessage.includes("Disallowed")) {
-        // Permissions policy prevents fullscreen - this is normal in embedded contexts
-        toast({
-          variant: "destructive",
-          title: "Fullscreen unavailable",
-          description: "Your browser or hosting environment doesn't allow fullscreen mode.",
-        });
-      } else {
-        // Other errors - try fallback APIs
-        if (!isFs && containerRef.current) {
-          try {
-            const elem = containerRef.current as any;
-            if (elem.webkitRequestFullscreen) {
-              await elem.webkitRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-              await elem.mozRequestFullScreen();
-            } else if (elem.msRequestFullscreen) {
-              await elem.msRequestFullscreen();
-            }
-          } catch {
-            // Fallback also failed - silently ignore
+      // Fullscreen request failed - try fallback APIs
+      if (!isFs && containerRef.current) {
+        try {
+          const elem = containerRef.current as any;
+          if (elem.webkitRequestFullscreen) {
+            await elem.webkitRequestFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            await elem.mozRequestFullScreen();
+          } else if (elem.msRequestFullscreen) {
+            await elem.msRequestFullscreen();
           }
+        } catch {
+          // All fullscreen attempts failed
+          toast({
+            variant: "destructive",
+            title: "Fullscreen unavailable",
+            description: "Your browser or hosting environment doesn't allow fullscreen mode.",
+          });
         }
       }
     }
