@@ -597,8 +597,8 @@ export default function Queue() {
     <div ref={containerRef} className="w-full">
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
         <section className="w-full space-y-6 sm:space-y-8 md:space-y-10">
-          <div className="space-y-3 sm:space-y-4 w-full flex items-start justify-between gap-4 flex-col sm:flex-row">
-            <div className="space-y-3 sm:space-y-4 w-full">
+          <div className="w-full flex items-start justify-between gap-4 flex-col sm:flex-row sm:items-center">
+            <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
               <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
                 Live · Queue Status
               </Badge>
@@ -612,7 +612,7 @@ export default function Queue() {
               onClick={toggleFs}
               aria-pressed={isFs}
               aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-              className="text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4 flex-shrink-0 whitespace-nowrap"
+              className="text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4 flex-shrink-0 whitespace-nowrap mt-2 sm:mt-0"
             >
               <Maximize2 className="mr-2 h-4 w-4" />
               {isFs ? "Exit FS" : "Full Screen"}
