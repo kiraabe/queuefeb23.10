@@ -365,23 +365,22 @@ export default function Queue() {
     const map = new Map<
       string,
       {
-        serving: Ticket | null;
-        next: Ticket | null;
+        serving: Ticket[];
         waiting: Ticket[];
       }
     >();
 
     // Initialize all categories
     allCategories.forEach((category) => {
-      map.set(category, { serving: null, next: null, waiting: [] });
+      map.set(category, { serving: [], waiting: [] });
     });
 
-    // Add serving tickets
+    // Add ALL serving tickets
     serving.forEach(({ ticket }) => {
       const category = ticket.serviceCategory || "uncategorized";
       const cat = map.get(category);
-      if (cat && !cat.serving) {
-        cat.serving = ticket;
+      if (cat) {
+        cat.serving.push(ticket);
       }
     });
 
@@ -394,13 +393,6 @@ export default function Queue() {
         if (cat) {
           cat.waiting.push(ticket);
         }
-      }
-    });
-
-    // Set next ticket for each category
-    map.forEach((cat) => {
-      if (cat.waiting.length > 0) {
-        cat.next = cat.waiting[0];
       }
     });
 
