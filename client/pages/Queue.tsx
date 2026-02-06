@@ -610,8 +610,8 @@ export default function Queue() {
     <div ref={containerRef} className="w-full">
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
         <section className="w-full space-y-6 sm:space-y-8 md:space-y-10">
-          <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-3 sm:space-y-4">
+          <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+            <div className="space-y-3 sm:space-y-4 flex-1">
               <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
                 Live · Queue Status
               </Badge>
@@ -619,17 +619,19 @@ export default function Queue() {
                 Queue Status Overview
               </h1>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleFs}
-              aria-pressed={isFs}
-              aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-              className="w-auto mt-4 sm:mt-0 whitespace-nowrap"
-            >
-              <Maximize2 className="h-4 w-4 mr-2" />
-              {isFs ? "Exit Full Screen" : "Full Screen"}
-            </Button>
+            <div className="w-full sm:w-auto">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={toggleFs}
+                aria-pressed={isFs}
+                aria-label={isFs ? "Exit full screen" : "Enter full screen"}
+                className="w-full sm:w-auto whitespace-nowrap"
+              >
+                <Maximize2 className="h-4 w-4 mr-2" />
+                {isFs ? "Exit Full Screen" : "Full Screen"}
+              </Button>
+            </div>
           </div>
 
           {/* Service Category Cards Grid - 2 columns with 3rd card spanning full width */}
