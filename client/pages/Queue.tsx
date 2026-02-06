@@ -581,17 +581,18 @@ export default function Queue() {
             </Button>
           </div>
 
-          {/* Service Category Cards Grid - 2 columns */}
+          {/* Service Category Cards Grid - 2 columns with 3rd card spanning full width */}
           <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
-            {Array.from(categoryMap.entries()).map(([category, data]) => {
+            {Array.from(categoryMap.entries()).map(([category, data], index) => {
               const categoryNames: Record<string, string> = {
                 "cadastral-group": "ካድስትራል",
                 "rights-group": "መብቶች",
                 "fixed-property-group": "ቋሚ ንብረት",
               };
               const displayName = categoryNames[category] || category;
+              const isThirdCard = index === 2;
               return (
-              <Card key={category} className="border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+              <Card key={category} className={`border-border/60 bg-card/90 shadow-lg overflow-hidden hover:shadow-xl transition-shadow ${isThirdCard ? "md:col-span-2" : ""}`}>
                 <CardHeader className="pb-3">
                   <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
                     <SignalHigh className="h-3 w-3" /> {displayName}
