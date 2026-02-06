@@ -214,8 +214,17 @@ export default function AdminDashboard() {
 
   const formatSeconds = (seconds: number | null) => {
     if (seconds === null) return "N/A";
-    if (seconds < 60) return `${seconds}s`;
-    return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return `${hours}hr ${minutes}min ${secs}sec`;
+    } else if (minutes > 0) {
+      return `${minutes}min ${secs}sec`;
+    } else {
+      return `${secs}sec`;
+    }
   };
 
   const healthBadgeColor =
