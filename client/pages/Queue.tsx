@@ -407,22 +407,27 @@ export default function Queue() {
     return map;
   }, [allCategories, tickets, waitingQueue, serving]);
 
-  // Fullscreen view - show same content as normal view but fullscreen
+  // Fullscreen view - Airport Style Display Board
   if (isFs) {
     return (
       <div
         ref={containerRef}
-        className="fixed inset-0 w-screen h-screen bg-background overflow-hidden flex flex-col p-3 lg:p-4"
+        className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-hidden flex flex-col p-4 lg:p-6"
       >
-        <div className="w-full mb-2 flex-shrink-0">
-          <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm font-medium text-primary w-fit">
-            Live · Queue Status
-          </Badge>
+        {/* Header */}
+        <div className="w-full mb-6 flex-shrink-0 text-center">
+          <h1 className="font-display text-6xl lg:text-8xl font-black text-white tracking-tighter mb-2">
+            QUEUE STATUS
+          </h1>
+          <div className="flex items-center justify-center gap-3">
+            <span className="inline-block w-4 h-4 bg-green-500 rounded-full animate-pulse"></span>
+            <span className="text-xl lg:text-2xl font-semibold text-green-400">LIVE · REAL-TIME UPDATE</span>
+          </div>
         </div>
 
-        {/* Service Category Cards Grid - TV Optimized (2 cols, 3rd full width) */}
+        {/* Airport-Style Board Grid */}
         <div className="flex-1 overflow-hidden">
-          <div className="grid gap-2 grid-cols-1 md:grid-cols-2 w-full h-full">
+          <div className="grid gap-4 lg:gap-6 grid-cols-1 md:grid-cols-2 w-full h-full">
             {Array.from(categoryMap.entries()).map(
               ([category, data], index) => {
                 const categoryNames: Record<string, string> = {
@@ -433,26 +438,29 @@ export default function Queue() {
                 const displayName = categoryNames[category] || category;
                 const isThirdCard = index === 2;
                 return (
-                  <Card
+                  <div
                     key={category}
-                    className={`border-border/60 bg-card/90 shadow-lg overflow-hidden flex flex-col ${
+                    className={`bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 rounded-xl overflow-hidden flex flex-col shadow-2xl ${
                       isThirdCard ? "md:col-span-2" : ""
                     }`}
                   >
-                    <CardHeader className="pb-2 pt-3 px-3">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-base font-semibold text-primary w-fit">
-                        <SignalHigh className="h-4 w-4" /> {displayName}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-1.5 px-3 pb-3 flex-1 flex flex-col justify-between">
-                      {/* Now Serving Box */}
-                      <div className="rounded-lg border-2 border-green-500/50 bg-green-500/15 p-3 lg:p-4">
-                        <p className="text-sm lg:text-base uppercase tracking-wider text-green-700 font-bold">
-                          Now Serving
+                    {/* Category Header */}
+                    <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-4 lg:px-6 py-3 lg:py-4">
+                      <p className="text-white text-2xl lg:text-4xl font-black tracking-wider uppercase">
+                        {displayName}
+                      </p>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col justify-between p-4 lg:p-6 space-y-3 lg:space-y-4">
+                      {/* Now Serving */}
+                      <div className="flex flex-col">
+                        <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
+                          NOW SERVING
                         </p>
                         <p
                           className={cn(
-                            "mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-green-600 leading-tight",
+                            "font-display text-6xl lg:text-8xl font-black text-green-400 leading-none",
                             data.serving &&
                               blinkingTicketIds.has(data.serving.id)
                               ? "animate-blink"
@@ -463,27 +471,27 @@ export default function Queue() {
                         </p>
                       </div>
 
-                      {/* Next in Queue Box */}
-                      <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-3 lg:p-4">
-                        <p className="text-sm lg:text-base uppercase tracking-wider text-amber-700 font-bold">
-                          Next in Queue
+                      {/* Next in Queue */}
+                      <div className="flex flex-col">
+                        <p className="text-slate-300 text-xs lg:text-sm uppercase tracking-widest font-bold mb-2 lg:mb-3">
+                          NEXT SERVING
                         </p>
-                        <p className="mt-1 lg:mt-2 font-display text-4xl lg:text-6xl font-bold text-amber-600 leading-tight">
+                        <p className="font-display text-5xl lg:text-7xl font-black text-amber-400 leading-none">
                           {data.next?.code ?? "—"}
                         </p>
                       </div>
 
                       {/* Waiting Count */}
-                      <div className="rounded-lg border border-border/40 bg-muted/30 p-3 lg:p-4">
-                        <p className="text-xs lg:text-sm text-muted-foreground font-bold">
+                      <div className="bg-slate-600/50 border border-slate-500 rounded-lg p-3 lg:p-4">
+                        <p className="text-slate-400 text-xs lg:text-sm uppercase tracking-wider font-bold">
                           Waiting in Queue
                         </p>
-                        <p className="mt-1 font-display text-2xl lg:text-3xl font-semibold text-foreground leading-tight">
+                        <p className="font-display text-4xl lg:text-5xl font-black text-white mt-2 leading-none">
                           {data.waiting.length}
                         </p>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               },
             )}
