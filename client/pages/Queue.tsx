@@ -451,11 +451,12 @@ export default function Queue() {
                     <td className="border-r-4 border-yellow-400 px-4 lg:px-6 py-4 lg:py-6 text-center">
                       <div className="bg-slate-700 border-4 border-green-400 rounded px-4 py-3 lg:px-6 lg:py-4 min-w-28 lg:min-w-40 min-h-24 lg:min-h-32 flex items-center justify-center">
                         {data.serving.length > 0 ? (
-                          <div className="flex flex-wrap gap-2 items-center justify-center">
-                            {data.serving.map((ticket) => {
+                          <div className="flex items-center justify-center">
+                            {data.serving.map((ticket, idx) => {
                               let fontSize = "text-5xl lg:text-6xl";
                               if (data.serving.length > 4) fontSize = "text-3xl lg:text-4xl";
                               else if (data.serving.length > 2) fontSize = "text-4xl lg:text-5xl";
+                              const isLast = idx === data.serving.length - 1;
                               return (
                                 <p
                                   key={ticket.id}
@@ -467,6 +468,7 @@ export default function Queue() {
                                   )}
                                 >
                                   {ticket.code}
+                                  {!isLast && <span>, </span>}
                                 </p>
                               );
                             })}
