@@ -214,9 +214,35 @@ export async function listSessions(
 ): Promise<SessionSummary[]> {
   const p = getPool();
   const { rows } = await p.query(
-    `SELECT id, user_id, username, active_role, window_id, job_title_id, token_hash, created_at, last_seen_at, expires_at, revoked_at, revoke_reason
-     FROM user_sessions
-     ORDER BY last_seen_at DESC`,
+    `SELECT
+      us.id, us.user_id, us.username, us.active_role, us.window_id, us.job_title_id,
+      us.token_hash, us.created_at, us.last_seen_at, us.expires_at, us.revoked_at, us.revoke_reason,
+      u.full_name,
+      jt.name_english as job_title_english,
+      jt.name_amharic as job_title_amharic
+     FROM user_sessions us
+     LEFT JOIN users u ON us.user_id = u.id
+     LEFT JOIN job_title jt ON us.job_title_id = jt.id
+     ORDER BY us.last_seen_at DESC`,
   );
-  return rows.map((row) => toSummary(mapRow(row), now));
+  return rows.map((row) => {
+    const sessionRecord = mapRow({
+      ...row,
+      user_id: row.user_id,
+      username: row.username,
+      active_role: row.active_role,
+      window_id: row.window_id,
+      job_title_id: row.job_title_id,
+      token_hash: row.token_hash,
+      created_at: row.created_at,
+      last_seen_at: row.last_seen_at,
+      expires_at: row.expires_at,
+      revoked_at: row.revoked_at,
+      revoke_reason: row.revoke_reason,
+      id: row.id,
+    });
+    // Use English job title, fallback to Amharic if English is not available
+    const jobTitle = row.job_title_english || row.job_title_amharic || null;
+    return toSummary(sessionRecord, row.full_name, jobTitle, now);
+  });
 }
