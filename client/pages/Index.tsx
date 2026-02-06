@@ -311,8 +311,11 @@ const PhaseCard = ({
 export default function Index() {
   const { user } = useAuth();
 
+  // Wait for auth to load
+  if (user === undefined) return null;
+
   // Redirect admin users to their admin panel
-  if (user !== undefined && user?.role === "admin") {
+  if (user?.role === "admin") {
     return <Navigate to="/admin" replace />;
   }
 
