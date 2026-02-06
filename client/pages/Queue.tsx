@@ -597,12 +597,12 @@ export default function Queue() {
     <div ref={containerRef} className="w-full">
       <ConsoleShell title="Virtual Queue" className="lg:grid-cols-1">
         <section className="w-full space-y-6 sm:space-y-8 md:space-y-10">
-          <div className="w-full flex items-start justify-between gap-4 flex-col sm:flex-row sm:items-center">
-            <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
+          <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-3 sm:space-y-4">
               <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
                 Live · Queue Status
               </Badge>
-              <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-foreground tracking-tight break-words">
+              <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-foreground tracking-tight">
                 Queue Status Overview
               </h1>
             </div>
@@ -612,10 +612,10 @@ export default function Queue() {
               onClick={toggleFs}
               aria-pressed={isFs}
               aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-              className="text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4 flex-shrink-0 whitespace-nowrap mt-2 sm:mt-0"
+              className="w-auto mt-4 sm:mt-0"
             >
-              <Maximize2 className="mr-2 h-4 w-4" />
-              {isFs ? "Exit FS" : "Full Screen"}
+              <Maximize2 className="h-4 w-4 mr-2" />
+              Full Screen
             </Button>
           </div>
 
