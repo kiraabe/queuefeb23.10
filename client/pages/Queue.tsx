@@ -414,17 +414,6 @@ export default function Queue() {
         ref={containerRef}
         className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-hidden flex flex-col p-4 lg:p-6"
       >
-        {/* Header */}
-        <div className="w-full mb-6 flex-shrink-0 text-center">
-          <h1 className="font-display text-6xl lg:text-8xl font-black text-white tracking-tighter mb-2">
-            QUEUE STATUS
-          </h1>
-          <div className="flex items-center justify-center gap-3">
-            <span className="inline-block w-4 h-4 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-xl lg:text-2xl font-semibold text-green-400">LIVE · REAL-TIME UPDATE</span>
-          </div>
-        </div>
-
         {/* Airport-Style Board Grid */}
         <div className="flex-1 overflow-hidden">
           <div className="grid gap-4 lg:gap-6 grid-cols-1 md:grid-cols-2 w-full h-full">
