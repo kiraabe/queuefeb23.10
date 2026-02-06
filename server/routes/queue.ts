@@ -684,9 +684,19 @@ export const getTicketStatus: RequestHandler = async (req, res) => {
       estimatedWaitSeconds: result.estimatedWaitSeconds,
       currentEmployee: result.currentEmployee || null,
     };
+    console.log("✅ getTicketStatus returning:", {
+      code,
+      hasTicket: !!ticket,
+      status: ticket?.status || "N/A",
+    });
     return res.json(payload);
   } catch (e: any) {
-    console.error("getTicketStatus error:", e);
-    return res.status(500).json({ error: e.message || String(e) });
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    console.error("❌ getTicketStatus error:", {
+      code,
+      error: errorMsg,
+      stack: e?.stack,
+    });
+    return res.status(500).json({ error: errorMsg || "Failed to fetch ticket" });
   }
 };
