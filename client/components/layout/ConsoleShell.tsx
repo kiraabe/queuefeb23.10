@@ -1,9 +1,4 @@
 import { ReactNode } from "react";
-import { useNetworkStatus } from "@/hooks/use-network";
-import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ConsoleShell({
