@@ -566,7 +566,7 @@ export default function Queue() {
                     {/* Footer */}
                     <div className="border-t border-yellow-400/30 pt-2 lg:pt-3 mt-auto">
                       <p className="text-yellow-400/60 text-xs font-black uppercase tracking-widest cursor-pointer hover:text-yellow-400 transition-colors">
-                        + {Math.max(0, data.waiting.length - 10)} more...
+                        Total Waiting: {data.waiting.length} {data.waiting.length === 1 ? "ticket" : "tickets"}
                       </p>
                     </div>
                   </div>
