@@ -25,18 +25,6 @@ export function ConsoleShell({
           </div>
         </div>
 
-        {/* Offline warning */}
-        {!online && (
-          <div
-            role="alert"
-            className="rounded-lg border border-amber-400/40 bg-amber-50 p-2 sm:p-3 text-xs sm:text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
-          >
-            <p className="font-medium">Offline mode</p>
-            <p className="mt-1">
-              Live updates paused. Changes will sync when reconnected.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Main content area - scrollable */}
