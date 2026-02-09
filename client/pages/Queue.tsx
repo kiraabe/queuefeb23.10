@@ -491,7 +491,7 @@ export default function Queue() {
               >
                 {/* Service Header - Large */}
                 <div className="bg-yellow-500 px-4 lg:px-6 py-3 lg:py-4">
-                  <p className="text-slate-950 text-2xl lg:text-4xl font-black tracking-wider">
+                  <p className="text-slate-950 text-lg lg:text-2xl font-black tracking-wider">
                     {serviceTranslations[category] || `SERVICE ${category}`}
                   </p>
                 </div>
