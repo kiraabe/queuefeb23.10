@@ -592,7 +592,7 @@ export default function Queue() {
               <Badge className="rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary w-fit">
                 Live · Queue Status
               </Badge>
-              <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-foreground tracking-tight">
+              <h1 className="font-display text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-foreground tracking-tight">
                 Queue Status Overview
               </h1>
             </div>
@@ -626,7 +626,7 @@ export default function Queue() {
                       <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-2">
                         <SignalHigh className="h-3 w-3" /> {displayName}
                       </div>
-                      <CardTitle className="text-xl">Queue Status</CardTitle>
+                      <CardTitle className="text-base">Queue Status</CardTitle>
                       <CardDescription className="text-xs">
                         Real-time statistics
                       </CardDescription>
@@ -640,10 +640,10 @@ export default function Queue() {
                         <div className="mt-3 flex flex-wrap gap-2">
                           {data.serving.length > 0 ? (
                             data.serving.map((item) => {
-                              let fontSize = "text-3xl";
-                              if (data.serving.length > 4) fontSize = "text-xl";
+                              let fontSize = "text-2xl";
+                              if (data.serving.length > 4) fontSize = "text-base";
                               else if (data.serving.length > 2)
-                                fontSize = "text-2xl";
+                                fontSize = "text-xl";
                               return (
                                 <div
                                   key={item.ticket.id}
@@ -681,10 +681,10 @@ export default function Queue() {
                         <div className="mt-3 flex flex-wrap gap-2">
                           {data.waiting.length > 0 ? (
                             data.waiting.map((ticket) => {
-                              let fontSize = "text-3xl";
-                              if (data.waiting.length > 4) fontSize = "text-xl";
+                              let fontSize = "text-2xl";
+                              if (data.waiting.length > 4) fontSize = "text-base";
                               else if (data.waiting.length > 2)
-                                fontSize = "text-2xl";
+                                fontSize = "text-xl";
                               return (
                                 <p
                                   key={ticket.id}
@@ -707,7 +707,7 @@ export default function Queue() {
                         <p className="text-xs text-muted-foreground font-medium">
                           Waiting in Queue
                         </p>
-                        <p className="mt-2 font-display text-lg font-semibold text-foreground">
+                        <p className="mt-2 font-display text-base font-semibold text-foreground">
                           {data.waiting.length}{" "}
                           {data.waiting.length === 1 ? "ticket" : "tickets"}
                         </p>
@@ -722,7 +722,7 @@ export default function Queue() {
           {/* QR Code and Tracking Section */}
           <Card className="border-border/60 bg-card/90 p-4 sm:p-6 lg:p-8 shadow-lg">
             <CardHeader className="space-y-3">
-              <CardTitle>Track Your Ticket Anytime</CardTitle>
+              <CardTitle className="text-base">Track Your Ticket Anytime</CardTitle>
               <CardDescription>
                 Scan the QR code or visit the tracking page to monitor your
                 position
@@ -776,7 +776,7 @@ export default function Queue() {
 
               {/* Waiting Tickets List */}
               <div className="border-t pt-4">
-                <p className="text-sm font-semibold text-foreground mb-3">
+                <p className="text-xs font-semibold text-foreground mb-3">
                   Tickets Waiting ({waitingQueue.length})
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -792,7 +792,7 @@ export default function Queue() {
                             <span className="text-xs text-muted-foreground font-medium">
                               #{index + 1}
                             </span>
-                            <span className="font-display text-lg font-bold text-foreground">
+                            <span className="font-display text-base font-bold text-foreground">
                               {ticket?.code || entry.code}
                             </span>
                           </div>
