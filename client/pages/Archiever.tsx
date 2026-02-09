@@ -72,7 +72,7 @@ export default function Archiever() {
   };
 
   return (
-    <ConsoleShell title={headerTitle}>
+    <ConsoleShell title={headerTitle} showSignOut={true}>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main content area - 3 columns */}
         <div className="lg:col-span-3">
