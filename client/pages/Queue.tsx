@@ -519,7 +519,7 @@ export default function Queue() {
                   <div className="flex-1 flex flex-col gap-3 overflow-hidden">
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="text-yellow-400 text-xs lg:text-sm font-black uppercase tracking-widest opacity-80">
-                        Next in Queue
+                        Now Serving
                       </p>
                       {data.waiting.length > 0 && servingTicket && (
                         <p className="text-green-400 text-xs lg:text-xs font-black uppercase tracking-wider">
