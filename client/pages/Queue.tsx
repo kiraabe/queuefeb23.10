@@ -500,79 +500,79 @@ export default function Queue() {
                     </p>
 
                     {/* All Serving Tickets Grid - Auto Scrolling */}
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 overflow-hidden relative">
                       <style>{`
                         @keyframes autoScroll {
                           0% { transform: translateY(0); }
-                          100% { transform: translateY(calc(-100% - 96px)); }
+                          100% { transform: translateY(calc(-50%)); }
                         }
                         .auto-scroll {
                           animation: autoScroll ${Math.max(data.serving.length * 4, 20)}s linear infinite;
                         }
                       `}</style>
                       <div className="auto-scroll space-y-6 lg:space-y-8">
-                        {/* First loop */}
                         {data.serving.length > 0 ? (
-                          data.serving.map((item) => {
-                            const windowName = item.window?.name || "";
-                            const windowMatch = windowName.match(/\d+/);
-                            const windowNum = windowMatch ? windowMatch[0] : "—";
+                          <>
+                            {/* First set of tickets */}
+                            {data.serving.map((item) => {
+                              const windowName = item.window?.name || "";
+                              const windowMatch = windowName.match(/\d+/);
+                              const windowNum = windowMatch ? windowMatch[0] : "—";
 
-                            return (
-                              <div
-                                key={item.ticket.id}
-                                className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 lg:px-6 py-3 lg:py-4"
-                              >
-                                <div className="flex items-center justify-center gap-3 lg:gap-4">
-                                  <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300 leading-none drop-shadow-lg">
-                                    {item.ticket.code}
-                                  </p>
-                                  <p className="text-yellow-400 text-xl lg:text-2xl font-black">
-                                    →
-                                  </p>
-                                  <div className="bg-green-500/20 border-2 border-green-500 rounded px-3 lg:px-4 py-1 lg:py-2 flex-shrink-0">
-                                    <p className="font-display text-xl lg:text-2xl font-black text-green-400">
-                                      {windowNum}
+                              return (
+                                <div
+                                  key={item.ticket.id}
+                                  className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 lg:px-6 py-3 lg:py-4"
+                                >
+                                  <div className="flex items-center justify-center gap-3 lg:gap-4">
+                                    <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300 leading-none drop-shadow-lg">
+                                      {item.ticket.code}
                                     </p>
+                                    <p className="text-yellow-400 text-xl lg:text-2xl font-black">
+                                      →
+                                    </p>
+                                    <div className="bg-green-500/20 border-2 border-green-500 rounded px-3 lg:px-4 py-1 lg:py-2 flex-shrink-0">
+                                      <p className="font-display text-xl lg:text-2xl font-black text-green-400">
+                                        {windowNum}
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            );
-                          })
+                              );
+                            })}
+
+                            {/* Duplicate for seamless loop */}
+                            {data.serving.map((item) => {
+                              const windowName = item.window?.name || "";
+                              const windowMatch = windowName.match(/\d+/);
+                              const windowNum = windowMatch ? windowMatch[0] : "—";
+
+                              return (
+                                <div
+                                  key={`${item.ticket.id}-loop`}
+                                  className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 lg:px-6 py-3 lg:py-4"
+                                >
+                                  <div className="flex items-center justify-center gap-3 lg:gap-4">
+                                    <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300 leading-none drop-shadow-lg">
+                                      {item.ticket.code}
+                                    </p>
+                                    <p className="text-yellow-400 text-xl lg:text-2xl font-black">
+                                      →
+                                    </p>
+                                    <div className="bg-green-500/20 border-2 border-green-500 rounded px-3 lg:px-4 py-1 lg:py-2 flex-shrink-0">
+                                      <p className="font-display text-xl lg:text-2xl font-black text-green-400">
+                                        {windowNum}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </>
                         ) : (
                           <p className="text-yellow-400/30 text-center text-sm italic py-8">
                             No tickets serving
                           </p>
-                        )}
-
-                        {/* Second loop for seamless infinite scroll */}
-                        {data.serving.length > 0 && (
-                          data.serving.map((item) => {
-                            const windowName = item.window?.name || "";
-                            const windowMatch = windowName.match(/\d+/);
-                            const windowNum = windowMatch ? windowMatch[0] : "—";
-
-                            return (
-                              <div
-                                key={`${item.ticket.id}-repeat`}
-                                className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 lg:px-6 py-3 lg:py-4"
-                              >
-                                <div className="flex items-center justify-center gap-3 lg:gap-4">
-                                  <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300 leading-none drop-shadow-lg">
-                                    {item.ticket.code}
-                                  </p>
-                                  <p className="text-yellow-400 text-xl lg:text-2xl font-black">
-                                    →
-                                  </p>
-                                  <div className="bg-green-500/20 border-2 border-green-500 rounded px-3 lg:px-4 py-1 lg:py-2 flex-shrink-0">
-                                    <p className="font-display text-xl lg:text-2xl font-black text-green-400">
-                                      {windowNum}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })
                         )}
                       </div>
                     </div>
