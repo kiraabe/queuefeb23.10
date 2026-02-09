@@ -406,13 +406,13 @@ export default function Queue() {
     return (
       <div
         ref={containerRef}
-        className="fixed inset-0 w-screen h-screen bg-slate-950 overflow-hidden flex flex-col p-3 lg:p-4"
+        className="fixed inset-0 w-screen h-screen bg-slate-950 overflow-hidden flex flex-col p-2 lg:p-3"
       >
         {/* Top Border */}
-        <div className="h-0.5 lg:h-1 bg-yellow-400 mb-3 lg:mb-4"></div>
+        <div className="h-1 bg-yellow-400 mb-2 lg:mb-3"></div>
 
         {/* Three-Column Service Display */}
-        <div className="flex-1 overflow-hidden flex gap-3 lg:gap-4">
+        <div className="flex-1 overflow-hidden flex gap-0">
           {categories.map(([category, data], index) => {
             const categoryNames: Record<string, string> = {
               "cadastral-group": "SERVICE A",
@@ -420,43 +420,52 @@ export default function Queue() {
               "fixed-property-group": "SERVICE C",
             };
             const displayName = categoryNames[category] || `SERVICE ${String.fromCharCode(65 + index)}`;
-            const windowNum = data.serving[0]?.window?.name?.match(/\d+/)?.[0] || "—";
+
+            // Get window number from first serving ticket
+            const servingTicket = data.serving[0];
+            const windowName = servingTicket?.window?.name || "";
+            const windowMatch = windowName.match(/\d+/);
+            const windowNum = windowMatch ? windowMatch[0] : "—";
 
             return (
               <div
                 key={category}
-                className="flex-1 flex flex-col border-l-2 border-r-2 border-yellow-400 bg-slate-900 overflow-hidden"
+                className={`flex-1 flex flex-col border-yellow-400 bg-slate-900 overflow-hidden ${
+                  index < 2 ? "border-r-2" : ""
+                }`}
               >
                 {/* Service Name Header */}
-                <div className="border-b-2 border-yellow-400 px-3 lg:px-4 py-2 lg:py-3">
-                  <p className="text-white text-sm lg:text-lg font-black uppercase tracking-wide">
+                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
+                  <p className="text-white text-xs lg:text-sm font-black uppercase tracking-widest">
                     {displayName}
                   </p>
                 </div>
 
                 {/* NOW SERVING Row */}
-                <div className="border-b-2 border-yellow-400 px-3 lg:px-4 py-2 lg:py-3">
-                  <p className="text-yellow-400 text-xs lg:text-xs font-black uppercase tracking-wide mb-1.5 lg:mb-2">
+                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
+                  <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-1 lg:mb-1.5">
                     Now Serving
                   </p>
-                  <div className="flex items-center gap-2 lg:gap-3">
-                    <p className="font-display text-3xl lg:text-5xl font-black text-yellow-300 leading-none">
-                      {data.serving.length > 0 ? data.serving[0].ticket.code : "—"}
+                  <div className="flex items-baseline gap-2">
+                    <p className="font-display text-2xl lg:text-4xl font-black text-yellow-300 leading-none">
+                      {servingTicket ? servingTicket.ticket.code : "—"}
                     </p>
-                    <p className="text-yellow-400 text-xs lg:text-sm font-semibold">
-                      {data.serving.length > 0 ? `WINDOW ${windowNum}` : ""}
-                    </p>
+                    {servingTicket && (
+                      <p className="text-yellow-400 text-xs font-black uppercase tracking-wider">
+                        Window {windowNum}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* NEXT Queue Header */}
-                <div className="border-b-2 border-yellow-400 px-3 lg:px-4 py-2 lg:py-2">
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-yellow-400 text-xs lg:text-xs font-black uppercase tracking-wide">
+                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
+                  <div className="flex items-baseline gap-1.5">
+                    <p className="text-yellow-400 text-xs font-black uppercase tracking-widest">
                       Next
                     </p>
-                    {data.waiting.length > 0 && (
-                      <p className="text-yellow-400 text-xs lg:text-xs font-black uppercase tracking-wide">
+                    {data.waiting.length > 0 && servingTicket && (
+                      <p className="text-yellow-400 text-xs font-black uppercase tracking-widest">
                         Window {windowNum}
                       </p>
                     )}
@@ -464,28 +473,26 @@ export default function Queue() {
                 </div>
 
                 {/* Queue Items - Scrollable */}
-                <div className="flex-1 overflow-y-auto px-3 lg:px-4 py-1 lg:py-2">
+                <div className="flex-1 overflow-y-auto px-2 lg:px-4 py-1 lg:py-1.5 space-y-0.5">
                   {data.waiting.length > 0 ? (
-                    <div className="space-y-1">
-                      {data.waiting.map((ticket, idx) => (
-                        <p
-                          key={ticket.id}
-                          className="font-display text-xl lg:text-2xl font-black text-yellow-300 leading-tight"
-                        >
-                          {ticket.code}
-                        </p>
-                      ))}
-                    </div>
+                    data.waiting.map((ticket) => (
+                      <p
+                        key={ticket.id}
+                        className="font-display text-lg lg:text-xl font-black text-yellow-300 leading-none"
+                      >
+                        {ticket.code}
+                      </p>
+                    ))
                   ) : (
-                    <p className="text-yellow-400/50 text-xs italic">
-                      No tickets waiting
+                    <p className="text-yellow-400/40 text-xs">
+                      —
                     </p>
                   )}
                 </div>
 
                 {/* MORE TICKETS Footer */}
-                <div className="border-t-2 border-yellow-400 px-3 lg:px-4 py-2 lg:py-2">
-                  <p className="text-yellow-400 text-xs lg:text-xs font-black uppercase tracking-wide cursor-pointer hover:text-yellow-300 transition-colors">
+                <div className="border-t-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
+                  <p className="text-yellow-400 text-xs font-black uppercase tracking-widest cursor-pointer hover:text-yellow-300 transition-colors">
                     More Tickets...
                   </p>
                 </div>
@@ -495,7 +502,7 @@ export default function Queue() {
         </div>
 
         {/* Bottom Border */}
-        <div className="h-0.5 lg:h-1 bg-yellow-400 mt-3 lg:mt-4"></div>
+        <div className="h-1 bg-yellow-400 mt-2 lg:mt-3"></div>
       </div>
     );
   }
