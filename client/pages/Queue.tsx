@@ -448,7 +448,15 @@ export default function Queue() {
 
   // Fullscreen view - 3-Column Airport Display Style
   if (isFs) {
-    const categories = Array.from(categoryMap.entries()).slice(0, 3);
+    const categories = Array.from(categoryMap.entries())
+      .sort(([catA], [catB]) => {
+        // Sort by category letter (A, B, C, etc.)
+        if (typeof catA === "string" && typeof catB === "string") {
+          return catA.localeCompare(catB);
+        }
+        return 0;
+      })
+      .slice(0, 3);
 
     return (
       <div
@@ -461,12 +469,8 @@ export default function Queue() {
         {/* Three-Column Service Display */}
         <div className="flex-1 overflow-hidden flex gap-0">
           {categories.map(([category, data], index) => {
-            const categoryNames: Record<string, string> = {
-              "cadastral-group": "SERVICE A",
-              "rights-group": "SERVICE B",
-              "fixed-property-group": "SERVICE C",
-            };
-            const displayName = categoryNames[category] || `SERVICE ${String.fromCharCode(65 + index)}`;
+            // Generate service name from category (e.g., "A" -> "SERVICE A")
+            const displayName = `SERVICE ${category}`;
 
             // Get window number from first serving ticket
             const servingTicket = data.serving[0];
