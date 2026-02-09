@@ -514,7 +514,7 @@ export default function Queue() {
                           <p className="text-green-400 text-xs lg:text-sm font-black uppercase tracking-wider mb-1">
                             Window
                           </p>
-                          <p className="font-display text-3xl lg:text-4xl font-black text-green-300 leading-none">
+                          <p className="font-display text-xl lg:text-2xl font-black text-green-300 leading-none">
                             {windowNum}
                           </p>
                         </div>
