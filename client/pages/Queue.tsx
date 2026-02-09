@@ -391,6 +391,16 @@ export default function Queue() {
     return Array.from(categories).sort();
   }, [tickets, serving, display]);
 
+  // Service category translations to Amharic
+  const serviceTranslations: Record<string, string> = {
+    "A": "ካድስትራል",           // Cadastral
+    "B": "መብቶች",               // Rights
+    "C": "ቋሚ ንብረት",           // Fixed Property
+    "cadastral-group": "ካድስትራል",
+    "rights-group": "መብቶች",
+    "fixed-property-group": "ቋሚ ንብረት",
+  };
+
   // Group tickets by service category
   const categoryMap = useMemo(() => {
     const map = new Map<
