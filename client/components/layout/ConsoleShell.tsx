@@ -10,11 +10,13 @@ export function ConsoleShell({
   className,
   children,
   rightPanel,
+  showSignOut = false,
 }: {
   title: string;
   className?: string;
   children: ReactNode;
   rightPanel?: ReactNode;
+  showSignOut?: boolean;
 }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
