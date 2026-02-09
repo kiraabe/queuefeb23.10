@@ -345,20 +345,51 @@ export default function Queue() {
   const allCategories = useMemo(() => {
     const categories = new Set<string>();
 
-    // Add categories from tickets
-    Object.values(tickets).forEach((t) => {
-      if (t.serviceCategory) {
-        categories.add(t.serviceCategory);
+    // Add categories from serving tickets first (highest priority)
+    serving.forEach(({ ticket }) => {
+      if (ticket.serviceCategory) {
+        categories.add(ticket.serviceCategory);
+      } else {
+        // Extract category from ticket code (e.g., "A-021" -> use first letter)
+        const firstLetter = ticket.code?.charAt(0).toUpperCase();
+        if (firstLetter && firstLetter.match(/[A-Z]/)) {
+          categories.add(firstLetter);
+        }
       }
     });
 
-    // If no categories found, show default categories
+    // Add categories from waiting tickets
+    Object.values(tickets).forEach((t) => {
+      if (t.status === "waiting") {
+        if (t.serviceCategory) {
+          categories.add(t.serviceCategory);
+        } else {
+          // Extract category from ticket code
+          const firstLetter = t.code?.charAt(0).toUpperCase();
+          if (firstLetter && firstLetter.match(/[A-Z]/)) {
+            categories.add(firstLetter);
+          }
+        }
+      }
+    });
+
+    // Fall back to display categories if available
+    if (categories.size === 0 && display?.current) {
+      display.current.forEach((ticket) => {
+        const firstLetter = ticket.code?.charAt(0).toUpperCase();
+        if (firstLetter && firstLetter.match(/[A-Z]/)) {
+          categories.add(firstLetter);
+        }
+      });
+    }
+
+    // If still no categories, show defaults
     if (categories.size === 0) {
       return ["cadastral-group", "rights-group", "fixed-property-group"];
     }
 
     return Array.from(categories).sort();
-  }, [tickets]);
+  }, [tickets, serving, display]);
 
   // Group tickets by service category
   const categoryMap = useMemo(() => {
