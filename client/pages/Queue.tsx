@@ -729,14 +729,17 @@ export default function Queue() {
 
                       {/* Waiting Count */}
                       <div className="rounded-lg border border-border/40 bg-muted/30 p-3">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2">
                           <p className="text-xs text-muted-foreground font-medium">
                             Waiting in Queue
                           </p>
-                          <p className="font-display text-base font-semibold text-foreground">
-                            {data.waiting.length}{" "}
-                            {data.waiting.length === 1 ? "ticket" : "tickets"}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-foreground font-medium">→</p>
+                            <p className="font-display text-base font-semibold text-foreground">
+                              {data.waiting.length}{" "}
+                              {data.waiting.length === 1 ? "ticket" : "tickets"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
