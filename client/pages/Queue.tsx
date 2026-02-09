@@ -446,7 +446,7 @@ export default function Queue() {
     return map;
   }, [allCategories, tickets, waitingQueue, serving]);
 
-  // Fullscreen view - 3-Column Airport Display Style
+  // Fullscreen view - Departure Board Style
   if (isFs) {
     const categories = Array.from(categoryMap.entries())
       .sort(([catA], [catB]) => {
@@ -461,18 +461,14 @@ export default function Queue() {
     return (
       <div
         ref={containerRef}
-        className="fixed inset-0 w-screen h-screen bg-slate-950 overflow-hidden flex flex-col p-2 lg:p-3"
+        className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-slate-950 to-slate-900 overflow-hidden flex flex-col font-mono"
       >
-        {/* Top Border */}
-        <div className="h-1 bg-yellow-400 mb-2 lg:mb-3"></div>
+        {/* Top Border - LED Style */}
+        <div className="h-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400"></div>
 
-        {/* Three-Column Service Display */}
-        <div className="flex-1 overflow-hidden flex gap-0">
+        {/* Main Content */}
+        <div className="flex-1 overflow-hidden flex gap-1 p-4 lg:p-6">
           {categories.map(([category, data], index) => {
-            // Generate service name from category (e.g., "A" -> "SERVICE A")
-            const displayName = `SERVICE ${category}`;
-
-            // Get window number from first serving ticket
             const servingTicket = data.serving[0];
             const windowName = servingTicket?.window?.name || "";
             const windowMatch = windowName.match(/\d+/);
@@ -481,79 +477,97 @@ export default function Queue() {
             return (
               <div
                 key={category}
-                className={`flex-1 flex flex-col border-yellow-400 bg-slate-900 overflow-hidden ${
-                  index < 2 ? "border-r-2" : ""
-                }`}
+                className="flex-1 flex flex-col bg-slate-900 border-2 border-yellow-500 shadow-2xl rounded-lg overflow-hidden"
               >
-                {/* Service Name Header */}
-                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
-                  <p className="text-white text-xs lg:text-sm font-black uppercase tracking-widest">
-                    {displayName}
+                {/* Service Header - Large */}
+                <div className="bg-yellow-500 px-4 lg:px-6 py-3 lg:py-4">
+                  <p className="text-slate-950 text-2xl lg:text-4xl font-black uppercase tracking-wider">
+                    SERVICE {category}
                   </p>
                 </div>
 
-                {/* NOW SERVING Row */}
-                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
-                  <p className="text-yellow-400 text-xs font-black uppercase tracking-widest mb-1 lg:mb-1.5">
-                    Now Serving
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <p className="font-display text-2xl lg:text-4xl font-black text-yellow-300 leading-none">
-                      {servingTicket ? servingTicket.ticket.code : "—"}
+                {/* Content Area */}
+                <div className="flex-1 flex flex-col overflow-hidden px-4 lg:px-6 py-4 lg:py-6 gap-6 lg:gap-8">
+                  {/* NOW SERVING Section */}
+                  <div className="flex flex-col gap-3">
+                    <p className="text-yellow-400 text-xs lg:text-sm font-black uppercase tracking-widest opacity-80">
+                      Now Serving
                     </p>
-                    {servingTicket && (
-                      <p className="text-yellow-400 text-xs font-black uppercase tracking-wider">
-                        Window {windowNum}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-4 lg:gap-6">
+                      <div className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-6 lg:px-8 py-4 lg:py-6 flex-1">
+                        <p className="font-display text-5xl lg:text-7xl font-black text-yellow-300 leading-none text-center drop-shadow-lg">
+                          {servingTicket ? servingTicket.ticket.code : "—"}
+                        </p>
+                      </div>
+                      {servingTicket && (
+                        <div className="bg-green-500/20 border-2 border-green-500 rounded-lg px-4 lg:px-6 py-4 lg:py-6">
+                          <p className="text-green-400 text-xs lg:text-sm font-black uppercase tracking-wider mb-1">
+                            Window
+                          </p>
+                          <p className="font-display text-3xl lg:text-4xl font-black text-green-300 leading-none">
+                            {windowNum}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* NEXT Queue Header */}
-                <div className="border-b-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
-                  <div className="flex items-baseline gap-1.5">
-                    <p className="text-yellow-400 text-xs font-black uppercase tracking-widest">
-                      Next
-                    </p>
-                    {data.waiting.length > 0 && servingTicket && (
-                      <p className="text-yellow-400 text-xs font-black uppercase tracking-widest">
-                        Window {windowNum}
+                  {/* Divider */}
+                  <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
+
+                  {/* NEXT Queue Section */}
+                  <div className="flex-1 flex flex-col gap-3 overflow-hidden">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-yellow-400 text-xs lg:text-sm font-black uppercase tracking-widest opacity-80">
+                        Next in Queue
                       </p>
-                    )}
+                      {data.waiting.length > 0 && servingTicket && (
+                        <p className="text-green-400 text-xs lg:text-xs font-black uppercase tracking-wider">
+                          Window {windowNum}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Queue List */}
+                    <div className="flex-1 overflow-y-auto space-y-2 lg:space-y-3 pr-2 scrollbar-thin scrollbar-thumb-yellow-400/40 scrollbar-track-transparent">
+                      {data.waiting.length > 0 ? (
+                        data.waiting.map((ticket, idx) => (
+                          <div
+                            key={ticket.id}
+                            className="bg-slate-800/50 border border-yellow-400/30 rounded px-3 lg:px-4 py-2 lg:py-3 hover:bg-slate-800 hover:border-yellow-400/60 transition-all"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300">
+                                {ticket.code}
+                              </p>
+                              <p className="text-yellow-400/60 text-xs font-semibold">
+                                #{idx + 1}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-yellow-400/30 text-center text-sm italic">
+                          No tickets waiting
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="border-t border-yellow-400/30 pt-2 lg:pt-3 mt-auto">
+                      <p className="text-yellow-400/60 text-xs font-black uppercase tracking-widest cursor-pointer hover:text-yellow-400 transition-colors">
+                        + {Math.max(0, data.waiting.length - 10)} more...
+                      </p>
+                    </div>
                   </div>
-                </div>
-
-                {/* Queue Items - Scrollable */}
-                <div className="flex-1 overflow-y-auto px-2 lg:px-4 py-1 lg:py-1.5 space-y-0.5">
-                  {data.waiting.length > 0 ? (
-                    data.waiting.map((ticket) => (
-                      <p
-                        key={ticket.id}
-                        className="font-display text-lg lg:text-xl font-black text-yellow-300 leading-none"
-                      >
-                        {ticket.code}
-                      </p>
-                    ))
-                  ) : (
-                    <p className="text-yellow-400/40 text-xs">
-                      —
-                    </p>
-                  )}
-                </div>
-
-                {/* MORE TICKETS Footer */}
-                <div className="border-t-2 border-yellow-400 px-2 lg:px-4 py-1.5 lg:py-2 flex-shrink-0">
-                  <p className="text-yellow-400 text-xs font-black uppercase tracking-widest cursor-pointer hover:text-yellow-300 transition-colors">
-                    More Tickets...
-                  </p>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Bottom Border */}
-        <div className="h-1 bg-yellow-400 mt-2 lg:mt-3"></div>
+        {/* Bottom Border - LED Style */}
+        <div className="h-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400"></div>
       </div>
     );
   }
