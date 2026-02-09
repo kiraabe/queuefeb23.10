@@ -505,7 +505,7 @@ export default function Queue() {
                     </p>
                     <div className="flex items-center gap-4 lg:gap-6">
                       <div className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-6 lg:px-8 py-4 lg:py-6 flex-1">
-                        <p className="font-display text-5xl lg:text-7xl font-black text-yellow-300 leading-none text-center drop-shadow-lg">
+                        <p className="font-display text-3xl lg:text-5xl font-black text-yellow-300 leading-none text-center drop-shadow-lg">
                           {servingTicket ? servingTicket.ticket.code : "—"}
                         </p>
                       </div>
