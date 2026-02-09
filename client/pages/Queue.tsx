@@ -507,14 +507,14 @@ export default function Queue() {
                           100% { transform: translateY(calc(-50%)); }
                         }
                         .auto-scroll {
-                          animation: autoScroll ${Math.max(data.serving.length * 4, 20)}s linear infinite;
+                          animation: autoScroll ${Math.max(windowAssignedTickets.length * 4, 20)}s linear infinite;
                         }
                       `}</style>
                       <div className="auto-scroll space-y-6 lg:space-y-8">
-                        {data.serving.length > 0 ? (
+                        {windowAssignedTickets.length > 0 ? (
                           <>
                             {/* First set of tickets */}
-                            {data.serving.map((item) => {
+                            {windowAssignedTickets.map((item) => {
                               const windowName = item.window?.name || "";
                               const windowMatch = windowName.match(/\d+/);
                               const windowNum = windowMatch ? windowMatch[0] : "—";
@@ -542,7 +542,7 @@ export default function Queue() {
                             })}
 
                             {/* Duplicate for seamless loop */}
-                            {data.serving.map((item) => {
+                            {windowAssignedTickets.map((item) => {
                               const windowName = item.window?.name || "";
                               const windowMatch = windowName.match(/\d+/);
                               const windowNum = windowMatch ? windowMatch[0] : "—";
