@@ -500,7 +500,7 @@ export default function Queue() {
                     </p>
 
                     {/* All Serving Tickets Grid */}
-                    <div className="flex-1 overflow-y-auto space-y-2 lg:space-y-3 pr-2 scrollbar-thin scrollbar-thumb-yellow-400/40 scrollbar-track-transparent">
+                    <div className="flex-1 overflow-y-auto space-y-4 lg:space-y-6 pr-2 scrollbar-thin scrollbar-thumb-yellow-400/40 scrollbar-track-transparent">
                       {data.serving.length > 0 ? (
                         data.serving.map((item) => {
                           const windowName = item.window?.name || "";
