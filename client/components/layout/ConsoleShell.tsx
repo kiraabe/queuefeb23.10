@@ -36,39 +36,6 @@ export function ConsoleShell({
               {title}
             </h1>
           </div>
-          <div className="flex items-center gap-2 text-xs flex-shrink-0">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2 py-1 whitespace-nowrap",
-                online
-                  ? "bg-green-500/10 text-green-700 dark:text-green-300"
-                  : "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-              )}
-              aria-live="polite"
-              role="status"
-            >
-              <span
-                className={cn(
-                  "h-2 w-2 rounded-full flex-shrink-0",
-                  online ? "bg-green-500" : "bg-amber-500",
-                )}
-                aria-hidden="true"
-              />
-              <span className="hidden sm:inline">
-                {online ? "Online" : "Offline"}
-              </span>
-              <span className="sm:hidden">{online ? "On" : "Off"}</span>
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
-          </div>
         </div>
 
         {/* Offline warning */}
