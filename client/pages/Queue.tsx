@@ -398,9 +398,9 @@ export default function Queue() {
 
   // Service category translations to Amharic
   const serviceTranslations: Record<string, string> = {
-    "A": "ካድስትራል",           // Cadastral
-    "B": "መብቶች",               // Rights
-    "C": "ቋሚ ንብረት",           // Fixed Property
+    A: "ካድስትራል", // Cadastral
+    B: "መብቶች", // Rights
+    C: "ቋሚ ንብረት", // Fixed Property
     "cadastral-group": "ካድስትራል",
     "rights-group": "መብቶች",
     "fixed-property-group": "ቋሚ ንብረት",
@@ -485,13 +485,15 @@ export default function Queue() {
         <div className="flex-1 overflow-hidden flex gap-1 p-4 lg:p-6">
           {categories.map(([category, data], index) => {
             // Filter window-assigned tickets for this category
-            const categoryWindowTickets = windowAssignedTickets.filter((item) => {
-              let ticketCategory = item.ticket.serviceCategory;
-              if (!ticketCategory) {
-                ticketCategory = item.ticket.code?.charAt(0).toUpperCase();
-              }
-              return ticketCategory === category;
-            });
+            const categoryWindowTickets = windowAssignedTickets.filter(
+              (item) => {
+                let ticketCategory = item.ticket.serviceCategory;
+                if (!ticketCategory) {
+                  ticketCategory = item.ticket.code?.charAt(0).toUpperCase();
+                }
+                return ticketCategory === category;
+              },
+            );
 
             const shouldAutoScroll = categoryWindowTickets.length > 4;
 
@@ -528,14 +530,18 @@ export default function Queue() {
                           }
                         `}</style>
                       )}
-                      <div className={`space-y-6 lg:space-y-8 ${shouldAutoScroll ? `auto-scroll-${category}` : ""}`}>
+                      <div
+                        className={`space-y-6 lg:space-y-8 ${shouldAutoScroll ? `auto-scroll-${category}` : ""}`}
+                      >
                         {categoryWindowTickets.length > 0 ? (
                           <>
                             {/* First set of tickets */}
                             {categoryWindowTickets.map((item) => {
                               const windowName = item.window?.name || "";
                               const windowMatch = windowName.match(/\d+/);
-                              const windowNum = windowMatch ? windowMatch[0] : "—";
+                              const windowNum = windowMatch
+                                ? windowMatch[0]
+                                : "—";
 
                               return (
                                 <div
@@ -560,32 +566,35 @@ export default function Queue() {
                             })}
 
                             {/* Duplicate for seamless loop - only if auto-scrolling */}
-                            {shouldAutoScroll && categoryWindowTickets.map((item) => {
-                              const windowName = item.window?.name || "";
-                              const windowMatch = windowName.match(/\d+/);
-                              const windowNum = windowMatch ? windowMatch[0] : "—";
+                            {shouldAutoScroll &&
+                              categoryWindowTickets.map((item) => {
+                                const windowName = item.window?.name || "";
+                                const windowMatch = windowName.match(/\d+/);
+                                const windowNum = windowMatch
+                                  ? windowMatch[0]
+                                  : "—";
 
-                              return (
-                                <div
-                                  key={`${item.ticket.id}-loop`}
-                                  className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-6 lg:px-8 py-4 lg:py-6"
-                                >
-                                  <div className="flex items-center justify-center gap-4 lg:gap-6">
-                                    <p className="font-display text-5xl lg:text-6xl font-black text-yellow-300 leading-none drop-shadow-lg">
-                                      {item.ticket.code}
-                                    </p>
-                                    <p className="text-yellow-400 text-3xl lg:text-4xl font-black">
-                                      →
-                                    </p>
-                                    <div className="bg-green-500/20 border-2 border-green-500 rounded px-4 lg:px-6 py-2 lg:py-3 flex-shrink-0">
-                                      <p className="font-display text-4xl lg:text-5xl font-black text-green-400">
-                                        {windowNum}
+                                return (
+                                  <div
+                                    key={`${item.ticket.id}-loop`}
+                                    className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-6 lg:px-8 py-4 lg:py-6"
+                                  >
+                                    <div className="flex items-center justify-center gap-4 lg:gap-6">
+                                      <p className="font-display text-5xl lg:text-6xl font-black text-yellow-300 leading-none drop-shadow-lg">
+                                        {item.ticket.code}
                                       </p>
+                                      <p className="text-yellow-400 text-3xl lg:text-4xl font-black">
+                                        →
+                                      </p>
+                                      <div className="bg-green-500/20 border-2 border-green-500 rounded px-4 lg:px-6 py-2 lg:py-3 flex-shrink-0">
+                                        <p className="font-display text-4xl lg:text-5xl font-black text-green-400">
+                                          {windowNum}
+                                        </p>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
                           </>
                         ) : (
                           <p className="text-yellow-400/30 text-center text-sm italic py-8">
@@ -604,7 +613,8 @@ export default function Queue() {
                     <div className="flex items-center gap-2">
                       <p className="text-yellow-400/60 font-medium">→</p>
                       <p className="text-yellow-400 text-sm font-black">
-                        {data.waiting.length} {data.waiting.length === 1 ? "ticket" : "tickets"}
+                        {data.waiting.length}{" "}
+                        {data.waiting.length === 1 ? "ticket" : "tickets"}
                       </p>
                     </div>
                   </div>
@@ -679,7 +689,8 @@ export default function Queue() {
                           {data.serving.length > 0 ? (
                             data.serving.map((item) => {
                               let fontSize = "text-2xl";
-                              if (data.serving.length > 4) fontSize = "text-base";
+                              if (data.serving.length > 4)
+                                fontSize = "text-base";
                               else if (data.serving.length > 2)
                                 fontSize = "text-xl";
                               return (
@@ -720,7 +731,8 @@ export default function Queue() {
                           {data.waiting.length > 0 ? (
                             data.waiting.map((ticket) => {
                               let fontSize = "text-2xl";
-                              if (data.waiting.length > 4) fontSize = "text-base";
+                              if (data.waiting.length > 4)
+                                fontSize = "text-base";
                               else if (data.waiting.length > 2)
                                 fontSize = "text-xl";
                               return (
@@ -765,7 +777,9 @@ export default function Queue() {
           {/* QR Code and Tracking Section */}
           <Card className="border-border/60 bg-card/90 p-4 sm:p-6 lg:p-8 shadow-lg">
             <CardHeader className="space-y-3">
-              <CardTitle className="text-base">Track Your Ticket Anytime</CardTitle>
+              <CardTitle className="text-base">
+                Track Your Ticket Anytime
+              </CardTitle>
               <CardDescription>
                 Scan the QR code or visit the tracking page to monitor your
                 position

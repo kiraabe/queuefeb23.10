@@ -12,7 +12,6 @@ export function ConsoleShell({
   children: ReactNode;
   rightPanel?: ReactNode;
 }) {
-
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-b border-border/40">
@@ -24,7 +23,6 @@ export function ConsoleShell({
             </h1>
           </div>
         </div>
-
       </div>
 
       {/* Main content area - scrollable */}
