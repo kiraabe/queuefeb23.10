@@ -493,7 +493,7 @@ export default function Queue() {
               return ticketCategory === category;
             });
 
-            const shouldAutoScroll = categoryWindowTickets.length > 1;
+            const shouldAutoScroll = categoryWindowTickets.length > 4;
 
             return (
               <div
