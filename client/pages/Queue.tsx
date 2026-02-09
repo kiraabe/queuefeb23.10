@@ -484,6 +484,17 @@ export default function Queue() {
         {/* Main Content */}
         <div className="flex-1 overflow-hidden flex gap-1 p-4 lg:p-6">
           {categories.map(([category, data], index) => {
+            // Filter window-assigned tickets for this category
+            const categoryWindowTickets = windowAssignedTickets.filter((item) => {
+              let ticketCategory = item.ticket.serviceCategory;
+              if (!ticketCategory) {
+                ticketCategory = item.ticket.code?.charAt(0).toUpperCase();
+              }
+              return ticketCategory === category;
+            });
+
+            const shouldAutoScroll = categoryWindowTickets.length > 1;
+
             return (
               <div
                 key={category}
@@ -506,20 +517,22 @@ export default function Queue() {
 
                     {/* All Serving Tickets Grid - Auto Scrolling */}
                     <div className="flex-1 overflow-hidden relative">
-                      <style>{`
-                        @keyframes autoScroll {
-                          0% { transform: translateY(0); }
-                          100% { transform: translateY(calc(-50%)); }
-                        }
-                        .auto-scroll {
-                          animation: autoScroll ${Math.max(windowAssignedTickets.length * 4, 20)}s linear infinite;
-                        }
-                      `}</style>
-                      <div className="auto-scroll space-y-6 lg:space-y-8">
-                        {windowAssignedTickets.length > 0 ? (
+                      {shouldAutoScroll && (
+                        <style>{`
+                          @keyframes autoScroll {
+                            0% { transform: translateY(0); }
+                            100% { transform: translateY(calc(-50%)); }
+                          }
+                          .auto-scroll-${category} {
+                            animation: autoScroll ${Math.max(categoryWindowTickets.length * 4, 20)}s linear infinite;
+                          }
+                        `}</style>
+                      )}
+                      <div className={`space-y-6 lg:space-y-8 ${shouldAutoScroll ? `auto-scroll-${category}` : ""}`}>
+                        {categoryWindowTickets.length > 0 ? (
                           <>
                             {/* First set of tickets */}
-                            {windowAssignedTickets.map((item) => {
+                            {categoryWindowTickets.map((item) => {
                               const windowName = item.window?.name || "";
                               const windowMatch = windowName.match(/\d+/);
                               const windowNum = windowMatch ? windowMatch[0] : "—";
@@ -546,8 +559,8 @@ export default function Queue() {
                               );
                             })}
 
-                            {/* Duplicate for seamless loop */}
-                            {windowAssignedTickets.map((item) => {
+                            {/* Duplicate for seamless loop - only if auto-scrolling */}
+                            {shouldAutoScroll && categoryWindowTickets.map((item) => {
                               const windowName = item.window?.name || "";
                               const windowMatch = windowName.match(/\d+/);
                               const windowNum = windowMatch ? windowMatch[0] : "—";
