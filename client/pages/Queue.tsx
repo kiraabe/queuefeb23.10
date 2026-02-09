@@ -408,7 +408,13 @@ export default function Queue() {
 
     // Add ALL serving tickets with window info
     serving.forEach(({ ticket, window: windowState }) => {
-      const category = ticket.serviceCategory || "uncategorized";
+      let category = ticket.serviceCategory;
+      if (!category) {
+        // Extract from ticket code (e.g., "A-021" -> "A")
+        category = ticket.code?.charAt(0).toUpperCase();
+      }
+      if (!category) category = "uncategorized";
+
       let cat = map.get(category);
       if (!cat) {
         cat = { serving: [], waiting: [] };
@@ -421,7 +427,13 @@ export default function Queue() {
     waitingQueue.forEach((entry) => {
       const ticket = tickets[entry.id];
       if (ticket) {
-        const category = ticket.serviceCategory || "uncategorized";
+        let category = ticket.serviceCategory;
+        if (!category) {
+          // Extract from ticket code
+          category = ticket.code?.charAt(0).toUpperCase();
+        }
+        if (!category) category = "uncategorized";
+
         let cat = map.get(category);
         if (!cat) {
           cat = { serving: [], waiting: [] };
