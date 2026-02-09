@@ -508,9 +508,9 @@ export default function Queue() {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 flex flex-col overflow-hidden px-4 lg:px-6 py-4 lg:py-6">
+                <div className="flex-1 flex flex-col overflow-hidden px-4 lg:px-6 py-4 lg:py-6 gap-4">
                   {/* NOW SERVING Section */}
-                  <div className="flex flex-col gap-3 h-full">
+                  <div className="flex flex-col gap-3 flex-1 overflow-hidden">
                     <p className="text-yellow-400 text-xs lg:text-sm font-black uppercase tracking-widest opacity-80">
                       Now Serving
                     </p>
@@ -593,6 +593,19 @@ export default function Queue() {
                           </p>
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Waiting in Queue Footer */}
+                  <div className="border-t border-yellow-400/30 pt-3 flex items-center justify-between gap-2">
+                    <p className="text-yellow-400/60 text-xs font-black uppercase tracking-widest">
+                      Waiting in Queue
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-yellow-400/60 font-medium">→</p>
+                      <p className="text-yellow-400 text-sm font-black">
+                        {data.waiting.length} {data.waiting.length === 1 ? "ticket" : "tickets"}
+                      </p>
                     </div>
                   </div>
                 </div>
