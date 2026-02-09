@@ -671,7 +671,7 @@ export default function Queue() {
                       {/* Next in Queue Box */}
                       <div className="rounded-lg border-2 border-amber-500/50 bg-amber-500/15 p-4">
                         <p className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
-                          Next in Queue
+                          Now Serving
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {data.waiting.length > 0 ? (
