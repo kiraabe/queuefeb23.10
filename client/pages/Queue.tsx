@@ -615,12 +615,7 @@ export default function Queue() {
           <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 w-full">
             {Array.from(categoryMap.entries()).map(
               ([category, data], index) => {
-                const categoryNames: Record<string, string> = {
-                  "cadastral-group": "ካድስትራል",
-                  "rights-group": "መብቶች",
-                  "fixed-property-group": "ቋሚ ንብረት",
-                };
-                const displayName = categoryNames[category] || category;
+                const displayName = serviceTranslations[category] || category;
                 const isThirdCard = index === 2;
                 return (
                   <Card
