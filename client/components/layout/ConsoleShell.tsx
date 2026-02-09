@@ -29,22 +29,24 @@ export function ConsoleShell({
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
       <div className="flex-shrink-0 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-b border-border/40">
-        {/* Header with title and sign out */}
+        {/* Header with title and optional sign out */}
         <div className="flex items-center justify-between gap-2 sm:gap-3 w-full mb-3 sm:mb-4">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <h1 className="font-display text-lg sm:text-xl md:text-2xl font-semibold truncate">
               {title}
             </h1>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSignOut}
-            className="gap-2 flex-shrink-0"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign out</span>
-          </Button>
+          {showSignOut && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              className="gap-2 flex-shrink-0"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
+          )}
         </div>
       </div>
 
