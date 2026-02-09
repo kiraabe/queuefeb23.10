@@ -547,7 +547,7 @@ export default function Queue() {
                             className="bg-slate-800/50 border border-yellow-400/30 rounded px-3 lg:px-4 py-2 lg:py-3 hover:bg-slate-800 hover:border-yellow-400/60 transition-all"
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300">
+                              <p className="font-display text-lg lg:text-xl font-black text-yellow-300">
                                 {ticket.code}
                               </p>
                               <p className="text-yellow-400/60 text-xs font-semibold">
