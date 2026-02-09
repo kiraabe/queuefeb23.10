@@ -210,6 +210,11 @@ export default function Queue() {
     return Array.from(servingMap.values());
   }, [windows, tickets]);
 
+  // Only window-assigned tickets for fullscreen display
+  const windowAssignedTickets = useMemo(() => {
+    return serving.filter((item) => item.window !== null);
+  }, [serving]);
+
   // Trigger blinking when a new ticket starts serving
   useEffect(() => {
     if (serving.length > 0) {
