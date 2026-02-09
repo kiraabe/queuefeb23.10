@@ -568,17 +568,17 @@ export default function Queue() {
                               return (
                                 <div
                                   key={`${item.ticket.id}-loop`}
-                                  className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-4 lg:px-6 py-3 lg:py-4"
+                                  className="bg-yellow-500/20 border-2 border-yellow-500 rounded-lg px-6 lg:px-8 py-4 lg:py-6"
                                 >
-                                  <div className="flex items-center justify-center gap-3 lg:gap-4">
-                                    <p className="font-display text-2xl lg:text-3xl font-black text-yellow-300 leading-none drop-shadow-lg">
+                                  <div className="flex items-center justify-center gap-4 lg:gap-6">
+                                    <p className="font-display text-5xl lg:text-6xl font-black text-yellow-300 leading-none drop-shadow-lg">
                                       {item.ticket.code}
                                     </p>
-                                    <p className="text-yellow-400 text-xl lg:text-2xl font-black">
+                                    <p className="text-yellow-400 text-3xl lg:text-4xl font-black">
                                       →
                                     </p>
-                                    <div className="bg-green-500/20 border-2 border-green-500 rounded px-3 lg:px-4 py-1 lg:py-2 flex-shrink-0">
-                                      <p className="font-display text-xl lg:text-2xl font-black text-green-400">
+                                    <div className="bg-green-500/20 border-2 border-green-500 rounded px-4 lg:px-6 py-2 lg:py-3 flex-shrink-0">
+                                      <p className="font-display text-4xl lg:text-5xl font-black text-green-400">
                                         {windowNum}
                                       </p>
                                     </div>
