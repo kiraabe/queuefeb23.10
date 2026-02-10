@@ -6,11 +6,13 @@ export function ConsoleShell({
   className,
   children,
   rightPanel,
+  action,
 }: {
   title: string;
   className?: string;
   children: ReactNode;
   rightPanel?: ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
@@ -22,6 +24,7 @@ export function ConsoleShell({
               {title}
             </h1>
           </div>
+          {action && <div className="flex items-center gap-2 flex-shrink-0">{action}</div>}
         </div>
       </div>
 
