@@ -24,7 +24,11 @@ export function ConsoleShell({
               {title}
             </h1>
           </div>
-          {action && <div className="flex items-center gap-2 flex-shrink-0">{action}</div>}
+          {action && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {action}
+            </div>
+          )}
         </div>
       </div>
 
