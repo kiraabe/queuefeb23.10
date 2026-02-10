@@ -87,7 +87,20 @@ export default function Archiever() {
   };
 
   return (
-    <ConsoleShell title={headerTitle}>
+    <ConsoleShell
+      title={headerTitle}
+      action={
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </Button>
+      }
+    >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main content area - 3 columns */}
         <div className="lg:col-span-3">
