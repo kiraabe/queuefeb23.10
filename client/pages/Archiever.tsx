@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { GlobalQueuePanel } from "@/components/archiever/GlobalQueuePanel";
 import { ActiveTicketWorkspace } from "@/components/archiever/ActiveTicketWorkspace";
 import { MyActiveWorkIndicator } from "@/components/archiever/MyActiveWorkIndicator";
 import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHistory";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import type { JobTitle } from "@shared/api";
 
 export default function Archiever() {
