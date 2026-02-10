@@ -15,7 +15,8 @@ import { toast } from "sonner";
 import type { JobTitle } from "@shared/api";
 
 export default function Archiever() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedTicketId, setSelectedTicketId] = useState<
     string | undefined
   >();
@@ -24,6 +25,16 @@ export default function Archiever() {
   >();
   const [activeTab, setActiveTab] = useState("queue");
   const [headerTitle, setHeaderTitle] = useState("Archiver Interface");
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Signed out successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Failed to sign out");
+    }
+  };
 
   // Fetch job titles to get the name from jobTitleId
   const { data: jobTitles } = useQuery({
