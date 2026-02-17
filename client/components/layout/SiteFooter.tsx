@@ -98,8 +98,16 @@ const SiteFooter = () => {
       <div className="border-t border-border/60 bg-background/60 py-5">
         <div className="container flex flex-col gap-3 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
           <span>
-            © {new Date().getFullYear()} Powered by EKD Tech solutions. All
-            rights reserved.
+            © {new Date().getFullYear()} Powered by{" "}
+            <a
+              href="https://ekd-tech-solutions.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground underline"
+            >
+              EKD Tech solutions
+            </a>
+            . All rights reserved.
           </span>
           <div className="flex flex-wrap items-center gap-4">
             <a className="hover:text-foreground" href="#privacy">
