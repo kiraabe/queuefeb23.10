@@ -79,24 +79,24 @@ const PHASES: Array<{
   },
   {
     phase: "Phase 2",
-    title: "Teller Window Service",
+    title: "Archival & Records",
     caption:
-      "Tellers serve customers at windows, handle transactions, and route to employees for complex cases.",
+      "Archive completed cases with document management and compliance documentation.",
     highlights: [
       {
-        title: "Serve next customer",
+        title: "Document collection",
         description:
-          "One-click call next to bring customer to the service window.",
-        icon: Users,
-      },
-      {
-        title: "Handle transactions",
-        description:
-          "When placement shifts, the QR status nudges: ‘You’re up next—head to the waiting area.’",
+          "Gather all supporting documents and attachments for completed cases.",
         icon: ClipboardCheck,
       },
       {
-        title: "Route to employees",
+        title: "Compliance verification",
+        description:
+          "When placement shifts, the QR status nudges: ‘You’re up next—head to the waiting area.’",
+        icon: CheckCircle2,
+      },
+      {
+        title: "Archive storage",
         description:
           "The QR page switches to instructions: ‘Please proceed to Window 3 for Social Services.’",
         icon: Monitor,
@@ -111,9 +111,9 @@ const PHASES: Array<{
   },
   {
     phase: "Phase 3",
-    title: "Employee Case Management",
+    title: "Teller Window Service",
     caption:
-      "Employees manage complex cases, track workflows, and ensure time compliance for case completion.",
+      "Tellers serve customers at windows, handle transactions, and route to employees for complex cases.",
     highlights: [
       {
         title: "Case assignment",
@@ -143,9 +143,9 @@ const PHASES: Array<{
   },
   {
     phase: "Phase 4",
-    title: "Archival & Records",
+    title: "Employee Case Management",
     caption:
-      "Archive completed cases with document management and compliance documentation.",
+      "Employees manage complex cases, track workflows, and ensure time compliance for case completion.",
     highlights: [
       {
         title: "Document collection",
