@@ -179,28 +179,24 @@ const MONITORING_OPTIONS: Array<{
   title: string;
   description: string;
   icon: LucideIcon;
-  metric: string;
 }> = [
   {
     title: "QR status mini-site",
     description:
       "Scoped, ticket-specific portal refreshed with every scan—position, wait estimate, and live prompts all in one view.",
     icon: Smartphone,
-    metric: "Used by 92% of guests",
   },
   {
     title: "Lobby display sync",
     description:
       "Large format dashboard mirroring ‘Now Serving’ to keep crowds informed without pulling out a device.",
     icon: Monitor,
-    metric: "Latency under 2 seconds",
   },
   {
     title: "Staff alerting",
     description:
       "Reception gets notified when VIP or accessibility profiles reach the top so they can escort personally.",
     icon: BellRing,
-    metric: "Zero missed calls",
   },
 ];
 
@@ -305,7 +301,6 @@ const MonitoringCard = ({
   title,
   description,
   icon: Icon,
-  metric,
 }: (typeof MONITORING_OPTIONS)[number]) => (
   <Card className="h-full border-border/60 bg-card/80 backdrop-blur">
     <CardHeader className="space-y-4">
@@ -317,11 +312,6 @@ const MonitoringCard = ({
         {description}
       </CardDescription>
     </CardHeader>
-    <CardContent className="pt-0">
-      <div className="inline-flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1 text-xs font-semibold text-secondary-foreground">
-        <CheckCircle2 className="h-4 w-4" /> {metric}
-      </div>
-    </CardContent>
   </Card>
 );
 
