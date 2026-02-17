@@ -3,14 +3,10 @@ import {
   ArrowRight,
   BellRing,
   CalendarClock,
-  CheckCircle2,
   ClipboardCheck,
-  Clock3,
   LineChart,
-  Monitor,
   QrCode,
   Smartphone,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -30,10 +26,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { useSSE } from "@/hooks/use-sse";
 import { useAuth } from "@/hooks/use-auth";
-import type { WindowState } from "@shared/api";
 
 // Live system stats are computed from SSE init + updates
 
@@ -329,55 +322,6 @@ export default function Index() {
     return <Navigate to="/archiever" replace />;
   }
 
-  const [windows, setWindows] = useState<WindowState[]>([]);
-  const [waitingByService, setWaitingByService] = useState<
-    Record<string, number>
-  >({ S1: 0, S2: 0, S3: 0 });
-  const [sseReady, setSseReady] = useState(false);
-
-  const [tickets, setTickets] = useState<Record<string, any>>({});
-
-  useSSE("/api/events", (ev) => {
-    if (ev.type === "init") {
-      setSseReady(true);
-      setWindows(ev.payload.windows as WindowState[]);
-      const services = ev.payload.services as Record<
-        string,
-        { nextNumber: number; waitingIds: string[] }
-      >;
-      if (services) {
-        setWaitingByService({
-          S1: services.S1?.waitingIds?.length || 0,
-          S2: services.S2?.waitingIds?.length || 0,
-          S3: services.S3?.waitingIds?.length || 0,
-        });
-      }
-      if (ev.payload.tickets)
-        setTickets(ev.payload.tickets as Record<string, any>);
-    }
-    if (ev.type === "window.updated") {
-      const w = ev.payload as WindowState;
-      setWindows((prev) =>
-        prev.length ? prev.map((x) => (x.id === w.id ? w : x)) : [w],
-      );
-    }
-    if (ev.type === "ticket.created" || ev.type === "ticket.updated") {
-      const t = ev.payload as any;
-      setTickets((m) => ({ ...m, [t.id]: t }));
-      // Recompute waiting counts if needed when tickets change
-      // We'll recalc waitingByService from tickets
-      try {
-        const arr = Object.values({
-          ...((ev as any).payload?.tickets || tickets),
-        });
-        // But simpler: if ticket.status changed to waiting, increment corresponding
-      } catch {}
-    }
-  });
-
-  const servingCount = windows.filter((w) => Boolean(w.currentTicketId)).length;
-  const waitingTotal =
-    waitingByService.S1 + waitingByService.S2 + waitingByService.S3;
 
   return (
     <div className="relative overflow-visible">
@@ -416,95 +360,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Stats section - responsive card grid */}
-        <div className="w-full border-t border-border/60 bg-foreground/5 py-8 sm:py-12">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {/* Waiting Card */}
-              <div className="flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 text-center hover:bg-card/95 transition-colors">
-                <div className="flex items-center justify-center rounded-full bg-primary/10 text-primary h-10 sm:h-12 w-10 sm:w-12 mb-2 sm:mb-3 flex-shrink-0">
-                  <Users className="h-5 sm:h-6 w-5 sm:w-6" />
-                </div>
-                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide">
-                  Waiting
-                </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-display font-bold text-foreground">
-                  {waitingTotal ?? 0}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  across services
-                </div>
-              </div>
-
-              {/* Serving Card */}
-              <div className="flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 text-center hover:bg-card/95 transition-colors">
-                <div className="flex items-center justify-center rounded-full bg-accent/10 text-accent-foreground h-10 sm:h-12 w-10 sm:w-12 mb-2 sm:mb-3 flex-shrink-0">
-                  <Monitor className="h-5 sm:h-6 w-5 sm:w-6" />
-                </div>
-                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide">
-                  Serving
-                </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-display font-bold text-foreground">
-                  {servingCount ?? 0}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  active windows
-                </div>
-              </div>
-
-              {/* Served Today Card */}
-              <div className="flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 text-center hover:bg-card/95 transition-colors">
-                <div className="flex items-center justify-center rounded-full bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400 h-10 sm:h-12 w-10 sm:w-12 mb-2 sm:mb-3 flex-shrink-0">
-                  <CheckCircle2 className="h-5 sm:h-6 w-5 sm:w-6" />
-                </div>
-                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide">
-                  Served Today
-                </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-display font-bold text-foreground">
-                  {(() => {
-                    const vals = Object.values(tickets || {});
-                    return vals.filter((t: any) => t.status === "done").length;
-                  })()}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  completed
-                </div>
-              </div>
-
-              {/* Avg Handling Card */}
-              <div className="flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 text-center hover:bg-card/95 transition-colors">
-                <div className="flex items-center justify-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 h-10 sm:h-12 w-10 sm:w-12 mb-2 sm:mb-3 flex-shrink-0">
-                  <Clock3 className="h-5 sm:h-6 w-5 sm:w-6" />
-                </div>
-                <div className="text-xs uppercase text-muted-foreground font-medium tracking-wide">
-                  Avg handling
-                </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-display font-bold text-foreground">
-                  {(() => {
-                    const vals = Object.values(tickets || {});
-                    const done = vals.filter(
-                      (t: any) =>
-                        t.status === "done" && t.completedAt && t.startedAt,
-                    );
-                    if (!done.length) return "—";
-                    const secs = Math.round(
-                      done.reduce(
-                        (a: number, b: any) =>
-                          a + (b.completedAt - b.startedAt) / 1000,
-                        0,
-                      ) / done.length,
-                    );
-                    if (secs < 60) return `${secs}s`;
-                    const m = Math.floor(secs / 60);
-                    const r = secs % 60;
-                    return r === 0 ? `${m}m` : `${m}m ${r}s`;
-                  })()}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">avg</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       <section
