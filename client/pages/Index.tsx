@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BellRing,
   CalendarClock,
+  CheckCircle2,
   ClipboardCheck,
   LineChart,
   Monitor,
