@@ -410,6 +410,42 @@ export default function Index() {
         </div>
       </section>
 
+      <section className="relative border-t border-border/60 bg-foreground/5 py-8 sm:py-12 md:py-16">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start mb-8 sm:mb-12">
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
+              Workflow phases
+            </h2>
+            <p className="mt-1 sm:mt-2 text-sm text-muted-foreground max-w-2xl">
+              Complete case management from intake to completion with real-time tracking.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+            {PHASES.map((phase) => (
+              <PhaseCard key={phase.phase} {...phase} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative border-t border-border/60 bg-foreground/5 py-8 sm:py-12 md:py-16">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-start mb-8 sm:mb-12">
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
+              Monitoring & visibility
+            </h2>
+            <p className="mt-1 sm:mt-2 text-sm text-muted-foreground max-w-2xl">
+              Keep staff and visitors informed with real-time updates and dashboards.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
+            {MONITORING_OPTIONS.map((option) => (
+              <MonitoringCard key={option.title} {...option} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="get-started" className="relative py-8 sm:py-10 md:py-12">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
