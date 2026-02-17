@@ -103,7 +103,7 @@ const SiteFooter = () => {
               href="https://ekd-tech-solutions.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground underline"
+              className="hover:text-foreground"
             >
               EKD Tech solutions
             </a>
