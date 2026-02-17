@@ -47,64 +47,128 @@ const PHASES: Array<{
 }> = [
   {
     phase: "Phase 1",
-    title: "Reception & Virtual Ticket Issuance",
+    title: "Reception",
     caption:
-      "Front desk teams generate QR-driven tickets instantly—no phone numbers required.",
+      "Front desk teams create tickets, verify eligibility, and route customers to the right service.",
     highlights: [
       {
-        title: "Eligibility confirmed",
+        title: "Eligibility verification",
         description:
-          "Customer arrives and an employer verifies service eligibility before proceeding.",
+          "Verify customer service eligibility before creating a ticket.",
         icon: ClipboardCheck,
       },
       {
-        title: "Generate QR ticket",
+        title: "Quick QR ticket issuance",
         description:
-          "One click assigns ticket 015, sets service type, and calculates the queue position.",
+          "Generate QR-coded tickets with service type and estimated wait time.",
         icon: QrCode,
       },
       {
-        title: "Deliver ticket experience",
+        title: "Queue management",
         description:
-          "Print the slip or present it on-screen—customers scan to keep their queue at their fingertips.",
-        icon: Smartphone,
+          "Assign customers to appropriate service lines with real-time position tracking.",
+        icon: Monitor,
       },
       {
-        title: "Set expectations",
+        title: "Customer notifications",
         description:
-          "Employer confirms lounge instructions so guests know to relax until their turn arrives.",
+          "Send real-time updates via QR code scans when customer's turn approaches.",
         icon: BellRing,
       },
     ],
   },
   {
     phase: "Phase 2",
-    title: "Intelligent Virtual Waiting Room",
+    title: "Teller Window Service",
     caption:
-      "Real-time updates follow the customer anywhere on site with on-screen prompts and displays.",
+      "Tellers serve customers at windows, handle transactions, and route to employees for complex cases.",
     highlights: [
       {
-        title: "Freedom to roam",
+        title: "Serve next customer",
         description:
-          "Guests get live wait-time estimates with every scan while screens broadcast current numbers.",
+          "One-click call next to bring customer to the service window.",
         icon: Users,
       },
       {
-        title: "Dynamic alerts",
+        title: "Handle transactions",
         description:
           "When placement shifts, the QR status nudges: ‘You’re up next—head to the waiting area.’",
-        icon: CalendarClock,
+        icon: ClipboardCheck,
       },
       {
-        title: "Now serving precision",
+        title: "Route to employees",
         description:
           "The QR page switches to instructions: ‘Please proceed to Window 3 for Social Services.’",
         icon: Monitor,
       },
       {
-        title: "Continuous tracking",
+        title: "Real-time tracking",
         description:
-          "Staff dashboards visualize queue health, enabling proactive service balancing in real time.",
+          "Monitor performance metrics and service times with live dashboards.",
+        icon: LineChart,
+      },
+    ],
+  },
+  {
+    phase: "Phase 3",
+    title: "Employee Case Management",
+    caption:
+      "Employees manage complex cases, track workflows, and ensure time compliance for case completion.",
+    highlights: [
+      {
+        title: "Case assignment",
+        description:
+          "Receive cases from tellers and begin comprehensive case handling.",
+        icon: ClipboardCheck,
+      },
+      {
+        title: "Workflow progress tracking",
+        description:
+          "Track case progress through multiple workflow stages with status updates.",
+        icon: CalendarClock,
+      },
+      {
+        title: "Field visit management",
+        description:
+          "Schedule and track field visits when cases require on-site assessments.",
+        icon: Smartphone,
+      },
+      {
+        title: "Case completion",
+        description:
+          "Mark cases complete and trigger archival process for record keeping.",
+        icon: CheckCircle2,
+      },
+    ],
+  },
+  {
+    phase: "Phase 4",
+    title: "Archival & Records",
+    caption:
+      "Archive completed cases with document management and compliance documentation.",
+    highlights: [
+      {
+        title: "Document collection",
+        description:
+          "Gather all supporting documents and attachments for completed cases.",
+        icon: ClipboardCheck,
+      },
+      {
+        title: "Compliance verification",
+        description:
+          "Ensure all required documentation and compliance checks are complete.",
+        icon: CheckCircle2,
+      },
+      {
+        title: "Archive storage",
+        description:
+          "Store completed cases in secure archive for historical reference and audits.",
+        icon: Monitor,
+      },
+      {
+        title: "Analytics & reporting",
+        description:
+          "Generate compliance reports and performance metrics from archived data.",
         icon: LineChart,
       },
     ],
