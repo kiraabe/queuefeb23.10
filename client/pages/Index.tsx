@@ -5,8 +5,10 @@ import {
   CalendarClock,
   ClipboardCheck,
   LineChart,
+  Monitor,
   QrCode,
   Smartphone,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
