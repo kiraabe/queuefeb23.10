@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const SiteFooter = () => {
   return (
     <footer className="relative overflow-hidden border-t border-border/60 bg-background/60">
@@ -16,15 +18,15 @@ const SiteFooter = () => {
             . All rights reserved.
           </span>
           <div className="flex flex-wrap items-center gap-4">
-            <a
+            <Link
               className="transition-colors hover:text-primary"
-              href="#privacy"
+              to="/privacy"
             >
               Privacy
-            </a>
-            <a className="transition-colors hover:text-primary" href="#terms">
+            </Link>
+            <Link className="transition-colors hover:text-primary" to="/terms">
               Terms
-            </a>
+            </Link>
             <a
               className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-primary"
               href="#status"

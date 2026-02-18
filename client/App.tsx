@@ -15,6 +15,8 @@ import Display from "./pages/Display";
 import TicketStatus from "./pages/TicketStatus";
 import Track from "./pages/Track";
 import Login from "./pages/Login";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import RoleSelector from "./pages/RoleSelector";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
@@ -115,6 +117,8 @@ const App = () => (
                   />
                 </Route>
                 <Route path="/display" element={<Display />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
                 <Route path="/tickets/:code" element={<TicketStatus />} />
                 <Route path="/login" element={<Login />} />
               </Route>
