@@ -9,17 +9,20 @@ const SiteFooter = () => {
               href="https://ekd-tech-solutions.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground"
+              className="font-medium transition-colors hover:text-primary"
             >
               EKD Tech solutions
             </a>
             . All rights reserved.
           </span>
           <div className="flex flex-wrap items-center gap-4">
-            <a className="hover:text-foreground" href="#privacy">
+            <a
+              className="transition-colors hover:text-primary"
+              href="#privacy"
+            >
               Privacy
             </a>
-            <a className="hover:text-foreground" href="#terms">
+            <a className="transition-colors hover:text-primary" href="#terms">
               Terms
             </a>
             <a
