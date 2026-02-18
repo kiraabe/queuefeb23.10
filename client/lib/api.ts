@@ -242,6 +242,8 @@ export async function apiFetch<T>(
           message = "Invalid username or password.";
         } else if (data?.code === "NO_SESSION") {
           message = "Access denied. Please login to continue.";
+        } else if (data?.code === "MAX_SESSIONS_REACHED") {
+          message = data.message;
         } else {
           message = "Your session has expired. Please sign in again.";
         }

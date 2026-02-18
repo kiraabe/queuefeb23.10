@@ -136,6 +136,20 @@ export async function createUserSession(params: {
   return { token, session };
 }
 
+export async function countActiveSessionsForUser(userId: string): Promise<number> {
+  const p = getPool();
+  const { rows } = await p.query(
+    `SELECT count(*) as count
+     FROM user_sessions
+     WHERE user_id = $1
+       AND revoked_at IS NULL
+       AND expires_at > now()
+       AND last_seen_at > now() - (interval '1 second' * $2)`,
+    [userId, SESSION_IDLE_TIMEOUT_SECONDS],
+  );
+  return parseInt(rows[0].count, 10);
+}
+
 export async function revokeSessionsForUser(
   userId: string,
   reason: SessionRevokeReason = "conflict",

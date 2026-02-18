@@ -255,6 +255,7 @@ export type AuthErrorCode =
   | "SESSION_REVOKED"
   | "UNAUTHORIZED"
   | "SESSION_INVALIDATED"
+  | "MAX_SESSIONS_REACHED"
   | "NO_SESSION";
 
 export interface MeResponse {

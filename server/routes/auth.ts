@@ -19,6 +19,7 @@ import {
   SESSION_COOKIE,
   SESSION_IDLE_TIMEOUT_SECONDS,
   SESSION_MAX_AGE_SECONDS,
+  countActiveSessionsForUser,
   createUserSession,
   findSessionByToken,
   listSessions,
@@ -431,8 +432,18 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Success: rotate sessions by revoking previous
-  await revokeSessionsForUser(userRow.id, "conflict");
+  // Check for active sessions limit
+  const activeSessionCount = await countActiveSessionsForUser(userRow.id);
+  if (activeSessionCount >= 3) {
+    return res.status(401).json({
+      error: "Maximum sessions reached",
+      message:
+        "You have reached the maximum number of concurrent login sessions (3). Please log out from another device before logging in here.",
+      code: "MAX_SESSIONS_REACHED" as AuthErrorCode,
+    });
+  }
+
+  // Success: create a new session
   const { token, session } = await createUserSession({
     userId: userRow.id,
     username: userRow.username,
