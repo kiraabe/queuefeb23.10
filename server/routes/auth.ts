@@ -231,7 +231,12 @@ async function authenticateRequest(
 
 // Simple in-memory rate limiting and lockout for login
 const attemptsByKey = new Map<string, { count: number; resetAt: number }>();
+const globalAttemptsByUser = new Map<
+  string,
+  { count: number; resetAt: number }
+>();
 const lockedUntilByUser = new Map<string, number>();
+const lockedUntilByIpUser = new Map<string, number>();
 function keyFor(req: Request, username: string) {
   const ip =
     (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
@@ -255,13 +260,40 @@ function incrementAttempt(
   attemptsByKey.set(key, entry);
   return entry.count;
 }
-function isLocked(username: string) {
-  const until = lockedUntilByUser.get(username.toLowerCase()) || 0;
-  return Date.now() < until;
+function incrementGlobalAttempt(username: string, windowMs = 10 * 60 * 1000) {
+  const key = username.toLowerCase();
+  const now = Date.now();
+  const entry = globalAttemptsByUser.get(key);
+  if (!entry || entry.resetAt < now) {
+    globalAttemptsByUser.set(key, { count: 1, resetAt: now + windowMs });
+    return 1;
+  }
+  entry.count += 1;
+  globalAttemptsByUser.set(key, entry);
+  return entry.count;
 }
-function lockUser(username: string, minutes = 15) {
+function isLocked(req: Request, username: string) {
+  const ipKey = keyFor(req, username);
+  const userKey = username.toLowerCase();
+  const now = Date.now();
+
+  const userUntil = lockedUntilByUser.get(userKey) || 0;
+  if (now < userUntil) return true;
+
+  const ipUntil = lockedUntilByIpUser.get(ipKey) || 0;
+  if (now < ipUntil) return true;
+
+  return false;
+}
+function lockUserByIp(req: Request, username: string, minutes = 15) {
+  const ipKey = keyFor(req, username);
   const until = Date.now() + minutes * 60 * 1000;
-  lockedUntilByUser.set(username.toLowerCase(), until);
+  lockedUntilByIpUser.set(ipKey, until);
+}
+function lockUserGlobally(username: string, minutes = 15) {
+  const userKey = username.toLowerCase();
+  const until = Date.now() + minutes * 60 * 1000;
+  lockedUntilByUser.set(userKey, until);
 }
 
 export const login: RequestHandler = async (req, res) => {
@@ -296,7 +328,7 @@ export const login: RequestHandler = async (req, res) => {
       passwordLength: password?.length,
     });
     loginKey = `window_${windowId}`;
-    if (isLocked(loginKey)) {
+    if (isLocked(req, loginKey)) {
       return res.status(429).json({
         error: "Too many attempts. Try again later.",
         message: "Too many attempts. Try again later.",
@@ -311,7 +343,7 @@ export const login: RequestHandler = async (req, res) => {
       passwordLength: password?.length,
     });
     loginKey = `user_${input}`;
-    if (isLocked(loginKey)) {
+    if (isLocked(req, loginKey)) {
       return res.status(429).json({
         error: "Too many attempts. Try again later.",
         message: "Too many attempts. Try again later.",
@@ -324,7 +356,9 @@ export const login: RequestHandler = async (req, res) => {
 
   if (!userRow) {
     const c = incrementAttempt(req, loginKey);
-    if (c >= 10) lockUser(loginKey, 15);
+    if (c >= 10) lockUserByIp(req, loginKey, 15);
+    const gc = incrementGlobalAttempt(loginKey);
+    if (gc >= 50) lockUserGlobally(loginKey, 15);
     let errorMsg: string;
     let message: string;
 
@@ -383,7 +417,9 @@ export const login: RequestHandler = async (req, res) => {
 
   if (!passwordMatch) {
     const c = incrementAttempt(req, loginKey);
-    if (c >= 10) lockUser(loginKey, 15);
+    if (c >= 10) lockUserByIp(req, loginKey, 15);
+    const gc = incrementGlobalAttempt(loginKey);
+    if (gc >= 50) lockUserGlobally(loginKey, 15);
     const errorMsg = isWindowLogin
       ? "Invalid window or password"
       : "Invalid username or password";
