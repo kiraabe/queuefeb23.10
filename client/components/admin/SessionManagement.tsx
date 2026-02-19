@@ -24,7 +24,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, RefreshCw, Trash2 } from "lucide-react";
+import { AlertCircle, RefreshCw, Trash2, ChevronDown } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Pagination,
   PaginationContent,
@@ -45,6 +51,7 @@ export default function SessionManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [revoking, setRevoking] = useState<Set<string>>(new Set());
   const [revokeSuccess, setRevokeSuccess] = useState<string | null>(null);
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
 
   const {
     data,
@@ -155,6 +162,7 @@ export default function SessionManagement() {
       totalItems: uniqueUsers.length,
       startIdx,
       endIdx,
+      userSessionMap: userMap,
     };
   }, [sessions, currentPage]);
 
@@ -353,98 +361,117 @@ export default function SessionManagement() {
           <div className="space-y-4">
             <Card>
               <CardContent className="pt-0">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Devices</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Window</TableHead>
-                        <TableHead>Logged In</TableHead>
-                        <TableHead>Last Seen</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginationData.currentSessions.map((session) => (
-                        <TableRow key={session.id}>
-                          <TableCell className="font-medium">
-                            <div className="flex flex-col">
-                              <span>
-                                {session.fullName || session.username}
-                              </span>
-                              {session.jobTitle && (
-                                <span className="text-xs text-muted-foreground">
-                                  {session.jobTitle}
+                <Accordion type="single" collapsible>
+                  {paginationData.currentSessions.map((userSession) => {
+                    const allUserSessions = paginationData.userSessionMap?.get(userSession.username) || [userSession];
+                    return (
+                      <AccordionItem key={userSession.username} value={userSession.username}>
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex w-full items-center justify-between gap-4 py-2">
+                            <div className="flex flex-1 items-center gap-4">
+                              <div className="flex flex-col text-left">
+                                <span className="font-medium">
+                                  {userSession.fullName || userSession.username}
                                 </span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getRoleColor(session.role)}>
-                              {session.role}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
+                                {userSession.jobTitle && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {userSession.jobTitle}
+                                  </span>
+                                )}
+                              </div>
+                              <Badge className={getRoleColor(userSession.role)}>
+                                {userSession.role}
+                              </Badge>
                               <Badge variant="outline">
-                                {userSessionCounts.get(session.username) || 0}
+                                {allUserSessions.length} device{allUserSessions.length !== 1 ? 's' : ''}
                               </Badge>
                             </div>
-                          </TableCell>
-                          <TableCell>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Badge
-                                  className={getStatusColor(session.status)}
+                                  className={getStatusColor(userSession.status)}
                                 >
-                                  {getStatusIcon(session.status)}{" "}
-                                  {getStatusLabel(session.status)}
+                                  {getStatusIcon(userSession.status)}{" "}
+                                  {getStatusLabel(userSession.status)}
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {getStatusDescription(session.status)}
+                                {getStatusDescription(userSession.status)}
                               </TooltipContent>
                             </Tooltip>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {session.windowId ?? "—"}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatTime(session.createdAt)}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatTime(session.lastSeenAt)}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {formatDuration(
-                              session.createdAt,
-                              session.lastSeenAt,
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRevokeSession(session.id)}
-                              disabled={revoking.has(session.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              {revoking.has(session.id) ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="overflow-x-auto mt-4">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Window</TableHead>
+                                  <TableHead>Logged In</TableHead>
+                                  <TableHead>Last Seen</TableHead>
+                                  <TableHead>Duration</TableHead>
+                                  <TableHead>Action</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {allUserSessions.map((session) => (
+                                  <TableRow key={session.id}>
+                                    <TableCell>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Badge
+                                            className={getStatusColor(session.status)}
+                                          >
+                                            {getStatusIcon(session.status)}{" "}
+                                            {getStatusLabel(session.status)}
+                                          </Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          {getStatusDescription(session.status)}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TableCell>
+                                    <TableCell className="text-sm">
+                                      {session.windowId ?? "—"}
+                                    </TableCell>
+                                    <TableCell className="text-sm">
+                                      {formatTime(session.createdAt)}
+                                    </TableCell>
+                                    <TableCell className="text-sm">
+                                      {formatTime(session.lastSeenAt)}
+                                    </TableCell>
+                                    <TableCell className="text-sm text-muted-foreground">
+                                      {formatDuration(
+                                        session.createdAt,
+                                        session.lastSeenAt,
+                                      )}
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleRevokeSession(session.id)}
+                                        disabled={revoking.has(session.id)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      >
+                                        {revoking.has(session.id) ? (
+                                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
+                                        ) : (
+                                          <Trash2 className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
               </CardContent>
             </Card>
 
