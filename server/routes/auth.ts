@@ -915,8 +915,12 @@ export const getSessionCountHandler: RequestHandler = async (req, res) => {
     const user = await getUserByUsername(username);
     if (!user) {
       // Don't reveal if user exists - return 0 for security
-      return res.json({ username, activeSessionCount: 0 });
+      return res.json({ username, activeSessionCount: 0, isBlocked: false });
     }
+
+    // Check if user is locked/blocked
+    const loginKey = `user_${username}`;
+    const blocked = isLocked(req, loginKey);
 
     // Get active session count
     const activeSessionCount = await countActiveSessionsForUser(user.id);
@@ -926,6 +930,7 @@ export const getSessionCountHandler: RequestHandler = async (req, res) => {
       activeSessionCount,
       maxSessions: 3,
       canLogin: activeSessionCount < 3,
+      isBlocked: blocked,
     });
   } catch (error) {
     console.error("[getSessionCountHandler] Error:", error);

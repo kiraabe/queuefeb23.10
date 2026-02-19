@@ -49,6 +49,7 @@ interface SessionInfo {
   activeSessionCount: number;
   maxSessions: number;
   canLogin: boolean;
+  isBlocked: boolean;
 }
 
 export default function Login() {
@@ -315,8 +316,8 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Active Sessions Display */}
-              {sessionInfo && (
+              {/* Active Sessions Display - Only show if user is blocked */}
+              {sessionInfo && sessionInfo.isBlocked && (
                 <div
                   className={`rounded-md p-3 text-sm ${
                     sessionInfo.canLogin
