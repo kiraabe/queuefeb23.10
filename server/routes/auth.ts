@@ -847,3 +847,52 @@ export const revokeSessionHandler: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Revoke all sessions for current user (cleanup endpoint for emergency)
+export const revokeAllSessionsHandler: RequestHandler = async (req, res) => {
+  try {
+    const cookies = parseCookies(req.headers.cookie || "");
+    const token = cookies[SESSION_COOKIE];
+
+    if (!token) {
+      return res.status(401).json({
+        error: "No session found",
+        message: "Please provide a valid session token",
+        code: "NO_SESSION",
+      });
+    }
+
+    // Find the session to get user ID
+    const session = await findSessionByToken(token);
+    if (!session) {
+      return res.status(401).json({
+        error: "Session invalid",
+        message: "Your session is invalid",
+        code: "SESSION_INVALIDATED",
+      });
+    }
+
+    // Revoke all sessions for this user EXCEPT the current one
+    await revokeSessionsForUser(session.userId, "invalidated", session.id);
+
+    // Log the audit
+    await logAudit({
+      action: "auth.all_sessions_revoked",
+      userId: session.userId,
+      username: session.username,
+      role: session.activeRole,
+      details: { currentSessionKept: session.id },
+    });
+
+    res.json({
+      ok: true,
+      message: "All other sessions revoked successfully. You remain logged in.",
+    });
+  } catch (error) {
+    console.error("[revokeAllSessionsHandler] Error:", error);
+    res.status(500).json({
+      error: "Failed to revoke sessions",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
