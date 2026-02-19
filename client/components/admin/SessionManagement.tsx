@@ -460,19 +460,21 @@ export default function SessionManagement() {
                                       )}
                                     </TableCell>
                                     <TableCell>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleRevokeSession(session.id)}
-                                        disabled={revoking.has(session.id)}
-                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                      >
-                                        {revoking.has(session.id) ? (
-                                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
-                                        ) : (
-                                          <Trash2 className="h-4 w-4" />
-                                        )}
-                                      </Button>
+                                      {session.status === "active" ? null : (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleRevokeSession(session.id)}
+                                          disabled={revoking.has(session.id)}
+                                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        >
+                                          {revoking.has(session.id) ? (
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
+                                          ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                      )}
                                     </TableCell>
                                   </TableRow>
                                 ))}
