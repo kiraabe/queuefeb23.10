@@ -896,3 +896,40 @@ export const revokeAllSessionsHandler: RequestHandler = async (req, res) => {
     });
   }
 };
+
+// Get active session count for a username (public endpoint for login page)
+export const getSessionCountHandler: RequestHandler = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username || typeof username !== "string") {
+      return res.status(400).json({
+        error: "Username is required",
+        message: "Please provide a valid username",
+      });
+    }
+
+    // Get user by username
+    const user = await getUserByUsername(username);
+    if (!user) {
+      // Don't reveal if user exists - return 0 for security
+      return res.json({ username, activeSessionCount: 0 });
+    }
+
+    // Get active session count
+    const activeSessionCount = await countActiveSessionsForUser(user.id);
+
+    res.json({
+      username: user.username,
+      activeSessionCount,
+      maxSessions: 3,
+      canLogin: activeSessionCount < 3,
+    });
+  } catch (error) {
+    console.error("[getSessionCountHandler] Error:", error);
+    res.status(500).json({
+      error: "Failed to get session count",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

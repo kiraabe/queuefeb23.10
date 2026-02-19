@@ -41,6 +41,7 @@ import {
   debugSessionsHandler,
   revokeSessionHandler,
   revokeAllSessionsHandler,
+  getSessionCountHandler,
   login,
   logout,
   me,
@@ -294,6 +295,7 @@ export function createServer() {
   app.post("/api/auth/logout", logout);
   app.get("/api/auth/me", me);
   app.post("/api/auth/switch-role", switchRole);
+  app.get("/api/auth/session-count/:username", getSessionCountHandler); // Public endpoint for login page
 
   // Queue/Teller API
   app.get("/api/events", sseHandler); // SSE

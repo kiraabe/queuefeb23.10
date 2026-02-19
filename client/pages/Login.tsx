@@ -44,6 +44,13 @@ function isMobileOrTablet(): boolean {
   return false;
 }
 
+interface SessionInfo {
+  username: string;
+  activeSessionCount: number;
+  maxSessions: number;
+  canLogin: boolean;
+}
+
 export default function Login() {
   const [isMobile, setIsMobile] = useState(false);
   const { login } = useAuth();
@@ -54,11 +61,47 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+  const [checkingSession, setCheckingSession] = useState(false);
 
   useEffect(() => {
     const detected = isMobileOrTablet();
     setIsMobile(detected);
   }, []);
+
+  // Check session count when username changes
+  useEffect(() => {
+    if (!username.trim()) {
+      setSessionInfo(null);
+      return;
+    }
+
+    const checkSessionCount = async () => {
+      setCheckingSession(true);
+      try {
+        const trimmedUsername = username.trim();
+        const response = await fetch(
+          `/api/auth/session-count/${encodeURIComponent(trimmedUsername)}`
+        );
+
+        if (response.ok) {
+          const data: SessionInfo = await response.json();
+          setSessionInfo(data);
+        } else {
+          setSessionInfo(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch session count:", err);
+        setSessionInfo(null);
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    // Debounce the check (wait 500ms after user stops typing)
+    const timer = setTimeout(checkSessionCount, 500);
+    return () => clearTimeout(timer);
+  }, [username]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,6 +301,44 @@ export default function Login() {
                   </button>
                 </div>
               </div>
+
+              {/* Active Sessions Display */}
+              {sessionInfo && (
+                <div
+                  className={`rounded-md p-3 text-sm ${
+                    sessionInfo.canLogin
+                      ? "bg-blue-50 border border-blue-200"
+                      : "bg-red-50 border border-red-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <p
+                        className={`font-medium ${
+                          sessionInfo.canLogin
+                            ? "text-blue-900"
+                            : "text-red-900"
+                        }`}
+                      >
+                        {sessionInfo.activeSessionCount} of{" "}
+                        {sessionInfo.maxSessions} devices logged in
+                      </p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          sessionInfo.canLogin
+                            ? "text-blue-700"
+                            : "text-red-700"
+                        }`}
+                      >
+                        {sessionInfo.canLogin
+                          ? `You can log in on ${sessionInfo.maxSessions - sessionInfo.activeSessionCount} more device${sessionInfo.maxSessions - sessionInfo.activeSessionCount === 1 ? "" : "s"}.`
+                          : "Maximum session limit reached. Please log out from another device to continue."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" disabled={pending}>
                 {pending ? "Signing in…" : "Sign in"}
