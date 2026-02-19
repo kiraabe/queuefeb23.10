@@ -217,6 +217,9 @@ export default function DailyReportViewer() {
         toDate: toISO,
       });
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -224,7 +227,10 @@ export default function DailyReportViewer() {
           "X-Requested-With": "fetch",
         },
         credentials: "include",
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

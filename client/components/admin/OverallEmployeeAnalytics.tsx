@@ -73,14 +73,33 @@ export default function OverallEmployeeAnalytics() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/admin/overall-analytics");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const res = await fetch("/api/admin/overall-analytics", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "fetch",
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
       if (!res.ok) {
-        throw new Error("Failed to fetch overall analytics");
+        throw new Error(
+          `Failed to fetch overall analytics: HTTP ${res.status}`
+        );
       }
       const data = await res.json();
       setAnalytics(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to load analytics data";
+      console.error("OverallEmployeeAnalytics error:", errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
