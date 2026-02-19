@@ -33,7 +33,7 @@ export function ConsoleShell({
       </div>
 
       {/* Main content area - scrollable */}
-      <div className="flex-1 overflow-y-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="flex-1 overflow-y-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-8 sm:pb-12">
         <div
           className={cn(
             "w-full grid gap-4 sm:gap-6",
