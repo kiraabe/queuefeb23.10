@@ -133,8 +133,9 @@ export async function apiFetch<T>(
     };
 
     // Create an AbortController for proper timeout handling
+    // Increased timeout from 30s to 60s for slow endpoints
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
       const response = await fetch(url, {
@@ -145,17 +146,16 @@ export async function apiFetch<T>(
       return response;
     } catch (err) {
       clearTimeout(timeoutId);
-      // Log network errors for debugging
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      // Don't log abort errors caused by our timeout as they're expected
-      if (
-        !(
-          err instanceof Error &&
-          err.name === "AbortError" &&
-          controller.signal.aborted
-        )
-      ) {
-        console.error(
+      // Check if this was a timeout abort
+      const isTimeoutAbort =
+        err instanceof Error &&
+        err.name === "AbortError" &&
+        controller.signal.aborted;
+
+      // Log network errors for debugging (skip expected timeouts)
+      if (!isTimeoutAbort) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        console.warn(
           `[API] Network error for ${opts?.method || "GET"} ${path}: ${errorMsg}`,
         );
       }
@@ -167,9 +167,15 @@ export async function apiFetch<T>(
   try {
     res = await doFetch();
   } catch (e) {
+    // Check if this is a timeout error
+    const isTimeoutError =
+      e instanceof Error &&
+      (e.name === "AbortError" || e.message.includes("timeout"));
+    const errorMsg = e instanceof Error ? e.message : String(e);
+
     // Only retry with API base resolution if first attempt failed
     // and we haven't already resolved the API base
-    if (dynamicBase === null) {
+    if (dynamicBase === null && !isTimeoutError) {
       try {
         const detectedBase = await ensureApiBaseResolved();
         if (detectedBase !== getApiBase()) {
@@ -180,24 +186,29 @@ export async function apiFetch<T>(
           throw e;
         }
       } catch (retryErr) {
-        const errorMsg =
+        const retryErrorMsg =
           retryErr instanceof Error ? retryErr.message : String(retryErr);
         console.error(
-          `[API] Failed to reach server at path ${path}: ${errorMsg}`,
+          `[API] Failed to reach server at path ${path}: ${retryErrorMsg}`,
         );
         throw new Error(
           "Unable to reach the server. Please check your connection and try again.",
         );
       }
     } else {
-      // Already tried API base detection, just throw
-      const errorMsg = e instanceof Error ? e.message : String(e);
+      // Already tried API base detection or timeout error, just throw
       console.error(
         `[API] Failed to reach server at path ${path}: ${errorMsg}`,
       );
-      throw new Error(
-        "Unable to reach the server. Please check your connection and try again.",
-      );
+      if (isTimeoutError) {
+        throw new Error(
+          "Request timed out. The server is taking too long to respond. Please try again.",
+        );
+      } else {
+        throw new Error(
+          "Unable to reach the server. Please check your connection and try again.",
+        );
+      }
     }
   }
 

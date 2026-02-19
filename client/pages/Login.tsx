@@ -80,9 +80,21 @@ export default function Login() {
       setCheckingSession(true);
       try {
         const trimmedUsername = username.trim();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
         const response = await fetch(
-          `/api/auth/session-count/${encodeURIComponent(trimmedUsername)}`
+          `/api/auth/session-count/${encodeURIComponent(trimmedUsername)}`,
+          {
+            signal: controller.signal,
+            credentials: "include",
+            headers: {
+              "X-Requested-With": "fetch",
+            },
+          }
         );
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data: SessionInfo = await response.json();
@@ -91,15 +103,16 @@ export default function Login() {
           setSessionInfo(null);
         }
       } catch (err) {
-        console.error("Failed to fetch session count:", err);
+        // Silently fail for session count check - it's not critical
+        console.debug("Failed to fetch session count:", err);
         setSessionInfo(null);
       } finally {
         setCheckingSession(false);
       }
     };
 
-    // Debounce the check (wait 500ms after user stops typing)
-    const timer = setTimeout(checkSessionCount, 500);
+    // Debounce the check (wait 800ms after user stops typing to reduce requests)
+    const timer = setTimeout(checkSessionCount, 800);
     return () => clearTimeout(timer);
   }, [username]);
 

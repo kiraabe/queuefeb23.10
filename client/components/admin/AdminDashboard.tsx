@@ -109,13 +109,21 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchEmployeeStats = async () => {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
         const response = await fetch("/api/admin/employee-stats", {
           method: "GET",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            "X-Requested-With": "fetch",
           },
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
+
         if (response.ok) {
           const data = await response.json();
           setEmployeeStats({
@@ -128,13 +136,17 @@ export default function AdminDashboard() {
           console.warn("Failed to fetch employee stats: HTTP", response.status);
         }
       } catch (error) {
-        console.error("Failed to fetch employee stats:", error);
+        // Silently fail - dashboard still works with default values
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.debug("Failed to fetch employee stats:", errorMsg);
         // Keep existing state on error
       }
     };
 
+    // Fetch immediately on load
     fetchEmployeeStats();
-    const interval = setInterval(fetchEmployeeStats, 30000); // Refresh every 30 seconds
+    // Then refresh every 30 seconds
+    const interval = setInterval(fetchEmployeeStats, 30000);
     return () => clearInterval(interval);
   }, []);
 
