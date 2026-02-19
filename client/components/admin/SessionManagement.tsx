@@ -295,6 +295,47 @@ export default function SessionManagement() {
     }
   };
 
+  const handleTerminateUser = async (username: string, sessionIds: string[]) => {
+    if (!confirm(`Are you sure you want to terminate all ${sessionIds.length} session(s) for this user?`)) {
+      return;
+    }
+
+    // Mark all sessions as revoking
+    const newRevoking = new Set(revoking);
+    sessionIds.forEach(id => newRevoking.add(id));
+    setRevoking(newRevoking);
+
+    let failedCount = 0;
+    for (const sessionId of sessionIds) {
+      try {
+        const response = await fetch(`/api/admin/sessions/${sessionId}`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          failedCount++;
+        }
+      } catch (err) {
+        failedCount++;
+      }
+    }
+
+    if (failedCount === 0) {
+      setRevokeSuccess(`All sessions for ${username} terminated successfully`);
+      setTimeout(() => setRevokeSuccess(null), 3000);
+    } else {
+      setError(`Failed to terminate ${failedCount} session(s)`);
+    }
+
+    setRevoking(new Set());
+    refetch();
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -400,19 +441,32 @@ export default function SessionManagement() {
                                 {allUserSessions.length} device{allUserSessions.length !== 1 ? 's' : ''}
                               </Badge>
                             </div>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge
-                                  className={getStatusColor(userSession.status)}
-                                >
-                                  {getStatusIcon(userSession.status)}{" "}
-                                  {getStatusLabel(userSession.status)}
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {getStatusDescription(userSession.status)}
-                              </TooltipContent>
-                            </Tooltip>
+                            <div className="flex items-center gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    className={getStatusColor(userSession.status)}
+                                  >
+                                    {getStatusIcon(userSession.status)}{" "}
+                                    {getStatusLabel(userSession.status)}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {getStatusDescription(userSession.status)}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTerminateUser(userSession.username, allUserSessions.map(s => s.id));
+                                }}
+                                disabled={allUserSessions.some(s => revoking.has(s.id))}
+                              >
+                                Terminate
+                              </Button>
+                            </div>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
