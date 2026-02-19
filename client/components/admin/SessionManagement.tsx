@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Card,
@@ -52,6 +52,7 @@ export default function SessionManagement() {
   const [revoking, setRevoking] = useState<Set<string>>(new Set());
   const [revokeSuccess, setRevokeSuccess] = useState<string | null>(null);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+  const accordionRef = useRef<HTMLDivElement>(null);
 
   const {
     data,
@@ -242,6 +243,16 @@ export default function SessionManagement() {
     return `${Math.round(diff / 3600)}h`;
   };
 
+  const handleAccordionChange = (value: string) => {
+    // Scroll into view with smooth behavior when accordion expands
+    setTimeout(() => {
+      const element = document.getElementById(`accordion-${value}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  };
+
   const handleRevokeSession = async (sessionId: string) => {
     if (!confirm("Are you sure you want to revoke this session?")) {
       return;
@@ -361,11 +372,12 @@ export default function SessionManagement() {
           <div className="space-y-4">
             <Card>
               <CardContent className="pt-0">
-                <Accordion type="single" collapsible>
+                <Accordion type="single" collapsible onValueChange={handleAccordionChange}>
                   {paginationData.currentSessions.map((userSession) => {
                     const allUserSessions = paginationData.userSessionMap?.get(userSession.username) || [userSession];
                     return (
-                      <AccordionItem key={userSession.username} value={userSession.username}>
+                      <div key={userSession.username} id={`accordion-${userSession.username}`}>
+                        <AccordionItem value={userSession.username}>
                         <AccordionTrigger className="hover:no-underline">
                           <div className="flex w-full items-center justify-between gap-4 py-2">
                             <div className="flex flex-1 items-center gap-4">
@@ -402,7 +414,7 @@ export default function SessionManagement() {
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className="overflow-x-auto mt-4">
+                          <div className="overflow-x-auto mt-4 max-h-96 overflow-y-auto">
                             <Table>
                               <TableHeader>
                                 <TableRow>
@@ -469,6 +481,7 @@ export default function SessionManagement() {
                           </div>
                         </AccordionContent>
                       </AccordionItem>
+                      </div>
                     );
                   })}
                 </Accordion>
