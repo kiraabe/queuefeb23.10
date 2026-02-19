@@ -295,47 +295,6 @@ export default function SessionManagement() {
     }
   };
 
-  const handleTerminateUser = async (username: string, sessionIds: string[]) => {
-    if (!confirm(`Are you sure you want to terminate all ${sessionIds.length} session(s) for this user?`)) {
-      return;
-    }
-
-    // Mark all sessions as revoking
-    const newRevoking = new Set(revoking);
-    sessionIds.forEach(id => newRevoking.add(id));
-    setRevoking(newRevoking);
-
-    let failedCount = 0;
-    for (const sessionId of sessionIds) {
-      try {
-        const response = await fetch(`/api/admin/sessions/${sessionId}`, {
-          method: "DELETE",
-          credentials: "include",
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          failedCount++;
-        }
-      } catch (err) {
-        failedCount++;
-      }
-    }
-
-    if (failedCount === 0) {
-      setRevokeSuccess(`All sessions for ${username} terminated successfully`);
-      setTimeout(() => setRevokeSuccess(null), 3000);
-    } else {
-      setError(`Failed to terminate ${failedCount} session(s)`);
-    }
-
-    setRevoking(new Set());
-    refetch();
-  };
-
   if (isLoading) {
     return (
       <Card>
@@ -441,32 +400,19 @@ export default function SessionManagement() {
                                 {allUserSessions.length} device{allUserSessions.length !== 1 ? 's' : ''}
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Badge
-                                    className={getStatusColor(userSession.status)}
-                                  >
-                                    {getStatusIcon(userSession.status)}{" "}
-                                    {getStatusLabel(userSession.status)}
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {getStatusDescription(userSession.status)}
-                                </TooltipContent>
-                              </Tooltip>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleTerminateUser(userSession.username, allUserSessions.map(s => s.id));
-                                }}
-                                disabled={allUserSessions.some(s => revoking.has(s.id))}
-                              >
-                                Terminate
-                              </Button>
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  className={getStatusColor(userSession.status)}
+                                >
+                                  {getStatusIcon(userSession.status)}{" "}
+                                  {getStatusLabel(userSession.status)}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {getStatusDescription(userSession.status)}
+                              </TooltipContent>
+                            </Tooltip>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
@@ -516,21 +462,20 @@ export default function SessionManagement() {
                                       )}
                                     </TableCell>
                                     <TableCell>
-                                      {session.status === "active" ? null : (
+                                      {session.status === "active" ? (
                                         <Button
-                                          variant="ghost"
+                                          variant="destructive"
                                           size="sm"
                                           onClick={() => handleRevokeSession(session.id)}
                                           disabled={revoking.has(session.id)}
-                                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                         >
                                           {revoking.has(session.id) ? (
-                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                           ) : (
-                                            <Trash2 className="h-4 w-4" />
+                                            "Terminate"
                                           )}
                                         </Button>
-                                      )}
+                                      ) : null}
                                     </TableCell>
                                   </TableRow>
                                 ))}
