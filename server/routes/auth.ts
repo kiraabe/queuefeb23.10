@@ -469,35 +469,11 @@ export const login: RequestHandler = async (req, res) => {
   }
 
   // Check for active sessions limit
-  let activeSessionCount = await countActiveSessionsForUser(userRow.id);
+  const activeSessionCount = await countActiveSessionsForUser(userRow.id);
 
-  // If at or over limit, try to auto-revoke old sessions to make room
+  // Reject login if already at limit - do not revoke existing sessions
   if (activeSessionCount >= 3) {
-    const pool = getPool();
-    // Get all non-revoked sessions ordered by last access time (oldest first)
-    const { rows: sessions } = await pool.query(
-      `SELECT id, created_at, last_seen_at
-       FROM user_sessions
-       WHERE user_id = $1 AND revoked_at IS NULL
-       ORDER BY last_seen_at ASC`,
-      [userRow.id],
-    );
-
-    // Revoke the oldest session to make room for the new one
-    if (sessions.length > 0) {
-      await revokeSessionById(sessions[0].id, "conflict");
-      console.log(`[Auth] Auto-revoked oldest session to make room for new login`, {
-        userId: userRow.id,
-        revokedSessionId: sessions[0].id,
-      });
-      // Recount active sessions
-      activeSessionCount = await countActiveSessionsForUser(userRow.id);
-    }
-  }
-
-  // Final check - should now have room
-  if (activeSessionCount >= 3) {
-    return res.status(401).json({
+    return res.status(409).json({
       error: "Maximum sessions reached",
       message:
         "You have reached the maximum number of concurrent login sessions (3). Please log out from another device before logging in here.",
