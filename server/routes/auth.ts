@@ -474,9 +474,9 @@ export const login: RequestHandler = async (req, res) => {
   // Reject login if already at limit - do not revoke existing sessions
   if (activeSessionCount >= 3) {
     return res.status(409).json({
-      error: "Maximum sessions reached",
+      error: "Maximum session limit reached",
       message:
-        "You have reached the maximum number of concurrent login sessions (3). Please log out from another device before logging in here.",
+        "Maximum session limit reached. Please log out from another device to continue.",
       code: "MAX_SESSIONS_REACHED" as AuthErrorCode,
     });
   }
