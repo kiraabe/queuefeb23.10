@@ -138,14 +138,25 @@ export async function createUserSession(params: {
 
 export async function countActiveSessionsForUser(userId: string): Promise<number> {
   const p = getPool();
+
+  // First, revoke any idle sessions for this user
+  await p.query(
+    `UPDATE user_sessions
+     SET revoked_at = now(), revoke_reason = $3
+     WHERE user_id = $1
+       AND revoked_at IS NULL
+       AND last_seen_at <= now() - (interval '1 second' * $2)`,
+    [userId, SESSION_IDLE_TIMEOUT_SECONDS, "timeout"],
+  );
+
+  // Now count active sessions
   const { rows } = await p.query(
     `SELECT count(*) as count
      FROM user_sessions
      WHERE user_id = $1
        AND revoked_at IS NULL
-       AND expires_at > now()
-       AND last_seen_at > now() - (interval '1 second' * $2)`,
-    [userId, SESSION_IDLE_TIMEOUT_SECONDS],
+       AND expires_at > now()`,
+    [userId],
   );
   return parseInt(rows[0].count, 10);
 }
