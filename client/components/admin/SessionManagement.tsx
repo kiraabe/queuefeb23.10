@@ -127,15 +127,32 @@ export default function SessionManagement() {
   }, [sessions]);
 
   const paginationData = useMemo(() => {
-    const totalPages = Math.ceil(sessions.length / ITEMS_PER_PAGE);
+    // Group sessions by username to show unique users only
+    const userMap = new Map<string, SessionSummary[]>();
+    sessions.forEach((session) => {
+      if (!userMap.has(session.username)) {
+        userMap.set(session.username, []);
+      }
+      userMap.get(session.username)!.push(session);
+    });
+
+    // Get unique users (most recent session per user)
+    const uniqueUsers = Array.from(userMap.values()).map((userSessions) => {
+      // Return the most recent session for this user
+      return userSessions.reduce((latest, current) =>
+        current.lastSeenAt > latest.lastSeenAt ? current : latest
+      );
+    });
+
+    const totalPages = Math.ceil(uniqueUsers.length / ITEMS_PER_PAGE);
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIdx = startIdx + ITEMS_PER_PAGE;
-    const currentSessions = sessions.slice(startIdx, endIdx);
+    const currentSessions = uniqueUsers.slice(startIdx, endIdx);
 
     return {
       currentSessions,
       totalPages,
-      totalItems: sessions.length,
+      totalItems: uniqueUsers.length,
       startIdx,
       endIdx,
     };
@@ -279,7 +296,7 @@ export default function SessionManagement() {
               <div>
                 <CardTitle>Active Sessions</CardTitle>
                 <CardDescription>
-                  Monitor user sessions across the system ({sessions.length})
+                  Monitor logged-in users ({paginationData.totalItems} users, {sessions.length} sessions)
                 </CardDescription>
               </div>
               <Button
@@ -324,7 +341,7 @@ export default function SessionManagement() {
           </Alert>
         )}
 
-        {sessions.length === 0 ? (
+        {paginationData.totalItems === 0 ? (
           <Card>
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground">
