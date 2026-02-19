@@ -244,6 +244,30 @@ export function sessionExpired(
   return false;
 }
 
+export async function cleanupAllStaleSessions(): Promise<number> {
+  const p = getPool();
+
+  // Revoke idle sessions across all users
+  const idleResult = await p.query(
+    `UPDATE user_sessions
+     SET revoked_at = now(), revoke_reason = 'timeout'
+     WHERE revoked_at IS NULL
+       AND last_seen_at <= now() - (interval '1 second' * $1)`,
+    [SESSION_IDLE_TIMEOUT_SECONDS],
+  );
+
+  // Revoke expired sessions across all users
+  const expiredResult = await p.query(
+    `UPDATE user_sessions
+     SET revoked_at = now(), revoke_reason = 'expired'
+     WHERE revoked_at IS NULL
+       AND expires_at <= now()`,
+  );
+
+  const totalRevoked = (idleResult.rowCount || 0) + (expiredResult.rowCount || 0);
+  return totalRevoked;
+}
+
 export async function listSessions(
   now = Date.now(),
 ): Promise<SessionSummary[]> {

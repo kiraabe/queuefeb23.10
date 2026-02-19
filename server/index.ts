@@ -49,6 +49,7 @@ import {
   requireTellerForWindowParam,
   switchRole,
 } from "./routes/auth";
+import { cleanupAllStaleSessions } from "./store/sessions";
 import { tellerStats, tellerTickets } from "./routes/teller";
 import {
   employeeReceivedTickets,
@@ -610,6 +611,30 @@ export function createServer() {
       status >= 500 ? "Internal Server Error" : String(err?.message || "Error");
     res.status(status).json({ error: message });
   });
+
+  // Perform initial cleanup of stale sessions on startup
+  (async () => {
+    try {
+      const cleaned = await cleanupAllStaleSessions();
+      if (cleaned > 0) {
+        console.log(`[Sessions] Initial cleanup removed ${cleaned} stale sessions`);
+      }
+    } catch (error) {
+      console.error("[Sessions] Initial cleanup failed:", error);
+    }
+  })();
+
+  // Periodic cleanup of stale sessions (every 5 minutes)
+  setInterval(async () => {
+    try {
+      const cleaned = await cleanupAllStaleSessions();
+      if (cleaned > 0) {
+        console.log(`[Sessions] Cleaned up ${cleaned} stale sessions`);
+      }
+    } catch (error) {
+      console.error("[Sessions] Cleanup failed:", error);
+    }
+  }, 5 * 60 * 1000);
 
   return app;
 }
