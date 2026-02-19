@@ -196,6 +196,17 @@ export function ArchivedTicketsHistory() {
     return new Date(timestamp).toLocaleTimeString();
   };
 
+  const formatDateAndTime = (timestamp: number | null) => {
+    if (!timestamp) return "N/A";
+    const date = new Date(timestamp);
+    const dateStr = date.toLocaleDateString();
+    const timeStr = date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${dateStr} ${timeStr}`;
+  };
+
   return (
     <div className="space-y-4">
       {/* Stats Cards */}
@@ -364,7 +375,7 @@ export function ArchivedTicketsHistory() {
                             Start Time
                           </p>
                           <p className="text-sm">
-                            {formatTime24Hour(ticket.archiverStartedAt)}
+                            {formatDateAndTime(ticket.archiverStartedAt)}
                           </p>
                         </div>
 
@@ -374,7 +385,7 @@ export function ArchivedTicketsHistory() {
                             Retrieved Time
                           </p>
                           <p className="text-sm">
-                            {formatTime24Hour(ticket.retrievedAt)}
+                            {formatDateAndTime(ticket.retrievedAt)}
                           </p>
                         </div>
 
