@@ -1,7 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import {
   ArrowRight,
-  BellRing,
   CalendarClock,
   CheckCircle2,
   ClipboardCheck,
@@ -175,31 +174,6 @@ const PHASES: Array<{
   },
 ];
 
-const MONITORING_OPTIONS: Array<{
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}> = [
-  {
-    title: "QR status mini-site",
-    description:
-      "Scoped, ticket-specific portal refreshed with every scan—position, wait estimate, and live prompts all in one view.",
-    icon: Smartphone,
-  },
-  {
-    title: "Lobby display sync",
-    description:
-      "Large format dashboard mirroring ‘Now Serving’ to keep crowds informed without pulling out a device.",
-    icon: Monitor,
-  },
-  {
-    title: "Staff alerting",
-    description:
-      "Reception gets notified when VIP or accessibility profiles reach the top so they can escort personally.",
-    icon: BellRing,
-  },
-];
-
 const QR_MATRIX = [
   "1111110",
   "1000001",
@@ -295,24 +269,6 @@ const TicketSnapshot = () => (
       </div>
     </div>
   </div>
-);
-
-const MonitoringCard = ({
-  title,
-  description,
-  icon: Icon,
-}: (typeof MONITORING_OPTIONS)[number]) => (
-  <Card className="h-full border-border/60 bg-card/80 backdrop-blur">
-    <CardHeader className="space-y-4">
-      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <CardTitle className="text-xl">{title}</CardTitle>
-      <CardDescription className="text-sm leading-relaxed text-muted-foreground">
-        {description}
-      </CardDescription>
-    </CardHeader>
-  </Card>
 );
 
 const PhaseCard = ({
@@ -478,24 +434,6 @@ export default function Index() {
           <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             {PHASES.map((phase) => (
               <PhaseCard key={phase.phase} {...phase} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative border-t border-border/60 bg-foreground/5 py-8 sm:py-12 md:py-16">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start mb-8 sm:mb-12">
-            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
-              Monitoring & visibility
-            </h2>
-            <p className="mt-1 sm:mt-2 text-sm text-muted-foreground max-w-2xl">
-              Keep staff and visitors informed with real-time updates and dashboards.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
-            {MONITORING_OPTIONS.map((option) => (
-              <MonitoringCard key={option.title} {...option} />
             ))}
           </div>
         </div>
