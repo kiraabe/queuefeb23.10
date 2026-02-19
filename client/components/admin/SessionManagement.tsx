@@ -113,6 +113,19 @@ export default function SessionManagement() {
     }
   }, [data]);
 
+  const userSessionCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    sessions.forEach((session) => {
+      if (session.status === "active") {
+        counts.set(
+          session.username,
+          (counts.get(session.username) || 0) + 1
+        );
+      }
+    });
+    return counts;
+  }, [sessions]);
+
   const paginationData = useMemo(() => {
     const totalPages = Math.ceil(sessions.length / ITEMS_PER_PAGE);
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -329,6 +342,7 @@ export default function SessionManagement() {
                       <TableRow>
                         <TableHead>User</TableHead>
                         <TableHead>Role</TableHead>
+                        <TableHead>Devices</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Window</TableHead>
                         <TableHead>Logged In</TableHead>
@@ -356,6 +370,13 @@ export default function SessionManagement() {
                             <Badge className={getRoleColor(session.role)}>
                               {session.role}
                             </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-center">
+                              <Badge variant="outline">
+                                {userSessionCounts.get(session.username) || 0}
+                              </Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Tooltip>
