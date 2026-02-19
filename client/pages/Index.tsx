@@ -501,28 +501,6 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="get-started" className="relative py-8 sm:py-10 md:py-12">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="rounded-lg border border-border/60 bg-card/90 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
-            <div className="flex-1">
-              <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground">
-                Get started
-              </h3>
-              <p className="mt-1 sm:mt-2 text-sm text-muted-foreground">
-                Pilot in days — templates and staff prompts included.
-              </p>
-            </div>
-            <Button asChild className="w-full sm:w-auto flex-shrink-0 h-11">
-              <Link
-                to="/reception"
-                className="flex items-center justify-center"
-              >
-                Launch reception
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
