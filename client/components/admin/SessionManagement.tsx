@@ -135,13 +135,15 @@ export default function SessionManagement() {
   }, [sessions]);
 
   const paginationData = useMemo(() => {
-    // Group sessions by username to show unique users only
+    // Group sessions by username to show unique users only (only active sessions)
     const userMap = new Map<string, SessionSummary[]>();
     sessions.forEach((session) => {
-      if (!userMap.has(session.username)) {
-        userMap.set(session.username, []);
+      if (session.status === "active") {
+        if (!userMap.has(session.username)) {
+          userMap.set(session.username, []);
+        }
+        userMap.get(session.username)!.push(session);
       }
-      userMap.get(session.username)!.push(session);
     });
 
     // Get unique users (most recent session per user)
