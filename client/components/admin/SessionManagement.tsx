@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, Trash2 } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -43,6 +43,8 @@ export default function SessionManagement() {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [revoking, setRevoking] = useState<Set<string>>(new Set());
+  const [revokeSuccess, setRevokeSuccess] = useState<string | null>(null);
 
   const {
     data,
@@ -202,6 +204,46 @@ export default function SessionManagement() {
     return `${Math.round(diff / 3600)}h`;
   };
 
+  const handleRevokeSession = async (sessionId: string) => {
+    if (!confirm("Are you sure you want to revoke this session?")) {
+      return;
+    }
+
+    setRevoking((prev) => new Set(prev).add(sessionId));
+    try {
+      const response = await fetch(`/api/admin/sessions/${sessionId}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          data?.error || `Failed to revoke session (${response.status})`
+        );
+      }
+
+      setRevokeSuccess(`Session revoked successfully`);
+      setTimeout(() => setRevokeSuccess(null), 3000);
+
+      // Refetch sessions
+      refetch();
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setError(`Failed to revoke session: ${errMsg}`);
+    } finally {
+      setRevoking((prev) => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -249,6 +291,14 @@ export default function SessionManagement() {
           </Alert>
         )}
 
+        {revokeSuccess && (
+          <Alert className="bg-green-50 border-green-200">
+            <AlertDescription className="text-green-800">
+              {revokeSuccess}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {queryError && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -284,6 +334,7 @@ export default function SessionManagement() {
                         <TableHead>Logged In</TableHead>
                         <TableHead>Last Seen</TableHead>
                         <TableHead>Duration</TableHead>
+                        <TableHead>Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -335,6 +386,21 @@ export default function SessionManagement() {
                               session.createdAt,
                               session.lastSeenAt,
                             )}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRevokeSession(session.id)}
+                              disabled={revoking.has(session.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              {revoking.has(session.id) ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-600" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}

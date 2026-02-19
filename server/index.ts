@@ -39,6 +39,7 @@ import {
 import {
   listSessionsHandler,
   debugSessionsHandler,
+  revokeSessionHandler,
   login,
   logout,
   me,
@@ -474,6 +475,7 @@ export function createServer() {
 
   app.get("/api/tickets/:code", getTicketStatus);
   app.get("/api/admin/sessions", requireRole(["admin"]), listSessionsHandler);
+  app.delete("/api/admin/sessions/:sessionId", requireRole(["admin"]), revokeSessionHandler);
   app.get("/api/admin/sessions-debug", debugSessionsHandler); // Debug endpoint without auth
   app.post("/api/admin/clear-demo", requireRole(["admin"]), clearDemo);
   app.post("/api/admin/seed-test-data", requireRole(["admin"]), seedTestData);

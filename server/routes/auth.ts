@@ -815,3 +815,35 @@ export const debugSessionsHandler: RequestHandler = async (_req, res) => {
     });
   }
 };
+
+// Revoke a specific session by ID
+export const revokeSessionHandler: RequestHandler = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const auth = (req as any).auth;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+
+    // Revoke the session
+    await revokeSessionById(sessionId, "invalidated");
+
+    // Log the audit
+    await logAudit({
+      action: "auth.session_revoked",
+      userId: auth?.id ?? null,
+      username: auth?.username ?? null,
+      role: auth?.role ?? null,
+      details: { revokedSessionId: sessionId },
+    });
+
+    res.json({ ok: true, message: "Session revoked successfully" });
+  } catch (error) {
+    console.error("[revokeSessionHandler] Error:", error);
+    res.status(500).json({
+      error: "Failed to revoke session",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
