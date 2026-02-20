@@ -89,9 +89,12 @@ const SiteHeader = () => {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <span className="text-sm font-semibold text-primary">
+              <button
+                onClick={() => navigate("/profile")}
+                className="text-sm font-semibold text-primary hover:underline cursor-pointer"
+              >
                 {user.role} - {user.fullName || user.username}
-              </span>
+              </button>
               <Button
                 variant="outline"
                 onClick={async () => {
@@ -176,14 +179,20 @@ const SiteHeader = () => {
           <div className="flex flex-col gap-2 border-t border-border/40 pt-4 mt-2">
             {user ? (
               <>
-                <div className="px-5 py-2 text-sm">
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    closeMenu();
+                  }}
+                  className="px-5 py-2 text-sm hover:opacity-80 cursor-pointer text-left"
+                >
                   <p className="font-bold text-primary capitalize">
                     {user.role}
                   </p>
                   <p className="text-xs font-semibold text-primary">
                     {user.fullName || user.username}
                   </p>
-                </div>
+                </button>
                 <Button
                   variant="destructive"
                   className="w-full h-10 text-sm font-medium"
