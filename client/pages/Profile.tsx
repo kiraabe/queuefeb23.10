@@ -112,17 +112,17 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Full Name */}
-            {user.fullName && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Full Name
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    readOnly
-                    value={user.fullName}
-                    className="bg-muted/50 cursor-default"
-                  />
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">
+                Full Name
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  readOnly
+                  value={user.fullName || "Not provided"}
+                  className="bg-muted/50 cursor-default"
+                />
+                {user.fullName && (
                   <Button
                     variant="outline"
                     size="icon"
@@ -135,9 +135,9 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
                       <Copy className="h-4 w-4" />
                     )}
                   </Button>
-                </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Username */}
             <div className="space-y-2">
