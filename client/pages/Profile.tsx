@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Check } from "lucide-react";
@@ -17,12 +17,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { JobTitle } from "@shared/api";
 import { toast } from "sonner";
 
-export default function Profile() {
-  const { user } = useAuth();
+function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Fetch job title if available - must be called before any conditional returns
   const { data: jobTitles } = useQuery({
     queryKey: ["job-titles"],
     queryFn: async () => {
@@ -31,23 +29,10 @@ export default function Profile() {
       const result = (await response.json()) as { jobTitles: JobTitle[] };
       return result.jobTitles;
     },
-    enabled: !!user?.jobTitleId,
   });
-
-  // Now we can safely do conditional returns after all hooks are declared
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   const jobTitle = jobTitles?.find((jt) => jt.id === user.jobTitleId);
 
-  // Get user initials for avatar
   const getInitials = (fullName?: string, username?: string): string => {
     const name = fullName || username;
     if (!name) return "?";
@@ -260,4 +245,20 @@ export default function Profile() {
       </div>
     </div>
   );
+}
+
+export default function Profile() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <ProfileContent user={user} />;
 }
