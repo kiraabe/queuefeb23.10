@@ -49,7 +49,9 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
     },
   });
 
-  const jobTitle = jobTitles?.find((jt) => jt.id === user.jobTitleId);
+  const jobTitle = Array.isArray(jobTitles)
+    ? jobTitles.find((jt) => jt.id === user.jobTitleId)
+    : undefined;
 
   const getInitials = (fullName?: string, username?: string): string => {
     const name = fullName || username;
