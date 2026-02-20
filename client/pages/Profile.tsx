@@ -75,7 +75,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
 
   return (
     <>
-      {(user.role === "reception" || user.role === "teller" || user.role === "employee") && <SiteHeader />}
+      {(user.role === "reception" || user.role === "teller") && <SiteHeader />}
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-border/40 bg-background/95">
           <div className="flex items-center gap-2">
