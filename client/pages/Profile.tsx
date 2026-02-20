@@ -137,31 +137,6 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
               </div>
             </div>
 
-            {/* User ID */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-muted-foreground">
-                User ID
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  readOnly
-                  value={user.id}
-                  className="bg-muted/50 cursor-default font-mono text-xs sm:text-sm"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => copyToClipboard(user.id, "User ID")}
-                  className="h-10 w-10 flex-shrink-0"
-                >
-                  {copiedField === "User ID" ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
 
             {/* Role */}
             <div className="space-y-2">
@@ -208,21 +183,46 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
               </div>
             )}
 
-            {/* Job Title ID */}
-            {user.jobTitleId && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Job Title ID
-                </Label>
-                <Input
-                  readOnly
-                  value={user.jobTitleId}
-                  className="bg-muted/50 cursor-default font-mono text-xs sm:text-sm"
-                />
-              </div>
-            )}
           </CardContent>
         </Card>
+
+        {/* Job Information */}
+        {(user.department || user.position) && (
+          <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg sm:text-xl">
+                Job Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {user.department && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Department
+                  </Label>
+                  <Input
+                    readOnly
+                    value={user.department}
+                    className="bg-muted/50 cursor-default"
+                  />
+                </div>
+              )}
+
+              {user.position && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Position
+                  </Label>
+                  <Input
+                    readOnly
+                    value={user.position}
+                    className="bg-muted/50 cursor-default"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Additional Info */}
         <Card className="mt-8 border-border/60 bg-card/90 shadow-lg border-dashed">
