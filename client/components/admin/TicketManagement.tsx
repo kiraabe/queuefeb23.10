@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSSE } from "@/hooks/use-sse";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
@@ -38,7 +38,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { format } from "date-fns";
-import type { QueueSnapshot, Ticket, ListUsersResponse, ListJobTitlesResponse } from "@shared/api";
+import type { QueueSnapshot, Ticket, ListUsersResponse, ListJobTitlesResponse, CaseHoldsResponse } from "@shared/api";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 
@@ -50,6 +50,8 @@ export default function TicketManagement() {
   const [filterStatus, setFilterStatus] = useState<string>("transferred");
   const [currentPage, setCurrentPage] = useState(1);
   const [employeeMap, setEmployeeMap] = useState<Record<string, string>>({});
+  const [caseHolds, setCaseHolds] = useState<Record<string, any>>({});
+  const [remainingTimes, setRemainingTimes] = useState<Record<string, string>>({});
 
   // Fetch employees list to get names
   const { data: usersResponse } = useQuery({
@@ -107,6 +109,59 @@ export default function TicketManagement() {
       setEmployeeMap(map);
     }
   }, [usersResponse, jobTitlesResponse]);
+
+  // Fetch case holds and setup countdown timer
+  useEffect(() => {
+    const fetchCaseHolds = async () => {
+      try {
+        const response = await apiFetch("/api/employee/holds");
+        const data = response as CaseHoldsResponse;
+        const holdsMap: Record<string, any> = {};
+        if (data.holds && Array.isArray(data.holds)) {
+          data.holds.forEach((hold) => {
+            holdsMap[hold.ticketId] = hold;
+          });
+        }
+        setCaseHolds(holdsMap);
+      } catch (error) {
+        console.error("Failed to fetch case holds:", error);
+      }
+    };
+
+    fetchCaseHolds();
+    const interval = setInterval(fetchCaseHolds, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate remaining times for countdown
+  useEffect(() => {
+    const updateCountdowns = () => {
+      const now = Date.now();
+      const times: Record<string, string> = {};
+
+      Object.entries(caseHolds).forEach(([ticketId, hold]) => {
+        if (hold && hold.heldAt && hold.holdDurationSeconds && !hold.resumedAt) {
+          const expiresAt = hold.heldAt + hold.holdDurationSeconds * 1000;
+          const remaining = expiresAt - now;
+
+          if (remaining > 0) {
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            times[ticketId] = `${hours}h ${minutes}m ${seconds}s`;
+          } else {
+            times[ticketId] = "Expired";
+          }
+        }
+      });
+
+      setRemainingTimes(times);
+    };
+
+    updateCountdowns();
+    const interval = setInterval(updateCountdowns, 1000); // Update every second
+    return () => clearInterval(interval);
+  }, [caseHolds]);
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
@@ -364,6 +419,9 @@ export default function TicketManagement() {
                       </TableHead>
                       {filterStatus === "transferred" && (
                         <TableHead className="font-semibold">Held By</TableHead>
+                      )}
+                      {filterStatus === "transferred" && (
+                        <TableHead className="font-semibold">Time Remaining</TableHead>
                       )}
                       <TableHead className="font-semibold">Created At</TableHead>
                     </TableRow>
