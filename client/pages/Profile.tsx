@@ -215,7 +215,7 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
         </Card>
 
         {/* Contact & Job Information */}
-        {(user.phone || user.email || user.department || user.position) && (
+        {(user.phone || user.email || user.department || user.position || user.jobTitleId) && (
           <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">
@@ -275,6 +275,20 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
                     <Input
                       readOnly
                       value={user.position}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                )}
+
+                {/* Job Title */}
+                {jobTitle && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Job Title
+                    </Label>
+                    <Input
+                      readOnly
+                      value={jobTitle.nameEnglish || jobTitle.nameAmharic || ""}
                       className="bg-muted/50 cursor-default"
                     />
                   </div>
