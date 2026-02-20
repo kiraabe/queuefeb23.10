@@ -572,7 +572,32 @@ export const me: RequestHandler = async (req, res) => {
     } as MeResponse);
   }
   await touchSession(session.id, now);
-  const user = toAuthUserFromSession(session);
+
+  // Fetch full user data from database to include email, phone, department, etc.
+  const p = getPool();
+  const { rows } = await p.query(
+    `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id, u.phone, u.email, u.department
+     FROM users u
+     WHERE u.id=$1 LIMIT 1`,
+    [session.userId],
+  );
+
+  if (!rows[0]) {
+    // User no longer exists
+    await revokeSessionById(session.id, "invalidated");
+    res.setHeader("Set-Cookie", buildSessionClearCookie());
+    return res.json({
+      user: null,
+      errorCode: "SESSION_INVALIDATED",
+      message: "Your account no longer exists.",
+    } as MeResponse);
+  }
+
+  const userRow = rows[0];
+  const user = toAuthUserFromRow(userRow);
+  user.role = session.activeRole;
+  user.roles = [session.activeRole]; // Set roles to current active role
+
   res.json({ user } as MeResponse);
 };
 
