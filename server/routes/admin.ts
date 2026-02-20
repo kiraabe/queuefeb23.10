@@ -189,6 +189,46 @@ export const seedTestData: RequestHandler = async (_req, res) => {
       createdTickets.push({ id: ticketId, code, name: testCase.name });
     }
 
+    // Create some test hold/transferred tickets for today
+    const holdTestCases = [
+      { name: "Hold Case 1", hoursAgo: 1 },
+      { name: "Hold Case 2", hoursAgo: 3 },
+    ];
+
+    for (let i = 0; i < holdTestCases.length; i++) {
+      const testCase = holdTestCases[i];
+      const createdAt = new Date();
+      createdAt.setHours(createdAt.getHours() - testCase.hoursAgo);
+
+      const ticketId = (await import("node:crypto")).randomUUID();
+      const number = Math.floor(Math.random() * 9000) + 1000;
+      const code = `HLD-${number}`;
+      const windowId = (i % 6) + 1;
+
+      const startedAt = new Date(createdAt);
+      startedAt.setMinutes(startedAt.getMinutes() + 5);
+
+      await client.query(
+        `INSERT INTO tickets (id, code, number, service, status, created_at, started_at, transferred_from_window, transferred_to_user_id, transferred_at, owner_name, service_category, window_id)
+         VALUES ($1, $2, $3, 'general', 'transferred', $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          ticketId,
+          code,
+          number,
+          createdAt,
+          startedAt,
+          windowId,
+          employees[0].id,
+          new Date(),
+          `Hold Customer ${number}`,
+          category.id,
+          windowId,
+        ],
+      );
+
+      createdTickets.push({ id: ticketId, code, name: testCase.name });
+    }
+
     await client.query("COMMIT");
     res.json({
       ok: true,
