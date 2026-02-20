@@ -38,7 +38,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { format } from "date-fns";
-import type { QueueSnapshot, Ticket, ListUsersResponse } from "@shared/api";
+import type { QueueSnapshot, Ticket, ListUsersResponse, ListJobTitlesResponse } from "@shared/api";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 
@@ -52,7 +52,7 @@ export default function TicketManagement() {
   const [employeeMap, setEmployeeMap] = useState<Record<string, string>>({});
 
   // Fetch employees list to get names
-  const { data: usersResponse, isError: usersError } = useQuery({
+  const { data: usersResponse } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
       try {
@@ -67,19 +67,46 @@ export default function TicketManagement() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Build employee map when users data is available
+  // Fetch job titles
+  const { data: jobTitlesResponse } = useQuery({
+    queryKey: ["jobTitles"],
+    queryFn: async () => {
+      try {
+        const response = await apiFetch("/api/admin/job-titles");
+        return response as ListJobTitlesResponse;
+      } catch (error) {
+        console.error("Failed to fetch job titles:", error);
+        return { jobTitles: [] };
+      }
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Build employee map when users and job titles data are available
   useMemo(() => {
     if (usersResponse?.users && Array.isArray(usersResponse.users)) {
+      // Create job title map
+      const jobTitleMap: Record<string, string> = {};
+      if (jobTitlesResponse?.jobTitles && Array.isArray(jobTitlesResponse.jobTitles)) {
+        jobTitlesResponse.jobTitles.forEach((jt) => {
+          jobTitleMap[jt.id] = jt.nameEnglish || jt.nameAmharic || "";
+        });
+      }
+
+      // Build employee map with name and job title
       const map = usersResponse.users.reduce(
         (acc, user) => {
-          acc[user.id] = user.fullName || user.username;
+          const name = user.fullName || user.username;
+          const jobTitle = user.jobTitleId ? jobTitleMap[user.jobTitleId] : null;
+          acc[user.id] = jobTitle ? `${name} (${jobTitle})` : name;
           return acc;
         },
         {} as Record<string, string>
       );
       setEmployeeMap(map);
     }
-  }, [usersResponse]);
+  }, [usersResponse, jobTitlesResponse]);
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
