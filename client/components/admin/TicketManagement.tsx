@@ -213,7 +213,6 @@ export default function TicketManagement() {
       "Selected Services",
       "Window ID",
       "Customer Name",
-      "Woreda",
       "Created At",
       "Started At",
       "Completed At",
@@ -233,7 +232,6 @@ export default function TicketManagement() {
         t.selectedServices?.join("; ") || "",
         t.windowId || "",
         t.ownerName || "",
-        t.woreda || "",
         format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss"),
         t.startedAt ? format(new Date(t.startedAt), "yyyy-MM-dd HH:mm:ss") : "",
         t.completedAt
@@ -358,7 +356,6 @@ export default function TicketManagement() {
                       <TableHead className="font-semibold">
                         Customer Name
                       </TableHead>
-                      <TableHead className="font-semibold">Woreda</TableHead>
                       <TableHead className="font-semibold">
                         Service Category
                       </TableHead>
@@ -397,7 +394,6 @@ export default function TicketManagement() {
                                 </Badge>
                               </TableCell>
                               <TableCell>{ticket.ownerName || "—"}</TableCell>
-                              <TableCell>{ticket.woreda || "—"}</TableCell>
                               <TableCell>{ticket.serviceCategory || "—"}</TableCell>
                               <TableCell>
                                 {ticket.selectedServices &&
@@ -434,7 +430,6 @@ export default function TicketManagement() {
                               </Badge>
                             </TableCell>
                             <TableCell>{ticket.ownerName || "—"}</TableCell>
-                            <TableCell>{ticket.woreda || "—"}</TableCell>
                             <TableCell>{ticket.serviceCategory || "—"}</TableCell>
                             <TableCell>
                               {ticket.selectedServices &&
