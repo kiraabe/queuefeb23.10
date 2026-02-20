@@ -34,7 +34,24 @@ interface Service {
   categoryId: string;
   code: string;
   name: string;
+  standardTimeSeconds?: number;
   displayOrder?: number;
+}
+
+// Helper function to format seconds to human-readable time
+function formatSeconds(seconds?: number | null): string {
+  if (!seconds) return "—";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const parts = [];
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (secs > 0) parts.push(`${secs}s`);
+
+  return parts.length > 0 ? parts.join(" ") : "0s";
 }
 
 export default function ServiceManagement() {
@@ -58,8 +75,14 @@ export default function ServiceManagement() {
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [editingServiceCode, setEditingServiceCode] = useState("");
   const [editingServiceName, setEditingServiceName] = useState("");
+  const [editingServiceStandardTime, setEditingServiceStandardTime] = useState<
+    string
+  >("");
   const [newServiceCode, setNewServiceCode] = useState("");
   const [newServiceName, setNewServiceName] = useState("");
+  const [newServiceStandardTime, setNewServiceStandardTime] = useState<string>(
+    "",
+  );
   const [newServiceCategoryId, setNewServiceCategoryId] = useState<
     string | null
   >(null);
@@ -191,6 +214,9 @@ export default function ServiceManagement() {
   const handleAddService = async (categoryId: string) => {
     const code = newServiceCode.trim().toUpperCase();
     const name = newServiceName.trim();
+    const standardTimeSecondsValue = newServiceStandardTime
+      ? parseInt(newServiceStandardTime, 10)
+      : undefined;
 
     if (!code) {
       toast.error("Service code is required");
@@ -202,6 +228,11 @@ export default function ServiceManagement() {
       return;
     }
 
+    if (newServiceStandardTime && isNaN(standardTimeSecondsValue || 0)) {
+      toast.error("Standard time must be a valid number (seconds)");
+      return;
+    }
+
     try {
       const response = await fetch("/api/admin/services", {
         method: "POST",
@@ -209,7 +240,12 @@ export default function ServiceManagement() {
           "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify({ categoryId, code, name }),
+        body: JSON.stringify({
+          categoryId,
+          code,
+          name,
+          standardTimeSeconds: standardTimeSecondsValue,
+        }),
       });
 
       if (!response.ok) {
@@ -221,6 +257,7 @@ export default function ServiceManagement() {
       setServices([...services, data.service]);
       setNewServiceCode("");
       setNewServiceName("");
+      setNewServiceStandardTime("");
       setShowAddServiceCategoryId(null);
 
       toast.success("Service created successfully");
@@ -358,6 +395,9 @@ export default function ServiceManagement() {
   const handleEditService = async (serviceId: string) => {
     const code = editingServiceCode.trim().toUpperCase();
     const name = editingServiceName.trim();
+    const standardTimeSecondsValue = editingServiceStandardTime
+      ? parseInt(editingServiceStandardTime, 10)
+      : undefined;
 
     if (!code) {
       toast.error("Service code is required");
@@ -369,6 +409,11 @@ export default function ServiceManagement() {
       return;
     }
 
+    if (editingServiceStandardTime && isNaN(standardTimeSecondsValue || 0)) {
+      toast.error("Standard time must be a valid number (seconds)");
+      return;
+    }
+
     try {
       const response = await fetch(`/api/admin/services/${serviceId}`, {
         method: "PUT",
@@ -376,7 +421,11 @@ export default function ServiceManagement() {
           "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify({ code, name }),
+        body: JSON.stringify({
+          code,
+          name,
+          standardTimeSeconds: standardTimeSecondsValue,
+        }),
       });
 
       if (!response.ok) {
@@ -389,6 +438,7 @@ export default function ServiceManagement() {
       setEditingServiceId(null);
       setEditingServiceCode("");
       setEditingServiceName("");
+      setEditingServiceStandardTime("");
 
       toast.success("Service updated successfully");
     } catch (error) {
@@ -650,6 +700,31 @@ export default function ServiceManagement() {
                                         disabled={isLoading}
                                       />
                                     </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-xs">
+                                        Standard Time (seconds)
+                                      </Label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        placeholder="e.g., 1800 for 30 minutes"
+                                        value={editingServiceStandardTime}
+                                        onChange={(e) =>
+                                          setEditingServiceStandardTime(
+                                            e.target.value,
+                                          )
+                                        }
+                                        className="h-8 text-sm"
+                                        disabled={isLoading}
+                                      />
+                                      {editingServiceStandardTime && (
+                                        <p className="text-xs text-muted-foreground">
+                                          {formatSeconds(
+                                            parseInt(editingServiceStandardTime, 10),
+                                          )}
+                                        </p>
+                                      )}
+                                    </div>
                                     <div className="flex gap-2">
                                       <Button
                                         size="sm"
@@ -686,6 +761,15 @@ export default function ServiceManagement() {
                                       </p>
                                       <p className="text-xs text-muted-foreground">
                                         Code: {service.code}
+                                        {service.standardTimeSeconds && (
+                                          <>
+                                            {" "}
+                                            • Standard Time:{" "}
+                                            {formatSeconds(
+                                              service.standardTimeSeconds,
+                                            )}
+                                          </>
+                                        )}
                                       </p>
                                     </div>
                                     <div className="flex gap-1">
@@ -696,6 +780,11 @@ export default function ServiceManagement() {
                                           setEditingServiceId(service.id);
                                           setEditingServiceCode(service.code);
                                           setEditingServiceName(service.name);
+                                          setEditingServiceStandardTime(
+                                            service.standardTimeSeconds
+                                              ? String(service.standardTimeSeconds)
+                                              : "",
+                                          );
                                         }}
                                         className="h-6 w-6 p-0"
                                       >
@@ -746,6 +835,29 @@ export default function ServiceManagement() {
                                 disabled={isLoading}
                               />
                             </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs">
+                                Standard Time (seconds) - Optional
+                              </Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                placeholder="e.g., 1800 for 30 minutes"
+                                value={newServiceStandardTime}
+                                onChange={(e) =>
+                                  setNewServiceStandardTime(e.target.value)
+                                }
+                                className="h-8 text-sm"
+                                disabled={isLoading}
+                              />
+                              {newServiceStandardTime && (
+                                <p className="text-xs text-muted-foreground">
+                                  {formatSeconds(
+                                    parseInt(newServiceStandardTime, 10),
+                                  )}
+                                </p>
+                              )}
+                            </div>
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
@@ -763,6 +875,7 @@ export default function ServiceManagement() {
                                   setShowAddServiceCategoryId(null);
                                   setNewServiceCode("");
                                   setNewServiceName("");
+                                  setNewServiceStandardTime("");
                                 }}
                                 disabled={isLoading}
                                 className="h-8 text-xs gap-1"

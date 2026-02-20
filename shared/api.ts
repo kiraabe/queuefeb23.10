@@ -331,6 +331,7 @@ export interface ServiceItem {
   categoryId: string;
   code: string;
   name: string;
+  standardTimeSeconds?: number;
   createdAt?: number;
   updatedAt?: number;
 }
