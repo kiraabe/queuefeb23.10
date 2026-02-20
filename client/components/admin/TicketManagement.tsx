@@ -366,7 +366,7 @@ export default function TicketManagement() {
                         Selected Services
                       </TableHead>
                       {filterStatus === "transferred" && (
-                        <TableHead className="font-semibold">appropriate</TableHead>
+                        <TableHead className="font-semibold">Job Title</TableHead>
                       )}
                       <TableHead className="font-semibold">Created At</TableHead>
                     </TableRow>
