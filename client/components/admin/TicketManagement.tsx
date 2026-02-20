@@ -459,9 +459,11 @@ export default function TicketManagement() {
                                   ? ticket.selectedServices.join(", ")
                                   : "—"}
                               </TableCell>
-                              {filterStatus === "transferred" && ticket.transferredToUserId && (
+                              {filterStatus === "transferred" && (
                                 <TableCell>
-                                  {employeeMap[ticket.transferredToUserId] || "—"}
+                                  {ticket.transferredToUserId
+                                    ? employeeMap[ticket.transferredToUserId] || "—"
+                                    : "—"}
                                 </TableCell>
                               )}
                               {filterStatus === "transferred" && (
@@ -502,9 +504,11 @@ export default function TicketManagement() {
                                 ? ticket.selectedServices.join(", ")
                                 : "—"}
                             </TableCell>
-                            {ticket.transferredToUserId && filterStatus === "transferred" && (
+                            {filterStatus === "transferred" && (
                               <TableCell>
-                                {employeeMap[ticket.transferredToUserId] || "—"}
+                                {ticket.transferredToUserId
+                                  ? employeeMap[ticket.transferredToUserId] || "—"
+                                  : "—"}
                               </TableCell>
                             )}
                             {filterStatus === "transferred" && (
