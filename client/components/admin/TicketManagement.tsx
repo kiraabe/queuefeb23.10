@@ -49,6 +49,30 @@ export default function TicketManagement() {
   const [searchCode, setSearchCode] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("transferred");
   const [currentPage, setCurrentPage] = useState(1);
+  const [employeeMap, setEmployeeMap] = useState<Record<string, string>>({});
+
+  // Fetch employees list to get names
+  const { data: usersResponse } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await apiFetch("/api/users");
+      return response.json() as Promise<ListUsersResponse>;
+    },
+  });
+
+  // Build employee map when users data is available
+  useMemo(() => {
+    if (usersResponse?.users) {
+      const map = usersResponse.users.reduce(
+        (acc, user) => {
+          acc[user.id] = user.fullName || user.username;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+      setEmployeeMap(map);
+    }
+  }, [usersResponse]);
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
@@ -156,32 +180,40 @@ export default function TicketManagement() {
       "Window ID",
       "Customer Name",
       "Woreda",
-      "Land Certificate (ካርታ) ser no.",
-      "Land Certificate (ካርታ) No.",
       "Created At",
       "Started At",
       "Completed At",
       "Notes",
     ];
 
-    const rows = filteredTickets.map((t) => [
-      t.code,
-      t.status,
-      t.service,
-      t.serviceCategory || "",
-      t.selectedServices?.join("; ") || "",
-      t.windowId || "",
-      t.ownerName || "",
-      t.woreda || "",
-      t.landCertificateKarta || "",
-      t.landCertificateDigital || "",
-      format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss"),
-      t.startedAt ? format(new Date(t.startedAt), "yyyy-MM-dd HH:mm:ss") : "",
-      t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "",
-      t.notes || "",
-    ]);
+    if (filterStatus === "transferred") {
+      headers.splice(8, 0, "Employee Name");
+    }
+
+    const rows = filteredTickets.map((t) => {
+      const row = [
+        t.code,
+        t.status,
+        t.service,
+        t.serviceCategory || "",
+        t.selectedServices?.join("; ") || "",
+        t.windowId || "",
+        t.ownerName || "",
+        t.woreda || "",
+        format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss"),
+        t.startedAt ? format(new Date(t.startedAt), "yyyy-MM-dd HH:mm:ss") : "",
+        t.completedAt
+          ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
+          : "",
+        t.notes || "",
+      ];
+
+      if (filterStatus === "transferred" && t.transferredToUserId) {
+        row.splice(8, 0, employeeMap[t.transferredToUserId] || "—");
+      }
+
+      return row;
+    });
 
     const csv = [headers, ...rows]
       .map((row) => row.map((cell) => `"${cell}"`).join(","))
@@ -299,8 +331,9 @@ export default function TicketManagement() {
                       <TableHead className="font-semibold">
                         Selected Services
                       </TableHead>
-                      <TableHead className="font-semibold">ካርታ ser no.</TableHead>
-                      <TableHead className="font-semibold">ካርታ No.</TableHead>
+                      {filterStatus === "transferred" && (
+                        <TableHead className="font-semibold">Employee Name</TableHead>
+                      )}
                       <TableHead className="font-semibold">Created At</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -338,12 +371,11 @@ export default function TicketManagement() {
                                   ? ticket.selectedServices.join(", ")
                                   : "—"}
                               </TableCell>
-                              <TableCell>
-                                {ticket.landCertificateKarta || "—"}
-                              </TableCell>
-                              <TableCell>
-                                {ticket.landCertificateDigital || "—"}
-                              </TableCell>
+                              {filterStatus === "transferred" && ticket.transferredToUserId && (
+                                <TableCell>
+                                  {employeeMap[ticket.transferredToUserId] || "—"}
+                                </TableCell>
+                              )}
                               <TableCell>
                                 {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
                               </TableCell>
@@ -376,12 +408,11 @@ export default function TicketManagement() {
                                 ? ticket.selectedServices.join(", ")
                                 : "—"}
                             </TableCell>
-                            <TableCell>
-                              {ticket.landCertificateKarta || "—"}
-                            </TableCell>
-                            <TableCell>
-                              {ticket.landCertificateDigital || "—"}
-                            </TableCell>
+                            {ticket.transferredToUserId && filterStatus === "transferred" && (
+                              <TableCell>
+                                {employeeMap[ticket.transferredToUserId] || "—"}
+                              </TableCell>
+                            )}
                             <TableCell>
                               {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
                             </TableCell>
