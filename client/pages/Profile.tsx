@@ -132,76 +132,92 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 Account Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Full Name */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Full Name
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    readOnly
-                    value={user.fullName || "Not provided"}
-                    className="bg-muted/50 cursor-default"
-                  />
-                  {user.fullName && (
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Full Name
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      readOnly
+                      value={user.fullName || "Not provided"}
+                      className="bg-muted/50 cursor-default"
+                    />
+                    {user.fullName && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(user.fullName!, "Full Name")}
+                        className="h-10 w-10 flex-shrink-0"
+                      >
+                        {copiedField === "Full Name" ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Username */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Username
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      readOnly
+                      value={user.username}
+                      className="bg-muted/50 cursor-default"
+                    />
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => copyToClipboard(user.fullName!, "Full Name")}
+                      onClick={() => copyToClipboard(user.username, "Username")}
                       className="h-10 w-10 flex-shrink-0"
                     >
-                      {copiedField === "Full Name" ? (
+                      {copiedField === "Username" ? (
                         <Check className="h-4 w-4 text-green-600" />
                       ) : (
                         <Copy className="h-4 w-4" />
                       )}
                     </Button>
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Username */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Username
-                </Label>
-                <div className="flex items-center gap-2">
+                {/* Role */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Role
+                  </Label>
                   <Input
                     readOnly
-                    value={user.username}
+                    value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     className="bg-muted/50 cursor-default"
                   />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => copyToClipboard(user.username, "Username")}
-                    className="h-10 w-10 flex-shrink-0"
-                  >
-                    {copiedField === "Username" ? (
-                      <Check className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
                 </div>
+
+                {/* Assigned Window (for tellers) or placeholder */}
+                {user.windowId ? (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Assigned Window
+                    </Label>
+                    <Input
+                      readOnly
+                      value={`Window ${user.windowId}`}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                ) : null}
               </div>
 
-              {/* Role */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Role
-                </Label>
-                <Input
-                  readOnly
-                  value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                  className="bg-muted/50 cursor-default"
-                />
-              </div>
-
-              {/* Available Roles */}
+              {/* Available Roles - full width below grid */}
               {user.roles && user.roles.length > 1 && (
-                <div className="space-y-2">
+                <div className="space-y-2 mt-6">
                   <Label className="text-sm font-medium text-muted-foreground">
                     Available Roles
                   </Label>
@@ -215,20 +231,6 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Window ID (for tellers) */}
-              {user.windowId && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Assigned Window
-                  </Label>
-                  <Input
-                    readOnly
-                    value={`Window ${user.windowId}`}
-                    className="bg-muted/50 cursor-default"
-                  />
                 </div>
               )}
             </CardContent>
