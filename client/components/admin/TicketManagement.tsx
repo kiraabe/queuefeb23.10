@@ -43,7 +43,7 @@ import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 export default function TicketManagement() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
   const [searchCode, setSearchCode] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("transferred");
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
