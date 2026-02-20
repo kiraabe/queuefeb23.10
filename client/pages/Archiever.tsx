@@ -6,7 +6,7 @@ import { GlobalQueuePanel } from "@/components/archiever/GlobalQueuePanel";
 import { ActiveTicketWorkspace } from "@/components/archiever/ActiveTicketWorkspace";
 import { MyActiveWorkIndicator } from "@/components/archiever/MyActiveWorkIndicator";
 import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHistory";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
 import type { JobTitle } from "@shared/api";
@@ -121,15 +121,63 @@ export default function Archiever() {
 
         {/* Sidebar - 1 column */}
         <div className="lg:col-span-1">
-          <div className="sticky top-4">
+          <div className="sticky top-4 space-y-4">
+            {/* User Information Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Your Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Phone */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Phone</p>
+                    <p className="text-sm font-medium">
+                      {user?.phone || "Not provided"}
+                    </p>
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Email</p>
+                    <p className="text-sm font-medium">
+                      {user?.email || "Not provided"}
+                    </p>
+                  </div>
+
+                  {/* Department */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Department
+                    </p>
+                    <p className="text-sm font-medium">
+                      {user?.department || "Not provided"}
+                    </p>
+                  </div>
+
+                  {/* Job Title */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Job Title
+                    </p>
+                    <p className="text-sm font-medium">
+                      {jobTitles && user?.jobTitleId
+                        ? jobTitles.find((jt) => jt.id === user.jobTitleId)
+                            ?.nameEnglish ||
+                          jobTitles.find((jt) => jt.id === user.jobTitleId)
+                            ?.nameAmharic ||
+                          "Not provided"
+                        : "Not provided"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <MyActiveWorkIndicator
               ticketCode={selectedTicketCode}
               startTime={selectedTicketId ? Date.now() : undefined}
               isWorkingOnTicket={!!selectedTicketId}
-              onClear={() => {
-                setSelectedTicketId(undefined);
-                setSelectedTicketCode(undefined);
-              }}
             />
           </div>
         </div>
