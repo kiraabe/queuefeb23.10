@@ -66,8 +66,11 @@ export default function TicketManagement() {
 
     // For hold/transferred tickets, show all-time; for others, show only today's
     if (filterStatus === "transferred") {
-      // Hold tickets: show all-time
-      filtered = filtered.filter((t) => t.status === "transferred");
+      // Hold tickets: show all-time tickets that have been transferred
+      // A ticket is considered "held" if it has transfer information (transferred_to_user_id or transferred_from_window)
+      filtered = filtered.filter(
+        (t) => t.transferredToUserId || t.transferredFromWindow
+      );
     } else {
       // Other statuses: show only today's tickets
       filtered = filtered.filter((t) => {
@@ -101,7 +104,7 @@ export default function TicketManagement() {
       serving: todayTickets.filter((t) => t.status === "serving").length,
       done: todayTickets.filter((t) => t.status === "done").length,
       skipped: todayTickets.filter((t) => t.status === "skipped").length,
-      hold: ticketList.filter((t) => t.status === "transferred").length, // All-time count for hold tickets
+      hold: ticketList.filter((t) => t.transferredToUserId || t.transferredFromWindow).length, // All-time count for hold/transferred tickets
     };
   }, [ticketList]);
 
