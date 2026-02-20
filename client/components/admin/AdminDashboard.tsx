@@ -20,7 +20,7 @@ import {
   AlertCircle,
   CheckCircle,
   SkipForward,
-  ArrowRightLeft,
+  Pause,
   Award,
   Briefcase,
 } from "lucide-react";
@@ -44,7 +44,7 @@ interface DashboardStats {
   totalServing: number;
   servedToday: number;
   skippedToday: number;
-  transferredToday: number;
+  holdToday: number;
   averageHandlingTime: number | null;
   longestWaitTime: number | null;
   averageWaitTime: number | null;
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
       totalServing: serving.length,
       servedToday: servedCount,
       skippedToday: todayTickets.filter((t) => t.status === "skipped").length,
-      transferredToday: todayTickets.filter((t) => t.status === "transferred")
+      holdToday: todayTickets.filter((t) => t.status === "transferred")
         .length,
       averageHandlingTime: avgHandlingTime,
       longestWaitTime: longestWait,
@@ -489,6 +489,18 @@ export default function AdminDashboard() {
               </div>
               <p className="text-2xl font-bold">{stats.skippedToday}</p>
               <p className="text-xs text-muted-foreground">skipped today</p>
+            </div>
+
+            {/* Hold */}
+            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <Pause className="h-4 w-4 text-orange-500" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Hold
+                </span>
+              </div>
+              <p className="text-2xl font-bold">{stats.holdToday}</p>
+              <p className="text-xs text-muted-foreground">hold today</p>
             </div>
           </div>
         </CardContent>

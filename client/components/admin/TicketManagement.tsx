@@ -30,7 +30,7 @@ import {
   CheckCircle,
   SkipForward,
   Clock,
-  ArrowRightLeft,
+  Pause,
   ChevronDown,
   ArrowRight,
   Calendar,
@@ -102,7 +102,7 @@ export default function TicketManagement() {
         const ticketDate = new Date(t.createdAt).toDateString();
         return ticketDate === today && t.status === "skipped";
       }).length,
-      transferred: ticketList.filter((t) => {
+      hold: ticketList.filter((t) => {
         const ticketDate = new Date(t.createdAt).toDateString();
         return ticketDate === today && t.status === "transferred";
       }).length,
@@ -120,7 +120,7 @@ export default function TicketManagement() {
       case "skipped":
         return "bg-red-100 text-red-800";
       case "transferred":
-        return "bg-purple-100 text-purple-800";
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -135,7 +135,7 @@ export default function TicketManagement() {
       case "serving":
         return <Clock className="h-4 w-4" />;
       case "transferred":
-        return <ArrowRightLeft className="h-4 w-4" />;
+        return <Pause className="h-4 w-4" />;
       default:
         return null;
     }
@@ -260,9 +260,9 @@ export default function TicketManagement() {
             <span className="sm:hidden">({statusCounts.skipped})</span>
           </TabsTrigger>
           <TabsTrigger value="transferred">
-            <ArrowRightLeft className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Transferred</span>
-            <span className="sm:hidden">({statusCounts.transferred})</span>
+            <Pause className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Hold</span>
+            <span className="sm:hidden">({statusCounts.hold})</span>
           </TabsTrigger>
         </TabsList>
 
