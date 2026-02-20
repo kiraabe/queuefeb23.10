@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -11,12 +10,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CheckCircle2, Package, ArrowRight, LogOut } from "lucide-react";
+import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
 import { HoldCaseDialog } from "@/components/employee/HoldCaseDialog";
+import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
 import type {
   Ticket,
   ListUsersResponse,
@@ -819,18 +819,7 @@ export default function Employee() {
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<"proceed" | null>(null);
-  const navigate = useNavigate();
   const { logout, user } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast.success("Signed out successfully");
-      navigate("/login");
-    } catch (error) {
-      toast.error("Failed to sign out");
-    }
-  };
 
   const statsQuery = useQuery({
     queryKey: ["employee-stats"],
@@ -950,24 +939,7 @@ export default function Employee() {
               Track your daily cases and performance metrics
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => navigate("/profile")}
-              variant="outline"
-              size="sm"
-            >
-              My Profile
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </div>
+          <UserProfileDropdown />
         </div>
 
         {/* Stats Cards */}
