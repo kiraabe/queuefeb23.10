@@ -238,6 +238,10 @@ export interface AuthUser {
   windowId?: number | null; // set for tellers
   fullName?: string; // full name of the user, primarily for tellers
   jobTitleId?: string | null; // job title for employees
+  phone?: string; // phone number
+  email?: string; // email address
+  department?: string; // department name
+  position?: string; // job position
 }
 export interface LoginRequest {
   username: string;
