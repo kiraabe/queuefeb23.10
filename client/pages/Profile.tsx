@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { apiFetch } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -27,12 +28,9 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
   useEffect(() => {
     const refreshUserData = async () => {
       try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          const data = (await response.json()) as { user: typeof initialUser | null };
-          if (data.user) {
-            setUser(data.user);
-          }
+        const data = await apiFetch<{ user: typeof initialUser | null }>("/api/auth/me");
+        if (data.user) {
+          setUser(data.user);
         }
       } catch (error) {
         // Silent fail, use initial user data
@@ -45,9 +43,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
   const { data: jobTitles } = useQuery({
     queryKey: ["job-titles"],
     queryFn: async () => {
-      const response = await fetch("/api/admin/job-titles");
-      if (!response.ok) throw new Error("Failed to fetch job titles");
-      const result = (await response.json()) as { jobTitles: JobTitle[] };
+      const result = await apiFetch<{ jobTitles: JobTitle[] }>("/api/admin/job-titles");
       return result.jobTitles;
     },
   });
