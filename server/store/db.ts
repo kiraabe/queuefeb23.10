@@ -2923,7 +2923,7 @@ export async function getUserByUsername(username: string): Promise<{
   try {
     const p = getPool();
     const { rows } = await p.query(
-      `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id, u.phone, u.department
+      `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id, u.phone, u.email, u.department
        FROM users u
        WHERE u.username=$1 LIMIT 1`,
       [username],
@@ -2953,6 +2953,7 @@ export async function getUserByUsername(username: string): Promise<{
       full_name: user.full_name,
       job_title_id: user.job_title_id,
       phone: user.phone,
+      email: user.email,
       department: user.department,
     };
   } catch (error) {
@@ -2978,7 +2979,7 @@ export async function getUserByWindow(windowId: number): Promise<{
   try {
     const p = getPool();
     const { rows } = await p.query(
-      `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id, u.phone, u.department
+      `SELECT u.id, u.username, u.password_hash, u.window_id, u.disabled, u.full_name, u.job_title_id, u.phone, u.email, u.department
        FROM users u
        WHERE u.window_id=$1 LIMIT 1`,
       [windowId],
@@ -3008,6 +3009,7 @@ export async function getUserByWindow(windowId: number): Promise<{
       full_name: user.full_name,
       job_title_id: user.job_title_id,
       phone: user.phone,
+      email: user.email,
       department: user.department,
     };
   } catch (error) {
