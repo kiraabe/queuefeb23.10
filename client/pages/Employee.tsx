@@ -894,6 +894,7 @@ export default function Employee() {
 
   const getJobTitleName = useMemo(() => {
     if (!user?.jobTitleId || !jobTitlesQuery.data) return null;
+    if (!Array.isArray(jobTitlesQuery.data.jobTitles)) return null;
     const jobTitle = jobTitlesQuery.data.jobTitles.find(
       (jt) => jt.id === user.jobTitleId,
     );
