@@ -62,10 +62,23 @@ export default function TicketManagement() {
   const today = new Date().toDateString();
 
   const filteredTickets = useMemo(() => {
-    let filtered = ticketList.filter((t) => {
-      const ticketDate = new Date(t.createdAt).toDateString();
-      return ticketDate === today;
-    });
+    let filtered = ticketList;
+
+    // For hold/transferred tickets, show all-time; for others, show only today's
+    if (filterStatus === "transferred") {
+      // Hold tickets: show all-time
+      filtered = filtered.filter((t) => t.status === "transferred");
+    } else {
+      // Other statuses: show only today's tickets
+      filtered = filtered.filter((t) => {
+        const ticketDate = new Date(t.createdAt).toDateString();
+        return ticketDate === today;
+      });
+
+      if (filterStatus !== "all") {
+        filtered = filtered.filter((t) => t.status === filterStatus);
+      }
+    }
 
     if (searchCode) {
       filtered = filtered.filter((t) =>
@@ -73,39 +86,22 @@ export default function TicketManagement() {
       );
     }
 
-    if (filterStatus !== "all") {
-      filtered = filtered.filter((t) => t.status === filterStatus);
-    }
-
     return filtered.sort((a, b) => b.createdAt - a.createdAt);
   }, [ticketList, searchCode, filterStatus]);
 
   const statusCounts = useMemo(() => {
+    const todayTickets = ticketList.filter((t) => {
+      const ticketDate = new Date(t.createdAt).toDateString();
+      return ticketDate === today;
+    });
+
     return {
-      all: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today;
-      }).length,
-      waiting: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today && t.status === "waiting";
-      }).length,
-      serving: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today && t.status === "serving";
-      }).length,
-      done: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today && t.status === "done";
-      }).length,
-      skipped: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today && t.status === "skipped";
-      }).length,
-      hold: ticketList.filter((t) => {
-        const ticketDate = new Date(t.createdAt).toDateString();
-        return ticketDate === today && t.status === "transferred";
-      }).length,
+      all: todayTickets.length,
+      waiting: todayTickets.filter((t) => t.status === "waiting").length,
+      serving: todayTickets.filter((t) => t.status === "serving").length,
+      done: todayTickets.filter((t) => t.status === "done").length,
+      skipped: todayTickets.filter((t) => t.status === "skipped").length,
+      hold: ticketList.filter((t) => t.status === "transferred").length, // All-time count for hold tickets
     };
   }, [ticketList]);
 
