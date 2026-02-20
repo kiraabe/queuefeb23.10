@@ -214,40 +214,72 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
           </CardContent>
         </Card>
 
-        {/* Job Information */}
-        {(user.department || user.position) && (
+        {/* Contact & Job Information */}
+        {(user.phone || user.email || user.department || user.position) && (
           <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">
-                Job Information
+                Contact & Job Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {user.department && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Department
-                  </Label>
-                  <Input
-                    readOnly
-                    value={user.department}
-                    className="bg-muted/50 cursor-default"
-                  />
-                </div>
-              )}
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Phone */}
+                {user.phone && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Phone
+                    </Label>
+                    <Input
+                      readOnly
+                      value={user.phone}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                )}
 
-              {user.position && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Position
-                  </Label>
-                  <Input
-                    readOnly
-                    value={user.position}
-                    className="bg-muted/50 cursor-default"
-                  />
-                </div>
-              )}
+                {/* Email */}
+                {user.email && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Email
+                    </Label>
+                    <Input
+                      readOnly
+                      value={user.email}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                )}
+
+                {/* Department */}
+                {user.department && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Department
+                    </Label>
+                    <Input
+                      readOnly
+                      value={user.department}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                )}
+
+                {/* Position */}
+                {user.position && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Position
+                    </Label>
+                    <Input
+                      readOnly
+                      value={user.position}
+                      className="bg-muted/50 cursor-default"
+                    />
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}
