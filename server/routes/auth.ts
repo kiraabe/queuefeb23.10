@@ -56,6 +56,10 @@ function toAuthUserFromRow(row: {
   window_id: number | null;
   full_name?: string | null;
   job_title_id?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  department?: string | null;
+  position?: string | null;
 }): AuthUser {
   return {
     id: row.id,
@@ -65,6 +69,10 @@ function toAuthUserFromRow(row: {
     windowId: row.window_id ?? null,
     fullName: row.full_name ?? undefined,
     jobTitleId: row.job_title_id ?? undefined,
+    phone: row.phone ?? undefined,
+    email: row.email ?? undefined,
+    department: row.department ?? undefined,
+    position: row.position ?? undefined,
   };
 }
 

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Copy, Check, RefreshCw } from "lucide-react";
+import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Card,
@@ -20,7 +20,6 @@ import { toast } from "sonner";
 function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { data: jobTitles } = useQuery({
     queryKey: ["job-titles"],
@@ -31,21 +30,6 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
       return result.jobTitles;
     },
   });
-
-  // Refresh user data on page view
-  useEffect(() => {
-    const refreshUserData = async () => {
-      try {
-        const response = await fetch("/api/auth/me");
-        if (response.ok) {
-          // The auth context will handle updating the user
-        }
-      } catch {
-        // Silent fail, user data is already loaded
-      }
-    };
-    refreshUserData();
-  }, []);
 
   const jobTitle = jobTitles?.find((jt) => jt.id === user.jobTitleId);
 
