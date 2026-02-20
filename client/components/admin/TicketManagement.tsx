@@ -55,7 +55,7 @@ export default function TicketManagement() {
   const { data: usersResponse } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await apiFetch("/api/users");
+      const response = await apiFetch("/api/admin/users");
       return response.json() as Promise<ListUsersResponse>;
     },
   });
