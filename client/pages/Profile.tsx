@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -17,9 +17,30 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { JobTitle } from "@shared/api";
 import { toast } from "sonner";
 
-function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
+function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [user, setUser] = useState(initialUser);
+  const queryClient = useQueryClient();
+
+  // Refresh user data when component mounts
+  useEffect(() => {
+    const refreshUserData = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = (await response.json()) as { user: typeof initialUser | null };
+          if (data.user) {
+            setUser(data.user);
+          }
+        }
+      } catch (error) {
+        // Silent fail, use initial user data
+        console.debug("Failed to refresh user data", error);
+      }
+    };
+    refreshUserData();
+  }, []);
 
   const { data: jobTitles } = useQuery({
     queryKey: ["job-titles"],
