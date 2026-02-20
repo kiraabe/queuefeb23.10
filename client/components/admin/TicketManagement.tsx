@@ -52,17 +52,24 @@ export default function TicketManagement() {
   const [employeeMap, setEmployeeMap] = useState<Record<string, string>>({});
 
   // Fetch employees list to get names
-  const { data: usersResponse } = useQuery({
+  const { data: usersResponse, isError: usersError } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await apiFetch("/api/admin/users");
-      return response.json() as Promise<ListUsersResponse>;
+      try {
+        const response = await apiFetch("/api/admin/users");
+        return response as ListUsersResponse;
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+        return { users: [] };
+      }
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Build employee map when users data is available
   useMemo(() => {
-    if (usersResponse?.users) {
+    if (usersResponse?.users && Array.isArray(usersResponse.users)) {
       const map = usersResponse.users.reduce(
         (acc, user) => {
           acc[user.id] = user.fullName || user.username;
