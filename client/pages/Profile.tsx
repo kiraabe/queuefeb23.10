@@ -235,18 +235,6 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
                 />
               </div>
 
-              {/* Email */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  Email
-                </Label>
-                <Input
-                  readOnly
-                  value={user.email || "Not provided"}
-                  className="bg-muted/50 cursor-default"
-                />
-              </div>
-
               {/* Department */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">

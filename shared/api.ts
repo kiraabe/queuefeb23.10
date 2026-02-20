@@ -239,9 +239,9 @@ export interface AuthUser {
   fullName?: string; // full name of the user, primarily for tellers
   jobTitleId?: string | null; // job title for employees
   phone?: string; // phone number
-  email?: string; // email address
   department?: string; // department name
-  position?: string; // job position
+  email?: string; // email address (not currently in DB, for future use)
+  position?: string; // job position (not currently in DB, for future use)
 }
 export interface LoginRequest {
   username: string;
