@@ -47,7 +47,36 @@ export function UserProfileDropdown() {
   };
 
   const initials = getInitials(user.fullName, user.username);
+  const isReception = user.role === "reception";
 
+  // For reception users, show clickable button that redirects to profile
+  if (isReception) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="gap-2 px-2 h-10"
+        onClick={() => navigate("/profile")}
+        aria-label="Go to profile"
+      >
+        <Avatar className="h-8 w-8">
+          <AvatarFallback className="text-xs font-semibold">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="hidden sm:flex flex-col items-start gap-0.5">
+          <span className="text-sm font-medium leading-none truncate max-w-[150px]">
+            {user.fullName || user.username}
+          </span>
+          <span className="text-xs text-muted-foreground capitalize">
+            {user.role}
+          </span>
+        </div>
+      </Button>
+    );
+  }
+
+  // For other roles, show dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
