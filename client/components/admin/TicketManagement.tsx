@@ -464,6 +464,13 @@ export default function TicketManagement() {
                                   {employeeMap[ticket.transferredToUserId] || "—"}
                                 </TableCell>
                               )}
+                              {filterStatus === "transferred" && (
+                                <TableCell>
+                                  <span className={remainingTimes[ticket.id] === "Expired" ? "text-red-600 font-semibold" : "text-blue-600 font-medium"}>
+                                    {remainingTimes[ticket.id] || "—"}
+                                  </span>
+                                </TableCell>
+                              )}
                               <TableCell>
                                 {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
                               </TableCell>
@@ -498,6 +505,13 @@ export default function TicketManagement() {
                             {ticket.transferredToUserId && filterStatus === "transferred" && (
                               <TableCell>
                                 {employeeMap[ticket.transferredToUserId] || "—"}
+                              </TableCell>
+                            )}
+                            {filterStatus === "transferred" && (
+                              <TableCell>
+                                <span className={remainingTimes[ticket.id] === "Expired" ? "text-red-600 font-semibold" : "text-blue-600 font-medium"}>
+                                  {remainingTimes[ticket.id] || "—"}
+                                </span>
                               </TableCell>
                             )}
                             <TableCell>
