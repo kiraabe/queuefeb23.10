@@ -38,6 +38,12 @@ const COOKIE_SECURE =
   process.env.COOKIE_SECURE === "true" ||
   COOKIE_SAMESITE.toLowerCase() === "none";
 
+// Maximum concurrent sessions per user (can be overridden via MAX_SESSIONS_PER_USER env var)
+const MAX_SESSIONS_PER_USER = parseInt(
+  process.env.MAX_SESSIONS_PER_USER || "5",
+  10,
+);
+
 // Log cookie configuration for debugging
 if (
   process.env.NODE_ENV === "production" ||
@@ -478,7 +484,7 @@ export const login: RequestHandler = async (req, res) => {
   const activeSessionCount = await countActiveSessionsForUser(userRow.id);
 
   // Reject login if already at limit - do not revoke existing sessions
-  if (activeSessionCount >= 3) {
+  if (activeSessionCount >= MAX_SESSIONS_PER_USER) {
     return res.status(409).json({
       error: "Maximum session limit reached",
       message:

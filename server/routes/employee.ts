@@ -2166,22 +2166,29 @@ export const getCaseHolds: RequestHandler = async (req, res) => {
   const ticketId = req.query.ticketId as string;
   const userId = (req as any).auth?.id;
 
-  if (!userId || !ticketId) {
-    return res.status(400).json({ error: "Ticket ID is required" });
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const p = getPool();
 
   try {
-    const { rows } = await p.query(
-      `SELECT id, ticket_id, held_by_user_id, subject, description,
-              extract(epoch from held_at)*1000 as held_at,
-              extract(epoch from resumed_at)*1000 as resumed_at,
-              hold_duration_seconds,
-              extract(epoch from created_at)*1000 as created_at
-       FROM case_holds WHERE ticket_id = $1 ORDER BY held_at DESC`,
-      [ticketId],
-    );
+    let query = `SELECT id, ticket_id, held_by_user_id, subject, description,
+                        extract(epoch from held_at)*1000 as held_at,
+                        extract(epoch from resumed_at)*1000 as resumed_at,
+                        hold_duration_seconds,
+                        extract(epoch from created_at)*1000 as created_at
+                 FROM case_holds`;
+    const params: any[] = [];
+
+    if (ticketId) {
+      query += ` WHERE ticket_id = $1`;
+      params.push(ticketId);
+    }
+
+    query += ` ORDER BY held_at DESC`;
+
+    const { rows } = await p.query(query, params);
 
     const holds = rows.map((r) => ({
       id: r.id,
@@ -2198,7 +2205,7 @@ export const getCaseHolds: RequestHandler = async (req, res) => {
     res.json({ holds });
   } catch (error) {
     console.error("Failed to get case holds:", error);
-    res.status(400).json({
+    res.status(500).json({
       error:
         error instanceof Error ? error.message : "Failed to get case holds",
     });
