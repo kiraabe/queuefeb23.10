@@ -215,88 +215,64 @@ function ProfileContent({ user }: { user: NonNullable<ReturnType<typeof useAuth>
         </Card>
 
         {/* Contact & Job Information */}
-        {(user.phone || user.email || user.department || user.position || user.jobTitleId) && (
-          <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">
-                Contact & Job Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Phone */}
-                {user.phone && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Phone
-                    </Label>
-                    <Input
-                      readOnly
-                      value={user.phone}
-                      className="bg-muted/50 cursor-default"
-                    />
-                  </div>
-                )}
-
-                {/* Email */}
-                {user.email && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Email
-                    </Label>
-                    <Input
-                      readOnly
-                      value={user.email}
-                      className="bg-muted/50 cursor-default"
-                    />
-                  </div>
-                )}
-
-                {/* Department */}
-                {user.department && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Department
-                    </Label>
-                    <Input
-                      readOnly
-                      value={user.department}
-                      className="bg-muted/50 cursor-default"
-                    />
-                  </div>
-                )}
-
-                {/* Position */}
-                {user.position && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Position
-                    </Label>
-                    <Input
-                      readOnly
-                      value={user.position}
-                      className="bg-muted/50 cursor-default"
-                    />
-                  </div>
-                )}
-
-                {/* Job Title */}
-                {jobTitle && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Job Title
-                    </Label>
-                    <Input
-                      readOnly
-                      value={jobTitle.nameEnglish || jobTitle.nameAmharic || ""}
-                      className="bg-muted/50 cursor-default"
-                    />
-                  </div>
-                )}
+        <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-lg sm:text-xl">
+              Contact & Job Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Phone */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Phone
+                </Label>
+                <Input
+                  readOnly
+                  value={user.phone || "Not provided"}
+                  className="bg-muted/50 cursor-default"
+                />
               </div>
-            </CardContent>
-          </Card>
-        )}
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Email
+                </Label>
+                <Input
+                  readOnly
+                  value={user.email || "Not provided"}
+                  className="bg-muted/50 cursor-default"
+                />
+              </div>
+
+              {/* Department */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Department
+                </Label>
+                <Input
+                  readOnly
+                  value={user.department || "Not provided"}
+                  className="bg-muted/50 cursor-default"
+                />
+              </div>
+
+              {/* Job Title */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Job Title
+                </Label>
+                <Input
+                  readOnly
+                  value={jobTitle?.nameEnglish || jobTitle?.nameAmharic || "Not provided"}
+                  className="bg-muted/50 cursor-default"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Additional Info */}
         <Card className="mt-8 border-border/60 bg-card/90 shadow-lg border-dashed">
