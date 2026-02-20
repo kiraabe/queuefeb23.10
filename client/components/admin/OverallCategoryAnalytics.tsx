@@ -82,7 +82,7 @@ export default function OverallCategoryAnalytics() {
       setError(null);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
       const res = await fetch("/api/admin/overall-analytics", {
         method: "GET",
@@ -97,16 +97,27 @@ export default function OverallCategoryAnalytics() {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
+        const statusText = res.statusText || `HTTP ${res.status}`;
+        console.error(
+          `[OverallCategoryAnalytics] API Error: ${res.status} ${statusText}`
+        );
         throw new Error(
-          `Failed to fetch overall analytics: HTTP ${res.status}`
+          `Failed to fetch analytics (${res.status}). The server may be processing the request. Please try again.`
         );
       }
       const data = await res.json();
       setAnalytics(data);
     } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Failed to load analytics data";
-      console.error("OverallCategoryAnalytics error:", errorMsg);
+      let errorMsg = "Failed to load analytics data";
+      if (err instanceof Error) {
+        if (err.name === "AbortError") {
+          errorMsg =
+            "Request timed out. The server is taking too long to respond. Please try again.";
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      console.error("[OverallCategoryAnalytics] Error:", errorMsg);
       setError(errorMsg);
     } finally {
       setLoading(false);

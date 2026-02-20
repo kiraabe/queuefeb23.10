@@ -110,7 +110,7 @@ export default function AdminDashboard() {
     const fetchEmployeeStats = async () => {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         const response = await fetch("/api/admin/employee-stats", {
           method: "GET",
@@ -137,8 +137,16 @@ export default function AdminDashboard() {
         }
       } catch (error) {
         // Silently fail - dashboard still works with default values
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        console.debug("Failed to fetch employee stats:", errorMsg);
+        let errorMsg = "Unknown error";
+        if (error instanceof Error) {
+          if (error.name === "AbortError") {
+            errorMsg =
+              "Request timed out. Employee stats will display default values.";
+          } else {
+            errorMsg = error.message;
+          }
+        }
+        console.debug("[AdminDashboard] Failed to fetch employee stats:", errorMsg);
         // Keep existing state on error
       }
     };

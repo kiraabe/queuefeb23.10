@@ -251,7 +251,15 @@ export default function DailyReportViewer() {
       });
       setReport(data);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Unknown error";
+      let errorMsg = "Unknown error occurred";
+      if (err instanceof Error) {
+        if (err.name === "AbortError") {
+          errorMsg =
+            "Request timed out. The report query is taking too long. Please try a shorter date range or try again later.";
+        } else {
+          errorMsg = err.message;
+        }
+      }
       console.error("[DailyReportViewer] Error fetching report:", errorMsg);
       setError(errorMsg);
     } finally {
