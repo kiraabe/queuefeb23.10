@@ -34,16 +34,21 @@ import {
   ChevronDown,
   ArrowRight,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { QueueSnapshot, Ticket, ListUsersResponse } from "@shared/api";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function TicketManagement() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
   const [searchCode, setSearchCode] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("transferred");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useSSE("/api/events", (event) => {
     if (event.type === "init") {
@@ -230,7 +235,10 @@ export default function TicketManagement() {
       {/* Status Tabs */}
       <Tabs
         value={filterStatus}
-        onValueChange={setFilterStatus}
+        onValueChange={(value) => {
+          setFilterStatus(value);
+          setCurrentPage(1);
+        }}
         className="w-full"
       >
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
@@ -274,69 +282,155 @@ export default function TicketManagement() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">Code</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold">
-                      Customer Name
-                    </TableHead>
-                    <TableHead className="font-semibold">Woreda</TableHead>
-                    <TableHead className="font-semibold">
-                      Service Category
-                    </TableHead>
-                    <TableHead className="font-semibold">
-                      Selected Services
-                    </TableHead>
-                    <TableHead className="font-semibold">ካርታ ser no.</TableHead>
-                    <TableHead className="font-semibold">ካርታ No.</TableHead>
-                    <TableHead className="font-semibold">Created At</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTickets.map((ticket) => (
-                    <TableRow key={ticket.id}>
-                      <TableCell className="font-medium">
-                        {ticket.code}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            ticket.status === "done"
-                              ? "default"
-                              : ticket.status === "skipped"
-                                ? "destructive"
-                                : "secondary"
-                          }
-                        >
-                          {ticket.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{ticket.ownerName || "—"}</TableCell>
-                      <TableCell>{ticket.woreda || "—"}</TableCell>
-                      <TableCell>{ticket.serviceCategory || "—"}</TableCell>
-                      <TableCell>
-                        {ticket.selectedServices &&
-                        ticket.selectedServices.length > 0
-                          ? ticket.selectedServices.join(", ")
-                          : "—"}
-                      </TableCell>
-                      <TableCell>
-                        {ticket.landCertificateKarta || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {ticket.landCertificateDigital || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
-                      </TableCell>
+            <>
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="font-semibold">Code</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">
+                        Customer Name
+                      </TableHead>
+                      <TableHead className="font-semibold">Woreda</TableHead>
+                      <TableHead className="font-semibold">
+                        Service Category
+                      </TableHead>
+                      <TableHead className="font-semibold">
+                        Selected Services
+                      </TableHead>
+                      <TableHead className="font-semibold">ካርታ ser no.</TableHead>
+                      <TableHead className="font-semibold">ካርታ No.</TableHead>
+                      <TableHead className="font-semibold">Created At</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filterStatus === "transferred" && filteredTickets.length > ITEMS_PER_PAGE
+                      ? filteredTickets
+                          .slice(
+                            (currentPage - 1) * ITEMS_PER_PAGE,
+                            currentPage * ITEMS_PER_PAGE
+                          )
+                          .map((ticket) => (
+                            <TableRow key={ticket.id}>
+                              <TableCell className="font-medium">
+                                {ticket.code}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    ticket.status === "done"
+                                      ? "default"
+                                      : ticket.status === "skipped"
+                                        ? "destructive"
+                                        : "secondary"
+                                  }
+                                >
+                                  {ticket.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{ticket.ownerName || "—"}</TableCell>
+                              <TableCell>{ticket.woreda || "—"}</TableCell>
+                              <TableCell>{ticket.serviceCategory || "—"}</TableCell>
+                              <TableCell>
+                                {ticket.selectedServices &&
+                                ticket.selectedServices.length > 0
+                                  ? ticket.selectedServices.join(", ")
+                                  : "—"}
+                              </TableCell>
+                              <TableCell>
+                                {ticket.landCertificateKarta || "—"}
+                              </TableCell>
+                              <TableCell>
+                                {ticket.landCertificateDigital || "—"}
+                              </TableCell>
+                              <TableCell>
+                                {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                      : filteredTickets.map((ticket) => (
+                          <TableRow key={ticket.id}>
+                            <TableCell className="font-medium">
+                              {ticket.code}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  ticket.status === "done"
+                                    ? "default"
+                                    : ticket.status === "skipped"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
+                              >
+                                {ticket.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{ticket.ownerName || "—"}</TableCell>
+                            <TableCell>{ticket.woreda || "—"}</TableCell>
+                            <TableCell>{ticket.serviceCategory || "—"}</TableCell>
+                            <TableCell>
+                              {ticket.selectedServices &&
+                              ticket.selectedServices.length > 0
+                                ? ticket.selectedServices.join(", ")
+                                : "—"}
+                            </TableCell>
+                            <TableCell>
+                              {ticket.landCertificateKarta || "—"}
+                            </TableCell>
+                            <TableCell>
+                              {ticket.landCertificateDigital || "—"}
+                            </TableCell>
+                            <TableCell>
+                              {format(new Date(ticket.createdAt), "MMM dd, HH:mm")}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                  </TableBody>
+                </Table>
+              </Card>
+
+              {filterStatus === "transferred" && filteredTickets.length > ITEMS_PER_PAGE && (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredTickets.length)} of{" "}
+                    {filteredTickets.length} tickets
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        setCurrentPage((prev) =>
+                          Math.min(
+                            Math.ceil(filteredTickets.length / ITEMS_PER_PAGE),
+                            prev + 1
+                          )
+                        )
+                      }
+                      disabled={
+                        currentPage >=
+                        Math.ceil(filteredTickets.length / ITEMS_PER_PAGE)
+                      }
+                      variant="outline"
+                      size="sm"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </TabsContent>
       </Tabs>
