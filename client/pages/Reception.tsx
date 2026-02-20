@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
+import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
 import QRCode from "qrcode";
 import { toast } from "sonner";
 
@@ -518,7 +519,11 @@ export default function Reception() {
     generatedTicket && lastSubmission ? lastSubmission : draft;
 
   return (
-    <ConsoleShell title="Reception Console" className="lg:grid-cols-1">
+    <ConsoleShell
+      title="Reception Console"
+      className="lg:grid-cols-1"
+      action={<UserProfileDropdown />}
+    >
       <section className="w-full grid gap-8 sm:gap-12 py-4 sm:py-6">
         <Card className="w-full border-border/60 bg-card/90 p-4 sm:p-6 md:p-8 shadow-2xl">
           <CardHeader className="space-y-2 mb-6">

@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import RoleSelector from "./pages/RoleSelector";
+import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
@@ -70,6 +71,7 @@ const App = () => (
               {/* All other routes with AppLayout */}
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Index />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/role-selector" element={<RoleSelector />} />
                 <Route element={<RequireAuth role="reception" />}>
                   <Route path="/reception" element={<Reception />} />

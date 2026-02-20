@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
+import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -426,7 +427,11 @@ export default function Teller() {
   // FIFO mode active: no per-window service selection
 
   return (
-    <ConsoleShell title="Teller Console" className="lg:grid-cols-1">
+    <ConsoleShell
+      title="Teller Console"
+      className="lg:grid-cols-1"
+      action={<UserProfileDropdown />}
+    >
       <div className="w-full space-y-8 sm:space-y-10">
         {/* Window Controls */}
         <div className="w-full">

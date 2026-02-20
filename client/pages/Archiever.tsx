@@ -1,22 +1,18 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { GlobalQueuePanel } from "@/components/archiever/GlobalQueuePanel";
 import { ActiveTicketWorkspace } from "@/components/archiever/ActiveTicketWorkspace";
 import { MyActiveWorkIndicator } from "@/components/archiever/MyActiveWorkIndicator";
 import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHistory";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
+import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
 import type { JobTitle } from "@shared/api";
 
 export default function Archiever() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedTicketId, setSelectedTicketId] = useState<
     string | undefined
   >();
@@ -26,15 +22,6 @@ export default function Archiever() {
   const [activeTab, setActiveTab] = useState("queue");
   const [headerTitle, setHeaderTitle] = useState("Archiver Interface");
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast.success("Signed out successfully");
-      navigate("/login");
-    } catch (error) {
-      toast.error("Failed to sign out");
-    }
-  };
 
   // Fetch job titles to get the name from jobTitleId
   const { data: jobTitles } = useQuery({
@@ -89,17 +76,7 @@ export default function Archiever() {
   return (
     <ConsoleShell
       title={headerTitle}
-      action={
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </Button>
-      }
+      action={<UserProfileDropdown />}
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main content area - 3 columns */}
