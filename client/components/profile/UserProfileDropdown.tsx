@@ -49,17 +49,9 @@ export function UserProfileDropdown() {
   const initials = getInitials(user.fullName, user.username);
   const isReception = user.role === "reception";
 
-  // For reception users, show simple clickable text link that redirects to profile
+  // For reception users, don't show profile dropdown
   if (isReception) {
-    return (
-      <button
-        onClick={() => navigate("/profile")}
-        className="text-sm font-medium text-primary hover:underline px-2 py-1"
-        aria-label="Go to profile"
-      >
-        {user.role} - {user.fullName || user.username}
-      </button>
-    );
+    return null;
   }
 
   // For other roles, show dropdown menu
