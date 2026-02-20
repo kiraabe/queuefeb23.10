@@ -950,15 +950,24 @@ export default function Employee() {
               Track your daily cases and performance metrics
             </p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => navigate("/profile")}
+              variant="outline"
+              size="sm"
+            >
+              My Profile
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
