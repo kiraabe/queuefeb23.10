@@ -22,17 +22,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-muted-foreground mb-4">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Fetch job title if available
+  // Fetch job title if available - must be called before any conditional returns
   const { data: jobTitles } = useQuery({
     queryKey: ["job-titles"],
     queryFn: async () => {
@@ -43,6 +33,17 @@ export default function Profile() {
     },
     enabled: !!user?.jobTitleId,
   });
+
+  // Now we can safely do conditional returns after all hooks are declared
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const jobTitle = jobTitles?.find((jt) => jt.id === user.jobTitleId);
 
