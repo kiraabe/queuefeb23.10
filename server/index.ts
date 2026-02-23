@@ -55,6 +55,7 @@ import {
   switchRole,
 } from "./routes/auth";
 import { cleanupAllStaleSessions } from "./store/sessions";
+import { autoCancelExpiredHolds } from "./store/db";
 import { tellerStats, tellerTickets } from "./routes/teller";
 import {
   employeeReceivedTickets,
@@ -647,6 +648,24 @@ export function createServer() {
       console.error("[Sessions] Cleanup failed:", error);
     }
   }, 1 * 60 * 1000);
+
+  // Perform initial check for expired holds on startup
+  (async () => {
+    try {
+      await autoCancelExpiredHolds();
+    } catch (error) {
+      console.error("[Holds] Initial expiration check failed:", error);
+    }
+  })();
+
+  // Periodic check for expired holds (every 5 minutes)
+  setInterval(async () => {
+    try {
+      await autoCancelExpiredHolds();
+    } catch (error) {
+      console.error("[Holds] Expiration check failed:", error);
+    }
+  }, 5 * 60 * 1000);
 
   return app;
 }
