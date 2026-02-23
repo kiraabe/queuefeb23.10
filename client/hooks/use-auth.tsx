@@ -30,12 +30,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
 
     let isHeartbeatPending = false;
-    let lastHeartbeatTime = Date.now();
+    let lastActivityTime = Date.now();
+
+    // Track user activity
+    const updateActivity = () => {
+      lastActivityTime = Date.now();
+    };
+
+    window.addEventListener("mousedown", updateActivity);
+    window.addEventListener("keydown", updateActivity);
+    window.addEventListener("scroll", updateActivity);
+    window.addEventListener("touchstart", updateActivity);
+
+    // Register this tab
+    apiFetch("/api/auth/tab-opened", { method: "POST" }).catch(() => {});
+
+    // Notify server when tab is closed
+    const handleBeforeUnload = () => {
+      const data = JSON.stringify({});
+      // Use fetch with keepalive as a modern alternative to sendBeacon
+      // that allows custom headers (like X-Requested-With if needed,
+      // though simple requests might not need it depending on server config)
+      fetch("/api/auth/tab-closed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: data,
+        keepalive: true,
+      });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     const interval = setInterval(async () => {
       // Don't send heartbeats if the page is hidden to save resources
       // The session will eventually expire due to inactivity (30 mins) if the tab is backgrounded for too long
       if (document.visibilityState === "hidden") {
+        return;
+      }
+
+      // Don't send heartbeat if there has been no user activity for 30 minutes
+      if (Date.now() - lastActivityTime > 30 * 60 * 1000) {
         return;
       }
 
@@ -73,6 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       clearInterval(interval);
+      window.removeEventListener("mousedown", updateActivity);
+      window.removeEventListener("keydown", updateActivity);
+      window.removeEventListener("scroll", updateActivity);
+      window.removeEventListener("touchstart", updateActivity);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [user]);
 

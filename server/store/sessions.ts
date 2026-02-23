@@ -100,6 +100,29 @@ export async function createUserSessionAtomic(params: {
       });
     }
 
+    // Clean up closed-tab sessions for this user (grace period 1 minute)
+    const closedRes = await client.query(
+      `UPDATE user_sessions
+       SET revoked_at = now(), revoke_reason = 'timeout'
+       WHERE user_id = $1
+         AND revoked_at IS NULL
+         AND tab_count <= 0
+         AND last_activity_at <= now() - interval '1 minute'
+       RETURNING *`,
+      [params.userId],
+    );
+
+    for (const s of closedRes.rows) {
+      await logAudit({
+        action: "auth.session_revoked",
+        userId: s.user_id,
+        username: s.username,
+        role: s.active_role,
+        windowId: s.window_id,
+        details: { sessionId: s.id, reason: "timeout", auto: true, detail: "closed tabs" },
+      });
+    }
+
     // Count active sessions
     const { rows: countRows } = await client.query(
       `SELECT count(*) as count
@@ -138,6 +161,7 @@ export async function createUserSessionAtomic(params: {
         device_model,
         browser_name,
         browser_version,
+        tab_count,
         created_at,
         last_activity_at,
         expires_at
@@ -160,6 +184,7 @@ export async function createUserSessionAtomic(params: {
         params.deviceModel ?? null,
         params.browserName ?? null,
         params.browserVersion ?? null,
+        1,
         expiresAt.toISOString(),
       ],
     );
@@ -215,6 +240,7 @@ export interface SessionRecord {
   browser: string | null;
   os: string | null;
   ipAddress: string | null;
+  tabCount: number;
   osName: string | null;
   osVersion: string | null;
   deviceVendor: string | null;
@@ -247,6 +273,7 @@ function mapRow(row: any): SessionRecord {
     ipAddress: row.ip_address ?? null,
     osName: row.os_name ?? null,
     osVersion: row.os_version ?? null,
+    tabCount: row.tab_count ?? 1,
     deviceVendor: row.device_vendor ?? null,
     deviceModel: row.device_model ?? null,
     browserName: row.browser_name ?? null,
@@ -347,6 +374,7 @@ export async function createUserSession(params: {
       device_model,
       browser_name,
       browser_version,
+      tab_count,
       created_at,
       last_activity_at,
       expires_at
@@ -368,8 +396,9 @@ export async function createUserSession(params: {
       params.deviceVendor ?? null,
       params.deviceModel ?? null,
       params.browserName ?? null,
-      params.browserVersion ?? null,
-      expiresAt.toISOString(),
+    params.browserVersion ?? null,
+    1,
+    expiresAt.toISOString(),
     ],
   );
   const session = mapRow(rows[0]);
@@ -422,6 +451,29 @@ export async function countActiveSessionsForUser(
       role: s.active_role,
       windowId: s.window_id,
       details: { sessionId: s.id, reason: "expired", auto: true },
+    });
+  }
+
+  // Clean up closed-tab sessions for this user (grace period 1 minute)
+  const closedRes = await p.query(
+    `UPDATE user_sessions
+     SET revoked_at = now(), revoke_reason = 'timeout'
+     WHERE user_id = $1
+       AND revoked_at IS NULL
+       AND tab_count <= 0
+       AND last_activity_at <= now() - interval '1 minute'
+     RETURNING *`,
+    [userId],
+  );
+
+  for (const s of closedRes.rows) {
+    await logAudit({
+      action: "auth.session_revoked",
+      userId: s.user_id,
+      username: s.username,
+      role: s.active_role,
+      windowId: s.window_id,
+      details: { sessionId: s.id, reason: "timeout", auto: true, detail: "closed tabs" },
     });
   }
 
@@ -532,6 +584,22 @@ export async function touchSession(sessionId: string, timestamp = new Date()) {
   ]);
 }
 
+export async function incrementTabCount(sessionId: string) {
+  const p = getPool();
+  await p.query(
+    `UPDATE user_sessions SET tab_count = tab_count + 1, last_activity_at = now() WHERE id = $1`,
+    [sessionId],
+  );
+}
+
+export async function decrementTabCount(sessionId: string) {
+  const p = getPool();
+  await p.query(
+    `UPDATE user_sessions SET tab_count = GREATEST(0, tab_count - 1), last_activity_at = now() WHERE id = $1`,
+    [sessionId],
+  );
+}
+
 export function sessionExpired(
   session: SessionRecord,
   now = new Date(),
@@ -590,8 +658,30 @@ export async function cleanupAllStaleSessions(): Promise<number> {
     });
   }
 
+  // Revoke sessions with zero tabs that haven't been seen for a short grace period (1 minute)
+  // This handles closed browser tabs/windows promptly.
+  const closedResult = await p.query(
+    `UPDATE user_sessions
+     SET revoked_at = now(), revoke_reason = 'timeout'
+     WHERE revoked_at IS NULL
+       AND tab_count <= 0
+       AND last_activity_at <= now() - interval '1 minute'
+     RETURNING *`,
+  );
+
+  for (const s of closedResult.rows) {
+    await logAudit({
+      action: "auth.session_revoked",
+      userId: s.user_id,
+      username: s.username,
+      role: s.active_role,
+      windowId: s.window_id,
+      details: { sessionId: s.id, reason: "timeout", auto: true, detail: "closed tabs" },
+    });
+  }
+
   const totalRevoked =
-    (idleResult.rowCount || 0) + (expiredResult.rowCount || 0);
+    (idleResult.rowCount || 0) + (expiredResult.rowCount || 0) + (closedResult.rowCount || 0);
   return totalRevoked;
 }
 
@@ -602,7 +692,7 @@ export async function listSessions(
   const { rows } = await p.query(
     `SELECT
       us.id, us.user_id, us.username, us.active_role, us.window_id, us.job_title_id,
-      us.token_hash, us.device, us.browser, us.os, us.ip_address,
+      us.token_hash, us.device, us.browser, us.os, us.ip_address, us.tab_count,
       us.os_name, us.os_version, us.device_vendor, us.device_model, us.browser_name, us.browser_version,
       us.created_at, us.last_activity_at, us.expires_at, us.revoked_at, us.revoke_reason,
       u.full_name,
@@ -626,6 +716,7 @@ export async function listSessions(
       browser: row.browser,
       os: row.os,
       ip_address: row.ip_address,
+      tab_count: row.tab_count,
       os_name: row.os_name,
       os_version: row.os_version,
       device_vendor: row.device_vendor,

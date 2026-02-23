@@ -23,7 +23,9 @@ import {
   countActiveSessionsForUser,
   createUserSession,
   createUserSessionAtomic,
+  decrementTabCount,
   findSessionByToken,
+  incrementTabCount,
   listSessions,
   revokeSessionById,
   revokeSessionByToken,
@@ -722,6 +724,22 @@ export const logout: RequestHandler = async (req, res) => {
   }
 
   res.setHeader("Set-Cookie", buildSessionClearCookie());
+  res.json({ ok: true });
+};
+
+export const tabOpened: RequestHandler = async (req, res) => {
+  const result = await authenticateRequest(req, res, { touch: true });
+  if (!result.ok) return respondWithAuthError(res, result);
+
+  await incrementTabCount(result.session.id);
+  res.json({ ok: true, tabCount: result.session.tabCount + 1 });
+};
+
+export const tabClosed: RequestHandler = async (req, res) => {
+  const result = await authenticateRequest(req, res, { touch: false });
+  if (!result.ok) return respondWithAuthError(res, result);
+
+  await decrementTabCount(result.session.id);
   res.json({ ok: true });
 };
 

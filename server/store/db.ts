@@ -408,6 +408,9 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser_version text;`,
     );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS tab_count integer DEFAULT 1;`,
+    );
     // Migrate from old 'role' column to new 'active_role' column
     try {
       const checkRoleColumn = await p.query(

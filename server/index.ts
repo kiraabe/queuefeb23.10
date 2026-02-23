@@ -46,6 +46,8 @@ import {
   logout,
   me,
   heartbeat,
+  tabOpened,
+  tabClosed,
   requireRole,
   requireTellerForWindowParam,
   requireAuthentication,
@@ -298,6 +300,8 @@ export function createServer() {
   app.post("/api/auth/logout", logout);
   app.get("/api/auth/me", me);
   app.get("/api/auth/heartbeat", heartbeat);
+  app.post("/api/auth/tab-opened", tabOpened);
+  app.post("/api/auth/tab-closed", tabClosed);
   app.post("/api/auth/switch-role", switchRole);
   app.get("/api/auth/session-count/:username", getSessionCountHandler); // Public endpoint for login page
 
@@ -627,7 +631,7 @@ export function createServer() {
     }
   })();
 
-  // Periodic cleanup of stale sessions (every 5 minutes)
+  // Periodic cleanup of stale sessions (every minute)
   setInterval(async () => {
     try {
       const cleaned = await cleanupAllStaleSessions();
@@ -637,7 +641,7 @@ export function createServer() {
     } catch (error) {
       console.error("[Sessions] Cleanup failed:", error);
     }
-  }, 5 * 60 * 1000);
+  }, 1 * 60 * 1000);
 
   return app;
 }
