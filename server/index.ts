@@ -42,6 +42,7 @@ import {
   revokeSessionHandler,
   revokeAllSessionsHandler,
   getSessionCountHandler,
+  sessionPing,
   login,
   logout,
   me,
@@ -304,6 +305,10 @@ export function createServer() {
   app.post("/api/auth/tab-closed", tabClosed);
   app.post("/api/auth/switch-role", switchRole);
   app.get("/api/auth/session-count/:username", getSessionCountHandler); // Public endpoint for login page
+
+  // New Session/Heartbeat API
+  app.post("/api/session/ping", sessionPing);
+  app.post("/api/session/logout", logout);
 
   // Queue/Teller API
   app.get("/api/events", sseHandler); // SSE

@@ -1122,3 +1122,16 @@ export const getSessionCountHandler: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * sessionPing handler for the new /api/session/ping endpoint.
+ * Requirements:
+ * 1. POST request
+ * 2. Updates last_activity_at (via touch: true)
+ * 3. Securely handles credentials (via cookies)
+ */
+export const sessionPing: RequestHandler = async (req, res) => {
+  const result = await authenticateRequest(req, res, { touch: true });
+  if (!result.ok) return respondWithAuthError(res, result);
+  res.json({ ok: true, lastActivityAt: result.session.lastActivityAt.getTime() });
+};

@@ -15,8 +15,8 @@ This document describes the comprehensive session lifecycle management system im
 
 **Automatic Activity Updates:**
 - Every authenticated API request touches the session (updates `last_activity_at`)
-- Frontend sends heartbeat every 60 seconds to keep session alive
-- Sessions cannot survive more than 30 minutes of inactivity
+- Frontend sends heartbeat every 30 seconds to keep session alive
+- Sessions cannot survive more than 2 minutes of inactivity
 - Sessions expire after 24 hours regardless of activity
 
 ### 2. Scheduled Background Cleanup Job
@@ -31,7 +31,7 @@ setInterval(cleanupAllStaleSessions, 5 * 60 * 1000)
 ```
 
 **Cleanup Performs:**
-1. Revokes all sessions with `last_activity_at ≤ now() - 30 minutes`
+1. Revokes all sessions with `last_activity_at ≤ now() - 2 minutes`
 2. Revokes all sessions with `expires_at ≤ now()`
 3. Logs audit entry for each cleanup action
 4. Returns count of cleaned sessions
@@ -62,7 +62,7 @@ This prevents race conditions during concurrent login attempts.
 ### 4. Frontend Heartbeat Mechanism
 
 **Implementation in `client/hooks/use-auth.tsx`:**
-- Sends heartbeat every 60 seconds when user is authenticated
+- Sends heartbeat every 30 seconds when user is authenticated
 - Only sends heartbeat when tab is visible (respects `visibilityState`)
 - Prevents multiple concurrent heartbeats
 - On 401 response, logs out the user
@@ -71,7 +71,7 @@ This prevents race conditions during concurrent login attempts.
 **Benefit:**
 - Keeps session alive during active use
 - Prevents premature session timeout
-- Safe to skip heartbeats when tab is hidden (session expires after 30 min inactivity)
+- Safe to skip heartbeats when tab is hidden (session expires after 2 min inactivity)
 
 ### 5. Automatic Session Touching
 
@@ -112,7 +112,8 @@ This prevents race conditions during concurrent login attempts.
 **Status Calculation:**
 ```typescript
 const expired = now > session.expiresAt.getTime();
-const status = session.revokedAt ? "revoked" : expired ? "expired" : "active";
+const idle = now - session.lastActivityAt.getTime() > 120 * 1000;
+const status = session.revokedAt ? "revoked" : (expired || idle) ? "expired" : "active";
 ```
 
 **Returned in Session Summary:**
@@ -137,7 +138,7 @@ interface SessionSummary {
 
 ```env
 # Session configuration
-SESSION_IDLE_TIMEOUT_SECONDS=1800          # 30 minutes (when inactivity expires session)
+SESSION_IDLE_TIMEOUT_SECONDS=120           # 2 minutes (when inactivity expires session)
 SESSION_TTL_SECONDS=86400                   # 24 hours (max session duration)
 MAX_SESSIONS_PER_USER=3                     # Maximum concurrent sessions per user
 
@@ -171,14 +172,14 @@ TWO_FACTOR_STATIC_CODE=                     # Static OTP code if 2FA enabled
 │ Active Session                                              │
 ├─────────────────────────────────────────────────────────────┤
 │ • Every API request touches session (updates last_activity) │
-│ • Heartbeat sent every 60 seconds                          │
+│ • Heartbeat sent every 30 seconds                          │
 │ • Session valid if:                                        │
-│   - last_activity_at > now() - 30 minutes AND              │
+│   - last_activity_at > now() - 2 minutes AND               │
 │   - expires_at > now() AND                                 │
 │   - revoked_at IS NULL                                     │
 └─────────────────────────────────────────────────────────────┘
      ↓                    ↓                    ↓
-  LOGOUT            INACTIVITY (30min)    EXPIRATION (24h)
+  LOGOUT            INACTIVITY (2min)     EXPIRATION (24h)
      ↓                    ↓                    ↓
 ┌────────────────────────────────────────────────────────────┐
 │ Session Revocation                                         │
@@ -207,8 +208,8 @@ SELECT id FROM users WHERE id = $1 FOR UPDATE;
 
 -- Revoke stale sessions
 UPDATE user_sessions SET revoked_at = now(), revoke_reason = 'timeout'
-WHERE user_id = $1 AND revoked_at IS NULL 
-  AND last_activity_at <= now() - interval '30 minutes';
+WHERE user_id = $1 AND revoked_at IS NULL
+  AND last_activity_at <= now() - interval '2 minutes';
 
 UPDATE user_sessions SET revoked_at = now(), revoke_reason = 'expired'
 WHERE user_id = $1 AND revoked_at IS NULL 
@@ -326,7 +327,7 @@ Existing indexes support fast queries:
 - SameSite=None (with Secure) prevents CSRF on cross-origin requests
 
 ### Idle Timeout
-- 30 minutes of inactivity expires session
+- 2 minutes of inactivity expires session
 - Prevents unauthorized access from unattended sessions
 - Short enough for security, long enough for legitimate use
 
@@ -344,8 +345,8 @@ Existing indexes support fast queries:
 ## Troubleshooting
 
 ### Sessions Still Showing as Active After Tab Close
-**Cause:** Stale sessions not cleaned up yet (cleanup runs every 5 min)
-**Solution:** Sessions will auto-revoke after 30 minutes of inactivity or 24-hour expiration
+**Cause:** Stale sessions not cleaned up yet (cleanup runs every minute)
+**Solution:** Sessions will auto-revoke after 2 minutes of inactivity or 24-hour expiration
 
 ### "Maximum session limit reached" error
 **Cause:** User has 3 active sessions already

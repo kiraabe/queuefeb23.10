@@ -54,10 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = JSON.stringify({});
         if (navigator.sendBeacon) {
           // sendBeacon is the standard API for sending data during unload
-          navigator.sendBeacon(apiUrl("/api/auth/tab-closed"), data);
+          navigator.sendBeacon(apiUrl("/api/session/logout"), data);
         } else {
           // Fallback for browsers without sendBeacon (rare nowadays)
-          fetch(apiUrl("/api/auth/tab-closed"), {
+          fetch(apiUrl("/api/session/logout"), {
             method: "POST",
             body: data,
             keepalive: true,
@@ -74,13 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const interval = setInterval(async () => {
       // Don't send heartbeats if the page is hidden to save resources
-      // The session will eventually expire due to inactivity (30 mins) if the tab is backgrounded for too long
+      // The session will eventually expire due to inactivity (2 mins) if the tab is backgrounded for too long
       if (document.visibilityState === "hidden") {
         return;
       }
 
-      // Don't send heartbeat if there has been no user activity for 30 minutes
-      if (Date.now() - lastActivityTime > 30 * 60 * 1000) {
+      // Don't send heartbeat if there has been no user activity for 2 minutes
+      if (Date.now() - lastActivityTime > 2 * 60 * 1000) {
         return;
       }
 
@@ -92,7 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isHeartbeatPending = true;
       try {
         const response = await apiFetch<{ ok: boolean; lastActivityAt: number }>(
-          "/api/auth/heartbeat",
+          "/api/session/ping",
+          { method: "POST" },
         );
         lastHeartbeatTime = Date.now();
 
@@ -114,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         isHeartbeatPending = false;
       }
-    }, 60 * 1000); // Heartbeat every 60 seconds, well within the 30-minute idle timeout
+    }, 30 * 1000); // Heartbeat every 30 seconds, well within the 2-minute idle timeout
 
     return () => {
       clearInterval(interval);

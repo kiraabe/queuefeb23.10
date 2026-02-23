@@ -12,7 +12,7 @@ function parseNumberEnv(value: string | undefined, fallback: number) {
 
 export const SESSION_IDLE_TIMEOUT_SECONDS = parseNumberEnv(
   process.env.SESSION_IDLE_TIMEOUT_SECONDS,
-  30 * 60, // 30 minutes - reduced from 4 hours as per requirements
+  120, // 2 minutes - as per new session heartbeat requirements
 );
 
 // How many seconds of inactivity makes a teller considered unavailable for transfers.
@@ -100,16 +100,16 @@ export async function createUserSessionAtomic(params: {
       });
     }
 
-    // Clean up closed-tab sessions for this user (grace period 1 minute)
+    // Clean up closed-tab sessions for this user (grace period 2 minutes)
     const closedRes = await client.query(
       `UPDATE user_sessions
        SET revoked_at = now(), revoke_reason = 'timeout'
        WHERE user_id = $1
          AND revoked_at IS NULL
          AND tab_count <= 0
-         AND last_activity_at <= now() - interval '1 minute'
+         AND last_activity_at <= now() - (interval '1 second' * $2)
        RETURNING *`,
-      [params.userId],
+      [params.userId, SESSION_IDLE_TIMEOUT_SECONDS],
     );
 
     for (const s of closedRes.rows) {
@@ -292,18 +292,16 @@ function toSummary(
   // Determine session status based on multiple factors:
   // 1. If revoked, status is "revoked"
   // 2. If expired (expires_at passed), status is "expired"
-  // 3. If idle (no activity for 30+ minutes), status is "expired" (effectively)
-  // 4. If no open tabs (tabCount = 0), status is "expired" - all browser tabs were closed
-  // 5. Otherwise, status is "active"
+  // 3. If idle (no activity for 2+ minutes), status is "expired" (effectively)
+  // 4. Otherwise, status is "active"
 
   const expired = now > session.expiresAt.getTime();
   const idle =
     now - session.lastActivityAt.getTime() >
     SESSION_IDLE_TIMEOUT_SECONDS * 1000;
-  const noOpenTabs = session.tabCount === 0;
   const status = session.revokedAt
     ? "revoked"
-    : expired || idle || noOpenTabs
+    : expired || idle
       ? "expired"
       : "active";
 
@@ -457,16 +455,16 @@ export async function countActiveSessionsForUser(
     });
   }
 
-  // Clean up closed-tab sessions for this user (grace period 1 minute)
+  // Clean up closed-tab sessions for this user (grace period 2 minutes)
   const closedRes = await p.query(
     `UPDATE user_sessions
      SET revoked_at = now(), revoke_reason = 'timeout'
      WHERE user_id = $1
        AND revoked_at IS NULL
        AND tab_count <= 0
-       AND last_activity_at <= now() - interval '1 minute'
+       AND last_activity_at <= now() - (interval '1 second' * $2)
      RETURNING *`,
-    [userId],
+    [userId, SESSION_IDLE_TIMEOUT_SECONDS],
   );
 
   for (const s of closedRes.rows) {
@@ -661,15 +659,16 @@ export async function cleanupAllStaleSessions(): Promise<number> {
     });
   }
 
-  // Revoke sessions with zero tabs that haven't been seen for a short grace period (1 minute)
+  // Revoke sessions with zero tabs that haven't been seen for the idle timeout (2 minutes)
   // This handles closed browser tabs/windows promptly.
   const closedResult = await p.query(
     `UPDATE user_sessions
      SET revoked_at = now(), revoke_reason = 'timeout'
      WHERE revoked_at IS NULL
        AND tab_count <= 0
-       AND last_activity_at <= now() - interval '1 minute'
+       AND last_activity_at <= now() - (interval '1 second' * $1)
      RETURNING *`,
+    [SESSION_IDLE_TIMEOUT_SECONDS],
   );
 
   for (const s of closedResult.rows) {
