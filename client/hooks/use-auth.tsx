@@ -176,11 +176,22 @@ export function useSessionLostRedirect() {
   const previousUserRef = useRef<AuthUser | null | undefined>(undefined);
 
   useEffect(() => {
-    // If user was previously logged in but is now null/not logged in, redirect to login
-    if (previousUserRef.current && user === null) {
-      console.log("[Auth] Session lost - redirecting to login");
+    // Only redirect if:
+    // 1. We were previously logged in (previousUserRef.current is not null/undefined)
+    // 2. AND we are now logged out (user === null)
+    // 3. AND we've already loaded auth state (not still loading with undefined)
+    const wasLoggedIn = previousUserRef.current !== null && previousUserRef.current !== undefined;
+    const isNowLoggedOut = user === null;
+    const hasLoadedAuthState = previousUserRef.current !== undefined;
+
+    if (wasLoggedIn && isNowLoggedOut && hasLoadedAuthState) {
+      console.log("[Auth] Session lost/expired - redirecting to login");
       navigate("/login", { replace: true });
     }
-    previousUserRef.current = user;
+
+    // Update previous user state
+    if (user !== undefined) {
+      previousUserRef.current = user;
+    }
   }, [user, navigate]);
 }

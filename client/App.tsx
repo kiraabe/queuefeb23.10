@@ -4,8 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import AppLayout from "@/components/layout/AppLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Queue from "./pages/Queue";
@@ -58,9 +58,37 @@ function TellerHomeRedirect() {
 
 // Component to monitor session state and redirect on logout
 function SessionMonitor() {
-  useSessionLostRedirect();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const previousUserRef = useRef<any>(undefined);
+
+  useEffect(() => {
+    const wasLoggedIn = previousUserRef.current !== null && previousUserRef.current !== undefined;
+    const isNowLoggedOut = user === null;
+    const hasLoadedAuthState = previousUserRef.current !== undefined;
+
+    if (user) {
+      console.log("[SessionMonitor] User logged in:", user.username, `(${user.role})`);
+    } else if (user === null && previousUserRef.current) {
+      console.log("[SessionMonitor] User logged out or session ended");
+    }
+
+    // Redirect if session was lost
+    if (wasLoggedIn && isNowLoggedOut && hasLoadedAuthState) {
+      console.warn("[SessionMonitor] Redirecting to login due to session loss");
+      navigate("/login", { replace: true });
+    }
+
+    // Update previous user state
+    if (user !== undefined) {
+      previousUserRef.current = user;
+    }
+  }, [user, navigate]);
+
   return null;
 }
+
+import { useEffect } from "react";
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
