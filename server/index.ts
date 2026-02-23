@@ -1,7 +1,10 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import WebSocket from "ws";
+import type { Server as HTTPServer } from "node:http";
 import { getPool } from "./store/db";
+import { handleAdminSessionConnection } from "./services/session-websocket";
 import { handleDemo } from "./routes/demo";
 import {
   clearDemo,
@@ -668,4 +671,24 @@ export function createServer() {
   }, 5 * 60 * 1000);
 
   return app;
+}
+
+/**
+ * Setup WebSocket server for real-time functionality
+ */
+export function setupWebSocket(httpServer: HTTPServer) {
+  const wss = new WebSocket.Server({
+    server: httpServer,
+    path: "/ws/admin/sessions"
+  });
+
+  wss.on("connection", (ws) => {
+    handleAdminSessionConnection(ws);
+  });
+
+  wss.on("error", (error) => {
+    console.error("[WebSocket Server] Error:", error);
+  });
+
+  console.log("[WebSocket] Server initialized at /ws/admin/sessions");
 }
