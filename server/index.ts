@@ -1,9 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import WebSocket, { WebSocketServer } from "ws";
 import { getPool } from "./store/db";
-import { handleAdminSessionConnection } from "./services/session-websocket";
 import { handleDemo } from "./routes/demo";
 import {
   clearDemo,
@@ -651,26 +649,4 @@ export function createServer() {
   }, 1 * 60 * 1000);
 
   return app;
-}
-
-/**
- * Set up WebSocket server for real-time updates
- * Call this after creating the HTTP server with the Express app
- */
-export function setupWebSocket(httpServer: any) {
-  const wss = new WebSocketServer({
-    server: httpServer,
-    path: "/ws/admin/sessions",
-  });
-
-  wss.on("connection", (ws) => {
-    console.log("[WS] New WebSocket connection");
-    handleAdminSessionConnection(ws);
-  });
-
-  wss.on("error", (error) => {
-    console.error("[WS] WebSocket server error:", error);
-  });
-
-  return wss;
 }
