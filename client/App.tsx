@@ -19,7 +19,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import RoleSelector from "./pages/RoleSelector";
 import Profile from "./pages/Profile";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { AuthProvider, useAuth, useSessionLostRedirect } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
 // Lazy load pages with heavy dependencies to reduce initial bundle
@@ -56,6 +56,12 @@ function TellerHomeRedirect() {
   return <Navigate to="/" replace />;
 }
 
+// Component to monitor session state and redirect on logout
+function SessionMonitor() {
+  useSessionLostRedirect();
+  return null;
+}
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <QueryClientProvider client={queryClient}>
@@ -64,6 +70,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <SessionMonitor />
             <Routes>
               {/* Public routes without AppLayout (no header/footer) */}
               <Route path="/track" element={<Track />} />

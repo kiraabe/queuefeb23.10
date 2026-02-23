@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { AuthUser, LoginResponse, MeResponse } from "@shared/api";
 import { apiFetch, apiUrl } from "@/lib/api";
 
@@ -163,4 +164,23 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
+}
+
+/**
+ * Hook to redirect to login when session is lost
+ * Call this in your router to monitor session state and redirect when user loses access
+ */
+export function useSessionLostRedirect() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const previousUserRef = useRef<AuthUser | null | undefined>(undefined);
+
+  useEffect(() => {
+    // If user was previously logged in but is now null/not logged in, redirect to login
+    if (previousUserRef.current && user === null) {
+      console.log("[Auth] Session lost - redirecting to login");
+      navigate("/login", { replace: true });
+    }
+    previousUserRef.current = user;
+  }, [user, navigate]);
 }
