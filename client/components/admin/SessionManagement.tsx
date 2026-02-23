@@ -234,8 +234,11 @@ export default function SessionManagement() {
     }
   };
 
-  const formatTime = (timestamp: number) => {
-    return format(new Date(timestamp), "MMM d, HH:mm");
+  const formatTime = (timestamp: number | null | undefined) => {
+    if (!timestamp || typeof timestamp !== 'number') return "—";
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return "—";
+    return format(date, "MMM d, HH:mm");
   };
 
   const formatDuration = (start: number, end: number) => {
