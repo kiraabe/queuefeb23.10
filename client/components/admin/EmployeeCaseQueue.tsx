@@ -21,7 +21,7 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
-  HourglassIcon,
+  Hourglass,
   User,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
@@ -307,7 +307,7 @@ export default function EmployeeCaseQueue() {
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Cases
                 </span>
-                <HourglassIcon className="h-4 w-4 text-orange-500" />
+                <Hourglass className="h-4 w-4 text-orange-500" />
               </div>
               <p className="text-3xl font-bold">
                 {employeesData.reduce(
@@ -380,7 +380,7 @@ export default function EmployeeCaseQueue() {
               {employee.receivedCases.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                    <HourglassIcon className="h-4 w-4 text-orange-500" />
+                    <Hourglass className="h-4 w-4 text-orange-500" />
                     Received Cases ({employee.receivedCases.length})
                   </h4>
                   <div className="overflow-x-auto">
