@@ -340,7 +340,7 @@ export default function SessionManagement() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              {error instanceof Error ? error.message : String(error)}
+              {error}
             </AlertDescription>
           </Alert>
         )}

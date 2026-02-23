@@ -122,7 +122,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const doFetch = async (): Promise<Response> => {
     const url = apiUrl(path);
-    const requestInit = {
+    const requestInit: RequestInit = {
       headers: {
         "Content-Type": "application/json",
         "X-Requested-With": "fetch",

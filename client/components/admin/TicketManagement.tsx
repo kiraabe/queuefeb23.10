@@ -185,7 +185,7 @@ export default function TicketManagement() {
     // For hold/transferred tickets, show all-time; for others, show only today's
     if (filterStatus === "transferred") {
       // Hold tickets: show all-time tickets with "on_hold" status
-      filtered = filtered.filter((t) => t.status === "en_hold" || t.status === "on_hold");
+      filtered = filtered.filter((t) => t.status === "on_hold");
     } else {
       // Other statuses: show only today's tickets
       filtered = filtered.filter((t) => {
@@ -219,7 +219,7 @@ export default function TicketManagement() {
       serving: todayTickets.filter((t) => t.status === "serving").length,
       done: todayTickets.filter((t) => t.status === "done").length,
       skipped: todayTickets.filter((t) => t.status === "skipped").length,
-      hold: ticketList.filter((t) => t.status === "en_hold" || t.status === "on_hold").length, // All-time count for on-hold status tickets
+      hold: ticketList.filter((t) => t.status === "on_hold").length, // All-time count for on-hold status tickets
     };
   }, [ticketList]);
 
