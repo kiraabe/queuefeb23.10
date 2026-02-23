@@ -172,10 +172,19 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
           </div>
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+              <div className="col-span-2 text-sm mb-1">
+                <span className="font-medium">Customer:</span>{" "}
+                <span className="text-foreground font-semibold">
+                  {ticket.ownerName || "—"}
+                </span>
+              </div>
               <div>
                 <span className="font-medium">Started:</span>{" "}
                 {ticket.startedAt
-                  ? new Date(ticket.startedAt).toLocaleTimeString()
+                  ? new Date(ticket.startedAt).toLocaleString([], {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })
                   : "—"}
               </div>
               <div>
@@ -183,7 +192,10 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
                 {ticket.completedAt || ticket.proceededAt
                   ? new Date(
                       ticket.completedAt || ticket.proceededAt || 0,
-                    ).toLocaleTimeString()
+                    ).toLocaleString([], {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })
                   : "—"}
               </div>
               <div>
@@ -735,7 +747,10 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         </div>
         {ticket.employeeStartedAt && (
           <p className="text-xs text-muted-foreground">
-            {new Date(ticket.employeeStartedAt).toLocaleTimeString()}
+            {new Date(ticket.employeeStartedAt).toLocaleString([], {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
           </p>
         )}
         {!ticket.employeeStartedAt && (
@@ -743,7 +758,11 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
         )}
         {ticket.employeeStartedAt && ticket.status === "done" && (
           <p className="text-xs text-muted-foreground">
-            to {new Date(ticket.completedAt || 0).toLocaleTimeString()}
+            to{" "}
+            {new Date(ticket.completedAt || 0).toLocaleString([], {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
           </p>
         )}
         {ticket && (

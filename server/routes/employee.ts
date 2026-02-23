@@ -601,7 +601,8 @@ export const employeeHistory: RequestHandler = async (req, res) => {
                 extract(epoch from t.proceeded_at)*1000 as proceeded_at,
                 t.job_title_for_proceed,
                 COALESCE("Land Holding Rights Certificate (ካርታ) ser no.", NULL) as land_cert_karta,
-                COALESCE("Land Holding Rights Certificate (ካርታ) No.", NULL) as land_cert_digital`;
+                COALESCE("Land Holding Rights Certificate (ካርታ) No.", NULL) as land_cert_digital,
+                (SELECT extract(epoch from started_at)*1000 FROM employee_case_performance WHERE ticket_id = t.id AND employee_id = $1 ORDER BY created_at DESC LIMIT 1) as employee_started_at`;
 
     // Get all cases this employee started OR worked on within the selected time period
     // This includes:
