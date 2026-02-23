@@ -165,7 +165,7 @@ export async function createUserSessionAtomic(params: {
         created_at,
         last_activity_at,
         expires_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now(), now(), $17)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now(), now(), $18)
       RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
       [
         params.userId,
@@ -184,7 +184,7 @@ export async function createUserSessionAtomic(params: {
         params.deviceModel ?? null,
         params.browserName ?? null,
         params.browserVersion ?? null,
-        1,
+        0,
         expiresAt.toISOString(),
       ],
     );
@@ -324,6 +324,7 @@ function toSummary(
     deviceModel: session.deviceModel,
     browserName: session.browserName,
     browserVersion: session.browserVersion,
+    tabCount: session.tabCount,
     revokeReason: session.revokeReason ?? null,
     fullName: fullName ?? null,
     jobTitle: jobTitle ?? null,
@@ -378,7 +379,7 @@ export async function createUserSession(params: {
       created_at,
       last_activity_at,
       expires_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now(), now(), $17)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now(), now(), $18)
     RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
     [
       params.userId,
@@ -397,7 +398,7 @@ export async function createUserSession(params: {
       params.deviceModel ?? null,
       params.browserName ?? null,
     params.browserVersion ?? null,
-    1,
+    0,
     expiresAt.toISOString(),
     ],
   );

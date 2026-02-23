@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { AuthUser, LoginResponse, MeResponse } from "@shared/api";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, apiUrl } from "@/lib/api";
 
 interface AuthContextValue {
   user: AuthUser | null | undefined; // undefined while loading
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Use fetch with keepalive as a modern alternative to sendBeacon
       // that allows custom headers (like X-Requested-With if needed,
       // though simple requests might not need it depending on server config)
-      fetch("/api/auth/tab-closed", {
+      fetch(apiUrl("/api/auth/tab-closed"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

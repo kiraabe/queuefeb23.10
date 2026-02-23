@@ -409,7 +409,13 @@ export async function initDb() {
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser_version text;`,
     );
     await p.query(
-      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS tab_count integer DEFAULT 1;`,
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS tab_count integer;`,
+    );
+    await p.query(
+      `UPDATE user_sessions SET tab_count = 1 WHERE tab_count IS NULL;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ALTER COLUMN tab_count SET DEFAULT 0;`,
     );
     // Migrate from old 'role' column to new 'active_role' column
     try {

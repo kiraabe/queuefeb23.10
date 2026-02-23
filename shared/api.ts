@@ -290,6 +290,7 @@ export interface SessionSummary {
   browserName?: string | null;
   browserVersion?: string | null;
   revokeReason?: string | null;
+  tabCount?: number;
   fullName?: string | null;
   jobTitle?: string | null;
 }
