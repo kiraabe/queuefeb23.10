@@ -279,6 +279,10 @@ export interface SessionSummary {
   lastSeenAt: number;
   expiresAt: number;
   status: SessionStatus;
+  device?: string | null;
+  browser?: string | null;
+  os?: string | null;
+  ipAddress?: string | null;
   revokeReason?: string | null;
   fullName?: string | null;
   jobTitle?: string | null;

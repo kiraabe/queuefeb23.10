@@ -1,4 +1,5 @@
 import type { Request, Response, RequestHandler } from "express";
+import UAParser from "ua-parser-js";
 import {
   getUserByUsername,
   getUserByWindow,
@@ -481,6 +482,22 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
+  // Capture device and browser info
+  const parser = new UAParser(req.headers["user-agent"]);
+  const uaResult = parser.getResult();
+  const deviceVendor = uaResult.device.vendor || "";
+  const deviceModel = uaResult.device.model || "";
+  const device =
+    deviceVendor || deviceModel
+      ? `${deviceVendor} ${deviceModel}`.trim()
+      : "Desktop";
+  const browser = `${uaResult.browser.name || "Unknown"} ${uaResult.browser.version || ""}`.trim();
+  const os = `${uaResult.os.name || "Unknown"} ${uaResult.os.version || ""}`.trim();
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+    req.socket.remoteAddress ||
+    "";
+
   // Atomic session creation with limit enforcement and race condition prevention
   const sessionResult = await createUserSessionAtomic({
     userId: userRow.id,
@@ -489,6 +506,10 @@ export const login: RequestHandler = async (req, res) => {
     windowId: userRow.window_id ?? null,
     jobTitleId: userRow.job_title_id ?? null,
     maxSessions: MAX_SESSIONS_PER_USER,
+    device,
+    browser,
+    os,
+    ipAddress,
   });
 
   if ("error" in sessionResult) {

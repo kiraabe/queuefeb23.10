@@ -324,6 +324,10 @@ export async function initDb() {
     window_id int,
     job_title_id uuid,
     token_hash text not null unique,
+    device text,
+    browser text,
+    os text,
+    ip_address text,
     created_at timestamptz not null default now(),
     last_activity_at timestamptz not null default now(),
     expires_at timestamptz not null,
@@ -366,6 +370,18 @@ export async function initDb() {
     // Add missing columns if they don't exist (for existing installations)
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS job_title_id uuid;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS os text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS ip_address text;`,
     );
     // Migrate from old 'role' column to new 'active_role' column
     try {
