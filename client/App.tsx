@@ -88,8 +88,6 @@ function SessionMonitor() {
   return null;
 }
 
-import { useEffect } from "react";
-
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <QueryClientProvider client={queryClient}>
