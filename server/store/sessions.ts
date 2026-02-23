@@ -165,6 +165,23 @@ export async function createUserSessionAtomic(params: {
     );
     const session = mapRow(rows[0]);
 
+    // Audit log for successful session creation
+    await logAudit({
+      action: "auth.session_created",
+      userId: session.userId,
+      username: session.username,
+      role: session.activeRole,
+      windowId: session.windowId,
+      details: {
+        sessionId: session.id,
+        device: session.device,
+        browser: session.browser,
+        os: session.os,
+        ipAddress: session.ipAddress,
+        expiresAt: session.expiresAt.toISOString(),
+      },
+    });
+
     await client.query("COMMIT");
     return { token, session };
   } catch (err) {
@@ -245,8 +262,22 @@ function toSummary(
   jobTitle?: string | null,
   now = Date.now(),
 ): SessionSummary {
+  // Determine session status based on multiple factors:
+  // 1. If revoked, status is "revoked"
+  // 2. If expired (expires_at passed), status is "expired"
+  // 3. If idle (no activity for 30+ minutes), status is "expired" (effectively)
+  // 4. Otherwise, status is "active"
+
   const expired = now > session.expiresAt.getTime();
-  const status = session.revokedAt ? "revoked" : expired ? "expired" : "active";
+  const idle =
+    now - session.lastActivityAt.getTime() >
+    SESSION_IDLE_TIMEOUT_SECONDS * 1000;
+  const status = session.revokedAt
+    ? "revoked"
+    : expired || idle
+      ? "expired"
+      : "active";
+
   return {
     id: session.id,
     username: session.username,

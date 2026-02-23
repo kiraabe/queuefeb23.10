@@ -48,6 +48,7 @@ import {
   heartbeat,
   requireRole,
   requireTellerForWindowParam,
+  requireAuthentication,
   switchRole,
 } from "./routes/auth";
 import { cleanupAllStaleSessions } from "./store/sessions";

@@ -25,25 +25,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Session heartbeat - keep session active while tab is open
+  // This ensures that last_activity_at is updated every 60 seconds to prevent session timeout (30 min idle)
   useEffect(() => {
     if (!user) return;
+
+    let isHeartbeatPending = false;
+    let lastHeartbeatTime = Date.now();
 
     const interval = setInterval(async () => {
       // Don't send heartbeats if the page is hidden to save resources
       // The session will eventually expire due to inactivity (30 mins) if the tab is backgrounded for too long
-      if (document.visibilityState === "hidden") return;
-
-      try {
-        await apiFetch("/api/auth/heartbeat");
-      } catch (err) {
-        // If heartbeat fails with 401, the session is likely gone
-        if ((err as any)?.status === 401) {
-          setUser(null);
-        }
+      if (document.visibilityState === "hidden") {
+        return;
       }
-    }, 60 * 1000); // Heartbeat every 60 seconds
 
-    return () => clearInterval(interval);
+      // Prevent multiple heartbeats in flight
+      if (isHeartbeatPending) {
+        return;
+      }
+
+      isHeartbeatPending = true;
+      try {
+        const response = await apiFetch<{ ok: boolean; lastActivityAt: number }>(
+          "/api/auth/heartbeat",
+        );
+        lastHeartbeatTime = Date.now();
+
+        // Log successful heartbeat in development
+        if (process.env.NODE_ENV === "development") {
+          console.debug(
+            `[Auth] Heartbeat successful at ${new Date(response.lastActivityAt).toISOString()}`,
+          );
+        }
+      } catch (err) {
+        // If heartbeat fails with 401, the session is likely gone or revoked
+        if ((err as any)?.status === 401) {
+          console.warn("[Auth] Session invalid (401). User will be logged out.");
+          setUser(null);
+        } else {
+          // For other errors, log but don't force logout yet
+          console.warn("[Auth] Heartbeat failed:", (err as any)?.status || err);
+        }
+      } finally {
+        isHeartbeatPending = false;
+      }
+    }, 60 * 1000); // Heartbeat every 60 seconds, well within the 30-minute idle timeout
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [user]);
 
   const value = useMemo<AuthContextValue>(

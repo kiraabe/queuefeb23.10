@@ -571,6 +571,21 @@ export const login: RequestHandler = async (req, res) => {
   });
 
   if ("error" in sessionResult) {
+    // Log the max sessions reached event for security auditing
+    await logAudit({
+      action: "auth.max_sessions_reached",
+      userId: userRow.id,
+      username: userRow.username,
+      role: activeRole,
+      windowId: userRow.window_id ?? null,
+      details: {
+        maxSessions: MAX_SESSIONS_PER_USER,
+        ipAddress: getClientIpAddress(req),
+        device: device,
+        browser: browser,
+      },
+    });
+
     return res.status(409).json({
       error: "Maximum session limit reached",
       message:
@@ -613,50 +628,18 @@ export const login: RequestHandler = async (req, res) => {
 };
 
 export const me: RequestHandler = async (req, res) => {
-  const cookies = parseCookies(req.headers.cookie || "");
-  const token = cookies[SESSION_COOKIE];
-  if (!token)
-    return res.json({ user: null, errorCode: "NO_SESSION" } as MeResponse);
+  const result = await authenticateRequest(req, res, { touch: true });
+  if (!result.ok) {
+    // Return JSON response instead of letting authenticateRequest handle it
+    const err = result as any;
+    return res.json({
+      user: null,
+      errorCode: err.code,
+      message: err.message,
+    } as MeResponse);
+  }
 
-  const session = await findSessionByToken(token);
-  if (!session) {
-    res.setHeader("Set-Cookie", buildSessionClearCookie());
-    return res.json({
-      user: null,
-      errorCode: "SESSION_INVALIDATED",
-      message: "Your session has expired. Please sign in again.",
-    } as MeResponse);
-  }
-  if (session.revokedAt) {
-    res.setHeader("Set-Cookie", buildSessionClearCookie());
-    const mapped = mapRevokeReason(session.revokeReason ?? null);
-    return res.json({
-      user: null,
-      errorCode: mapped.code,
-      message: mapped.message,
-    } as MeResponse);
-  }
-  const now = new Date();
-  if (now.getTime() > session.expiresAt.getTime()) {
-    await revokeSessionById(session.id, "expired");
-    res.setHeader("Set-Cookie", buildSessionClearCookie());
-    return res.json({
-      user: null,
-      errorCode: "SESSION_EXPIRED",
-      message: "Session expired. Please sign in again.",
-    } as MeResponse);
-  }
-  const idleMs = now.getTime() - session.lastActivityAt.getTime();
-  if (idleMs > SESSION_IDLE_TIMEOUT_SECONDS * 1000) {
-    await revokeSessionById(session.id, "timeout");
-    res.setHeader("Set-Cookie", buildSessionClearCookie());
-    return res.json({
-      user: null,
-      errorCode: "SESSION_EXPIRED",
-      message: "Session ended due to inactivity. Please sign in again.",
-    } as MeResponse);
-  }
-  await touchSession(session.id, now);
+  const session = result.session;
 
   // Fetch full user data from database to include email, phone, department, etc.
   const p = getPool();
@@ -688,7 +671,31 @@ export const me: RequestHandler = async (req, res) => {
 
 export const heartbeat: RequestHandler = async (req, res) => {
   const result = await authenticateRequest(req, res, { touch: true });
-  if (!result.ok) return respondWithAuthError(res, result);
+  if (!result.ok) {
+    // Only log authentication failures for heartbeat, not every successful heartbeat
+    // to avoid excessive logging
+    if ((result as any).code === "SESSION_EXPIRED" || (result as any).code === "SESSION_INVALIDATED") {
+      try {
+        const cookies = parseCookies(req.headers.cookie || "");
+        const token = cookies[SESSION_COOKIE];
+        const session = token ? await findSessionByToken(token) : null;
+        if (session) {
+          await logAudit({
+            action: "auth.heartbeat_failed",
+            userId: session.userId,
+            username: session.username,
+            role: session.activeRole,
+            windowId: session.windowId ?? null,
+            details: {
+              sessionId: session.id,
+              reason: (result as any).code,
+            },
+          });
+        }
+      } catch {}
+    }
+    return respondWithAuthError(res, result);
+  }
   res.json({ ok: true, lastActivityAt: result.session.lastActivityAt.getTime() });
 };
 
@@ -728,6 +735,27 @@ function respondWithAuthError(
       .status(err.status)
       .json({ error: err.message, message: err.message, code: err.code });
   }
+}
+
+/**
+ * Middleware that automatically touches (updates last_activity_at) authenticated sessions.
+ * Should be applied to all routes that require authentication.
+ * This ensures that active sessions stay alive as long as they're being used.
+ */
+export function requireAuthentication(): RequestHandler {
+  return async (req, res, next) => {
+    const result = await authenticateRequest(req, res, { touch: true });
+    if (!result.ok) return respondWithAuthError(res, result);
+
+    (req as any).auth = {
+      id: result.session.userId,
+      username: result.session.username,
+      role: result.session.activeRole,
+      windowId: result.session.windowId ?? null,
+      sessionId: result.session.id,
+    };
+    next();
+  };
 }
 
 export function requireRole(roles: UserRole[]): RequestHandler {
@@ -878,6 +906,20 @@ export const switchRole: RequestHandler = async (req, res) => {
       message: "Could not update your session.",
     });
   }
+
+  // Audit log for role change
+  await logAudit({
+    action: "auth.role_switched",
+    userId: session.userId,
+    username: session.username,
+    role: desiredRole,
+    windowId: session.windowId ?? null,
+    details: {
+      sessionId: session.id,
+      previousRole: session.activeRole,
+      newRole: desiredRole,
+    },
+  });
 
   const user = toAuthUserFromSession(updatedSession);
   res.json({ user, message: `Switched to ${desiredRole} role` });
