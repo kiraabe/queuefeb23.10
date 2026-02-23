@@ -251,11 +251,38 @@ const globalAttemptsByUser = new Map<
 >();
 const lockedUntilByUser = new Map<string, number>();
 const lockedUntilByIpUser = new Map<string, number>();
+// Helper function to extract and clean IP address
+function getClientIpAddress(req: Request): string {
+  // Try x-forwarded-for first (for proxies like Nginx, CloudFlare)
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (xForwardedFor && typeof xForwardedFor === "string") {
+    const ip = xForwardedFor.split(",")[0]?.trim() || "";
+    if (ip) return cleanIpAddress(ip);
+  }
+
+  // Fallback to socket remote address
+  const socketIp = req.socket?.remoteAddress || "";
+  if (socketIp) return cleanIpAddress(socketIp);
+
+  return "";
+}
+
+// Helper function to clean IPv6-mapped IPv4 addresses
+function cleanIpAddress(ip: string): string {
+  if (!ip) return "";
+  // Remove ::ffff: prefix from IPv6-mapped IPv4 addresses
+  if (ip.startsWith("::ffff:")) {
+    return ip.substring(7);
+  }
+  // Remove brackets for IPv6 addresses
+  if (ip.startsWith("[") && ip.endsWith("]")) {
+    return ip.slice(1, -1);
+  }
+  return ip;
+}
+
 function keyFor(req: Request, username: string) {
-  const ip =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
-    req.socket.remoteAddress ||
-    "";
+  const ip = getClientIpAddress(req);
   return `${username.toLowerCase()}|${ip}`;
 }
 function incrementAttempt(
@@ -485,18 +512,43 @@ export const login: RequestHandler = async (req, res) => {
   // Capture device and browser info
   const parser = new UAParser(req.headers["user-agent"]);
   const uaResult = parser.getResult();
+
+  // Extract OS details
+  const osName = uaResult.os.name || "Unknown";
+  const osVersion = uaResult.os.version || "";
+
+  // Extract device details
   const deviceVendor = uaResult.device.vendor || "";
   const deviceModel = uaResult.device.model || "";
-  const device =
-    deviceVendor || deviceModel
-      ? `${deviceVendor} ${deviceModel}`.trim()
-      : "Desktop";
-  const browser = `${uaResult.browser.name || "Unknown"} ${uaResult.browser.version || ""}`.trim();
-  const os = `${uaResult.os.name || "Unknown"} ${uaResult.os.version || ""}`.trim();
-  const ipAddress =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
-    req.socket.remoteAddress ||
-    "";
+  const isBot = uaResult.ua?.toLowerCase().includes("bot");
+  const deviceType = uaResult.device.type || "desktop";
+
+  // Build device string based on device type
+  let device: string;
+  if (deviceType === "mobile" || deviceType === "tablet") {
+    // For mobile/tablet, show vendor and model
+    device =
+      deviceVendor || deviceModel
+        ? `${deviceVendor} ${deviceModel}`.trim()
+        : deviceType === "tablet"
+          ? "Tablet"
+          : "Mobile Device";
+  } else {
+    // For desktop, show "Windows PC" or "Mac" etc if not detected
+    device =
+      deviceVendor || deviceModel ? `${deviceVendor} ${deviceModel}`.trim() : osName.includes("Windows") ? "Windows PC" : osName.includes("Mac") ? "Mac" : "Desktop";
+  }
+
+  // Extract browser details
+  const browserName = uaResult.browser.name || "Unknown";
+  const browserVersion = uaResult.browser.version || "";
+  const browser = `${browserName}${browserVersion ? ` ${browserVersion}` : ""}`.trim();
+
+  // Legacy fields for backward compatibility
+  const os = `${osName}${osVersion ? ` ${osVersion}` : ""}`.trim();
+
+  // Extract and clean IP address
+  const ipAddress = getClientIpAddress(req);
 
   // Atomic session creation with limit enforcement and race condition prevention
   const sessionResult = await createUserSessionAtomic({
@@ -510,6 +562,12 @@ export const login: RequestHandler = async (req, res) => {
     browser,
     os,
     ipAddress,
+    osName,
+    osVersion,
+    deviceVendor,
+    deviceModel,
+    browserName,
+    browserVersion,
   });
 
   if ("error" in sessionResult) {

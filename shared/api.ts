@@ -283,6 +283,12 @@ export interface SessionSummary {
   browser?: string | null;
   os?: string | null;
   ipAddress?: string | null;
+  osName?: string | null;
+  osVersion?: string | null;
+  deviceVendor?: string | null;
+  deviceModel?: string | null;
+  browserName?: string | null;
+  browserVersion?: string | null;
   revokeReason?: string | null;
   fullName?: string | null;
   jobTitle?: string | null;

@@ -464,7 +464,19 @@ export default function SessionManagement() {
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          {session.device || "Desktop"}
+                                          <div className="text-xs">
+                                            <div>{session.device || "Desktop"}</div>
+                                            {session.deviceVendor && (
+                                              <div className="text-muted-foreground">
+                                                Vendor: {session.deviceVendor}
+                                              </div>
+                                            )}
+                                            {session.deviceModel && (
+                                              <div className="text-muted-foreground">
+                                                Model: {session.deviceModel}
+                                              </div>
+                                            )}
+                                          </div>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TableCell>
@@ -472,11 +484,18 @@ export default function SessionManagement() {
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="cursor-help">
-                                            {session.browser || "—"}
+                                            {session.browserName || session.browser || "—"}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          {session.browser || "—"}
+                                          <div className="text-xs">
+                                            <div>{session.browserName || session.browser || "Unknown"}</div>
+                                            {session.browserVersion && (
+                                              <div className="text-muted-foreground">
+                                                v{session.browserVersion}
+                                              </div>
+                                            )}
+                                          </div>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TableCell>
@@ -484,11 +503,18 @@ export default function SessionManagement() {
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="cursor-help">
-                                            {session.os || "—"}
+                                            {session.osName || session.os || "—"}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          {session.os || "—"}
+                                          <div className="text-xs">
+                                            <div>{session.osName || session.os || "Unknown"}</div>
+                                            {session.osVersion && (
+                                              <div className="text-muted-foreground">
+                                                {session.osVersion}
+                                              </div>
+                                            )}
+                                          </div>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TableCell>

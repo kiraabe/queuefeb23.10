@@ -328,6 +328,12 @@ export async function initDb() {
     browser text,
     os text,
     ip_address text,
+    os_name text,
+    os_version text,
+    device_vendor text,
+    device_model text,
+    browser_name text,
+    browser_version text,
     created_at timestamptz not null default now(),
     last_activity_at timestamptz not null default now(),
     expires_at timestamptz not null,
@@ -382,6 +388,25 @@ export async function initDb() {
     );
     await p.query(
       `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS ip_address text;`,
+    );
+    // Add new columns for improved session tracking
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS os_name text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS os_version text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_vendor text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_model text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser_name text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS browser_version text;`,
     );
     // Migrate from old 'role' column to new 'active_role' column
     try {

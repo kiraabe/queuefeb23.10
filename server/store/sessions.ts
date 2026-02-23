@@ -37,6 +37,12 @@ export async function createUserSessionAtomic(params: {
   browser?: string | null;
   os?: string | null;
   ipAddress?: string | null;
+  osName?: string | null;
+  osVersion?: string | null;
+  deviceVendor?: string | null;
+  deviceModel?: string | null;
+  browserName?: string | null;
+  browserVersion?: string | null;
 }): Promise<
   { token: string; session: SessionRecord } | { error: "MAX_SESSIONS_REACHED" }
 > {
@@ -126,11 +132,17 @@ export async function createUserSessionAtomic(params: {
         browser,
         os,
         ip_address,
+        os_name,
+        os_version,
+        device_vendor,
+        device_model,
+        browser_name,
+        browser_version,
         created_at,
         last_activity_at,
         expires_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), now(), $11)
-      RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now(), now(), $17)
+      RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
       [
         params.userId,
         params.username,
@@ -142,6 +154,12 @@ export async function createUserSessionAtomic(params: {
         params.browser ?? null,
         params.os ?? null,
         params.ipAddress ?? null,
+        params.osName ?? null,
+        params.osVersion ?? null,
+        params.deviceVendor ?? null,
+        params.deviceModel ?? null,
+        params.browserName ?? null,
+        params.browserVersion ?? null,
         expiresAt.toISOString(),
       ],
     );
@@ -180,6 +198,12 @@ export interface SessionRecord {
   browser: string | null;
   os: string | null;
   ipAddress: string | null;
+  osName: string | null;
+  osVersion: string | null;
+  deviceVendor: string | null;
+  deviceModel: string | null;
+  browserName: string | null;
+  browserVersion: string | null;
   revokedAt: Date | null;
   revokeReason: SessionRevokeReason | null;
 }
@@ -204,6 +228,12 @@ function mapRow(row: any): SessionRecord {
     browser: row.browser ?? null,
     os: row.os ?? null,
     ipAddress: row.ip_address ?? null,
+    osName: row.os_name ?? null,
+    osVersion: row.os_version ?? null,
+    deviceVendor: row.device_vendor ?? null,
+    deviceModel: row.device_model ?? null,
+    browserName: row.browser_name ?? null,
+    browserVersion: row.browser_version ?? null,
     revokedAt: row.revoked_at ? new Date(row.revoked_at) : null,
     revokeReason: (row.revoke_reason as SessionRevokeReason | null) ?? null,
   };
@@ -223,13 +253,19 @@ function toSummary(
     role: session.activeRole,
     windowId: session.windowId,
     createdAt: session.createdAt.getTime(),
-    lastActivityAt: session.lastActivityAt.getTime(),
+    lastSeenAt: session.lastActivityAt.getTime(),
     expiresAt: session.expiresAt.getTime(),
     status,
     device: session.device,
     browser: session.browser,
     os: session.os,
     ipAddress: session.ipAddress,
+    osName: session.osName,
+    osVersion: session.osVersion,
+    deviceVendor: session.deviceVendor,
+    deviceModel: session.deviceModel,
+    browserName: session.browserName,
+    browserVersion: session.browserVersion,
     revokeReason: session.revokeReason ?? null,
     fullName: fullName ?? null,
     jobTitle: jobTitle ?? null,
@@ -250,6 +286,12 @@ export async function createUserSession(params: {
   browser?: string | null;
   os?: string | null;
   ipAddress?: string | null;
+  osName?: string | null;
+  osVersion?: string | null;
+  deviceVendor?: string | null;
+  deviceModel?: string | null;
+  browserName?: string | null;
+  browserVersion?: string | null;
 }): Promise<{ token: string; session: SessionRecord }> {
   const token = generateSessionToken();
   const hash = hashToken(token);
@@ -268,11 +310,17 @@ export async function createUserSession(params: {
       browser,
       os,
       ip_address,
+      os_name,
+      os_version,
+      device_vendor,
+      device_model,
+      browser_name,
+      browser_version,
       created_at,
       last_activity_at,
       expires_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), now(), $11)
-    RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now(), now(), $17)
+    RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
     [
       params.userId,
       params.username,
@@ -284,6 +332,12 @@ export async function createUserSession(params: {
       params.browser ?? null,
       params.os ?? null,
       params.ipAddress ?? null,
+      params.osName ?? null,
+      params.osVersion ?? null,
+      params.deviceVendor ?? null,
+      params.deviceModel ?? null,
+      params.browserName ?? null,
+      params.browserVersion ?? null,
       expiresAt.toISOString(),
     ],
   );
@@ -429,7 +483,7 @@ export async function findSessionByToken(token: string) {
   const hash = hashToken(token);
   const p = getPool();
   const { rows } = await p.query(
-    `SELECT id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, created_at, last_activity_at, expires_at, revoked_at, revoke_reason
+    `SELECT id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason
      FROM user_sessions
      WHERE token_hash = $1
      LIMIT 1`,
@@ -517,7 +571,9 @@ export async function listSessions(
   const { rows } = await p.query(
     `SELECT
       us.id, us.user_id, us.username, us.active_role, us.window_id, us.job_title_id,
-      us.token_hash, us.device, us.browser, us.os, us.ip_address, us.created_at, us.last_activity_at, us.expires_at, us.revoked_at, us.revoke_reason,
+      us.token_hash, us.device, us.browser, us.os, us.ip_address,
+      us.os_name, us.os_version, us.device_vendor, us.device_model, us.browser_name, us.browser_version,
+      us.created_at, us.last_activity_at, us.expires_at, us.revoked_at, us.revoke_reason,
       u.full_name,
       jt.name_english as job_title_english,
       jt.name_amharic as job_title_amharic
@@ -539,6 +595,12 @@ export async function listSessions(
       browser: row.browser,
       os: row.os,
       ip_address: row.ip_address,
+      os_name: row.os_name,
+      os_version: row.os_version,
+      device_vendor: row.device_vendor,
+      device_model: row.device_model,
+      browser_name: row.browser_name,
+      browser_version: row.browser_version,
       created_at: row.created_at,
       last_activity_at: row.last_activity_at,
       expires_at: row.expires_at,
