@@ -422,6 +422,10 @@ export default function SessionManagement() {
                                 <TableRow>
                                   <TableHead>Status</TableHead>
                                   <TableHead>Window</TableHead>
+                                  <TableHead>Device</TableHead>
+                                  <TableHead>Browser</TableHead>
+                                  <TableHead>OS</TableHead>
+                                  <TableHead>IP Address</TableHead>
                                   <TableHead>Logged In</TableHead>
                                   <TableHead>Last Seen</TableHead>
                                   <TableHead>Duration</TableHead>
@@ -448,6 +452,45 @@ export default function SessionManagement() {
                                     </TableCell>
                                     <TableCell className="text-sm">
                                       {session.windowId ?? "—"}
+                                    </TableCell>
+                                    <TableCell className="text-sm max-w-[120px] truncate">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="cursor-help">
+                                            {session.device || "Desktop"}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          {session.device || "Desktop"}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TableCell>
+                                    <TableCell className="text-sm max-w-[120px] truncate">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="cursor-help">
+                                            {session.browser || "—"}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          {session.browser || "—"}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TableCell>
+                                    <TableCell className="text-sm max-w-[100px] truncate">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="cursor-help">
+                                            {session.os || "—"}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          {session.os || "—"}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TableCell>
+                                    <TableCell className="text-sm">
+                                      {session.ipAddress || "—"}
                                     </TableCell>
                                     <TableCell className="text-sm">
                                       {formatTime(session.createdAt)}
