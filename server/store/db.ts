@@ -3646,7 +3646,7 @@ export async function autoCancelExpiredHolds(): Promise<void> {
   const p = getPool();
   const HOLD_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours in milliseconds
   const DEFAULT_SKIP_REMARK =
-    "Case automatically skipped due to no customer response within the 3-day hold period.";
+    "Case automatically canceled due to no customer response within the 3-day hold period.";
   const SYSTEM_USER_ID = "00000000-0000-0000-0000-000000000000"; // System user identifier
 
   try {
