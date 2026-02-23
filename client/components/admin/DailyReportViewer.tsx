@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { format, subYears, startOfDay, endOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
+import { apiFetch } from "@/lib/api";
 import {
   BarChart,
   Bar,
@@ -196,51 +197,10 @@ export default function DailyReportViewer() {
       const fromISO = fromUTC.toISOString();
       const toISO = toUTC.toISOString();
 
-      console.log("[DailyReportViewer] Fetching report for date range:", {
-        fromDate: fromISO,
-        toDate: toISO,
-        fromDateDisplay: from.toLocaleDateString(),
-        toDateDisplay: to.toLocaleDateString(),
-      });
+      const data = await apiFetch<DailyReport>(
+        `/api/admin/daily-report?fromDate=${fromISO}&toDate=${toISO}&_t=${Date.now()}`,
+      );
 
-      // Build query string with proper encoding
-      const params = new URLSearchParams();
-      params.append("fromDate", fromISO);
-      params.append("toDate", toISO);
-      params.append("_t", Date.now().toString()); // Cache buster
-
-      const url = `/api/admin/daily-report?${params.toString()}`;
-
-      console.log("[DailyReportViewer] Fetching from URL:", url);
-      console.log("[DailyReportViewer] Query params:", {
-        fromDate: fromISO,
-        toDate: toISO,
-      });
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "fetch",
-        },
-        credentials: "include",
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-            `Failed to fetch daily report: ${response.statusText}`,
-        );
-      }
-
-      const data = await response.json();
       console.log("[DailyReportViewer] Report data received:", {
         windowStatsCount: data.windowStats?.length || 0,
         skippedCount: data.skipped?.length || 0,

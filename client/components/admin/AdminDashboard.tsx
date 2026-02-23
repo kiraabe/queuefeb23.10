@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSSE } from "@/hooks/use-sse";
 import { useAuth } from "@/hooks/use-auth";
+import { apiFetch, apiUrl } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
     avgDuration: null,
   });
 
-  const sseUrl = "/api/events";
+  const sseUrl = apiUrl("/api/events");
   useSSE(sseUrl, (event) => {
     setLastUpdate(Date.now());
 
@@ -109,42 +110,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchEmployeeStats = async () => {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-        const response = await fetch("/api/admin/employee-stats", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "fetch",
-          },
-          signal: controller.signal,
+        const data = await apiFetch<any>("/api/admin/employee-stats");
+        setEmployeeStats({
+          totalEmployees: data.totalEmployees || 0,
+          totalCases: data.totalCases || 0,
+          topPerformer: data.topPerformer || "N/A",
+          avgDuration: data.avgDuration || null,
         });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          setEmployeeStats({
-            totalEmployees: data.totalEmployees || 0,
-            totalCases: data.totalCases || 0,
-            topPerformer: data.topPerformer || "N/A",
-            avgDuration: data.avgDuration || null,
-          });
-        } else {
-          console.warn("Failed to fetch employee stats: HTTP", response.status);
-        }
       } catch (error) {
         // Silently fail - dashboard still works with default values
         let errorMsg = "Unknown error";
         if (error instanceof Error) {
-          if (error.name === "AbortError") {
-            errorMsg =
-              "Request timed out. Employee stats will display default values.";
-          } else {
-            errorMsg = error.message;
-          }
+          errorMsg = error.message;
         }
         console.debug("[AdminDashboard] Failed to fetch employee stats:", errorMsg);
         // Keep existing state on error
