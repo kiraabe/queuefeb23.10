@@ -48,19 +48,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Notify server when tab is closed
     const handleBeforeUnload = () => {
-      const data = JSON.stringify({});
-      // Use fetch with keepalive as a modern alternative to sendBeacon
-      // that allows custom headers (like X-Requested-With if needed,
-      // though simple requests might not need it depending on server config)
-      fetch(apiUrl("/api/auth/tab-closed"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: data,
-        keepalive: true,
-      });
+      // Use sendBeacon for reliable delivery during page unload
+      // It doesn't support custom headers, but the server doesn't need them for this endpoint
+      try {
+        const data = JSON.stringify({});
+        if (navigator.sendBeacon) {
+          // sendBeacon is the standard API for sending data during unload
+          navigator.sendBeacon(apiUrl("/api/auth/tab-closed"), data);
+        } else {
+          // Fallback for browsers without sendBeacon (rare nowadays)
+          fetch(apiUrl("/api/auth/tab-closed"), {
+            method: "POST",
+            body: data,
+            keepalive: true,
+          }).catch(() => {
+            // Silently ignore fetch errors during unload
+          });
+        }
+      } catch {
+        // Silently ignore any errors during page unload
+      }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
