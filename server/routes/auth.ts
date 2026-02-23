@@ -1,5 +1,5 @@
 import type { Request, Response, RequestHandler } from "express";
-import UAParser from "ua-parser-js";
+import { UAParser } from "ua-parser-js";
 import {
   getUserByUsername,
   getUserByWindow,
