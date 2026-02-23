@@ -21,6 +21,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
   countActiveSessionsForUser,
   createUserSession,
+  createUserSessionAtomic,
   findSessionByToken,
   listSessions,
   revokeSessionById,
@@ -40,7 +41,7 @@ const COOKIE_SECURE =
 
 // Maximum concurrent sessions per user (can be overridden via MAX_SESSIONS_PER_USER env var)
 const MAX_SESSIONS_PER_USER = parseInt(
-  process.env.MAX_SESSIONS_PER_USER || "5",
+  process.env.MAX_SESSIONS_PER_USER || "3",
   10,
 );
 
@@ -224,7 +225,7 @@ async function authenticateRequest(
       message: "Session expired. Please sign in again.",
     };
   }
-  const idleMs = now.getTime() - session.lastSeenAt.getTime();
+  const idleMs = now.getTime() - session.lastActivityAt.getTime();
   if (idleMs > SESSION_IDLE_TIMEOUT_SECONDS * 1000) {
     await revokeSessionById(session.id, "timeout");
     res.setHeader("Set-Cookie", buildSessionClearCookie());
@@ -480,11 +481,17 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Check for active sessions limit
-  const activeSessionCount = await countActiveSessionsForUser(userRow.id);
+  // Atomic session creation with limit enforcement and race condition prevention
+  const sessionResult = await createUserSessionAtomic({
+    userId: userRow.id,
+    username: userRow.username,
+    activeRole: activeRole,
+    windowId: userRow.window_id ?? null,
+    jobTitleId: userRow.job_title_id ?? null,
+    maxSessions: MAX_SESSIONS_PER_USER,
+  });
 
-  // Reject login if already at limit - do not revoke existing sessions
-  if (activeSessionCount >= MAX_SESSIONS_PER_USER) {
+  if ("error" in sessionResult) {
     return res.status(409).json({
       error: "Maximum session limit reached",
       message:
@@ -493,14 +500,7 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Success: create a new session
-  const { token, session } = await createUserSession({
-    userId: userRow.id,
-    username: userRow.username,
-    activeRole: activeRole,
-    windowId: userRow.window_id ?? null,
-    jobTitleId: userRow.job_title_id ?? null,
-  });
+  const { token, session } = sessionResult;
 
   res.setHeader("Set-Cookie", buildSessionCookie(token));
 
@@ -567,7 +567,7 @@ export const me: RequestHandler = async (req, res) => {
       message: "Session expired. Please sign in again.",
     } as MeResponse);
   }
-  const idleMs = now.getTime() - session.lastSeenAt.getTime();
+  const idleMs = now.getTime() - session.lastActivityAt.getTime();
   if (idleMs > SESSION_IDLE_TIMEOUT_SECONDS * 1000) {
     await revokeSessionById(session.id, "timeout");
     res.setHeader("Set-Cookie", buildSessionClearCookie());
@@ -605,6 +605,12 @@ export const me: RequestHandler = async (req, res) => {
   user.roles = [session.activeRole]; // Set roles to current active role
 
   res.json({ user } as MeResponse);
+};
+
+export const heartbeat: RequestHandler = async (req, res) => {
+  const result = await authenticateRequest(req, res, { touch: true });
+  if (!result.ok) return respondWithAuthError(res, result);
+  res.json({ ok: true, lastActivityAt: result.session.lastActivityAt.getTime() });
 };
 
 export const logout: RequestHandler = async (req, res) => {

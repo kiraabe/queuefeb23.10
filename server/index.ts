@@ -45,6 +45,7 @@ import {
   login,
   logout,
   me,
+  heartbeat,
   requireRole,
   requireTellerForWindowParam,
   switchRole,
@@ -295,6 +296,7 @@ export function createServer() {
   app.post("/api/auth/login", login);
   app.post("/api/auth/logout", logout);
   app.get("/api/auth/me", me);
+  app.get("/api/auth/heartbeat", heartbeat);
   app.post("/api/auth/switch-role", switchRole);
   app.get("/api/auth/session-count/:username", getSessionCountHandler); // Public endpoint for login page
 

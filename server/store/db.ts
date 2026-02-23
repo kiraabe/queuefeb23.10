@@ -325,11 +325,21 @@ export async function initDb() {
     job_title_id uuid,
     token_hash text not null unique,
     created_at timestamptz not null default now(),
-    last_seen_at timestamptz not null default now(),
+    last_activity_at timestamptz not null default now(),
     expires_at timestamptz not null,
     revoked_at timestamptz,
     revoke_reason text
   );`);
+    // Rename last_seen_at to last_activity_at if needed
+    try {
+      await p.query(`
+        ALTER TABLE user_sessions
+        RENAME COLUMN last_seen_at TO last_activity_at;
+      `);
+      console.log("✓ Renamed user_sessions.last_seen_at to last_activity_at");
+    } catch (err) {
+      // Ignore if column doesn't exist or already renamed
+    }
     // Fix check constraint on user_sessions to include all roles
     try {
       // Drop old constraint if it exists
