@@ -76,13 +76,14 @@ export default function OverallCategoryAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      // Increase timeout for analytics endpoint
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
       const res = await fetch("/api/admin/overall-analytics", {
         method: "GET",
@@ -113,6 +114,15 @@ export default function OverallCategoryAnalytics() {
         if (err.name === "AbortError") {
           errorMsg =
             "Request timed out. The server is taking too long to respond. Please try again.";
+        } else if (err.message === "Failed to fetch") {
+          // Network error - try retry
+          if (retryCount < 2) {
+            console.warn(`[OverallCategoryAnalytics] Network error, retrying... (attempt ${retryCount + 1}/2)`);
+            setTimeout(() => fetchAnalytics(retryCount + 1), 1000 * (retryCount + 1));
+            return;
+          }
+          errorMsg =
+            "Unable to reach the server. Please check your connection and try again.";
         } else {
           errorMsg = err.message;
         }

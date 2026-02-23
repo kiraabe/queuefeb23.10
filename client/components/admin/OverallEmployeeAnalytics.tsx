@@ -68,13 +68,14 @@ export default function OverallEmployeeAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      // Increase timeout for analytics endpoint
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
 
       const res = await fetch("/api/admin/overall-analytics", {
         method: "GET",
@@ -96,8 +97,16 @@ export default function OverallEmployeeAnalytics() {
       const data = await res.json();
       setAnalytics(data);
     } catch (err) {
-      const errorMsg =
+      let errorMsg =
         err instanceof Error ? err.message : "Failed to load analytics data";
+
+      // Retry on network errors
+      if (errorMsg === "Failed to fetch" && retryCount < 2) {
+        console.warn(`[OverallEmployeeAnalytics] Network error, retrying... (attempt ${retryCount + 1}/2)`);
+        setTimeout(() => fetchAnalytics(retryCount + 1), 1000 * (retryCount + 1));
+        return;
+      }
+
       console.error("OverallEmployeeAnalytics error:", errorMsg);
       setError(errorMsg);
     } finally {
