@@ -1,10 +1,13 @@
 import path from "node:path";
 import fs from "node:fs";
+import http from "node:http";
 import express from "express";
-import { createServer } from "./index";
+import { createServer, setupWebSocket } from "./index";
 import { autoCancelExpiredHolds } from "./store/db";
 
 const app = createServer();
+const httpServer = http.createServer(app);
+setupWebSocket(httpServer);
 const parsedPort = Number.parseInt(process.env.PORT ?? "", 10);
 const port = Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 3000;
 
@@ -48,10 +51,11 @@ app.use((req, res, next) => {
   }
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
+  console.log(`📡 WebSocket: ws://localhost:${port}/ws/admin/sessions`);
 
   // Start periodic task to auto-cancel expired holds (check every 5 minutes)
   const HOLD_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes

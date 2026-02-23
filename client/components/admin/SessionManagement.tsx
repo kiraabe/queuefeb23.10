@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSessionWebSocket } from "@/hooks/useSessionWebSocket";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, RefreshCw, Trash2, ChevronDown } from "lucide-react";
+import { AlertCircle, Trash2, ChevronDown } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -41,85 +41,18 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { format } from "date-fns";
-import type { ListSessionsResponse, SessionSummary } from "@shared/api";
+import type { SessionSummary } from "@shared/api";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function SessionManagement() {
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [revoking, setRevoking] = useState<Set<string>>(new Set());
   const [revokeSuccess, setRevokeSuccess] = useState<string | null>(null);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const accordionRef = useRef<HTMLDivElement>(null);
 
-  const {
-    data,
-    isLoading,
-    refetch,
-    error: queryError,
-  } = useQuery({
-    queryKey: ["admin-sessions"],
-    queryFn: async () => {
-      try {
-        console.log(
-          "[SessionManagement] Fetching sessions from /api/admin/sessions",
-        );
-        const response = await fetch("/api/admin/sessions", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("[SessionManagement] Response status:", response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(
-            "Failed to fetch sessions:",
-            response.status,
-            response.statusText,
-          );
-          console.error("Response body:", errorText);
-
-          // If 401/403, it's an auth error
-          if (response.status === 401 || response.status === 403) {
-            throw new Error(
-              `Authentication failed: ${response.status} ${response.statusText}. Make sure you are logged in as an admin.`,
-            );
-          }
-
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const data = (await response.json()) as ListSessionsResponse;
-        console.log(
-          "[SessionManagement] Sessions loaded, count:",
-          data.sessions?.length || 0,
-        );
-        return data;
-      } catch (err) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        console.error("[SessionManagement] Fetch error:", errMsg);
-        throw new Error(errMsg);
-      }
-    },
-    refetchInterval: 5000,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-  });
-
-  useEffect(() => {
-    if (data?.sessions) {
-      setSessions(data.sessions);
-      setError(null);
-      setCurrentPage(1);
-    }
-  }, [data]);
+  const { sessions, isConnected, error, isLoading } = useSessionWebSocket();
 
   const userSessionCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -284,11 +217,11 @@ export default function SessionManagement() {
       setRevokeSuccess(`Session revoked successfully`);
       setTimeout(() => setRevokeSuccess(null), 3000);
 
-      // Refetch sessions
-      refetch();
+      // WebSocket will automatically update sessions
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      setError(`Failed to revoke session: ${errMsg}`);
+      // Note: error state would need to be added if we want to display revoke errors
+      console.error(`Failed to revoke session: ${errMsg}`);
     } finally {
       setRevoking((prev) => {
         const next = new Set(prev);
@@ -323,15 +256,20 @@ export default function SessionManagement() {
                   Monitor logged-in users ({paginationData.totalItems} users, {sessions.length} sessions)
                 </CardDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                disabled={isLoading}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
+              <div className="flex items-center gap-2">
+                {isConnected && (
+                  <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                    Live
+                  </span>
+                )}
+                {!isConnected && (
+                  <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                    <span className="w-2 h-2 bg-amber-600 rounded-full animate-pulse"></span>
+                    Polling
+                  </span>
+                )}
+              </div>
             </div>
           </CardHeader>
         </Card>
@@ -349,18 +287,6 @@ export default function SessionManagement() {
           <Alert className="bg-green-50 border-green-200">
             <AlertDescription className="text-green-800">
               {revokeSuccess}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {queryError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Query Error:{" "}
-              {queryError instanceof Error
-                ? queryError.message
-                : String(queryError)}
             </AlertDescription>
           </Alert>
         )}

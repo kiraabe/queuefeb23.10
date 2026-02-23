@@ -33,6 +33,7 @@ import {
   touchSession,
 } from "../store/sessions";
 import type { SessionRecord, SessionRevokeReason } from "../store/sessions";
+import { broadcastSessionUpdate } from "../services/session-websocket";
 
 // For production HTTPS, use SameSite=None with Secure flag
 // For development HTTP, use SameSite=Lax without Secure flag
@@ -627,6 +628,11 @@ export const login: RequestHandler = async (req, res) => {
   };
 
   res.json(payload);
+
+  // Broadcast session update to all admin clients
+  broadcastSessionUpdate().catch((err) =>
+    console.error("[SessionWS] Failed to broadcast after login:", err)
+  );
 };
 
 export const me: RequestHandler = async (req, res) => {
@@ -725,6 +731,11 @@ export const logout: RequestHandler = async (req, res) => {
 
   res.setHeader("Set-Cookie", buildSessionClearCookie());
   res.json({ ok: true });
+
+  // Broadcast session update to all admin clients
+  broadcastSessionUpdate().catch((err) =>
+    console.error("[SessionWS] Failed to broadcast after logout:", err)
+  );
 };
 
 export const tabOpened: RequestHandler = async (req, res) => {
@@ -1023,6 +1034,11 @@ export const revokeSessionHandler: RequestHandler = async (req, res) => {
     });
 
     res.json({ ok: true, message: "Session revoked successfully" });
+
+    // Broadcast session update to all admin clients
+    broadcastSessionUpdate().catch((err) =>
+      console.error("[SessionWS] Failed to broadcast after revoke:", err)
+    );
   } catch (error) {
     console.error("[revokeSessionHandler] Error:", error);
     res.status(500).json({
@@ -1072,6 +1088,11 @@ export const revokeAllSessionsHandler: RequestHandler = async (req, res) => {
       ok: true,
       message: "All other sessions revoked successfully. You remain logged in.",
     });
+
+    // Broadcast session update to all admin clients
+    broadcastSessionUpdate().catch((err) =>
+      console.error("[SessionWS] Failed to broadcast after revoke all:", err)
+    );
   } catch (error) {
     console.error("[revokeAllSessionsHandler] Error:", error);
     res.status(500).json({

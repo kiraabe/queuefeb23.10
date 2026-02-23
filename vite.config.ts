@@ -64,8 +64,12 @@ function expressPlugin(): Plugin {
     apply: "serve", // Only apply during development (serve mode)
     async configureServer(server) {
       // Lazy import to avoid loading server code during build
-      const { createServer } = await import("./server");
+      const { createServer, setupWebSocket } = await import("./server");
       const app = createServer();
+
+      // Set up WebSocket on the Vite dev server's HTTP server
+      setupWebSocket(server.httpServer);
+
       server.middlewares.use(app);
     },
   };
