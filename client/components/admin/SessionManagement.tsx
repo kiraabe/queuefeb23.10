@@ -406,11 +406,16 @@ export default function SessionManagement() {
                                         </TooltipContent>
                                       </Tooltip>
                                     </TableCell>
-                                    <TableCell className="text-sm max-w-[120px] truncate">
+                                    <TableCell className="text-sm max-w-[150px]">
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="cursor-help">
                                             {session.browserName || session.browser || "—"}
+                                            {session.browserVersion && (
+                                              <div className="text-xs text-muted-foreground">
+                                                v{session.browserVersion}
+                                              </div>
+                                            )}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -425,11 +430,16 @@ export default function SessionManagement() {
                                         </TooltipContent>
                                       </Tooltip>
                                     </TableCell>
-                                    <TableCell className="text-sm max-w-[100px] truncate">
+                                    <TableCell className="text-sm max-w-[150px]">
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="cursor-help">
                                             {session.osName || session.os || "—"}
+                                            {session.osVersion && (
+                                              <div className="text-xs text-muted-foreground">
+                                                {session.osVersion}
+                                              </div>
+                                            )}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
