@@ -24,6 +24,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setUser(null));
   }, []);
 
+  // Session heartbeat - keep session active while tab is open
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(async () => {
+      // Don't send heartbeats if the page is hidden to save resources
+      // The session will eventually expire due to inactivity (30 mins) if the tab is backgrounded for too long
+      if (document.visibilityState === "hidden") return;
+
+      try {
+        await apiFetch("/api/auth/heartbeat");
+      } catch (err) {
+        // If heartbeat fails with 401, the session is likely gone
+        if ((err as any)?.status === 401) {
+          setUser(null);
+        }
+      }
+    }, 60 * 1000); // Heartbeat every 60 seconds
+
+    return () => clearInterval(interval);
+  }, [user]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
