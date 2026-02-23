@@ -293,15 +293,17 @@ function toSummary(
   // 1. If revoked, status is "revoked"
   // 2. If expired (expires_at passed), status is "expired"
   // 3. If idle (no activity for 30+ minutes), status is "expired" (effectively)
-  // 4. Otherwise, status is "active"
+  // 4. If no open tabs (tabCount = 0), status is "expired" - all browser tabs were closed
+  // 5. Otherwise, status is "active"
 
   const expired = now > session.expiresAt.getTime();
   const idle =
     now - session.lastActivityAt.getTime() >
     SESSION_IDLE_TIMEOUT_SECONDS * 1000;
+  const noOpenTabs = session.tabCount === 0;
   const status = session.revokedAt
     ? "revoked"
-    : expired || idle
+    : expired || idle || noOpenTabs
       ? "expired"
       : "active";
 

@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let isHeartbeatPending = false;
     let lastActivityTime = Date.now();
+    let lastHeartbeatTime = Date.now();
 
     // Track user activity
     const updateActivity = () => {
