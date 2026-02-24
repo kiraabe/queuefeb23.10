@@ -59,7 +59,9 @@ import {
   switchRole,
 } from "./routes/auth";
 import { cleanupAllStaleSessions } from "./store/sessions";
-import { autoCancelExpiredHolds } from "./store/db";
+import { autoCancelExpiredHolds, DB_CONFIG } from "./store/db";
+import { dbRateLimitMiddleware, strictDbRateLimitMiddleware, extractUserIdMiddleware } from "./middleware/db-rate-limit";
+import { getRateLimitStatus, resetUserRateLimit, clearAllRateLimits } from "./services/query-rate-limiter";
 import { tellerStats, tellerTickets } from "./routes/teller";
 import {
   employeeReceivedTickets,
@@ -220,6 +222,15 @@ export function createServer() {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Extract user ID from authentication context for rate limiting
+  app.use(extractUserIdMiddleware);
+
+  // Apply database rate limiting to all API requests
+  app.use("/api/", dbRateLimitMiddleware);
+
+  // Stricter rate limiting for write operations
+  app.use("/api/", strictDbRateLimitMiddleware);
 
   // Require a CSRF-style header for state-changing requests.
   // Enforce strict origin/referrer checks only in production (or when FORCE_STRICT_ORIGIN=true).

@@ -12,6 +12,26 @@ export const isDbEnabled = true; // DB-only mode - no in-memory fallback
 
 let pool: Pool | null = null;
 
+// Database rate limiting and resource configuration
+export const DB_CONFIG = {
+  // Connection pool limits
+  poolMax: parseInt(process.env.DB_POOL_MAX || "20", 10),
+  poolMin: parseInt(process.env.DB_POOL_MIN || "2", 10),
+  idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || "30000", 10),
+  connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || "10000", 10),
+
+  // Query timeouts
+  queryTimeoutMillis: parseInt(process.env.DB_QUERY_TIMEOUT_MS || "30000", 10),
+  longQueryLogMillis: parseInt(process.env.DB_LONG_QUERY_LOG_MS || "5000", 10),
+
+  // Rate limiting per user
+  maxQueriesPerUser: parseInt(process.env.DB_MAX_QUERIES_PER_USER || "1000", 10),
+  queryLimitWindowSeconds: parseInt(process.env.DB_QUERY_LIMIT_WINDOW_SECONDS || "60", 10),
+
+  // Connection limits per user
+  maxConnectionsPerUser: parseInt(process.env.DB_MAX_CONNECTIONS_PER_USER || "5", 10),
+};
+
 export function getPool() {
   if (!isDbEnabled) throw new Error("DB not enabled");
   if (!pool) {
@@ -35,8 +55,24 @@ export function getPool() {
     pool = new Pool({
       connectionString: cleaned,
       ssl: { rejectUnauthorized: false },
+      // Connection pool configuration
+      max: DB_CONFIG.poolMax,
+      min: DB_CONFIG.poolMin,
+      idleTimeoutMillis: DB_CONFIG.idleTimeoutMillis,
+      connectionTimeoutMillis: DB_CONFIG.connectionTimeoutMillis,
     });
-    pool.on("error", (err) => console.error("Database connection error:", err));
+
+    pool.on("error", (err) => {
+      console.error("Database connection error:", err);
+    });
+
+    pool.on("connect", () => {
+      // Set statement timeout on each new connection
+      // This applies to all queries on that connection
+      pool!.query(`SET statement_timeout = ${DB_CONFIG.queryTimeoutMillis};`).catch((err) => {
+        console.warn("Failed to set statement timeout:", err);
+      });
+    });
   }
   return pool;
 }
