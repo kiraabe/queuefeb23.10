@@ -288,6 +288,47 @@ function keyFor(req: Request, username: string) {
   const ip = getClientIpAddress(req);
   return `${username.toLowerCase()}|${ip}`;
 }
+
+/**
+ * Normalizes OS name and version from ua-parser-js result with support for:
+ * 1. Android detection (when User-Agent contains both "Linux" and "Android")
+ * 2. Windows 11 detection via Client Hints (Sec-CH-UA-Platform-Version header)
+ */
+function normalizeOsDetection(
+  uaResult: { os: { name: string | null; version: string | null } },
+  req: Request,
+): { osName: string; osVersion: string } {
+  let osName = uaResult.os.name || "Unknown";
+  let osVersion = uaResult.os.version || "";
+  const userAgent = req.headers["user-agent"] || "";
+
+  // Fix Android detection: If User-Agent contains both "Linux" and "Android",
+  // it's actually Android, not generic Linux
+  if (osName === "Linux" && userAgent.toLowerCase().includes("android")) {
+    osName = "Android";
+  }
+
+  // Fix Windows 11 detection: Windows 11 reports as "Windows NT 10.0" in User-Agent
+  // Use Client Hints to detect actual Windows 11
+  if (osName === "Windows" && osVersion === "10") {
+    // Check for Sec-CH-UA-Platform-Version header (Client Hints)
+    const platformVersion = req.headers["sec-ch-ua-platform-version"] as
+      | string
+      | undefined;
+
+    if (platformVersion) {
+      // Extract major version number from platform version (e.g., "13.0.1" -> 13)
+      const majorVersion = parseInt(platformVersion.split(".")[0], 10);
+
+      // Windows 11 reports platform version >= 13
+      if (majorVersion >= 13) {
+        osVersion = "11";
+      }
+    }
+  }
+
+  return { osName, osVersion };
+}
 function incrementAttempt(
   req: Request,
   username: string,
@@ -516,9 +557,8 @@ export const login: RequestHandler = async (req, res) => {
   const parser = new UAParser(req.headers["user-agent"]);
   const uaResult = parser.getResult();
 
-  // Extract OS details
-  const osName = uaResult.os.name || "Unknown";
-  const osVersion = uaResult.os.version || "";
+  // Extract and normalize OS details
+  const { osName, osVersion } = normalizeOsDetection(uaResult, req);
 
   // Extract device details
   const deviceVendor = uaResult.device.vendor || "";

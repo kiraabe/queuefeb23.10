@@ -144,7 +144,7 @@ export function createServer() {
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "X-Requested-With", "X-CSRF-Token"],
+      allowedHeaders: ["Content-Type", "X-Requested-With", "X-CSRF-Token", "Sec-CH-UA-Platform-Version"],
     }),
   );
 
@@ -175,6 +175,8 @@ export function createServer() {
       "Permissions-Policy",
       "camera=(), microphone=(), geolocation=(), payment=()",
     );
+    // Client Hints for improved OS detection (Windows 11, etc.)
+    res.setHeader("Accept-CH", "Sec-CH-UA-Platform-Version");
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // vite/dev or inline chunks
