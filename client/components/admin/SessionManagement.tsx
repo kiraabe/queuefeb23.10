@@ -462,7 +462,9 @@ export default function SessionManagement() {
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <span className="cursor-help">
-                                            {session.city || session.country || "—"}
+                                            {session.country && session.city
+                                              ? `${session.country} (${session.city})`
+                                              : session.country || session.city || "—"}
                                           </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
