@@ -21,6 +21,7 @@ import RoleSelector from "./pages/RoleSelector";
 import Profile from "./pages/Profile";
 import { AuthProvider, useAuth, useSessionLostRedirect } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { RestrictPublicAccess } from "@/components/auth/RestrictPublicAccess";
 
 // Lazy load pages with heavy dependencies to reduce initial bundle
 const Admin = lazy(() => import("./pages/Admin"));
@@ -103,13 +104,25 @@ const App = () => (
 
               {/* All other routes with AppLayout */}
               <Route element={<AppLayout />}>
-                <Route path="/" element={<Index />} />
+                {/* Public routes - restricted for admin, teller, and archiever users */}
+                <Route element={<RestrictPublicAccess />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/queue" element={<Queue />} />
+                  <Route path="/display" element={<Display />} />
+                  <Route path="/login" element={<Login />} />
+                </Route>
+
+                {/* Semi-public routes - available to all authenticated users */}
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/role-selector" element={<RoleSelector />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/tickets/:code" element={<TicketStatus />} />
+
+                {/* Role-specific routes */}
                 <Route element={<RequireAuth role="reception" />}>
                   <Route path="/reception" element={<Reception />} />
                 </Route>
-                <Route path="/queue" element={<Queue />} />
                 <Route path="/teller" element={<TellerHomeRedirect />} />
                 <Route element={<RequireAuth role="teller" />}>
                   <Route
@@ -151,11 +164,6 @@ const App = () => (
                     }
                   />
                 </Route>
-                <Route path="/display" element={<Display />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/tickets/:code" element={<TicketStatus />} />
-                <Route path="/login" element={<Login />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
