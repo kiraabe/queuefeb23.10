@@ -43,6 +43,7 @@ import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
 
 const ITEMS_PER_PAGE = 10;
+const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
 
 export default function TicketManagement() {
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
@@ -140,8 +141,9 @@ export default function TicketManagement() {
       const times: Record<string, string> = {};
 
       Object.entries(caseHolds).forEach(([ticketId, hold]) => {
-        if (hold && hold.heldAt && hold.holdDurationSeconds && !hold.resumedAt) {
-          const expiresAt = hold.heldAt + hold.holdDurationSeconds * 1000;
+        // For active holds (not yet resumed), calculate time remaining until 72-hour expiration
+        if (hold && hold.heldAt && !hold.resumedAt) {
+          const expiresAt = hold.heldAt + HOLD_EXPIRATION_SECONDS * 1000;
           const remaining = expiresAt - now;
 
           if (remaining > 0) {
