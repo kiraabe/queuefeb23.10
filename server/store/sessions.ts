@@ -724,6 +724,7 @@ export async function listSessions(
       us.token_hash, us.device, us.browser, us.os, us.ip_address, us.tab_count,
       us.os_name, us.os_version, us.device_vendor, us.device_model, us.browser_name, us.browser_version,
       us.created_at, us.last_activity_at, us.expires_at, us.revoked_at, us.revoke_reason,
+      us.country, us.country_code, us.city, us.region,
       u.full_name,
       jt.name_english as job_title_english,
       jt.name_amharic as job_title_amharic
