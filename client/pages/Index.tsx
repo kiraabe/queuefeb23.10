@@ -47,9 +47,9 @@ const PHASES: Array<{
 }> = [
   {
     phase: "Phase 1",
-    title: "Reception",
+    title: "Reception / Case Manager",
     caption:
-      "Front desk teams create tickets, verify eligibility, and route customers to the right service.",
+      "A ticket is created with the selected service, a QR code is generated, and the ticket number is displayed to the customer.",
     highlights: [
       {
         title: "Eligibility verification",
@@ -79,9 +79,9 @@ const PHASES: Array<{
   },
   {
     phase: "Phase 2",
-    title: "Archival & Records",
+    title: "Archiver / Documentation",
     caption:
-      "Archive completed cases with document management and compliance documentation.",
+      "The archiver claims the ticket, fetches and verifies the required documents, and marks the case as ready.",
     highlights: [
       {
         title: "Document collection",
@@ -92,28 +92,28 @@ const PHASES: Array<{
       {
         title: "Compliance verification",
         description:
-          "When placement shifts, the QR status nudges: ‘You’re up next—head to the waiting area.’",
+          "Verify that all required documents meet compliance standards and completeness.",
         icon: CheckCircle2,
       },
       {
         title: "Archive storage",
         description:
-          "The QR page switches to instructions: ‘Please proceed to Window 3 for Social Services.’",
+          "Store organized records and documents for future reference and audit trails.",
         icon: Monitor,
       },
       {
-        title: "Real-time tracking",
+        title: "Case readiness",
         description:
-          "Monitor performance metrics and service times with live dashboards.",
+          "Mark the case as ready for service delivery once all documents are verified.",
         icon: LineChart,
       },
     ],
   },
   {
     phase: "Phase 3",
-    title: "Teller Window Service",
+    title: "Editor / Teller / Front Window",
     caption:
-      "Tellers serve customers at windows, handle transactions, and route to employees for complex cases.",
+      "The teller calls the next ticket, serves the customer, and either completes the case, transfers it for complex handling, or skips it if the customer is absent.",
     highlights: [
       {
         title: "Serve next customer",
@@ -134,23 +134,23 @@ const PHASES: Array<{
         icon: ArrowRight,
       },
       {
-        title: "Real-time tracking",
+        title: "Skip or complete",
         description:
-          "Monitor performance metrics and service times with live dashboards.",
+          "Skip tickets for absent customers or complete routine service cases.",
         icon: LineChart,
       },
     ],
   },
   {
     phase: "Phase 4",
-    title: "Employee Case Management",
+    title: "Employee / Back Window (Complex Cases)",
     caption:
-      "Employees manage complex cases, track workflows, and ensure time compliance for case completion.",
+      "The employee works on the case, may forward it to another employee if needed, and completes the case.",
     highlights: [
       {
-        title: "Document collection",
+        title: "Case assignment",
         description:
-          "Gather all supporting documents and attachments for completed cases.",
+          "Receive transferred cases requiring detailed handling and complex decision-making.",
         icon: ClipboardCheck,
       },
       {
@@ -160,9 +160,9 @@ const PHASES: Array<{
         icon: CalendarClock,
       },
       {
-        title: "Field visit management",
+        title: "Employee collaboration",
         description:
-          "Schedule and track field visits when cases require on-site assessments.",
+          "Forward cases to other employees if specialized expertise or additional review is needed.",
         icon: Smartphone,
       },
       {
@@ -242,7 +242,7 @@ const TicketSnapshot = () => (
         <div className="flex items-center justify-between rounded-2xl bg-primary/10 px-4 py-3 text-sm">
           <span className="font-medium text-primary">Status</span>
           <span className="font-display text-base text-primary">
-            You’re next—head to waiting area
+            You're next—head to waiting area
           </span>
         </div>
       </div>
