@@ -355,6 +355,7 @@ export default function SessionManagement() {
                                   <TableHead>Browser</TableHead>
                                   <TableHead>OS</TableHead>
                                   <TableHead>IP Address</TableHead>
+                                  <TableHead>Location</TableHead>
                                   <TableHead>Logged In</TableHead>
                                   <TableHead>Last Seen</TableHead>
                                   <TableHead>Duration</TableHead>
@@ -456,6 +457,23 @@ export default function SessionManagement() {
                                     </TableCell>
                                     <TableCell className="text-sm">
                                       {session.ipAddress || "—"}
+                                    </TableCell>
+                                    <TableCell className="text-sm max-w-[150px]">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="cursor-help">
+                                            {session.city || session.country || "—"}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <div className="text-xs">
+                                            {session.city && <div>{session.city}</div>}
+                                            {session.region && <div className="text-muted-foreground">{session.region}</div>}
+                                            {session.country && <div className="text-muted-foreground">{session.countryCode ? `${session.country} (${session.countryCode})` : session.country}</div>}
+                                            {!session.city && !session.region && !session.country && <div>Location not available</div>}
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
                                     </TableCell>
                                     <TableCell className="text-sm">
                                       {formatTime(session.createdAt)}

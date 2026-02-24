@@ -289,6 +289,10 @@ export interface SessionSummary {
   deviceModel?: string | null;
   browserName?: string | null;
   browserVersion?: string | null;
+  country?: string | null;
+  countryCode?: string | null;
+  city?: string | null;
+  region?: string | null;
   revokeReason?: string | null;
   tabCount?: number;
   fullName?: string | null;

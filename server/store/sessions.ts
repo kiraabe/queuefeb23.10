@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { SessionSummary, UserRole } from "../../shared/api";
 import { getPool, logAudit } from "./db";
+import { getGeolocation } from "../utils/geolocation";
 
 export const SESSION_COOKIE = process.env.AUTH_COOKIE_NAME || "queue_session";
 
@@ -143,6 +144,12 @@ export async function createUserSessionAtomic(params: {
     const hash = hashToken(token);
     const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
 
+    // Look up geolocation for the IP address
+    let geo = { country: null, countryCode: null, city: null, region: null };
+    if (params.ipAddress) {
+      geo = await getGeolocation(params.ipAddress);
+    }
+
     const { rows } = await client.query(
       `INSERT INTO user_sessions (
         user_id,
@@ -162,11 +169,15 @@ export async function createUserSessionAtomic(params: {
         browser_name,
         browser_version,
         tab_count,
+        country,
+        country_code,
+        city,
+        region,
         created_at,
         last_activity_at,
         expires_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now(), now(), $18)
-      RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, now(), now(), $22)
+      RETURNING id, user_id, username, active_role, window_id, job_title_id, token_hash, device, browser, os, ip_address, os_name, os_version, device_vendor, device_model, browser_name, browser_version, created_at, last_activity_at, expires_at, revoked_at, revoke_reason, country, country_code, city, region`,
       [
         params.userId,
         params.username,
@@ -185,6 +196,10 @@ export async function createUserSessionAtomic(params: {
         params.browserName ?? null,
         params.browserVersion ?? null,
         0,
+        geo.country,
+        geo.countryCode,
+        geo.city,
+        geo.region,
         expiresAt.toISOString(),
       ],
     );
@@ -247,6 +262,10 @@ export interface SessionRecord {
   deviceModel: string | null;
   browserName: string | null;
   browserVersion: string | null;
+  country: string | null;
+  countryCode: string | null;
+  city: string | null;
+  region: string | null;
   revokedAt: Date | null;
   revokeReason: SessionRevokeReason | null;
 }
@@ -278,6 +297,10 @@ function mapRow(row: any): SessionRecord {
     deviceModel: row.device_model ?? null,
     browserName: row.browser_name ?? null,
     browserVersion: row.browser_version ?? null,
+    country: row.country ?? null,
+    countryCode: row.country_code ?? null,
+    city: row.city ?? null,
+    region: row.region ?? null,
     revokedAt: row.revoked_at ? new Date(row.revoked_at) : null,
     revokeReason: (row.revoke_reason as SessionRevokeReason | null) ?? null,
   };
@@ -324,6 +347,10 @@ function toSummary(
     deviceModel: session.deviceModel,
     browserName: session.browserName,
     browserVersion: session.browserVersion,
+    country: session.country,
+    countryCode: session.countryCode,
+    city: session.city,
+    region: session.region,
     tabCount: session.tabCount,
     revokeReason: session.revokeReason ?? null,
     fullName: fullName ?? null,

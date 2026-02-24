@@ -453,6 +453,19 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE user_sessions ALTER COLUMN tab_count SET DEFAULT 0;`,
     );
+    // Add geolocation columns for IP-based location tracking
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS country text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS country_code text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS city text;`,
+    );
+    await p.query(
+      `ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS region text;`,
+    );
     // Migrate from old 'role' column to new 'active_role' column
     try {
       const checkRoleColumn = await p.query(
