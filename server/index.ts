@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { WebSocketServer } from "ws";
 import type { Server as HTTPServer } from "node:http";
 import { getPool } from "./store/db";
@@ -166,35 +167,54 @@ export function createServer() {
     next();
   });
 
-  // Security headers
+  // Security headers with Helmet
+  // Helmet sets secure defaults for various HTTP headers
+  app.use(
+    helmet({
+      // Content Security Policy
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // vite/dev or inline chunks
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          imgSrc: ["'self'", "data:", "blob:"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          connectSrc: ["'self'", "/.netlify/functions/api"],
+          frameAncestors: ["'none'"],
+        },
+      },
+      // Prevent browsers from MIME-type sniffing
+      noSniff: true,
+      // Clickjacking protection
+      frameguard: { action: "deny" },
+      // Referrer policy
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+      // HSTS (HTTP Strict Transport Security)
+      hsts: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true,
+      },
+      // X-Powered-By header removal
+      hidePoweredBy: true,
+      // DNS prefetch control
+      dnsPrefetchControl: { allow: false },
+      // Disable X-UA-Compatible
+      ieNoOpen: true,
+      // Prevent browsers from accessing certain MIME types
+      xssFilter: true,
+    }),
+  );
+
+  // Application-specific security headers (set after Helmet)
   app.use((req, res, next) => {
-    res.setHeader("X-Frame-Options", "DENY");
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    // Permissions Policy (formerly Feature Policy) - disable potentially sensitive APIs
     res.setHeader(
       "Permissions-Policy",
       "camera=(), microphone=(), geolocation=(), payment=()",
     );
     // Client Hints for improved OS detection (Windows 11, etc.)
     res.setHeader("Accept-CH", "Sec-CH-UA-Platform-Version");
-    const csp = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // vite/dev or inline chunks
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob:",
-      "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' /.netlify/functions/api",
-      "frame-ancestors 'none'",
-    ].join("; ");
-    res.setHeader("Content-Security-Policy", csp);
-
-    const isProd = process.env.NODE_ENV === "production";
-    if (isProd) {
-      res.setHeader(
-        "Strict-Transport-Security",
-        "max-age=31536000; includeSubDomains; preload",
-      );
-    }
     next();
   });
 

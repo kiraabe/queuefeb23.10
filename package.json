@@ -25,6 +25,7 @@
     "cambai": "^0.1.4",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "pg": "^8.18.0",
     "qrcode": "^1.5.4",
     "react-datepicker": "^9.1.0",
