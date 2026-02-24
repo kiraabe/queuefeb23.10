@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Session heartbeat - keep session active while tab is open
-  // This ensures that last_activity_at is updated every 60 seconds to prevent session timeout (30 min idle)
+  // This ensures that last_activity_at is updated to prevent session timeout (2 min idle)
   useEffect(() => {
     if (!user) return;
 
@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Don't send heartbeat if there has been no user activity for 2 minutes
+      // (session would have timed out on the server)
       if (Date.now() - lastActivityTime > 2 * 60 * 1000) {
         return;
       }
@@ -106,8 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         // If heartbeat fails with 401, the session is likely gone or revoked
+        // Immediately log out (within ~100ms of getting the error)
         if ((err as any)?.status === 401) {
-          console.warn("[Auth] Session invalid (401). User will be logged out.");
+          console.warn("[Auth] Session invalid (401). Logging out immediately.");
           setUser(null);
         } else {
           // For other errors, log but don't force logout yet
@@ -116,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         isHeartbeatPending = false;
       }
-    }, 30 * 1000); // Heartbeat every 30 seconds, well within the 2-minute idle timeout
+    }, 2 * 1000); // Heartbeat every 2 seconds for immediate timeout detection (within ~2-3 second total latency)
 
     return () => {
       clearInterval(interval);
