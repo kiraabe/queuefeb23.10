@@ -12,7 +12,7 @@ function parseNumberEnv(value: string | undefined, fallback: number) {
 
 export const SESSION_IDLE_TIMEOUT_SECONDS = parseNumberEnv(
   process.env.SESSION_IDLE_TIMEOUT_SECONDS,
-  120, // 2 minutes - as per new session heartbeat requirements
+  1800, // 30 minutes
 );
 
 // How many seconds of inactivity makes a teller considered unavailable for transfers.

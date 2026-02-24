@@ -80,9 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Don't send heartbeat if there has been no user activity for 2 minutes
+      // Don't send heartbeat if there has been no user activity for 30 minutes
       // (session would have timed out on the server)
-      if (Date.now() - lastActivityTime > 2 * 60 * 1000) {
+      if (Date.now() - lastActivityTime > 30 * 60 * 1000) {
         return;
       }
 
