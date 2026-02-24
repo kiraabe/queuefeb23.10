@@ -293,38 +293,98 @@ function keyFor(req: Request, username: string) {
  * Normalizes OS name and version from ua-parser-js result with support for:
  * 1. Android detection (when User-Agent contains both "Linux" and "Android")
  * 2. Windows 11 detection via Client Hints (Sec-CH-UA-Platform-Version header)
+ *
+ * IMPORTANT: Uses ua-parser-js result.os.name and result.os.version only.
+ * Does NOT use engine, cpu, or other fields to avoid confusion.
  */
 function normalizeOsDetection(
   uaResult: { os: { name: string | null; version: string | null } },
   req: Request,
 ): { osName: string; osVersion: string } {
+  // Extract OS info directly from ua-parser-js os object
   let osName = uaResult.os.name || "Unknown";
   let osVersion = uaResult.os.version || "";
-  const userAgent = req.headers["user-agent"] || "";
+  const userAgent = (req.headers["user-agent"] || "").toLowerCase();
 
-  // Fix Android detection: If User-Agent contains both "Linux" and "Android",
-  // it's actually Android, not generic Linux
-  if (osName === "Linux" && userAgent.toLowerCase().includes("android")) {
-    osName = "Android";
+  const isDebugEnabled = process.env.DEBUG_OS_DETECTION === "true";
+  if (isDebugEnabled) {
+    console.log("[OS Detection] Initial parse:", {
+      osName,
+      osVersion,
+      userAgent: userAgent.substring(0, 100),
+    });
   }
 
-  // Fix Windows 11 detection: Windows 11 reports as "Windows NT 10.0" in User-Agent
-  // Use Client Hints to detect actual Windows 11
+  // ==============================================================================
+  // Android Detection: Fix false "Linux" classification
+  // ==============================================================================
+  // ua-parser-js may report "Linux" when User-Agent contains both "Linux" and
+  // "Android" string. Android devices are Linux-based but should display as "Android".
+  // Precedence: If Android string exists in UA, always use "Android" over "Linux".
+  if (osName === "Linux" && userAgent.includes("android")) {
+    osName = "Android";
+    if (isDebugEnabled) {
+      console.log("[OS Detection] Android detected (Linux + Android in UA)");
+    }
+  }
+
+  // ==============================================================================
+  // Windows 11 Detection: Use Client Hints for accurate version
+  // ==============================================================================
+  // Background:
+  // - Windows 11 uses same kernel as Windows 10 (NT 10.0)
+  // - User-Agent alone cannot distinguish Windows 10 from Windows 11
+  // - Client Hints (Sec-CH-UA-Platform-Version) provide accurate platform version
+  // - Windows 11 reports platform version >= 13, Windows 10 reports <= 10
+  // - Fallback: Without Client Hints, ua-parser-js will report "10" (kernel version)
   if (osName === "Windows" && osVersion === "10") {
-    // Check for Sec-CH-UA-Platform-Version header (Client Hints)
+    // Check for Sec-CH-UA-Platform-Version header sent by browser
     const platformVersion = req.headers["sec-ch-ua-platform-version"] as
       | string
       | undefined;
 
-    if (platformVersion) {
-      // Extract major version number from platform version (e.g., "13.0.1" -> 13)
-      const majorVersion = parseInt(platformVersion.split(".")[0], 10);
+    if (platformVersion && platformVersion.trim()) {
+      try {
+        // Extract major version number from platform version string
+        // Examples: "13.0", "13.0.1", "14.5" -> major version = 13, 14
+        const versionParts = platformVersion.trim().split(".");
+        const majorVersion = parseInt(versionParts[0], 10);
 
-      // Windows 11 reports platform version >= 13
-      if (majorVersion >= 13) {
-        osVersion = "11";
+        // Validate parsed version is a reasonable number
+        if (Number.isFinite(majorVersion) && majorVersion > 0) {
+          // Windows 11: major version >= 13
+          // Windows 10: major version <= 10
+          // Windows 12+ (future): major version >= 13+
+          if (majorVersion >= 13) {
+            osVersion = "11";
+            if (isDebugEnabled) {
+              console.log("[OS Detection] Windows 11 detected via Client Hints", {
+                platformVersion,
+                majorVersion,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        if (isDebugEnabled) {
+          console.log(
+            "[OS Detection] Failed to parse platform version:",
+            platformVersion,
+            error instanceof Error ? error.message : String(error),
+          );
+        }
+        // Fall back to osVersion === "10" if parsing fails
       }
+    } else if (isDebugEnabled) {
+      console.log(
+        "[OS Detection] Windows 10 detected (no Client Hints available)",
+        { clientHintsHeader: platformVersion },
+      );
     }
+  }
+
+  if (isDebugEnabled) {
+    console.log("[OS Detection] Final result:", { osName, osVersion });
   }
 
   return { osName, osVersion };
