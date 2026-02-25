@@ -1060,7 +1060,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     }
 
     // Get count of completed, skipped, serving, and on_hold cases (including those without workflow entries)
-    // For completed/skipped: use completed_at date
+    // For completed: use completed_at date
+    // For skipped: use skipped_at date
     // For serving/on_hold: use created_at date (since they're still in progress)
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
@@ -1068,7 +1069,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND (
-           (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
+           (t.status = 'done' AND t.completed_at >= ${dateThreshold})
+           OR (t.status = 'skipped' AND t.skipped_at >= ${dateThreshold})
            OR (t.status IN ('serving', 'on_hold') AND t.created_at >= ${dateThreshold})
          )`,
     );
@@ -1076,15 +1078,17 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     // Get list of distinct ticket IDs (paginated)
     const ticketRes = await p.query(
       `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at, t.status,
-              extract(epoch from t.created_at)*1000 as created_at
+              extract(epoch from t.created_at)*1000 as created_at,
+              extract(epoch from t.skipped_at)*1000 as skipped_at
        FROM tickets t
        LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND (
-           (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
+           (t.status = 'done' AND t.completed_at >= ${dateThreshold})
+           OR (t.status = 'skipped' AND t.skipped_at >= ${dateThreshold})
            OR (t.status IN ('serving', 'on_hold') AND t.created_at >= ${dateThreshold})
          )
-       ORDER BY t.id, COALESCE(t.completed_at, t.created_at) DESC
+       ORDER BY t.id, COALESCE(t.completed_at, t.skipped_at, t.created_at) DESC
        LIMIT $1 OFFSET $2`,
       [limit, offset],
     );
@@ -1444,10 +1448,15 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
                 workflowItems[i].status = "On Hold";
               } else if (status === "skipped") {
                 workflowItems[i].status = "Skipped";
-                // Add remark to the skipped step
+                // Add remark and skipped window to the skipped step
                 const ticketInfo = ticketInfoMap.get(ticketId);
-                if (ticketInfo && ticketInfo.remark) {
-                  workflowItems[i].remark = ticketInfo.remark;
+                if (ticketInfo) {
+                  if (ticketInfo.remark) {
+                    workflowItems[i].remark = ticketInfo.remark;
+                  }
+                  if (ticketInfo.skippedByWindow) {
+                    workflowItems[i].skippedByWindow = ticketInfo.skippedByWindow;
+                  }
                 }
               }
               // For other statuses, keep the actual status from the database

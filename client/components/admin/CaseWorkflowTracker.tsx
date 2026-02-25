@@ -17,11 +17,11 @@ import type { Ticket, CaseHoldsResponse } from "@shared/api";
 interface WorkflowEntry {
   id: string;
   ticketId: string;
-  employeeId: string;
+  employeeId: string | null;
   jobTitleId: string;
   startedAt: number | null;
   endedAt: number | null;
-  status: "in_progress" | "proceeded" | "completed";
+  status: "in_progress" | "proceeded" | "completed" | "Skipped" | string;
   durationSeconds: number | null;
   employeeName: string;
   jobTitle: string;
@@ -31,6 +31,8 @@ interface WorkflowEntry {
   isWindowService?: boolean;
   windowId?: number | null;
   windowServiceDuration?: number | null;
+  remark?: string;
+  skippedByWindow?: number | null;
 }
 
 interface TicketInfo {
@@ -149,8 +151,8 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
       windowId: item.windowId,
       isTeller: item.isTeller,
       isArchiver: item.isArchiever,
-      remark: (item as any).remark,
-      skippedByWindow: (item as any).skippedByWindow,
+      remark: item.remark,
+      skippedByWindow: item.skippedByWindow,
     };
   });
 };
