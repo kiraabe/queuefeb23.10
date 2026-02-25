@@ -76,7 +76,7 @@ interface ProcessStep {
   number: number;
   employeeName: string;
   jobTitle?: string;
-  action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold";
+  action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" | "Skipped";
   duration: string;
   durationSeconds: number | null;
   startedAt?: number | null;
@@ -84,6 +84,8 @@ interface ProcessStep {
   windowId?: number | null;
   isTeller?: boolean;
   isArchiver?: boolean;
+  remark?: string;
+  skippedByWindow?: number | null;
 }
 
 const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
@@ -106,7 +108,7 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
     }
 
     // Map backend status to action status
-    let action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" = "Started";
+    let action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" | "Skipped" = "Started";
     if (displayStatus === "Completed" || displayStatus === "completed") {
       action = "Completed";
     } else if (displayStatus === "Proceeded" || displayStatus === "proceeded") {
@@ -115,6 +117,8 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
       action = "Serving";
     } else if (displayStatus === "On Hold" || displayStatus === "on_hold") {
       action = "On Hold";
+    } else if (displayStatus === "Skipped" || displayStatus === "skipped") {
+      action = "Skipped";
     } else if (displayStatus === "Retrieved" || displayStatus === "retrieved") {
       // Treat Retrieved as Started for process flow (archiver retrieving documents)
       action = "Started";
@@ -145,6 +149,8 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
       windowId: item.windowId,
       isTeller: item.isTeller,
       isArchiver: item.isArchiever,
+      remark: (item as any).remark,
+      skippedByWindow: (item as any).skippedByWindow,
     };
   });
 };
@@ -410,7 +416,7 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
   const dummyTicket: Ticket = {
     id: workflow.ticketId,
     code: workflow.ticketCode,
-    status: "done",
+    status: (workflow.status === "skipped" ? "skipped" : "done") as any,
     service: workflow.ticketInfo?.serviceCategory || "Service",
     ownerName: "",
     woreda: "",

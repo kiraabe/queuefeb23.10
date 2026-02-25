@@ -8,7 +8,7 @@ interface ProcessStep {
   number: number;
   employeeName: string;
   jobTitle?: string;
-  action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold";
+  action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" | "Skipped";
   duration: string;
   durationSeconds: number | null;
   startedAt?: number | null;
@@ -16,6 +16,8 @@ interface ProcessStep {
   windowId?: number | null;
   isTeller?: boolean;
   isArchiver?: boolean;
+  remark?: string;
+  skippedByWindow?: number | null;
 }
 
 interface ProcessFlowChartProps {
@@ -90,6 +92,8 @@ export function ProcessFlowChart({
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300";
       case "On Hold":
         return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+      case "Skipped":
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
     }
@@ -243,7 +247,30 @@ export function ProcessFlowChart({
                 <p className="font-medium text-foreground">Archiever</p>
               </div>
             )}
+
+            {selectedStep.action === "Skipped" && selectedStep.skippedByWindow && (
+              <div>
+                <p className="text-muted-foreground font-semibold mb-1">
+                  Skipped By
+                </p>
+                <p className="font-medium text-foreground">
+                  Window {selectedStep.skippedByWindow}
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Skip Reason Section */}
+          {selectedStep.action === "Skipped" && selectedStep.remark && (
+            <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-xs font-semibold text-red-800 dark:text-red-300 mb-2">
+                Skip Reason / Remark
+              </p>
+              <p className="text-xs text-red-700 dark:text-red-400 break-words whitespace-pre-wrap">
+                {selectedStep.remark}
+              </p>
+            </div>
+          )}
         </div>
       )}
 

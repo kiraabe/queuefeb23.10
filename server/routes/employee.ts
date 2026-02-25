@@ -1144,7 +1144,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
          t.id as ticket_id,
          t.code as ticket_code,
          t.service_category,
-         t.selected_services
+         t.selected_services,
+         t.status,
+         t.remark,
+         t.skipped_by_window
        FROM tickets t
        WHERE t.id = ANY($1)`,
       [ticketIds],
@@ -1157,6 +1160,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         ticketCode: row.ticket_code,
         serviceCategory: row.service_category,
         selectedServices: row.selected_services,
+        status: row.status,
+        remark: row.remark,
+        skippedByWindow: row.skipped_by_window,
       });
     });
 
@@ -1436,10 +1442,39 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
                 workflowItems[i].status = "Serving";
               } else if (status === "on_hold") {
                 workflowItems[i].status = "On Hold";
+              } else if (status === "skipped") {
+                workflowItems[i].status = "Skipped";
+                // Add remark to the skipped step
+                const ticketInfo = ticketInfoMap.get(ticketId);
+                if (ticketInfo && ticketInfo.remark) {
+                  workflowItems[i].remark = ticketInfo.remark;
+                }
               }
               // For other statuses, keep the actual status from the database
               break;
             }
+          }
+        } else if (status === "skipped") {
+          // If no workflow items exist but case is skipped, create a skip entry
+          const ticketInfo = ticketInfoMap.get(ticketId);
+          if (ticketInfo) {
+            workflowItems.push({
+              id: `skipped-${ticketId}`,
+              ticketId: ticketId,
+              employeeId: null,
+              jobTitleId: null,
+              startedAt: null,
+              endedAt: null,
+              status: "Skipped",
+              durationSeconds: null,
+              employeeName: "Skipped",
+              jobTitle: "Case Skipped",
+              ticketCode: ticketInfo.ticketCode,
+              remark: ticketInfo.remark,
+              skippedByWindow: ticketInfo.skippedByWindow,
+              isArchiever: false,
+              isTeller: false,
+            });
           }
         }
 
