@@ -12,7 +12,7 @@ import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
-import type { Ticket } from "@shared/api";
+import type { Ticket, CaseHoldsResponse } from "@shared/api";
 
 interface WorkflowEntry {
   id: string;
@@ -343,6 +343,63 @@ export default function CaseWorkflowTracker({
 // Workflow Card Component
 function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [holdData, setHoldData] = useState<any>(null);
+  const [remainingTime, setRemainingTime] = useState<string>("—");
+
+  const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
+
+  // Fetch case hold data for on-hold tickets
+  useEffect(() => {
+    if (workflow.status === "on_hold") {
+      const fetchHoldData = async () => {
+        try {
+          const response = await apiFetch("/api/employee/holds");
+          const data = response as CaseHoldsResponse;
+          if (data.holds && Array.isArray(data.holds)) {
+            const hold = data.holds.find((h) => h.ticketId === workflow.ticketId);
+            if (hold) {
+              setHoldData(hold);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch hold data:", error);
+        }
+      };
+
+      fetchHoldData();
+      const interval = setInterval(fetchHoldData, 30000); // Refresh every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [workflow.ticketId, workflow.status]);
+
+  // Calculate remaining time for holds
+  useEffect(() => {
+    if (workflow.status === "on_hold" && holdData) {
+      const updateCountdown = () => {
+        const now = Date.now();
+        // For active holds (not yet resumed), calculate time remaining until 72-hour expiration
+        if (holdData.heldAt && !holdData.resumedAt) {
+          const expiresAt = holdData.heldAt + HOLD_EXPIRATION_SECONDS * 1000;
+          const remaining = expiresAt - now;
+
+          if (remaining > 0) {
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor(
+              (remaining % (1000 * 60 * 60)) / (1000 * 60)
+            );
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            setRemainingTime(`${hours}h ${minutes}m ${seconds}s`);
+          } else {
+            setRemainingTime("Expired");
+          }
+        }
+      };
+
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000); // Update every second
+      return () => clearInterval(interval);
+    }
+  }, [holdData, workflow.status]);
 
   const processSteps = useMemo(
     () => convertToProcessSteps(workflow.items),
@@ -504,7 +561,9 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
               </div>
               <div className={`text-center p-4 rounded-lg border ${
                 workflow.status === "on_hold"
-                  ? "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
+                  ? remainingTime === "Expired"
+                    ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
+                    : "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
                   : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
               }`}>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -512,10 +571,12 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                 </p>
                 <p className={`text-3xl font-bold mt-2 ${
                   workflow.status === "on_hold"
-                    ? "text-orange-600 dark:text-orange-400"
+                    ? remainingTime === "Expired"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-orange-600 dark:text-orange-400"
                     : "text-green-600 dark:text-green-400"
                 }`}>
-                  {formatSeconds(workflow.totalDuration)}
+                  {workflow.status === "on_hold" ? remainingTime : formatSeconds(workflow.totalDuration)}
                 </p>
               </div>
               <div className={`text-center p-4 rounded-lg border ${
