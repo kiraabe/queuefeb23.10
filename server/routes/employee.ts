@@ -1400,13 +1400,20 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         });
 
-        // Mark the last non-archiver, non-teller item in the workflow as "Completed" only if ticket is actually done
-        // For serving/on_hold, keep the actual status from the database
-        if (workflowItems.length > 0 && status === "done") {
+        // Update the last non-archiver, non-teller item status to match the ticket's current status
+        if (workflowItems.length > 0) {
           // Find the last item that is NOT an archiver or teller
           for (let i = workflowItems.length - 1; i >= 0; i--) {
             if (!workflowItems[i].isArchiever && !workflowItems[i].isTeller) {
-              workflowItems[i].status = "Completed";
+              // Map ticket status to workflow step status
+              if (status === "done") {
+                workflowItems[i].status = "Completed";
+              } else if (status === "serving") {
+                workflowItems[i].status = "Serving";
+              } else if (status === "on_hold") {
+                workflowItems[i].status = "On Hold";
+              }
+              // For other statuses, keep the actual status from the database
               break;
             }
           }
