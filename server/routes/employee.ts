@@ -877,11 +877,12 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
 
     // Get ticket info for service enrichment
     const ticketRes = await p.query(
-      `SELECT code, service_category, selected_services FROM tickets WHERE id = $1`,
+      `SELECT code, service_category, selected_services, status FROM tickets WHERE id = $1`,
       [ticketId],
     );
 
     const ticket = ticketRes.rows[0];
+    const ticketStatus = ticket?.status || 'unknown';
 
     // Enrich selected services with names
     let enrichedServices: string[] | undefined = undefined;
@@ -1009,8 +1010,9 @@ export const caseWorkflow: RequestHandler = async (req, res) => {
       });
     });
 
-    // Mark the last employee (not archiver, not teller) in the workflow as "Completed"
-    if (items.length > 0) {
+    // Mark the last employee (not archiver, not teller) in the workflow as "Completed" only if ticket is actually done
+    // For serving/on_hold, keep the actual status from the database
+    if (items.length > 0 && ticketStatus === "done") {
       // Find the last item that is NOT an archiver AND NOT a teller
       for (let i = items.length - 1; i >= 0; i--) {
         if (!items[i].isArchiver && !items[i].isTeller) {
@@ -1394,8 +1396,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         });
 
-        // Mark the last non-archiver, non-teller item in the workflow as "Completed"
-        if (workflowItems.length > 0) {
+        // Mark the last non-archiver, non-teller item in the workflow as "Completed" only if ticket is actually done
+        // For serving/on_hold, keep the actual status from the database
+        if (workflowItems.length > 0 && status === "done") {
           // Find the last item that is NOT an archiver or teller
           for (let i = workflowItems.length - 1; i >= 0; i--) {
             if (!workflowItems[i].isArchiever && !workflowItems[i].isTeller) {
