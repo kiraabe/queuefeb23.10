@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart3,
@@ -9,6 +9,7 @@ import {
   User,
   Briefcase,
 } from "lucide-react";
+import MobileAdminLayout from "@/components/admin/MobileAdminLayout";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import SessionManagement from "@/components/admin/SessionManagement";
 import TicketManagement from "@/components/admin/TicketManagement";
@@ -19,7 +20,93 @@ import AdminWindows from "@/components/admin/AdminWindows";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1026);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1026);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const navItems = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: <BarChart3 className="h-5 w-5" />,
+      onClick: () => setActiveTab("dashboard"),
+    },
+    {
+      id: "employment",
+      label: "Employment",
+      icon: <Briefcase className="h-5 w-5" />,
+      onClick: () => setActiveTab("employment"),
+    },
+    {
+      id: "sessions",
+      label: "Sessions",
+      icon: <Users className="h-5 w-5" />,
+      onClick: () => setActiveTab("sessions"),
+    },
+    {
+      id: "tickets",
+      label: "Tickets",
+      icon: <Ticket className="h-5 w-5" />,
+      onClick: () => setActiveTab("tickets"),
+    },
+    {
+      id: "windows",
+      label: "Windows",
+      icon: <MonitorPlay className="h-5 w-5" />,
+      onClick: () => setActiveTab("windows"),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: <Settings className="h-5 w-5" />,
+      onClick: () => setActiveTab("settings"),
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: <User className="h-5 w-5" />,
+      onClick: () => setActiveTab("profile"),
+    },
+  ];
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <AdminDashboard />;
+      case "employment":
+        return <EmploymentManagement />;
+      case "sessions":
+        return <SessionManagement />;
+      case "tickets":
+        return <TicketManagement />;
+      case "windows":
+        return <AdminWindows />;
+      case "settings":
+        return <AdminSettings />;
+      case "profile":
+        return <AdminProfile />;
+      default:
+        return <AdminDashboard />;
+    }
+  };
+
+  // Mobile/Tablet layout
+  if (!isDesktop) {
+    return (
+      <MobileAdminLayout navItems={navItems} activeTab={activeTab}>
+        {renderContent()}
+      </MobileAdminLayout>
+    );
+  }
+
+  // Desktop layout with tabs
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="space-y-6">

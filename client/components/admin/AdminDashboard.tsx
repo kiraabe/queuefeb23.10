@@ -246,7 +246,7 @@ export default function AdminDashboard() {
         : "bg-red-100 text-red-800";
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-4 md:space-y-6">
       {/* Health Alert */}
       {stats.systemHealth !== "healthy" && (
         <Alert variant="default" className="border-orange-500 bg-orange-50">
@@ -281,54 +281,54 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-5">
             {/* Total Employees */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Employees
                 </span>
                 <Users className="h-4 w-4 text-blue-500" />
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 {employeeStats.totalEmployees}
               </p>
               <p className="text-xs text-muted-foreground">active staff</p>
             </div>
 
             {/* Total Cases */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Cases
                 </span>
                 <Briefcase className="h-4 w-4 text-green-500" />
               </div>
-              <p className="text-2xl font-bold">{stats.totalCompleted}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.totalCompleted}</p>
               <p className="text-xs text-muted-foreground">completed tickets</p>
             </div>
 
             {/* Top Performer */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Top Performer
                 </span>
                 <Award className="h-4 w-4 text-yellow-500" />
               </div>
-              <p className="text-2xl font-bold truncate">
+              <p className="text-2xl md:text-3xl font-bold truncate">
                 {employeeStats.topPerformer}
               </p>
               <p className="text-xs text-muted-foreground">by cases</p>
             </div>
 
             {/* Avg Duration */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Avg Duration
                 </span>
                 <Clock className="h-4 w-4 text-orange-500" />
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 {employeeStats.avgDuration !== null
                   ? formatSeconds(employeeStats.avgDuration)
                   : "N/A"}
@@ -337,14 +337,14 @@ export default function AdminDashboard() {
             </div>
 
             {/* Total Windows */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Windows
                 </span>
                 <Zap className="h-4 w-4 text-purple-500" />
               </div>
-              <p className="text-2xl font-bold">{windows.length}</p>
+              <p className="text-2xl md:text-3xl font-bold">{windows.length}</p>
               <p className="text-xs text-muted-foreground">total available</p>
             </div>
           </div>
@@ -360,14 +360,14 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Avg Handling Time */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Avg Handling Time
                 </span>
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 {formatSeconds(stats.averageHandlingTime)}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -376,28 +376,28 @@ export default function AdminDashboard() {
             </div>
 
             {/* Longest Wait */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-orange-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Longest Wait
                 </span>
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 {formatSeconds(stats.longestWaitTime)}
               </p>
               <p className="text-xs text-muted-foreground">current customer</p>
             </div>
 
             {/* Avg Wait Time */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-gray-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Avg Wait Time
                 </span>
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 {formatSeconds(stats.averageWaitTime)}
               </p>
               <p className="text-xs text-muted-foreground">queue average</p>
@@ -417,74 +417,74 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Waiting */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Waiting
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.totalWaiting}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.totalWaiting}</p>
               <p className="text-xs text-muted-foreground">in queue</p>
             </div>
 
             {/* Serving */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-green-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Serving
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.totalServing}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.totalServing}</p>
               <p className="text-xs text-muted-foreground">being served</p>
             </div>
 
             {/* Served Today */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Served Today
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.servedToday}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.servedToday}</p>
               <p className="text-xs text-muted-foreground">completed</p>
             </div>
 
             {/* Completion Rate */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Completion Rate
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.completionRate}%</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.completionRate}%</p>
               <p className="text-xs text-muted-foreground">today's rate</p>
             </div>
 
             {/* Skipped */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <SkipForward className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Skipped
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.skippedToday}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.skippedToday}</p>
               <p className="text-xs text-muted-foreground">skipped today</p>
             </div>
 
             {/* Hold */}
-            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Pause className="h-4 w-4 text-orange-500" />
                 <span className="text-sm font-medium text-muted-foreground">
                   Hold
                 </span>
               </div>
-              <p className="text-2xl font-bold">{stats.holdToday}</p>
+              <p className="text-2xl md:text-3xl font-bold">{stats.holdToday}</p>
               <p className="text-xs text-muted-foreground">hold today</p>
             </div>
           </div>
@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                 {display.current.length > 0 ? (
                   <div className="space-y-3">
                     {display.current.map((ticket) => (
-                      <div key={ticket.id} className="rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
+                      <div key={ticket.id} className="rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="text-sm text-muted-foreground">
@@ -578,7 +578,7 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-lg border p-4 text-center text-muted-foreground">
+                  <div className="rounded-[16px] border p-4 md:p-5 text-center text-muted-foreground">
                     No customer currently being served
                   </div>
                 )}
@@ -594,7 +594,7 @@ export default function AdminDashboard() {
                       {nextTickets.map((ticket, index) => (
                         <div
                           key={ticket?.id || index}
-                          className="rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow"
+                          className="rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start justify-between">
                             <div>
@@ -632,7 +632,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-lg sm:rounded-xl border p-4 sm:p-5 text-center text-muted-foreground">
+                    <div className="rounded-[16px] border p-4 md:p-5 text-center text-muted-foreground">
                       No next tickets
                     </div>
                   );
@@ -679,7 +679,7 @@ export default function AdminDashboard() {
                                   {categoryTickets.map((ticket) => (
                                     <div
                                       key={ticket.id}
-                                      className="rounded border p-3 hover:bg-muted/50 transition-colors text-center"
+                                      className="rounded-[12px] border p-3 hover:bg-muted/50 transition-colors text-center"
                                     >
                                       <p className="font-semibold text-lg">
                                         {ticket.code}
