@@ -20,11 +20,11 @@ import AdminWindows from "@/components/admin/AdminWindows";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 770);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 770);
+      setIsDesktop(window.innerWidth >= 1024);
     };
 
     window.addEventListener("resize", handleResize);
