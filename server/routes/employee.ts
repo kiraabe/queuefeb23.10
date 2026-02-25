@@ -1057,22 +1057,22 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       dateThreshold = "to_timestamp(0)"; // Unix epoch - includes all records
     }
 
-    // Get count of completed and skipped cases with at least one workflow entry
+    // Get count of completed, skipped, serving, and on_hold cases with at least one workflow entry
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
-       WHERE t.status IN ('done', 'skipped')
+       WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND t.completed_at >= ${dateThreshold}`,
     );
 
-    // Get list of distinct completed and skipped ticket IDs (paginated)
+    // Get list of distinct ticket IDs (paginated)
     const ticketRes = await p.query(
       `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at, t.status,
               extract(epoch from t.created_at)*1000 as created_at
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
-       WHERE t.status IN ('done', 'skipped')
+       WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND t.completed_at >= ${dateThreshold}
        ORDER BY t.id, t.completed_at DESC
        LIMIT $1 OFFSET $2`,

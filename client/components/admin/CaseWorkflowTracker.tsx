@@ -171,7 +171,7 @@ export default function CaseWorkflowTracker({
           setWorkflows(workflowsRes.items);
           setTotalItems(workflowsRes.total || 0);
         } else {
-          setError("No completed or skipped cases found for this timeframe");
+          setError("No cases found for this timeframe");
           setWorkflows([]);
         }
       } catch (err) {
@@ -222,7 +222,7 @@ export default function CaseWorkflowTracker({
                 Process Flow Section
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
-                Track complete and skipped case workflows from ticket creation through
+                Track case workflows for all statuses (Completed, Skipped, Serving, On Hold) from ticket creation through
                 document retrieval by archivers and service delivery by tellers,
                 with timeframe filtering and pagination
               </CardDescription>
@@ -280,7 +280,7 @@ export default function CaseWorkflowTracker({
               <div>
                 <p className="font-semibold">{error}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Process flow will display once cases are completed
+                  Process flow will display once cases are processed (completed, skipped, serving, or on hold)
                 </p>
               </div>
             </div>
@@ -385,14 +385,22 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                       ? "bg-green-600 text-white dark:bg-green-700"
                       : workflow.status === "skipped"
                         ? "bg-orange-600 text-white dark:bg-orange-700"
-                        : "bg-gray-600 text-white dark:bg-gray-700"
+                        : workflow.status === "serving"
+                          ? "bg-blue-600 text-white dark:bg-blue-700"
+                          : workflow.status === "on_hold"
+                            ? "bg-red-600 text-white dark:bg-red-700"
+                            : "bg-gray-600 text-white dark:bg-gray-700"
                   }
                 >
                   {workflow.status === "done"
                     ? "Completed"
                     : workflow.status === "skipped"
                       ? "Skipped"
-                      : workflow.status}
+                      : workflow.status === "serving"
+                        ? "Serving"
+                        : workflow.status === "on_hold"
+                          ? "On Hold"
+                          : workflow.status}
                 </Badge>
               )}
             </div>
