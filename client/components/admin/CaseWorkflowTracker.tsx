@@ -502,11 +502,19 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                   )}
                 </p>
               </div>
-              <div className="text-center p-4 rounded-lg bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
+              <div className={`text-center p-4 rounded-lg border ${
+                workflow.status === "on_hold"
+                  ? "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
+                  : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
+              }`}>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Total Duration
+                  {workflow.status === "on_hold" ? "Time Remaining" : "Total Duration"}
                 </p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                <p className={`text-3xl font-bold mt-2 ${
+                  workflow.status === "on_hold"
+                    ? "text-orange-600 dark:text-orange-400"
+                    : "text-green-600 dark:text-green-400"
+                }`}>
                   {formatSeconds(workflow.totalDuration)}
                 </p>
               </div>
