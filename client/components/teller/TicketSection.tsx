@@ -222,7 +222,7 @@ function TicketRow({
         }
 
         // Map backend status to action status
-        let action: "Started" | "Proceeded" | "Completed" = "Started";
+        let action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" = "Started";
         if (displayStatus === "Completed" || displayStatus === "completed") {
           action = "Completed";
         } else if (
@@ -230,6 +230,10 @@ function TicketRow({
           displayStatus === "proceeded"
         ) {
           action = "Proceeded";
+        } else if (displayStatus === "Serving" || displayStatus === "serving") {
+          action = "Serving";
+        } else if (displayStatus === "On Hold" || displayStatus === "on_hold") {
+          action = "On Hold";
         } else if (
           displayStatus === "Retrieved" ||
           displayStatus === "retrieved"

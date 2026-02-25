@@ -76,7 +76,7 @@ interface ProcessStep {
   number: number;
   employeeName: string;
   jobTitle?: string;
-  action: "Started" | "Proceeded" | "Completed";
+  action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold";
   duration: string;
   durationSeconds: number | null;
   startedAt?: number | null;
@@ -106,11 +106,15 @@ const convertToProcessSteps = (items: WorkflowEntry[]): ProcessStep[] => {
     }
 
     // Map backend status to action status
-    let action: "Started" | "Proceeded" | "Completed" = "Started";
+    let action: "Started" | "Proceeded" | "Completed" | "Serving" | "On Hold" = "Started";
     if (displayStatus === "Completed" || displayStatus === "completed") {
       action = "Completed";
     } else if (displayStatus === "Proceeded" || displayStatus === "proceeded") {
       action = "Proceeded";
+    } else if (displayStatus === "Serving" || displayStatus === "serving") {
+      action = "Serving";
+    } else if (displayStatus === "On Hold" || displayStatus === "on_hold") {
+      action = "On Hold";
     } else if (displayStatus === "Retrieved" || displayStatus === "retrieved") {
       // Treat Retrieved as Started for process flow (archiver retrieving documents)
       action = "Started";
