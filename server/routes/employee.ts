@@ -1058,12 +1058,17 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
     }
 
     // Get count of completed, skipped, serving, and on_hold cases with at least one workflow entry
+    // For completed/skipped: use completed_at date
+    // For serving/on_hold: use created_at date (since they're still in progress)
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
-         AND t.completed_at >= ${dateThreshold}`,
+         AND (
+           (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
+           OR (t.status IN ('serving', 'on_hold') AND t.created_at >= ${dateThreshold})
+         )`,
     );
 
     // Get list of distinct ticket IDs (paginated)
@@ -1073,8 +1078,11 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
-         AND t.completed_at >= ${dateThreshold}
-       ORDER BY t.id, t.completed_at DESC
+         AND (
+           (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
+           OR (t.status IN ('serving', 'on_hold') AND t.created_at >= ${dateThreshold})
+         )
+       ORDER BY t.id, COALESCE(t.completed_at, t.created_at) DESC
        LIMIT $1 OFFSET $2`,
       [limit, offset],
     );
