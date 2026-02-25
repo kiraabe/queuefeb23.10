@@ -49,7 +49,6 @@ export default function MobileAdminLayout({
           variant="ghost"
           size="sm"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden"
         >
           {sidebarOpen ? (
             <X className="h-5 w-5" />
@@ -61,7 +60,7 @@ export default function MobileAdminLayout({
 
       {/* Tablet Collapsible Sidebar */}
       {sidebarOpen && (
-        <div className="absolute inset-0 z-40 hidden md:block lg:hidden">
+        <div className="absolute inset-0 z-40 block">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
@@ -109,7 +108,7 @@ export default function MobileAdminLayout({
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-border bg-background/95 backdrop-blur-sm md:hidden safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-border bg-background/95 backdrop-blur-sm lg:hidden safe-area-bottom">
         {mobileNavItems.map((item) => (
           <button
             key={item.id}
