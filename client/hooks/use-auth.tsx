@@ -55,10 +55,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = JSON.stringify({});
         if (navigator.sendBeacon) {
           // sendBeacon is the standard API for sending data during unload
-          navigator.sendBeacon(apiUrl("/api/session/logout"), data);
+          navigator.sendBeacon(apiUrl("/api/auth/tab-closed"), data);
         } else {
           // Fallback for browsers without sendBeacon (rare nowadays)
-          fetch(apiUrl("/api/session/logout"), {
+          fetch(apiUrl("/api/auth/tab-closed"), {
             method: "POST",
             body: data,
             keepalive: true,
