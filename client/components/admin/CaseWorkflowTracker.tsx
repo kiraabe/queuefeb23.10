@@ -518,12 +518,40 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                   {formatSeconds(workflow.totalDuration)}
                 </p>
               </div>
-              <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800">
+              <div className={`text-center p-4 rounded-lg border ${
+                workflow.status === "done"
+                  ? "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
+                  : workflow.status === "skipped"
+                    ? "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
+                    : workflow.status === "serving"
+                      ? "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800"
+                      : workflow.status === "on_hold"
+                        ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
+                        : "bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800"
+              }`}>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Status
                 </p>
-                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                  Complete
+                <p className={`text-3xl font-bold mt-2 ${
+                  workflow.status === "done"
+                    ? "text-green-600 dark:text-green-400"
+                    : workflow.status === "skipped"
+                      ? "text-orange-600 dark:text-orange-400"
+                      : workflow.status === "serving"
+                        ? "text-blue-600 dark:text-blue-400"
+                        : workflow.status === "on_hold"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-gray-600 dark:text-gray-400"
+                }`}>
+                  {workflow.status === "done"
+                    ? "Complete"
+                    : workflow.status === "skipped"
+                      ? "Skipped"
+                      : workflow.status === "serving"
+                        ? "Serving"
+                        : workflow.status === "on_hold"
+                          ? "On Hold"
+                          : workflow.status}
                 </p>
               </div>
               <div className="text-center p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200 dark:border-cyan-800">
