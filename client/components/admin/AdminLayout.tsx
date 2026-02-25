@@ -35,30 +35,27 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background lg:flex-row">
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-border transition-all duration-300">
-        <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-          <h1 className="text-lg font-bold tracking-tight">Admin</h1>
-        </div>
-        <nav className="flex flex-col gap-1 p-4">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
+      {/* Desktop Tabs Navigation */}
+      <nav className="hidden lg:flex lg:h-auto lg:items-center lg:gap-1 lg:border-b lg:border-border lg:overflow-x-auto lg:bg-background">
+        <div className="flex items-center gap-1 px-6 py-3">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={item.onClick}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200 whitespace-nowrap rounded-t-lg border-b-2",
                 activeTab === item.id
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
               )}
             >
-              <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
-              <span className="flex-1">{item.label}</span>
+              <span className="h-4 w-4 flex-shrink-0">{item.icon}</span>
+              <span>{item.label}</span>
             </button>
           ))}
-        </nav>
-      </aside>
+        </div>
+      </nav>
 
       {/* Mobile Sidebar */}
       {sidebarOpen && (
@@ -117,16 +114,6 @@ export default function AdminLayout({
           >
             <Menu className="h-5 w-5" />
           </Button>
-        </div>
-
-        {/* Desktop Top Bar */}
-        <div className="hidden lg:flex h-16 items-center justify-between border-b border-border px-6 bg-gradient-to-r from-background to-background">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Admin Panel</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Manage system operations, monitor queues, and configure settings
-            </p>
-          </div>
         </div>
 
         {/* Content Area with Padding for Bottom Nav on Mobile */}
