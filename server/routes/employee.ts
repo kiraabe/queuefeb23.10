@@ -1059,13 +1059,13 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       dateThreshold = "to_timestamp(0)"; // Unix epoch - includes all records
     }
 
-    // Get count of completed, skipped, serving, and on_hold cases with at least one workflow entry
+    // Get count of completed, skipped, serving, and on_hold cases (including those without workflow entries)
     // For completed/skipped: use completed_at date
     // For serving/on_hold: use created_at date (since they're still in progress)
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
-       JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND (
            (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
@@ -1078,7 +1078,7 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at, t.status,
               extract(epoch from t.created_at)*1000 as created_at
        FROM tickets t
-       JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
+       LEFT JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
        WHERE t.status IN ('done', 'skipped', 'serving', 'on_hold')
          AND (
            (t.status IN ('done', 'skipped') AND t.completed_at >= ${dateThreshold})
@@ -1137,6 +1137,28 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
        ORDER BY ecp.ticket_id, ecp.started_at ASC`,
       [ticketIds],
     );
+
+    // Fetch ticket information directly from tickets table (for cases with no workflow entries)
+    const ticketInfoRes = await p.query(
+      `SELECT
+         t.id as ticket_id,
+         t.code as ticket_code,
+         t.service_category,
+         t.selected_services
+       FROM tickets t
+       WHERE t.id = ANY($1)`,
+      [ticketIds],
+    );
+
+    // Build ticket info map
+    const ticketInfoMap = new Map<string, any>();
+    ticketInfoRes.rows.forEach((row) => {
+      ticketInfoMap.set(row.ticket_id, {
+        ticketCode: row.ticket_code,
+        serviceCategory: row.service_category,
+        selectedServices: row.selected_services,
+      });
+    });
 
     // Fetch archiever information for all tickets
     const archiverRes = await p.query(
@@ -1241,21 +1263,26 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       ticketIds.map(async (ticketId) => {
         const workflowRows = workflowsByTicket.get(ticketId) || [];
 
+        // Get ticket info from workflow rows or from ticketInfoMap
+        let selectedServices = workflowRows.length > 0
+          ? workflowRows[0].selected_services
+          : ticketInfoMap.get(ticketId)?.selectedServices;
+        let serviceCategory = workflowRows.length > 0
+          ? workflowRows[0].service_category
+          : ticketInfoMap.get(ticketId)?.serviceCategory;
+        let ticketCode = workflowRows.length > 0
+          ? workflowRows[0].ticket_code
+          : ticketInfoMap.get(ticketId)?.ticketCode;
+
         // Enrich selected services with names
         let enrichedServices: string[] | undefined = undefined;
-        if (
-          workflowRows.length > 0 &&
-          workflowRows[0].selected_services &&
-          workflowRows[0].service_category
-        ) {
-          const selectedServiceIds = parseSelectedServices(
-            workflowRows[0].selected_services,
-          );
+        if (selectedServices && serviceCategory) {
+          const selectedServiceIds = parseSelectedServices(selectedServices);
           if (selectedServiceIds && selectedServiceIds.length > 0) {
             try {
               const tempTicket = {
                 selectedServices: selectedServiceIds,
-                serviceCategory: workflowRows[0].service_category,
+                serviceCategory: serviceCategory,
               } as any;
 
               const enrichedTickets =
@@ -1271,14 +1298,11 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           }
         }
 
-        const ticketInfo =
-          workflowRows.length > 0
-            ? {
-                ticketCode: workflowRows[0].ticket_code,
-                serviceCategory: workflowRows[0].service_category,
-                selectedServices: enrichedServices,
-              }
-            : null;
+        const ticketInfo = ticketCode ? {
+          ticketCode: ticketCode,
+          serviceCategory: serviceCategory,
+          selectedServices: enrichedServices,
+        } : null;
 
         const workflowItems: any[] = [];
 
