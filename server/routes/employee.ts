@@ -1372,6 +1372,10 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           });
         }
 
+        // Get ticket status and created date early (needed for workflow completion logic)
+        const createdAt = ticketDatesMap.get(ticketId) || null;
+        const status = ticketStatusMap.get(ticketId) || 'unknown';
+
         // Add employee workflow steps (excluding archiver if they're also in the employee workflow)
         workflowRows.forEach((r) => {
           // Skip if this is the same person as the archiver
@@ -1417,9 +1421,6 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
             totalDuration = (last.endedAt - first.startedAt) / 1000;
           }
         }
-
-        const createdAt = ticketDatesMap.get(ticketId) || null;
-        const status = ticketStatusMap.get(ticketId) || 'unknown';
         console.log(
           `[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}, status=${status}`,
         );
