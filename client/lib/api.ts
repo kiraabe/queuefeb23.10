@@ -30,7 +30,7 @@ async function detectApiBase(): Promise<string> {
   if (typeof window === "undefined") return "";
   const tryPing = async (base: string) => {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
     try {
       const res = await fetch(`${sanitizeBase(base)}/api/ping`, {
         headers: { "X-Requested-With": "fetch" },
@@ -38,12 +38,16 @@ async function detectApiBase(): Promise<string> {
         signal: controller.signal,
         method: "GET",
       });
-      clearTimeout(id);
+      clearTimeout(timeoutId);
       // Accept any successful response (not just 200)
       return res.ok || res.status === 200 || res.status === 401;
     } catch (err) {
-      clearTimeout(id);
-      // Timeout or network error
+      clearTimeout(timeoutId);
+      // Timeout or network error - return false
+      if (process.env.NODE_ENV === "development") {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.debug(`[API] Ping failed for base "${base}": ${errMsg}`);
+      }
       return false;
     }
   };
@@ -56,6 +60,10 @@ async function detectApiBase(): Promise<string> {
     return "/.netlify/functions/api";
 
   // 3) No detection found, default to same-origin (usually works)
+  // This is the safest fallback for development
+  if (process.env.NODE_ENV === "development") {
+    console.debug("[API] API base detection: defaulting to same-origin");
+  }
   return "";
 }
 
@@ -173,9 +181,16 @@ export async function apiFetch<T>(
       (e.name === "AbortError" || e.message.includes("timeout"));
     const errorMsg = e instanceof Error ? e.message : String(e);
 
+    // Check if this is a network error (fetch failed entirely)
+    const isNetworkError =
+      e instanceof TypeError &&
+      (errorMsg.includes("Failed to fetch") ||
+       errorMsg.includes("NetworkError") ||
+       errorMsg.includes("network"));
+
     // Only retry with API base resolution if first attempt failed
     // and we haven't already resolved the API base
-    if (dynamicBase === null && !isTimeoutError) {
+    if (dynamicBase === null && !isTimeoutError && !isNetworkError) {
       try {
         const detectedBase = await ensureApiBaseResolved();
         if (detectedBase !== getApiBase()) {
@@ -196,13 +211,17 @@ export async function apiFetch<T>(
         );
       }
     } else {
-      // Already tried API base detection or timeout error, just throw
+      // Already tried API base detection or timeout/network error, just throw
       console.error(
         `[API] Failed to reach server at path ${path}: ${errorMsg}`,
       );
       if (isTimeoutError) {
         throw new Error(
           "Request timed out. The server is taking too long to respond. Please try again.",
+        );
+      } else if (isNetworkError) {
+        throw new Error(
+          "Network error. Please check your internet connection and try again.",
         );
       } else {
         throw new Error(

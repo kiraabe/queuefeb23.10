@@ -20,9 +20,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
 
   useEffect(() => {
-    apiFetch<MeResponse>("/api/auth/me")
-      .then((r) => setUser(r.user))
-      .catch(() => setUser(null));
+    const initializeAuth = async () => {
+      try {
+        const response = await apiFetch<MeResponse>("/api/auth/me");
+        setUser(response.user || null);
+      } catch (error) {
+        // If fetch fails, assume user is not authenticated
+        // This handles network errors, server errors, etc.
+        console.debug("[Auth] Initialization error (expected if not logged in):",
+          error instanceof Error ? error.message : String(error)
+        );
+        setUser(null);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   // Session heartbeat - keep session active while tab is open
@@ -106,15 +118,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           );
         }
       } catch (err) {
-        // If heartbeat fails with 401, the session is likely gone or revoked
-        // Immediately log out (within ~100ms of getting the error)
-        if ((err as any)?.status === 401) {
-          console.warn("[Auth] Session invalid (401). Logging out immediately.");
+        // Determine the error type
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        const isSessionInvalid = errorMsg.includes("session") || errorMsg.includes("Session");
+
+        // If heartbeat fails with session-related error, the session is likely gone
+        if (isSessionInvalid) {
+          console.warn("[Auth] Session invalid. Logging out.");
           setUser(null);
-        } else {
-          // For other errors, log but don't force logout yet
-          console.warn("[Auth] Heartbeat failed:", (err as any)?.status || err);
+        } else if (process.env.NODE_ENV === "development") {
+          // For other errors in development, log but don't force logout
+          console.debug("[Auth] Heartbeat failed (continuing session):", errorMsg);
         }
+        // In production, silently ignore non-session errors to prevent unnecessary logouts
       } finally {
         isHeartbeatPending = false;
       }
