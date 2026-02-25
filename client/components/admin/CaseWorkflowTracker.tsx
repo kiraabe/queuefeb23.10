@@ -43,6 +43,7 @@ interface CaseWorkflow {
   ticketId: string;
   ticketCode: string;
   createdAt?: number | null;
+  status?: string;
   ticketInfo?: TicketInfo;
   items: WorkflowEntry[];
   totalDuration: number | null;
@@ -170,7 +171,7 @@ export default function CaseWorkflowTracker({
           setWorkflows(workflowsRes.items);
           setTotalItems(workflowsRes.total || 0);
         } else {
-          setError("No completed cases found for this timeframe");
+          setError("No completed or skipped cases found for this timeframe");
           setWorkflows([]);
         }
       } catch (err) {
@@ -221,7 +222,7 @@ export default function CaseWorkflowTracker({
                 Process Flow Section
               </CardTitle>
               <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
-                Complete case workflow tracking from ticket creation through
+                Track complete and skipped case workflows from ticket creation through
                 document retrieval by archivers and service delivery by tellers,
                 with timeframe filtering and pagination
               </CardDescription>
@@ -373,9 +374,28 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
       <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4">
-            <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-              Ticket {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                Ticket {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
+              </CardTitle>
+              {workflow.status && (
+                <Badge
+                  className={
+                    workflow.status === "done"
+                      ? "bg-green-600 text-white dark:bg-green-700"
+                      : workflow.status === "skipped"
+                        ? "bg-orange-600 text-white dark:bg-orange-700"
+                        : "bg-gray-600 text-white dark:bg-gray-700"
+                  }
+                >
+                  {workflow.status === "done"
+                    ? "Completed"
+                    : workflow.status === "skipped"
+                      ? "Skipped"
+                      : workflow.status}
+                </Badge>
+              )}
+            </div>
             {workflow.createdAt &&
               (() => {
                 try {

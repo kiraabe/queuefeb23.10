@@ -1057,22 +1057,22 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
       dateThreshold = "to_timestamp(0)"; // Unix epoch - includes all records
     }
 
-    // Get count of completed cases with at least one workflow entry
+    // Get count of completed and skipped cases with at least one workflow entry
     const countRes = await p.query(
       `SELECT COUNT(DISTINCT t.id)::int AS total
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
-       WHERE t.status = 'done'
+       WHERE t.status IN ('done', 'skipped')
          AND t.completed_at >= ${dateThreshold}`,
     );
 
-    // Get list of distinct completed ticket IDs (paginated)
+    // Get list of distinct completed and skipped ticket IDs (paginated)
     const ticketRes = await p.query(
-      `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at,
+      `SELECT DISTINCT ON (t.id) t.id, t.code, t.completed_at, t.status,
               extract(epoch from t.created_at)*1000 as created_at
        FROM tickets t
        JOIN employee_case_performance ecp ON t.id = ecp.ticket_id
-       WHERE t.status = 'done'
+       WHERE t.status IN ('done', 'skipped')
          AND t.completed_at >= ${dateThreshold}
        ORDER BY t.id, t.completed_at DESC
        LIMIT $1 OFFSET $2`,
@@ -1081,11 +1081,13 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
 
     const ticketIds = ticketRes.rows.map((row) => row.id);
     const ticketDatesMap = new Map<string, number | null>();
+    const ticketStatusMap = new Map<string, string>();
     ticketRes.rows.forEach((row) => {
       const createdAtValue = row.created_at
         ? Math.round(Number(row.created_at))
         : null;
       ticketDatesMap.set(row.id, createdAtValue);
+      ticketStatusMap.set(row.id, row.status);
     });
     console.log(
       "[listCaseWorkflows] Ticket dates map:",
@@ -1406,13 +1408,15 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         }
 
         const createdAt = ticketDatesMap.get(ticketId) || null;
+        const status = ticketStatusMap.get(ticketId) || 'unknown';
         console.log(
-          `[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}`,
+          `[listCaseWorkflows] Ticket ${ticketId}: createdAt=${createdAt}, status=${status}`,
         );
         return {
           ticketId,
           ticketCode: ticketInfo?.ticketCode,
           createdAt,
+          status,
           ticketInfo,
           items: workflowItems,
           totalDuration,
