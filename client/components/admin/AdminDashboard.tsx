@@ -246,7 +246,7 @@ export default function AdminDashboard() {
         : "bg-red-100 text-red-800";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Health Alert */}
       {stats.systemHealth !== "healthy" && (
         <Alert variant="default" className="border-orange-500 bg-orange-50">
@@ -279,9 +279,9 @@ export default function AdminDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-5">
             {/* Total Employees */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Employees
@@ -295,7 +295,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Total Cases */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Cases
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Top Performer */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Top Performer
@@ -321,7 +321,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Avg Duration */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Avg Duration
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Total Windows */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Windows
@@ -358,9 +358,9 @@ export default function AdminDashboard() {
           <CardDescription>Service timing and queue statistics</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Avg Handling Time */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -376,7 +376,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Longest Wait */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-orange-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -390,7 +390,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Avg Wait Time */}
-            <div className="space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-gray-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -415,9 +415,9 @@ export default function AdminDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Waiting */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Serving */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-green-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -441,7 +441,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Served Today */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -453,7 +453,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Completion Rate */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -465,7 +465,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Skipped */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <SkipForward className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -477,7 +477,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Hold */}
-            <div className="flex-1 min-w-max space-y-2 rounded-lg border p-4">
+            <div className="space-y-2 rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-2">
                 <Pause className="h-4 w-4 text-orange-500" />
                 <span className="text-sm font-medium text-muted-foreground">
@@ -506,11 +506,11 @@ export default function AdminDashboard() {
                 <TabsTrigger value="queue">Queue Preview</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="current" className="space-y-4">
+              <TabsContent value="current" className="space-y-3 sm:space-y-4 mt-4">
                 {display.current.length > 0 ? (
                   <div className="space-y-3">
                     {display.current.map((ticket) => (
-                      <div key={ticket.id} className="rounded-lg border p-4">
+                      <div key={ticket.id} className="rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="text-sm text-muted-foreground">
@@ -584,17 +584,17 @@ export default function AdminDashboard() {
                 )}
               </TabsContent>
 
-              <TabsContent value="next" className="space-y-4">
+              <TabsContent value="next" className="space-y-3 sm:space-y-4 mt-4">
                 {(() => {
                   const nextTickets = [display.next, display.nextAfter].filter(
                     Boolean,
                   );
                   return nextTickets.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {nextTickets.map((ticket, index) => (
                         <div
                           key={ticket?.id || index}
-                          className="rounded-lg border p-4"
+                          className="rounded-lg sm:rounded-xl border p-4 sm:p-5 hover:shadow-md transition-shadow"
                         >
                           <div className="flex items-start justify-between">
                             <div>
@@ -632,7 +632,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-lg border p-4 text-center text-muted-foreground">
+                    <div className="rounded-lg sm:rounded-xl border p-4 sm:p-5 text-center text-muted-foreground">
                       No next tickets
                     </div>
                   );
