@@ -118,12 +118,12 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex h-auto w-full items-center justify-start gap-1 rounded-2xl bg-muted/50 p-1.5 shadow-inner">
+          <TabsList className="flex h-14 w-full items-stretch justify-start gap-1 rounded-[20px] bg-muted/50 p-1.5 shadow-inner">
             {navItems.map((item) => (
               <TabsTrigger
                 key={item.id}
                 value={item.id}
-                className="flex flex-1 items-center justify-center gap-2.5 rounded-xl px-4 py-3.5 transition-all duration-200 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg data-[state=active]:ring-1 data-[state=active]:ring-black/5 hover:bg-muted/60"
+                className="flex flex-1 items-center justify-center gap-2.5 rounded-[14px] px-4 transition-all duration-200 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg data-[state=active]:ring-1 data-[state=active]:ring-black/5 hover:bg-muted/60"
               >
                 <span className="h-5 w-5 opacity-70 transition-opacity duration-200 group-data-[state=active]:opacity-100">
                   {item.icon}
