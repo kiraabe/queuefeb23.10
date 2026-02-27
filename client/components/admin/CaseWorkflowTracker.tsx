@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle, Clock, CheckCircle } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
@@ -904,7 +904,7 @@ function WorkflowCard({
                 return (
                   <div className="mt-4 p-4 rounded-lg border bg-gray-50 dark:bg-gray-950/50 border-gray-300 dark:border-gray-700">
                     <div className="flex items-start gap-3">
-                      <Clock className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                           Standard Time Not Configured
