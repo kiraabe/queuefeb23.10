@@ -759,12 +759,12 @@ export default function ServiceManagement() {
                                       </p>
                                       <p className="text-xs text-muted-foreground">
                                         Code: {service.code}
-                                        {service.standardTimeSeconds && (
+                                        {service.standardTimeMinutes && (
                                           <>
                                             {" "}
                                             • Standard Time:{" "}
                                             {formatMinutes(
-                                              service.standardTimeSeconds,
+                                              service.standardTimeMinutes,
                                             )}
                                           </>
                                         )}

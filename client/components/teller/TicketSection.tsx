@@ -15,6 +15,21 @@ import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import type { ListUsersResponse } from "@shared/api";
 
+interface EmployeeStep {
+  id: string;
+  employeeName: string;
+  jobTitle: string;
+  status: string;
+  durationSeconds: number | null;
+  windowId?: number | null;
+  isTeller?: boolean;
+  isArchiver?: boolean;
+}
+
+interface CaseWorkflowResponse {
+  items?: EmployeeStep[];
+}
+
 interface TicketSectionProps {
   items: Ticket[];
   title: string;
@@ -171,7 +186,7 @@ function TicketRow({
   const { data: performanceData } = useQuery({
     queryKey: ["case-workflow-process", ticket.id],
     queryFn: async () => {
-      const response = await apiFetch(
+      const response = await apiFetch<CaseWorkflowResponse>(
         `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
       );
       return response;

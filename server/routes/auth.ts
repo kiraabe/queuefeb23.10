@@ -631,7 +631,7 @@ export const login: RequestHandler = async (req, res) => {
   const uaResult = parser.getResult();
 
   // Extract and normalize OS details
-  const { osName, osVersion } = normalizeOsDetection(uaResult, req);
+  const { osName, osVersion } = normalizeOsDetection(uaResult as any, req);
 
   // Extract device details
   const deviceVendor = uaResult.device.vendor || "";

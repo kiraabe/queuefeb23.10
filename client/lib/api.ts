@@ -248,6 +248,7 @@ export async function apiFetch<T>(
 
     // Only log 404 and 5xx errors for non-ping endpoints
     const isPingPath = path === "/api/ping" || path === "/api/session/ping" || path === "/api/auth/heartbeat";
+    const isLoginPath = path.includes("/auth/login") || path.includes("/auth/signin");
     if (res.status !== 404 || !isPingPath) {
       console.error(`[API] Server error ${res.status} for ${path}: ${message}`);
       if (data && res.status >= 400 && res.status < 500) {

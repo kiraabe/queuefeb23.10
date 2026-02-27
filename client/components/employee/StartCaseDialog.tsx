@@ -103,7 +103,7 @@ export function StartCaseDialog({
               <SelectContent>
                 {jobTitles.map((jt) => (
                   <SelectItem key={jt.id} value={jt.id}>
-                    {jt.name}
+                    {jt.nameEnglish}
                   </SelectItem>
                 ))}
               </SelectContent>

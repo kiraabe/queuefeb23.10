@@ -716,7 +716,7 @@ export const getDocumentStatus: RequestHandler = async (req, res) => {
 export const manuallyArchiveTicket: RequestHandler = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const auth = req.auth;
+    const auth = (req as any).auth;
 
     if (!auth) {
       return res.status(401).json({ error: "Unauthorized" });

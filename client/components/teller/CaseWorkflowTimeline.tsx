@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { Ticket } from "@shared/api";
 import { apiFetch } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
   ArrowRight,
@@ -25,6 +25,10 @@ interface EmployeeStep {
   isArchiver?: boolean;
 }
 
+interface CaseWorkflowResponse {
+  items?: EmployeeStep[];
+}
+
 interface CaseWorkflowTimelineProps {
   ticket: Ticket;
   compact?: boolean;
@@ -37,7 +41,7 @@ export function CaseWorkflowTimeline({
   const { data: performanceData, isPending } = useQuery({
     queryKey: ["case-workflow", ticket.id],
     queryFn: async () => {
-      const response = await apiFetch(
+      const response = await apiFetch<CaseWorkflowResponse>(
         `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
       );
       return response;

@@ -15,6 +15,8 @@ interface EmployeeStep {
   employeeName: string;
   jobTitle: string;
   status: "Started" | "Proceeded" | "Completed" | "Retrieved";
+  startedAt?: number | null;
+  endedAt?: number | null;
   durationSeconds: number | null;
   windowId?: number | null;
   isTeller?: boolean;
@@ -23,6 +25,10 @@ interface EmployeeStep {
 
 interface CompletedTicketSummaryProps {
   ticket: Ticket;
+}
+
+interface CaseWorkflowResponse {
+  items?: EmployeeStep[];
 }
 
 export function CompletedTicketSummary({
@@ -35,7 +41,7 @@ export function CompletedTicketSummary({
   } = useQuery({
     queryKey: ["case-workflow-summary", ticket.id],
     queryFn: async () => {
-      const response = await apiFetch(
+      const response = await apiFetch<CaseWorkflowResponse>(
         `/api/employee/case-workflow?ticketId=${encodeURIComponent(ticket.id)}`,
       );
       return response;

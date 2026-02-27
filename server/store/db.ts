@@ -2688,7 +2688,7 @@ export async function enrichMultipleTicketsWithServiceNames(
           );
         }
 
-        allServicesByCategory.set(categoryCode, idToNameMap);
+        allServicesByCategory.set(categoryCode, idToNameMap as Map<string, string>);
       }
     }
 
