@@ -27,14 +27,20 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
   const settingsItem = navItems.find((item) => item.id === "settings");
   const profileItem = navItems.find((item) => item.id === "profile");
 
-  const initials = user?.username?.slice(0, 2).toUpperCase() || "AD";
+  const displayName = user?.fullName || user?.username || "Admin User";
+  const initials = (user?.fullName || user?.username || "AD")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="relative h-10 w-10 rounded-full outline-none ring-offset-background transition-all hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring">
           <Avatar className="h-10 w-10 border border-border shadow-sm">
-            <AvatarImage src="" alt={user?.username || "Admin"} />
+            <AvatarImage src="" alt={displayName} />
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
               {initials}
             </AvatarFallback>
@@ -44,7 +50,7 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.username || "Admin User"}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground capitalize">
               {user?.role || "Administrator"}
             </p>

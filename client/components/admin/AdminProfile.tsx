@@ -60,8 +60,9 @@ export default function AdminProfile() {
     }
   };
 
-  const getInitials = (username: string) => {
-    return username
+  const getInitials = (fullName?: string, username?: string) => {
+    const name = fullName || username || "?";
+    return name
       .split(" ")
       .map((n) => n[0])
       .join("")
@@ -95,12 +96,12 @@ export default function AdminProfile() {
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarFallback className="text-lg">
-                {getInitials(user.username)}
+                {getInitials(user.fullName, user.username)}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
               <div>
-                <p className="text-lg font-semibold">{user.username}</p>
+                <p className="text-lg font-semibold">{user.fullName || user.username}</p>
                 <p className="text-sm text-muted-foreground">Admin Account</p>
               </div>
               <Badge className={getRoleColor(user.role)}>
