@@ -427,22 +427,70 @@ function WorkflowCard({
 
   const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
 
-  // Check if duration exceeds standard time
+  // Get standard time for selected services
+  const getSelectedServicesStandardTime = () => {
+    const selectedServices = workflow.ticketInfo?.selectedServices || [];
+    if (selectedServices.length === 0) {
+      return 0;
+    }
+
+    const totalMinutes = selectedServices.reduce((sum, serviceName) => {
+      const standardMinutes = serviceStandardTimes[serviceName] || 0;
+      return sum + standardMinutes;
+    }, 0);
+
+    return totalMinutes;
+  };
+
+  // Check if duration exceeds standard time (uses selected services if available, fallback to category)
   const getStandardTimeStatus = () => {
+    if (!workflow.totalDuration) {
+      return {
+        exceeds: false,
+        standardMinutes: null,
+        standardSeconds: null,
+        source: null as "category" | "services" | null
+      };
+    }
+
+    // First priority: check selected services
+    const selectedServices = workflow.ticketInfo?.selectedServices || [];
+    if (selectedServices.length > 0) {
+      const totalMinutes = getSelectedServicesStandardTime();
+      if (totalMinutes > 0) {
+        const standardSeconds = totalMinutes * 60;
+        const exceeds = workflow.totalDuration > standardSeconds;
+        return {
+          exceeds,
+          standardMinutes: totalMinutes,
+          standardSeconds,
+          source: "services" as const
+        };
+      }
+    }
+
+    // Fallback: check service category
     const serviceCategory = workflow.ticketInfo?.serviceCategory;
-    if (!serviceCategory || !workflow.totalDuration) {
-      return { exceeds: false, standardMinutes: null, standardSeconds: null };
+    if (serviceCategory) {
+      const standardMinutes = serviceStandardTimes[serviceCategory];
+      if (standardMinutes) {
+        const standardSeconds = standardMinutes * 60;
+        const exceeds = workflow.totalDuration > standardSeconds;
+        return {
+          exceeds,
+          standardMinutes,
+          standardSeconds,
+          source: "category" as const
+        };
+      }
     }
 
-    const standardMinutes = serviceStandardTimes[serviceCategory];
-    if (!standardMinutes) {
-      return { exceeds: false, standardMinutes: null, standardSeconds: null };
-    }
-
-    const standardSeconds = standardMinutes * 60;
-    const exceeds = workflow.totalDuration > standardSeconds;
-
-    return { exceeds, standardMinutes, standardSeconds };
+    return {
+      exceeds: false,
+      standardMinutes: null,
+      standardSeconds: null,
+      source: null as "category" | "services" | null
+    };
   };
 
   // Fetch case hold data for on-hold tickets
@@ -743,20 +791,60 @@ function WorkflowCard({
 
               {/* Standard Time Comparison */}
               {(() => {
-                const { exceeds, standardMinutes, standardSeconds } =
+                const { exceeds, standardMinutes, standardSeconds, source } =
                   getStandardTimeStatus();
                 if (standardSeconds) {
+                  const selectedServices = workflow.ticketInfo?.selectedServices || [];
+
                   return (
-                    <div className={`mt-4 p-4 rounded-lg border ${
+                    <div className={`mt-4 p-4 rounded-lg border space-y-4 ${
                       exceeds
                         ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
                         : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
                     }`}>
+                      {/* Show selected services with their standard times if available */}
+                      {source === "services" && selectedServices.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-muted-foreground">
+                            Selected Services Standard Time:
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {selectedServices.map((serviceName) => {
+                              const serviceTime = serviceStandardTimes[serviceName];
+                              return (
+                                <div
+                                  key={serviceName}
+                                  className="flex items-center justify-between p-2 rounded bg-white/50 dark:bg-black/20"
+                                >
+                                  <span className="text-sm text-muted-foreground">
+                                    {serviceName}
+                                  </span>
+                                  <span className="text-sm font-semibold">
+                                    {serviceTime ? `${serviceTime} min` : "N/A"}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="border-t border-current opacity-20 my-2"></div>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-muted-foreground mb-2">
-                            Standard Time: {standardMinutes} minutes
+                            Total Standard Time: {standardMinutes} minutes
                             ({formatSeconds(standardSeconds)})
+                            {source === "services" && (
+                              <span className="text-xs ml-2 opacity-75">
+                                (combined from selected services)
+                              </span>
+                            )}
+                            {source === "category" && (
+                              <span className="text-xs ml-2 opacity-75">
+                                (from service category)
+                              </span>
+                            )}
                           </p>
                           <div className="flex items-center gap-2">
                             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -776,6 +864,11 @@ function WorkflowCard({
                                 }}
                               ></div>
                             </div>
+                            <span className="text-sm font-semibold whitespace-nowrap">
+                              {Math.round(
+                                ((workflow.totalDuration || 0) / standardSeconds) * 100
+                              )}%
+                            </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
                             {exceeds ? (
