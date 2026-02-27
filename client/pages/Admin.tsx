@@ -118,64 +118,26 @@ export default function Admin() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="employment" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Employment</span>
-            </TabsTrigger>
-            <TabsTrigger value="sessions" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Sessions</span>
-            </TabsTrigger>
-            <TabsTrigger value="tickets" className="flex items-center gap-2">
-              <Ticket className="h-4 w-4" />
-              <span className="hidden sm:inline">Tickets</span>
-            </TabsTrigger>
-            <TabsTrigger value="windows" className="flex items-center gap-2">
-              <MonitorPlay className="h-4 w-4" />
-              <span className="hidden sm:inline">Windows</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </TabsTrigger>
+          <TabsList className="flex h-auto w-full items-center justify-start gap-1 rounded-2xl bg-muted/50 p-1.5 shadow-inner">
+            {navItems.map((item) => (
+              <TabsTrigger
+                key={item.id}
+                value={item.id}
+                className="flex flex-1 items-center justify-center gap-2.5 rounded-xl px-4 py-3.5 transition-all duration-200 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg data-[state=active]:ring-1 data-[state=active]:ring-black/5 hover:bg-muted/60"
+              >
+                <span className="h-5 w-5 opacity-70 transition-opacity duration-200 group-data-[state=active]:opacity-100">
+                  {item.icon}
+                </span>
+                <span className="font-semibold tracking-tight">{item.label}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-4">
-            <AdminDashboard />
-          </TabsContent>
-
-          <TabsContent value="employment" className="space-y-4">
-            <EmploymentManagement />
-          </TabsContent>
-
-          <TabsContent value="sessions" className="space-y-4">
-            <SessionManagement />
-          </TabsContent>
-
-          <TabsContent value="tickets" className="space-y-4">
-            <TicketManagement />
-          </TabsContent>
-
-          <TabsContent value="windows" className="space-y-4">
-            <AdminWindows />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
-            <AdminSettings />
-          </TabsContent>
-
-          <TabsContent value="profile" className="space-y-4">
-            <AdminProfile />
-          </TabsContent>
+          {navItems.map((item) => (
+            <TabsContent key={item.id} value={item.id} className="mt-8 space-y-4 focus-visible:outline-none ring-offset-background">
+              {renderContent()}
+            </TabsContent>
+          ))}
         </Tabs>
       </div>
     </div>
