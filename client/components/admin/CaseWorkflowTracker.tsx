@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle, Clock, CheckCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
@@ -610,12 +610,20 @@ function WorkflowCard({
                 </Badge>
               )}
               {(() => {
-                const { exceeds, standardMinutes } = getStandardTimeStatus();
+                const { exceeds, standardMinutes, standardSeconds } = getStandardTimeStatus();
                 if (exceeds && standardMinutes) {
                   return (
-                    <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1">
+                    <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1 animate-pulse">
                       <AlertTriangle className="h-3 w-3" />
-                      Exceeded
+                      ⚠️ Time Exceeded
+                    </Badge>
+                  );
+                }
+                if (standardSeconds && !exceeds) {
+                  return (
+                    <Badge className="bg-green-600 text-white dark:bg-green-700 flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      ✓ On Time
                     </Badge>
                   );
                 }
@@ -793,9 +801,10 @@ function WorkflowCard({
               {(() => {
                 const { exceeds, standardMinutes, standardSeconds, source } =
                   getStandardTimeStatus();
-                if (standardSeconds) {
-                  const selectedServices = workflow.ticketInfo?.selectedServices || [];
+                const selectedServices = workflow.ticketInfo?.selectedServices || [];
 
+                // Always show the comparison section
+                if (standardSeconds) {
                   return (
                     <div className={`mt-4 p-4 rounded-lg border space-y-4 ${
                       exceeds
@@ -890,7 +899,26 @@ function WorkflowCard({
                     </div>
                   );
                 }
-                return null;
+
+                // Show message if no standard time is configured
+                return (
+                  <div className="mt-4 p-4 rounded-lg border bg-gray-50 dark:bg-gray-950/50 border-gray-300 dark:border-gray-700">
+                    <div className="flex items-start gap-3">
+                      <Clock className="h-5 w-5 text-gray-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Standard Time Not Configured
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          No standard time is set for the selected services.
+                          {selectedServices.length > 0
+                            ? ` Services: ${selectedServices.join(', ')}`
+                            : " Please select services to enable time comparison."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
               })()}
             </>
           )}
