@@ -1151,7 +1151,9 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
          t.selected_services,
          t.status,
          t.remark,
-         t.skipped_by_window
+         t.skipped_by_window,
+         t.owner_name,
+         t.woreda
        FROM tickets t
        WHERE t.id = ANY($1)`,
       [ticketIds],
@@ -1167,6 +1169,8 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
         status: row.status,
         remark: row.remark,
         skippedByWindow: row.skipped_by_window,
+        ticketerName: row.owner_name,
+        wereda: row.woreda,
       });
     });
 
@@ -1308,10 +1312,13 @@ export const listCaseWorkflows: RequestHandler = async (req, res) => {
           }
         }
 
+        const ticketInfoData = ticketInfoMap.get(ticketId);
         const ticketInfo = ticketCode ? {
           ticketCode: ticketCode,
           serviceCategory: serviceCategory,
           selectedServices: enrichedServices,
+          ticketerName: ticketInfoData?.ticketerName,
+          wereda: ticketInfoData?.wereda,
         } : null;
 
         const workflowItems: any[] = [];

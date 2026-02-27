@@ -39,6 +39,8 @@ interface TicketInfo {
   ticketCode: string;
   serviceCategory?: string;
   selectedServices?: string[];
+  ticketerName?: string;
+  wereda?: string;
 }
 
 interface CaseWorkflow {
@@ -557,8 +559,8 @@ function WorkflowCard({
     code: workflow.ticketCode,
     status: (workflow.status === "skipped" ? "skipped" : "done") as any,
     service: workflow.ticketInfo?.serviceCategory || "Service",
-    ownerName: "",
-    woreda: "",
+    ownerName: workflow.ticketInfo?.ticketerName || "",
+    woreda: workflow.ticketInfo?.wereda || "",
     selectedServices: workflow.ticketInfo?.selectedServices || [],
     createdAt: workflow.createdAt || Date.now(),
     startedAt: workflow.items[0]?.startedAt || null,
@@ -647,6 +649,30 @@ function WorkflowCard({
                 }
               })()}
           </div>
+          {/* Ticketer Information */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {workflow.ticketInfo?.ticketerName && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-white/50 dark:bg-black/20 border border-blue-200 dark:border-blue-700">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Ticketer Full Name
+                </p>
+                <p className="text-sm font-bold text-foreground">
+                  {workflow.ticketInfo.ticketerName}
+                </p>
+              </div>
+            )}
+            {workflow.ticketInfo?.wereda && (
+              <div className="flex flex-col gap-1 p-3 rounded-lg bg-white/50 dark:bg-black/20 border border-blue-200 dark:border-blue-700">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Wereda (District)
+                </p>
+                <p className="text-sm font-bold text-foreground">
+                  {workflow.ticketInfo.wereda}
+                </p>
+              </div>
+            )}
+          </div>
+
           {workflow.ticketInfo?.serviceCategory && (
             <div className="flex items-center gap-2">
               <Badge
