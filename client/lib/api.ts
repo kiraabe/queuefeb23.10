@@ -131,13 +131,13 @@ export async function apiFetch<T>(
   const doFetch = async (): Promise<Response> => {
     const url = apiUrl(path);
     const requestInit: RequestInit = {
+      credentials: "include",
+      ...opts,
       headers: {
         "Content-Type": "application/json",
         "X-Requested-With": "fetch",
         ...(opts?.headers || {}),
       },
-      credentials: "include",
-      ...opts,
     };
 
     // Create an AbortController for proper timeout handling
