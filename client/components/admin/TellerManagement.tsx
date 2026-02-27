@@ -289,6 +289,13 @@ export default function TellerManagement() {
     }
   };
 
+  const getUnassignedWindows = (excludeUserId?: string) => {
+    const assignedWindowIds = users
+      .filter((u) => u.id !== excludeUserId && u.windowId !== null)
+      .map((u) => u.windowId);
+    return windows.filter((w) => !assignedWindowIds.includes(w.id));
+  };
+
   const getWindowName = (windowId: number | null) => {
     if (!windowId) return "Unassigned";
     return windows.find((w) => w.id === windowId)?.name || `Window ${windowId}`;
@@ -341,7 +348,8 @@ export default function TellerManagement() {
                           <SelectValue placeholder="Select window" />
                         </SelectTrigger>
                         <SelectContent>
-                          {windows.map((window) => (
+                          <SelectItem value="none">Unassigned</SelectItem>
+                          {getUnassignedWindows(user.id).map((window) => (
                             <SelectItem
                               key={window.id}
                               value={window.id.toString()}
@@ -510,7 +518,8 @@ export default function TellerManagement() {
                   <SelectValue placeholder="Select window" />
                 </SelectTrigger>
                 <SelectContent>
-                  {windows.map((window) => (
+                  <SelectItem value="none">Unassigned</SelectItem>
+                  {getUnassignedWindows().map((window) => (
                     <SelectItem key={window.id} value={window.id.toString()}>
                       {window.name}
                     </SelectItem>
