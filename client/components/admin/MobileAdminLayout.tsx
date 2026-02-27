@@ -1,18 +1,6 @@
-import { useState, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  BarChart3,
-  Users,
-  Ticket,
-  MonitorPlay,
-  Settings,
-  User,
-  Briefcase,
-  Menu,
-  X,
-  ChevronLeft,
-} from "lucide-react";
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ProfileDropdown } from "./ProfileDropdown";
 
 interface NavItem {
   id: string;
@@ -32,8 +20,6 @@ export default function MobileAdminLayout({
   navItems,
   activeTab,
 }: MobileAdminLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   // Filter nav items for mobile bottom nav
   const mobileNavItems = navItems.slice(0, 5); // Dashboard, Employment, Sessions, Tickets, Windows
 
@@ -45,60 +31,8 @@ export default function MobileAdminLayout({
           <h1 className="text-lg font-bold tracking-tight">Admin Panel</h1>
           <p className="text-xs text-muted-foreground">Management System</p>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </Button>
+        <ProfileDropdown navItems={navItems} />
       </div>
-
-      {/* Tablet Collapsible Sidebar */}
-      {sidebarOpen && (
-        <div className="absolute inset-0 z-40 block">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <aside className="relative h-full w-64 bg-background border-r border-border flex flex-col z-50">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-              <h1 className="text-lg font-bold tracking-tight">Navigation</h1>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-            </div>
-            <nav className="flex flex-col gap-1 p-4 overflow-y-auto flex-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    item.onClick();
-                    setSidebarOpen(false);
-                  }}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
-                    activeTab === item.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </aside>
-        </div>
-      )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pb-24 md:pb-0">
