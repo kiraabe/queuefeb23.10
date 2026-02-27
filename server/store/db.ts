@@ -626,9 +626,14 @@ export async function initDb() {
     unique(category_id, code)
   );`);
 
-    // Add standard_time column to services if it doesn't exist (in seconds)
+    // Add standard_time_minutes column to services if it doesn't exist
     await p.query(
-      `ALTER TABLE services ADD COLUMN IF NOT EXISTS standard_time_seconds int;`,
+      `ALTER TABLE services ADD COLUMN IF NOT EXISTS standard_time_minutes int;`,
+    );
+
+    // Migrate data from standard_time_seconds to standard_time_minutes if needed
+    await p.query(
+      `ALTER TABLE services DROP COLUMN IF EXISTS standard_time_seconds;`,
     );
 
     // Add selected_services column to tickets if it doesn't exist
@@ -2814,7 +2819,7 @@ export async function getServicesByCategoryDb(categoryId: string) {
 
   const category = catRows[0];
   const { rows: serviceRows } = await p.query(
-    `SELECT id, category_id, code, name, standard_time_seconds, extract(epoch from created_at)*1000 as created_at, extract(epoch from updated_at)*1000 as updated_at
+    `SELECT id, category_id, code, name, standard_time_minutes, extract(epoch from created_at)*1000 as created_at, extract(epoch from updated_at)*1000 as updated_at
      FROM services WHERE category_id=$1 ORDER BY display_order, created_at`,
     [category.id],
   );
@@ -2827,7 +2832,7 @@ export async function getServicesByCategoryDb(categoryId: string) {
       categoryId: r.category_id,
       code: r.code,
       name: r.name,
-      standardTimeSeconds: r.standard_time_seconds || undefined,
+      standardTimeMinutes: r.standard_time_minutes || undefined,
       createdAt: Math.round(Number(r.created_at)),
       updatedAt: Math.round(Number(r.updated_at)),
     })),
@@ -2916,24 +2921,24 @@ export async function createServiceDb(params: {
   categoryId: string;
   code: string;
   name: string;
-  standardTimeSeconds?: number;
+  standardTimeMinutes?: number;
 }): Promise<{
   id: string;
   categoryId: string;
   code: string;
   name: string;
-  standardTimeSeconds?: number;
+  standardTimeMinutes?: number;
 }> {
   const p = getPool();
   const { rows } = await p.query(
-    `INSERT INTO services (id, category_id, code, name, standard_time_seconds)
+    `INSERT INTO services (id, category_id, code, name, standard_time_minutes)
      VALUES (gen_random_uuid(), $1, $2, $3, $4)
-     RETURNING id, category_id, code, name, standard_time_seconds`,
+     RETURNING id, category_id, code, name, standard_time_minutes`,
     [
       params.categoryId,
       params.code,
       params.name,
-      params.standardTimeSeconds || null,
+      params.standardTimeMinutes || null,
     ],
   );
 
@@ -2946,19 +2951,19 @@ export async function createServiceDb(params: {
     categoryId: rows[0].category_id,
     code: rows[0].code,
     name: rows[0].name,
-    standardTimeSeconds: rows[0].standard_time_seconds || undefined,
+    standardTimeMinutes: rows[0].standard_time_minutes || undefined,
   };
 }
 
 export async function updateServiceDb(
   serviceId: string,
-  params: { code?: string; name?: string; standardTimeSeconds?: number },
+  params: { code?: string; name?: string; standardTimeMinutes?: number },
 ): Promise<{
   id: string;
   categoryId: string;
   code: string;
   name: string;
-  standardTimeSeconds?: number;
+  standardTimeMinutes?: number;
 }> {
   const p = getPool();
   const updates: string[] = [];
@@ -2977,9 +2982,9 @@ export async function updateServiceDb(
     paramCount++;
   }
 
-  if (params.standardTimeSeconds !== undefined) {
-    updates.push(`standard_time_seconds = $${paramCount}`);
-    values.push(params.standardTimeSeconds || null);
+  if (params.standardTimeMinutes !== undefined) {
+    updates.push(`standard_time_minutes = $${paramCount}`);
+    values.push(params.standardTimeMinutes || null);
     paramCount++;
   }
 
@@ -2992,7 +2997,7 @@ export async function updateServiceDb(
 
   const { rows } = await p.query(
     `UPDATE services SET ${updates.join(", ")} WHERE id = $${paramCount}
-     RETURNING id, category_id, code, name, standard_time_seconds`,
+     RETURNING id, category_id, code, name, standard_time_minutes`,
     values,
   );
 
@@ -3005,7 +3010,7 @@ export async function updateServiceDb(
     categoryId: rows[0].category_id,
     code: rows[0].code,
     name: rows[0].name,
-    standardTimeSeconds: rows[0].standard_time_seconds || undefined,
+    standardTimeMinutes: rows[0].standard_time_minutes || undefined,
   };
 }
 

@@ -34,24 +34,22 @@ interface Service {
   categoryId: string;
   code: string;
   name: string;
-  standardTimeSeconds?: number;
+  standardTimeMinutes?: number;
   displayOrder?: number;
 }
 
-// Helper function to format seconds to human-readable time
-function formatSeconds(seconds?: number | null): string {
-  if (!seconds) return "—";
+// Helper function to format minutes to human-readable time
+function formatMinutes(minutes?: number | null): string {
+  if (!minutes) return "—";
 
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
 
   const parts = [];
   if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  if (secs > 0) parts.push(`${secs}s`);
+  if (mins > 0) parts.push(`${mins}m`);
 
-  return parts.length > 0 ? parts.join(" ") : "0s";
+  return parts.length > 0 ? parts.join(" ") : "0m";
 }
 
 export default function ServiceManagement() {
@@ -214,7 +212,7 @@ export default function ServiceManagement() {
   const handleAddService = async (categoryId: string) => {
     const code = newServiceCode.trim().toUpperCase();
     const name = newServiceName.trim();
-    const standardTimeSecondsValue = newServiceStandardTime
+    const standardTimeMinutesValue = newServiceStandardTime
       ? parseInt(newServiceStandardTime, 10)
       : undefined;
 
@@ -228,8 +226,8 @@ export default function ServiceManagement() {
       return;
     }
 
-    if (newServiceStandardTime && isNaN(standardTimeSecondsValue || 0)) {
-      toast.error("Standard time must be a valid number (seconds)");
+    if (newServiceStandardTime && isNaN(standardTimeMinutesValue || 0)) {
+      toast.error("Standard time must be a valid number (minutes)");
       return;
     }
 
@@ -244,7 +242,7 @@ export default function ServiceManagement() {
           categoryId,
           code,
           name,
-          standardTimeSeconds: standardTimeSecondsValue,
+          standardTimeMinutes: standardTimeMinutesValue,
         }),
       });
 
@@ -395,7 +393,7 @@ export default function ServiceManagement() {
   const handleEditService = async (serviceId: string) => {
     const code = editingServiceCode.trim().toUpperCase();
     const name = editingServiceName.trim();
-    const standardTimeSecondsValue = editingServiceStandardTime
+    const standardTimeMinutesValue = editingServiceStandardTime
       ? parseInt(editingServiceStandardTime, 10)
       : undefined;
 
@@ -409,8 +407,8 @@ export default function ServiceManagement() {
       return;
     }
 
-    if (editingServiceStandardTime && isNaN(standardTimeSecondsValue || 0)) {
-      toast.error("Standard time must be a valid number (seconds)");
+    if (editingServiceStandardTime && isNaN(standardTimeMinutesValue || 0)) {
+      toast.error("Standard time must be a valid number (minutes)");
       return;
     }
 
@@ -424,7 +422,7 @@ export default function ServiceManagement() {
         body: JSON.stringify({
           code,
           name,
-          standardTimeSeconds: standardTimeSecondsValue,
+          standardTimeMinutes: standardTimeMinutesValue,
         }),
       });
 
@@ -702,12 +700,12 @@ export default function ServiceManagement() {
                                     </div>
                                     <div className="space-y-2">
                                       <Label className="text-xs">
-                                        Standard Time (seconds)
+                                        Standard Time (minutes)
                                       </Label>
                                       <Input
                                         type="number"
                                         min="0"
-                                        placeholder="e.g., 1800 for 30 minutes"
+                                        placeholder="e.g., 30 for 30 minutes"
                                         value={editingServiceStandardTime}
                                         onChange={(e) =>
                                           setEditingServiceStandardTime(
@@ -719,7 +717,7 @@ export default function ServiceManagement() {
                                       />
                                       {editingServiceStandardTime && (
                                         <p className="text-xs text-muted-foreground">
-                                          {formatSeconds(
+                                          {formatMinutes(
                                             parseInt(editingServiceStandardTime, 10),
                                           )}
                                         </p>
@@ -765,7 +763,7 @@ export default function ServiceManagement() {
                                           <>
                                             {" "}
                                             • Standard Time:{" "}
-                                            {formatSeconds(
+                                            {formatMinutes(
                                               service.standardTimeSeconds,
                                             )}
                                           </>
@@ -781,8 +779,8 @@ export default function ServiceManagement() {
                                           setEditingServiceCode(service.code);
                                           setEditingServiceName(service.name);
                                           setEditingServiceStandardTime(
-                                            service.standardTimeSeconds
-                                              ? String(service.standardTimeSeconds)
+                                            service.standardTimeMinutes
+                                              ? String(service.standardTimeMinutes)
                                               : "",
                                           );
                                         }}
@@ -837,12 +835,12 @@ export default function ServiceManagement() {
                             </div>
                             <div className="space-y-2">
                               <Label className="text-xs">
-                                Standard Time (seconds) - Optional
+                                Standard Time (minutes) - Optional
                               </Label>
                               <Input
                                 type="number"
                                 min="0"
-                                placeholder="e.g., 1800 for 30 minutes"
+                                placeholder="e.g., 30 for 30 minutes"
                                 value={newServiceStandardTime}
                                 onChange={(e) =>
                                   setNewServiceStandardTime(e.target.value)
@@ -852,7 +850,7 @@ export default function ServiceManagement() {
                               />
                               {newServiceStandardTime && (
                                 <p className="text-xs text-muted-foreground">
-                                  {formatSeconds(
+                                  {formatMinutes(
                                     parseInt(newServiceStandardTime, 10),
                                   )}
                                 </p>

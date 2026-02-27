@@ -1223,7 +1223,7 @@ export const deleteServiceCategory: RequestHandler = async (req, res) => {
 // Service CRUD
 export const createService: RequestHandler = async (req, res) => {
   try {
-    const { categoryId, code, name, standardTimeSeconds } = req.body;
+    const { categoryId, code, name, standardTimeMinutes } = req.body;
 
     if (!categoryId || typeof categoryId !== "string") {
       return res.status(400).json({ error: "Category ID is required" });
@@ -1238,13 +1238,13 @@ export const createService: RequestHandler = async (req, res) => {
     }
 
     if (
-      standardTimeSeconds !== undefined &&
-      (!Number.isInteger(standardTimeSeconds) || standardTimeSeconds < 0)
+      standardTimeMinutes !== undefined &&
+      (!Number.isInteger(standardTimeMinutes) || standardTimeMinutes < 0)
     ) {
       return res
         .status(400)
         .json({
-          error: "Standard time must be a non-negative integer (seconds)",
+          error: "Standard time must be a non-negative integer (minutes)",
         });
     }
 
@@ -1252,7 +1252,7 @@ export const createService: RequestHandler = async (req, res) => {
       categoryId,
       code: code.trim().toUpperCase(),
       name: name.trim(),
-      standardTimeSeconds: standardTimeSeconds || undefined,
+      standardTimeMinutes: standardTimeMinutes || undefined,
     });
 
     const auth = (req as any).auth;
@@ -1285,28 +1285,28 @@ export const createService: RequestHandler = async (req, res) => {
 export const updateService: RequestHandler = async (req, res) => {
   try {
     const { serviceId } = req.params;
-    const { code, name, standardTimeSeconds } = req.body;
+    const { code, name, standardTimeMinutes } = req.body;
 
     if (!serviceId) {
       return res.status(400).json({ error: "Service ID is required" });
     }
 
     if (
-      standardTimeSeconds !== undefined &&
-      standardTimeSeconds !== null &&
-      (!Number.isInteger(standardTimeSeconds) || standardTimeSeconds < 0)
+      standardTimeMinutes !== undefined &&
+      standardTimeMinutes !== null &&
+      (!Number.isInteger(standardTimeMinutes) || standardTimeMinutes < 0)
     ) {
       return res
         .status(400)
         .json({
-          error: "Standard time must be a non-negative integer (seconds)",
+          error: "Standard time must be a non-negative integer (minutes)",
         });
     }
 
     const service = await updateServiceDb(serviceId, {
       code: code ? code.trim().toUpperCase() : undefined,
       name: name ? name.trim() : undefined,
-      standardTimeSeconds: standardTimeSeconds || undefined,
+      standardTimeMinutes: standardTimeMinutes || undefined,
     });
 
     const auth = (req as any).auth;
