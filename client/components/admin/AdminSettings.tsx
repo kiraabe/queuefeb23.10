@@ -85,16 +85,28 @@ export default function AdminSettings() {
         "/api/admin/service-categories"
       );
 
+      // Validate the response structure
+      if (!categoriesData) {
+        throw new Error("No data returned from service categories endpoint");
+      }
+
+      const categories = categoriesData.categories;
+      if (!Array.isArray(categories)) {
+        console.warn("Invalid categories format, expected array but got:", typeof categories);
+        setServices([]);
+        return;
+      }
+
       const allServices: ServiceWithCategory[] = [];
 
       // Load services for each category
-      for (const category of categoriesData.categories) {
+      for (const category of categories) {
         try {
           const servicesData = await apiFetch<any>(
             `/api/admin/service-categories/${category.id}/services`
           );
 
-          if (servicesData.services) {
+          if (servicesData && servicesData.services && Array.isArray(servicesData.services)) {
             servicesData.services.forEach((service: ServiceItem) => {
               allServices.push({
                 ...service,
@@ -111,6 +123,7 @@ export default function AdminSettings() {
     } catch (error) {
       console.error("Failed to load service categories", error);
       toast.error("Failed to load service categories");
+      setServices([]);
     } finally {
       setServicesLoading(false);
     }
