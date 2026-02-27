@@ -727,18 +727,22 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           {/* Toggle Buttons */}
-          <div className="flex gap-2 mb-6">
+          <div className="flex flex-col sm:flex-row gap-2 mb-6">
             <Button
               variant={analyticsView === "overall" ? "default" : "outline"}
               onClick={() => setAnalyticsView("overall")}
+              className="flex-1 sm:flex-initial"
             >
-              📊 Overall Metrics (All-Time)
+              <span className="hidden sm:inline">📊 Overall Metrics (All-Time)</span>
+              <span className="sm:hidden">📊 Overall</span>
             </Button>
             <Button
               variant={analyticsView === "daily" ? "default" : "outline"}
               onClick={() => setAnalyticsView("daily")}
+              className="flex-1 sm:flex-initial"
             >
-              📅 Daily Metrics
+              <span className="hidden sm:inline">📅 Daily Metrics</span>
+              <span className="sm:hidden">📅 Daily</span>
             </Button>
           </div>
         </CardContent>
