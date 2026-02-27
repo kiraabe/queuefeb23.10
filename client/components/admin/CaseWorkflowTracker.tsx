@@ -179,31 +179,50 @@ export default function CaseWorkflowTracker({
           "/api/admin/service-categories"
         );
 
+        // Handle different response structures
+        let categories = categoriesRes?.categories;
+        if (!Array.isArray(categories)) {
+          console.warn("Invalid categories response structure:", categoriesRes);
+          return;
+        }
+
         const standardTimes: Record<string, number> = {};
 
         // Load services for each category and collect standard times
-        for (const category of categoriesRes.categories) {
+        for (const category of categories) {
           try {
             const servicesRes = await apiFetch<any>(
               `/api/admin/service-categories/${category.id}/services`
             );
 
-            if (servicesRes.services) {
-              servicesRes.services.forEach((service: ServiceItem) => {
-                if (service.standardTimeMinutes) {
-                  // Use the service name as the key
-                  standardTimes[service.name] = service.standardTimeMinutes;
-                }
-              });
+            // Handle different response structures
+            let services = servicesRes?.services;
+            if (!Array.isArray(services)) {
+              console.warn(
+                `Invalid services response structure for category ${category.id}:`,
+                servicesRes
+              );
+              continue;
             }
+
+            services.forEach((service: ServiceItem) => {
+              if (service.standardTimeMinutes && service.name) {
+                // Use the service name as the key
+                standardTimes[service.name] = service.standardTimeMinutes;
+              }
+            });
           } catch (err) {
-            console.error(`Failed to load services for category ${category.id}:`, err);
+            console.debug(
+              `Failed to load services for category ${category.id}:`,
+              err
+            );
           }
         }
 
         setServiceStandardTimes(standardTimes);
       } catch (err) {
-        console.error("Failed to load service standard times:", err);
+        console.debug("Failed to load service standard times:", err);
+        // Don't throw - this is non-critical functionality
       }
     };
 
