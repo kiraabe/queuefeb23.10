@@ -82,7 +82,7 @@ export default function AdminSettings() {
     try {
       setServicesLoading(true);
       const categoriesData = await apiFetch<ListServiceCategoriesResponse>(
-        "/api/admin/service-categories"
+        "/api/service-categories"
       );
 
       // Validate the response structure
@@ -103,7 +103,7 @@ export default function AdminSettings() {
       for (const category of categories) {
         try {
           const servicesData = await apiFetch<any>(
-            `/api/admin/service-categories/${category.id}/services`
+            `/api/service-categories/${category.id}/services`
           );
 
           if (servicesData && servicesData.services && Array.isArray(servicesData.services)) {

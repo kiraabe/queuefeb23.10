@@ -176,7 +176,7 @@ export default function CaseWorkflowTracker({
     const loadServiceStandardTimes = async () => {
       try {
         const categoriesRes = await apiFetch<any>(
-          "/api/admin/service-categories"
+          "/api/service-categories"
         );
 
         // Handle different response structures
@@ -192,7 +192,7 @@ export default function CaseWorkflowTracker({
         for (const category of categories) {
           try {
             const servicesRes = await apiFetch<any>(
-              `/api/admin/service-categories/${category.id}/services`
+              `/api/service-categories/${category.id}/services`
             );
 
             // Handle different response structures
