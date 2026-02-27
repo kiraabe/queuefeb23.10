@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         isHeartbeatPending = false;
       }
-    }, 2 * 1000); // Heartbeat every 2 seconds for immediate timeout detection (within ~2-3 second total latency)
+    }, 30 * 1000); // Heartbeat every 30 seconds to keep session alive
 
     return () => {
       clearInterval(interval);

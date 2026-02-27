@@ -69,7 +69,13 @@ export function strictDbRateLimitMiddleware(
     req.method
   );
 
-  if (isWriteOperation) {
+  // Exclude lightweight heartbeat/session pings from strict rate limiting
+  const isHeartbeat =
+    req.path === "/api/session/ping" ||
+    req.path === "/api/auth/heartbeat" ||
+    req.path === "/api/auth/me";
+
+  if (isWriteOperation && !isHeartbeat) {
     const activeConnections = getActiveConnectionsCount(userId);
     // Stricter limit: max 2 concurrent writes per user
     if (activeConnections > 2) {
@@ -95,12 +101,14 @@ export function extractUserIdMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  // Get user ID from authenticated session/JWT
+  // Get user ID from authenticated session/JWT/auth context
   // Adjust this based on your auth mechanism
   if ((req as any).session?.userId) {
     (req as any).userId = (req as any).session.userId;
   } else if ((req as any).user?.id) {
     (req as any).userId = (req as any).user.id;
+  } else if ((req as any).auth?.id) {
+    (req as any).userId = (req as any).auth.id;
   }
 
   next();

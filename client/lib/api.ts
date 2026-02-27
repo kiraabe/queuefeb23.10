@@ -246,11 +246,8 @@ export async function apiFetch<T>(
       }
     } catch {}
 
-    // Log server errors for debugging (but be more selective about what we log)
-    const isLoginPath = path.startsWith("/api/auth/login");
-    const isPingPath = path.startsWith("/api/ping");
-
     // Only log 404 and 5xx errors for non-ping endpoints
+    const isPingPath = path === "/api/ping" || path === "/api/session/ping" || path === "/api/auth/heartbeat";
     if (res.status !== 404 || !isPingPath) {
       console.error(`[API] Server error ${res.status} for ${path}: ${message}`);
       if (data && res.status >= 400 && res.status < 500) {
@@ -309,9 +306,22 @@ export async function apiFetch<T>(
   }
 
   try {
-    return (await res.json()) as T;
+    // 204 No Content should not be parsed as JSON
+    if (res.status === 204) return {} as T;
+
+    // Check if there's actually a body before parsing
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return (await res.json()) as T;
+    }
+    return {} as T;
   } catch (err) {
-    console.error(`[API] Failed to parse JSON response for ${path}:`, err);
+    // If it's a network error during JSON parsing (like broken stream), log more info
+    if (err instanceof TypeError && err.message.includes("fetch")) {
+      console.warn(`[API] Stream interrupted during JSON parse for ${path}:`, err);
+    } else {
+      console.error(`[API] Failed to parse JSON response for ${path}:`, err);
+    }
     throw new Error("Invalid server response. Please try again later.");
   }
 }
