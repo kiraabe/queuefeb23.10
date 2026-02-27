@@ -19,7 +19,6 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -450,14 +449,6 @@ export default function ServiceManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Info Alert about Standard Times */}
-      <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-        <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-blue-700 dark:text-blue-300 ml-2">
-          <strong>Service Standard Times:</strong> You can set or modify service standard times when creating/editing services here, or use the <strong className="font-semibold">Settings → Service Standard Times</strong> section for bulk editing. Changes are automatically synchronized.
-        </AlertDescription>
-      </Alert>
-
       {/* Service Categories */}
       <Card>
         <CardHeader>
