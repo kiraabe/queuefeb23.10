@@ -228,37 +228,6 @@ export default function Login() {
     }
   };
 
-  if (isMobile) {
-    return (
-      <div className="container py-16">
-        <div className="mx-auto max-w-md">
-          <Card className="border-destructive/50 bg-destructive/10">
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0 mt-1" />
-                <div>
-                  <CardTitle className="text-destructive">
-                    Desktop Only
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    This system is only accessible from desktop browsers for
-                    security reasons.
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Please use a desktop or laptop computer to access the system.
-                Mobile and tablet access are not supported.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container py-16">
       <div className="mx-auto max-w-md">

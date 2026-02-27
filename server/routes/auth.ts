@@ -639,6 +639,15 @@ export const login: RequestHandler = async (req, res) => {
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
   const deviceType = uaResult.device.type || "desktop";
 
+  // Device restriction: Non-admin users can only access from desktop
+  if (activeRole !== "admin" && (deviceType === "mobile" || deviceType === "tablet")) {
+    return res.status(403).json({
+      error: "Desktop only access",
+      message: "Non-admin users can only access from desktop browsers. Please use a desktop or laptop computer.",
+      code: "DEVICE_NOT_ALLOWED" as AuthErrorCode,
+    });
+  }
+
   // Build device string based on device type
   let device: string;
   if (deviceType === "mobile" || deviceType === "tablet") {

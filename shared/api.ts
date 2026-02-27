@@ -260,7 +260,8 @@ export type AuthErrorCode =
   | "UNAUTHORIZED"
   | "SESSION_INVALIDATED"
   | "MAX_SESSIONS_REACHED"
-  | "NO_SESSION";
+  | "NO_SESSION"
+  | "DEVICE_NOT_ALLOWED";
 
 export interface MeResponse {
   user: AuthUser | null;
