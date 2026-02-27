@@ -17,17 +17,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Save } from "lucide-react";
+import { AlertCircle, Save, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api";
 import type {
   GetQueueSettingsResponse,
   UpdateQueueSettingsResponse,
+  ListServiceCategoriesResponse,
+  ServiceCategory,
+  ServiceItem,
 } from "@shared/api";
+
+interface ServiceWithCategory extends ServiceItem {
+  categoryName?: string;
+}
 
 export default function AdminSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [serviceChanges, setServiceChanges] = useState<Record<string, number>>({});
+  const [services, setServices] = useState<ServiceWithCategory[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
 
   // Queue Settings
   const [queueSettings, setQueueSettings] = useState({
@@ -64,7 +75,46 @@ export default function AdminSettings() {
     };
 
     loadSettings();
+    loadServiceCategories();
   }, []);
+
+  const loadServiceCategories = async () => {
+    try {
+      setServicesLoading(true);
+      const categoriesData = await apiFetch<ListServiceCategoriesResponse>(
+        "/api/admin/service-categories"
+      );
+
+      const allServices: ServiceWithCategory[] = [];
+
+      // Load services for each category
+      for (const category of categoriesData.categories) {
+        try {
+          const servicesData = await apiFetch<any>(
+            `/api/admin/service-categories/${category.id}/services`
+          );
+
+          if (servicesData.services) {
+            servicesData.services.forEach((service: ServiceItem) => {
+              allServices.push({
+                ...service,
+                categoryName: servicesData.categoryName || category.name,
+              });
+            });
+          }
+        } catch (err) {
+          console.error(`Failed to load services for category ${category.id}`, err);
+        }
+      }
+
+      setServices(allServices);
+    } catch (error) {
+      console.error("Failed to load service categories", error);
+      toast.error("Failed to load service categories");
+    } finally {
+      setServicesLoading(false);
+    }
+  };
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
@@ -92,6 +142,45 @@ export default function AdminSettings() {
       console.error("Failed to save settings", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to save settings",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveServiceTimes = async () => {
+    setIsSaving(true);
+    try {
+      const servicesToUpdate = Object.entries(serviceChanges).map(
+        ([serviceId, standardTimeMinutes]) => ({
+          serviceId,
+          standardTimeMinutes,
+        })
+      );
+
+      // Update each service
+      for (const update of servicesToUpdate) {
+        await apiFetch<any>(
+          `/api/admin/services/${update.serviceId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              standardTimeMinutes: update.standardTimeMinutes,
+            }),
+          }
+        );
+      }
+
+      toast.success("Service standard times updated successfully");
+      setServiceChanges({});
+      await loadServiceCategories(); // Reload to show updated values
+    } catch (error) {
+      console.error("Failed to save service times", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save service times"
       );
     } finally {
       setIsSaving(false);
@@ -194,6 +283,88 @@ export default function AdminSettings() {
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? "Saving..." : "Save Queue Settings"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Service Standard Times */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Service Standard Times
+          </CardTitle>
+          <CardDescription>
+            Set standard processing time for each service. This will be used to flag
+            processes that exceed their standard time.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {servicesLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading services...
+            </div>
+          ) : services.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No services found. Please create services first.
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4">
+                {services.map((service) => (
+                  <div
+                    key={service.id}
+                    className="flex items-end gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <Label className="text-sm font-semibold">
+                        {service.categoryName} - {service.name}
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Code: {service.code}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="Minutes"
+                        className="w-24"
+                        value={serviceChanges[service.id] ?? service.standardTimeMinutes ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseInt(e.target.value)
+                            : undefined;
+                          setServiceChanges((prev) => {
+                            const updated = { ...prev };
+                            if (value !== undefined && value >= 0) {
+                              updated[service.id] = value;
+                            } else {
+                              delete updated[service.id];
+                            }
+                            return updated;
+                          });
+                        }}
+                      />
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        min
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {Object.keys(serviceChanges).length > 0 && (
+                <Button
+                  onClick={handleSaveServiceTimes}
+                  disabled={isSaving}
+                  className="w-full"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  {isSaving ? "Saving..." : "Save Service Times"}
+                </Button>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

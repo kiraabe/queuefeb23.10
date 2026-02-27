@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
-import type { Ticket, CaseHoldsResponse } from "@shared/api";
+import type { Ticket, CaseHoldsResponse, ServiceItem } from "@shared/api";
 
 interface WorkflowEntry {
   id: string;
@@ -166,7 +166,49 @@ export default function CaseWorkflowTracker({
   const [timeframe, setTimeframe] = useState<Timeframe>(defaultTimeframe);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [serviceStandardTimes, setServiceStandardTimes] = useState<
+    Record<string, number>
+  >({});
   const itemsPerPage = 5;
+
+  // Load service standard times on mount
+  useEffect(() => {
+    const loadServiceStandardTimes = async () => {
+      try {
+        const categoriesRes = await apiFetch<any>(
+          "/api/admin/service-categories"
+        );
+
+        const standardTimes: Record<string, number> = {};
+
+        // Load services for each category and collect standard times
+        for (const category of categoriesRes.categories) {
+          try {
+            const servicesRes = await apiFetch<any>(
+              `/api/admin/service-categories/${category.id}/services`
+            );
+
+            if (servicesRes.services) {
+              servicesRes.services.forEach((service: ServiceItem) => {
+                if (service.standardTimeMinutes) {
+                  // Use the service name as the key
+                  standardTimes[service.name] = service.standardTimeMinutes;
+                }
+              });
+            }
+          } catch (err) {
+            console.error(`Failed to load services for category ${category.id}:`, err);
+          }
+        }
+
+        setServiceStandardTimes(standardTimes);
+      } catch (err) {
+        console.error("Failed to load service standard times:", err);
+      }
+    };
+
+    loadServiceStandardTimes();
+  }, []);
 
   useEffect(() => {
     const fetchWorkflows = async () => {
@@ -304,7 +346,11 @@ export default function CaseWorkflowTracker({
       {!loading && !error && workflows.length > 0 && (
         <>
           {workflows.map((workflow) => (
-            <WorkflowCard key={workflow.ticketId} workflow={workflow} />
+            <WorkflowCard
+              key={workflow.ticketId}
+              workflow={workflow}
+              serviceStandardTimes={serviceStandardTimes}
+            />
           ))}
 
           {/* Pagination Controls */}
@@ -349,12 +395,36 @@ export default function CaseWorkflowTracker({
 }
 
 // Workflow Card Component
-function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
+function WorkflowCard({
+  workflow,
+  serviceStandardTimes,
+}: {
+  workflow: CaseWorkflow;
+  serviceStandardTimes: Record<string, number>;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [holdData, setHoldData] = useState<any>(null);
   const [remainingTime, setRemainingTime] = useState<string>("—");
 
   const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
+
+  // Check if duration exceeds standard time
+  const getStandardTimeStatus = () => {
+    const serviceCategory = workflow.ticketInfo?.serviceCategory;
+    if (!serviceCategory || !workflow.totalDuration) {
+      return { exceeds: false, standardMinutes: null, standardSeconds: null };
+    }
+
+    const standardMinutes = serviceStandardTimes[serviceCategory];
+    if (!standardMinutes) {
+      return { exceeds: false, standardMinutes: null, standardSeconds: null };
+    }
+
+    const standardSeconds = standardMinutes * 60;
+    const exceeds = workflow.totalDuration > standardSeconds;
+
+    return { exceeds, standardMinutes, standardSeconds };
+  };
 
   // Fetch case hold data for on-hold tickets
   useEffect(() => {
@@ -472,6 +542,18 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
                           : workflow.status}
                 </Badge>
               )}
+              {(() => {
+                const { exceeds, standardMinutes } = getStandardTimeStatus();
+                if (exceeds && standardMinutes) {
+                  return (
+                    <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      Exceeded
+                    </Badge>
+                  );
+                }
+                return null;
+              })()}
             </div>
             {workflow.createdAt &&
               (() => {
@@ -545,99 +627,160 @@ function WorkflowCard({ workflow }: { workflow: CaseWorkflow }) {
 
           {/* Summary Stats */}
           {isExpanded && (
-            <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Total Employees
-                </p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-                  {new Set(workflow.items.map((i) => i.employeeId)).size}
-                </p>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Total Employee Time
-                </p>
-                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
-                  {formatSeconds(
-                    workflow.items.reduce(
-                      (sum, item) => sum + (item.durationSeconds || 0),
-                      0,
-                    ),
-                  )}
-                </p>
-              </div>
-              <div className={`text-center p-4 rounded-lg border ${
-                workflow.status === "on_hold"
-                  ? remainingTime === "Expired"
-                    ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
-                    : "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
-                  : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
-              }`}>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  {workflow.status === "on_hold" ? "Time Remaining" : "Total Duration"}
-                </p>
-                <p className={`text-3xl font-bold mt-2 ${
+            <>
+              <div className="pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Total Employees
+                  </p>
+                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                    {new Set(workflow.items.map((i) => i.employeeId)).size}
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Total Employee Time
+                  </p>
+                  <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+                    {formatSeconds(
+                      workflow.items.reduce(
+                        (sum, item) => sum + (item.durationSeconds || 0),
+                        0,
+                      ),
+                    )}
+                  </p>
+                </div>
+                <div className={`text-center p-4 rounded-lg border ${
                   workflow.status === "on_hold"
                     ? remainingTime === "Expired"
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-orange-600 dark:text-orange-400"
-                    : "text-green-600 dark:text-green-400"
+                      ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
+                      : "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
+                    : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
                 }`}>
-                  {workflow.status === "on_hold" ? remainingTime : formatSeconds(workflow.totalDuration)}
-                </p>
-              </div>
-              <div className={`text-center p-4 rounded-lg border ${
-                workflow.status === "done"
-                  ? "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
-                  : workflow.status === "skipped"
-                    ? "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
-                    : workflow.status === "serving"
-                      ? "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800"
-                      : workflow.status === "on_hold"
-                        ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
-                        : "bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800"
-              }`}>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Status
-                </p>
-                <p className={`text-3xl font-bold mt-2 ${
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    {workflow.status === "on_hold" ? "Time Remaining" : "Total Duration"}
+                  </p>
+                  <p className={`text-3xl font-bold mt-2 ${
+                    workflow.status === "on_hold"
+                      ? remainingTime === "Expired"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-orange-600 dark:text-orange-400"
+                      : "text-green-600 dark:text-green-400"
+                  }`}>
+                    {workflow.status === "on_hold" ? remainingTime : formatSeconds(workflow.totalDuration)}
+                  </p>
+                </div>
+                <div className={`text-center p-4 rounded-lg border ${
                   workflow.status === "done"
-                    ? "text-green-600 dark:text-green-400"
+                    ? "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
                     : workflow.status === "skipped"
-                      ? "text-orange-600 dark:text-orange-400"
+                      ? "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800"
                       : workflow.status === "serving"
-                        ? "text-blue-600 dark:text-blue-400"
+                        ? "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800"
                         : workflow.status === "on_hold"
-                          ? "text-red-600 dark:text-red-400"
-                          : "text-gray-600 dark:text-gray-400"
+                          ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
+                          : "bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800"
                 }`}>
-                  {workflow.status === "done"
-                    ? "Complete"
-                    : workflow.status === "skipped"
-                      ? "Skipped"
-                      : workflow.status === "serving"
-                        ? "Serving"
-                        : workflow.status === "on_hold"
-                          ? "On Hold"
-                          : workflow.status}
-                </p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Status
+                  </p>
+                  <p className={`text-3xl font-bold mt-2 ${
+                    workflow.status === "done"
+                      ? "text-green-600 dark:text-green-400"
+                      : workflow.status === "skipped"
+                        ? "text-orange-600 dark:text-orange-400"
+                        : workflow.status === "serving"
+                          ? "text-blue-600 dark:text-blue-400"
+                          : workflow.status === "on_hold"
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-gray-600 dark:text-gray-400"
+                  }`}>
+                    {workflow.status === "done"
+                      ? "Complete"
+                      : workflow.status === "skipped"
+                        ? "Skipped"
+                        : workflow.status === "serving"
+                          ? "Serving"
+                          : workflow.status === "on_hold"
+                            ? "On Hold"
+                            : workflow.status}
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200 dark:border-cyan-800">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Avg Step Time
+                  </p>
+                  <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-2">
+                    {workflow.totalDuration && workflow.items.length > 0
+                      ? formatSeconds(
+                          Math.round(
+                            workflow.totalDuration / workflow.items.length,
+                          ),
+                        )
+                      : "N/A"}
+                  </p>
+                </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 border border-cyan-200 dark:border-cyan-800">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Avg Step Time
-                </p>
-                <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-2">
-                  {workflow.totalDuration && workflow.items.length > 0
-                    ? formatSeconds(
-                        Math.round(
-                          workflow.totalDuration / workflow.items.length,
-                        ),
-                      )
-                    : "N/A"}
-                </p>
-              </div>
-            </div>
+
+              {/* Standard Time Comparison */}
+              {(() => {
+                const { exceeds, standardMinutes, standardSeconds } =
+                  getStandardTimeStatus();
+                if (standardSeconds) {
+                  return (
+                    <div className={`mt-4 p-4 rounded-lg border ${
+                      exceeds
+                        ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
+                        : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-muted-foreground mb-2">
+                            Standard Time: {standardMinutes} minutes
+                            ({formatSeconds(standardSeconds)})
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                              <div
+                                className={`h-2 rounded-full transition-all ${
+                                  exceeds
+                                    ? "bg-red-600 dark:bg-red-500"
+                                    : "bg-green-600 dark:bg-green-500"
+                                }`}
+                                style={{
+                                  width: `${Math.min(
+                                    ((workflow.totalDuration || 0) /
+                                      standardSeconds) *
+                                      100,
+                                    100
+                                  )}%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {exceeds ? (
+                              <span className="text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                Exceeded by{" "}
+                                {formatSeconds(
+                                  (workflow.totalDuration || 0) - standardSeconds
+                                )}
+                              </span>
+                            ) : (
+                              <span className="text-green-600 dark:text-green-400 font-semibold">
+                                Within standard time
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </>
           )}
         </div>
       </CardContent>
