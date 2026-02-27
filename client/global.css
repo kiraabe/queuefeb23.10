@@ -201,7 +201,12 @@
   }
 
   .safe-area-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Ensure bottom nav doesn't hide content on devices with gesture bars */
+  .mobile-content-with-bottom-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 }
 

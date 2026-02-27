@@ -117,7 +117,7 @@ export default function AdminLayout({
         </div>
 
         {/* Content Area with Padding for Bottom Nav on Mobile */}
-        <div className="flex-1 overflow-y-auto pb-20 lg:pb-0 scroll-smooth">
+        <div className="flex-1 overflow-y-auto lg:pb-0 scroll-smooth" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
           <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:py-6 sm:px-6 lg:px-8">
             {children}
           </div>
