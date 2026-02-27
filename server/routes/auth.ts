@@ -575,6 +575,19 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
+  // Admin-only login restriction: only admin users can log in
+  if (userRow.role !== "admin") {
+    const c = incrementAttempt(req, loginKey);
+    if (c >= 10) lockUserByIp(req, loginKey, 15);
+    const gc = incrementGlobalAttempt(loginKey);
+    if (gc >= 50) lockUserGlobally(loginKey, 15);
+    return res.status(403).json({
+      error: "Admin access only",
+      message: "Only admin users can log in. Please contact your administrator.",
+      code: "UNAUTHORIZED" as AuthErrorCode,
+    });
+  }
+
   // Optional 2FA: require static code if configured
   const requiredOtp =
     (req.headers["x-otp"] as string) ||
