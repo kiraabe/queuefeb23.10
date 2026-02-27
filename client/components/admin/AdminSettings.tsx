@@ -300,16 +300,26 @@ export default function AdminSettings() {
       </Card>
 
       {/* Service Standard Times */}
-      <Card>
+      <Card className="border-blue-200 dark:border-blue-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Service Standard Times
-          </CardTitle>
-          <CardDescription>
-            Set standard processing time for each service. This will be used to flag
-            processes that exceed their standard time.
-          </CardDescription>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Service Standard Times
+              </CardTitle>
+              <CardDescription>
+                Set standard processing time for each service. This will be used to flag
+                processes that exceed their standard time in the Process Flow Section.
+              </CardDescription>
+            </div>
+          </div>
+          <Alert className="mt-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+            <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertDescription className="text-blue-700 dark:text-blue-300">
+              <strong>Related:</strong> Service standard times can also be set when creating or editing services in the <strong className="font-semibold">Service Categories</strong> tab. Changes made in either location will be synchronized.
+            </AlertDescription>
+          </Alert>
         </CardHeader>
         <CardContent className="space-y-6">
           {servicesLoading ? (
