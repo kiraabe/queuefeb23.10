@@ -22,6 +22,7 @@ import Profile from "./pages/Profile";
 import { AuthProvider, useAuth, useSessionLostRedirect } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { RestrictPublicAccess } from "@/components/auth/RestrictPublicAccess";
+import { LicenseProvider } from "@/components/license/LicenseProvider";
 
 // Lazy load pages with heavy dependencies to reduce initial bundle
 const Admin = lazy(() => import("./pages/Admin"));
@@ -90,15 +91,16 @@ function SessionMonitor() {
 }
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <SessionMonitor />
-            <Routes>
+  <LicenseProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <SessionMonitor />
+              <Routes>
               {/* Public routes without AppLayout (no header/footer) */}
               <Route path="/track" element={<Track />} />
 
@@ -167,12 +169,13 @@ const App = () => (
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </LicenseProvider>
 );
 
 export default App;

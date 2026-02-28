@@ -1,0 +1,31 @@
+import { RequestHandler } from "express";
+import { ValidateLicenseRequest, ValidateLicenseResponse } from "@shared/api";
+import { validateLicense } from "../services/license-service";
+
+export const validateLicenseHandler: RequestHandler = (req, res) => {
+  try {
+    const { licenseKey } = req.body as ValidateLicenseRequest;
+
+    if (!licenseKey || typeof licenseKey !== "string") {
+      return res.status(400).json({
+        valid: false,
+        message: "Missing or invalid license key",
+      });
+    }
+
+    const result = validateLicense(licenseKey);
+    const response: ValidateLicenseResponse = {
+      valid: result.valid,
+      message: result.message,
+      licensee: result.valid ? result.licensee : undefined,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("[License] Validation error:", error);
+    res.status(500).json({
+      valid: false,
+      message: "License validation failed",
+    });
+  }
+};

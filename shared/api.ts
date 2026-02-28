@@ -462,3 +462,20 @@ export interface AssignTellerResponse {
   user: UserInfo;
   message: string;
 }
+
+// License Management
+export interface ValidateLicenseRequest {
+  licenseKey: string;
+}
+
+export interface ValidateLicenseResponse {
+  valid: boolean;
+  message: string;
+  licensee?: string;
+}
+
+export interface LicenseConfig {
+  licenseKey: string;
+  licensee: string; // Name of the buyer/licensee
+  expiresAt?: number; // Optional: timestamp for license expiration
+}
