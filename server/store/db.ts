@@ -1172,13 +1172,16 @@ export async function initDb() {
     await p.query(`CREATE TABLE IF NOT EXISTS licenses (
       id uuid primary key default gen_random_uuid(),
       license_key text not null unique,
+      license_key_hash text,
       licensee text not null,
+      licensee_encrypted text,
       status text not null default 'active' check (status in ('active', 'inactive', 'expired', 'revoked')),
       expires_at timestamptz,
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now(),
       created_by_user_id uuid references users(id) on delete set null,
-      notes text
+      notes text,
+      notes_encrypted text
     );`);
 
     // Create index for license key lookup
@@ -3835,17 +3838,38 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
        id,
        license_key as "licenseKey",
        licensee,
+       licensee_encrypted as "licenseeEncrypted",
        status,
        extract(epoch from expires_at)*1000 as "expiresAt",
        extract(epoch from created_at)*1000 as "createdAt",
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
-       notes
+       notes,
+       notes_encrypted as "notesEncrypted"
      FROM licenses
      WHERE license_key = $1`,
     [licenseKey],
   );
-  return res.rows[0] || null;
+
+  if (!res.rows[0]) {
+    return null;
+  }
+
+  // Decrypt fields for internal use
+  const { decryptField } = await import("../services/encryption");
+  const record = res.rows[0];
+
+  return {
+    id: record.id,
+    licenseKey: record.licenseKey,
+    licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
+    status: record.status,
+    expiresAt: record.expiresAt,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdByUserId: record.createdByUserId,
+    notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+  };
 }
 
 export async function createLicenseDb(
@@ -3855,16 +3879,31 @@ export async function createLicenseDb(
   expiresAt: number | null = null,
   notes: string | null = null,
 ): Promise<LicenseRecord> {
+  const { encryptField } = await import("../services/encryption");
+  const crypto = await import("crypto");
+
   const p = getPool();
+
+  // Encrypt sensitive fields
+  const encryptedLicenseKey = encryptField(licenseKey);
+  const licenseeEncrypted = encryptField(licensee);
+  const notesEncrypted = encryptField(notes);
+
+  // Create hash of license key for lookups
+  const licenseKeyHash = crypto.createHash("sha256").update(licenseKey).digest("hex");
+
   const res = await p.query(
     `INSERT INTO licenses (
        license_key,
+       license_key_hash,
        licensee,
+       licensee_encrypted,
        status,
        created_by_user_id,
        expires_at,
-       notes
-     ) VALUES ($1, $2, $3, $4, to_timestamp($5), $6)
+       notes,
+       notes_encrypted
+     ) VALUES ($1, $2, $3, $4, $5, $6, to_timestamp($7), $8, $9)
      RETURNING
        id,
        license_key as "licenseKey",
@@ -3877,39 +3916,58 @@ export async function createLicenseDb(
        notes`,
     [
       licenseKey,
+      licenseKeyHash,
       licensee,
+      licenseeEncrypted,
       'active',
       createdByUserId,
       expiresAt ? expiresAt / 1000 : null,
       notes,
+      notesEncrypted,
     ],
   );
   return res.rows[0];
 }
 
 export async function listLicensesDb(): Promise<LicenseRecord[]> {
+  const { decryptField } = await import("../services/encryption");
   const p = getPool();
   const res = await p.query(
     `SELECT
        id,
        license_key as "licenseKey",
        licensee,
+       licensee_encrypted as "licenseeEncrypted",
        status,
        extract(epoch from expires_at)*1000 as "expiresAt",
        extract(epoch from created_at)*1000 as "createdAt",
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
-       notes
+       notes,
+       notes_encrypted as "notesEncrypted"
      FROM licenses
      ORDER BY created_at DESC`,
   );
-  return res.rows;
+
+  // Decrypt fields for all records
+  return res.rows.map(record => ({
+    id: record.id,
+    licenseKey: record.licenseKey,
+    licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
+    status: record.status,
+    expiresAt: record.expiresAt,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdByUserId: record.createdByUserId,
+    notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+  }));
 }
 
 export async function updateLicenseStatusDb(
   licenseKey: string,
   status: 'active' | 'inactive' | 'expired' | 'revoked',
 ): Promise<LicenseRecord | null> {
+  const { decryptField } = await import("../services/encryption");
   const p = getPool();
   const res = await p.query(
     `UPDATE licenses
@@ -3919,15 +3977,33 @@ export async function updateLicenseStatusDb(
        id,
        license_key as "licenseKey",
        licensee,
+       licensee_encrypted as "licenseeEncrypted",
        status,
        extract(epoch from expires_at)*1000 as "expiresAt",
        extract(epoch from created_at)*1000 as "createdAt",
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
-       notes`,
+       notes,
+       notes_encrypted as "notesEncrypted"`,
     [status, licenseKey],
   );
-  return res.rows[0] || null;
+
+  if (!res.rows[0]) {
+    return null;
+  }
+
+  const record = res.rows[0];
+  return {
+    id: record.id,
+    licenseKey: record.licenseKey,
+    licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
+    status: record.status,
+    expiresAt: record.expiresAt,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdByUserId: record.createdByUserId,
+    notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+  };
 }
 
 export async function deleteLicenseDb(licenseKey: string): Promise<boolean> {

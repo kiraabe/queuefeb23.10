@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, Trash2, Edit, Lock, AlertCircle, Copy, Check } from "lucide-react";
+import { Plus, Trash2, Edit, Lock, AlertCircle, Copy, Check, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import type {
   ListLicensesResponse,
@@ -44,12 +44,28 @@ import type {
   UpdateLicenseStatusResponse,
 } from "@shared/api";
 
+/**
+ * Mask sensitive fields for display (shows first 8 chars + last 4 chars)
+ */
+function maskField(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+  if (value.length <= 12) {
+    return "****";
+  }
+  const start = value.substring(0, 8);
+  const end = value.substring(value.length - 4);
+  return `${start}****${end}`;
+}
+
 export default function LicenseManagement() {
   const [licenses, setLicenses] = useState<LicenseRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [revealedLicenses, setRevealedLicenses] = useState<Set<string>>(new Set());
 
   // Form state for creating license
   const [formData, setFormData] = useState({
@@ -222,6 +238,20 @@ export default function LicenseManagement() {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
+  const toggleReveal = (licenseId: string) => {
+    setRevealedLicenses((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(licenseId)) {
+        newSet.delete(licenseId);
+      } else {
+        newSet.add(licenseId);
+      }
+      return newSet;
+    });
+  };
+
+  const isRevealed = (licenseId: string) => revealedLicenses.has(licenseId);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -385,7 +415,7 @@ export default function LicenseManagement() {
           <CardHeader>
             <CardTitle>Active Licenses ({licenses.length})</CardTitle>
             <CardDescription>
-              List of all licenses. Click the copy icon to copy the license key.
+              List of all licenses. Data is encrypted. Click the eye icon to reveal details.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -402,14 +432,33 @@ export default function LicenseManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {licenses.map((license) => (
+                  {licenses.map((license) => {
+                    const isLicenseRevealed = isRevealed(license.id);
+                    const maskedKey = maskField(license.licenseKey);
+                    const maskedLicensee = maskField(license.licensee);
+
+                    return (
                     <TableRow key={license.id}>
                       <TableCell className="font-mono text-sm">
                         <div className="flex items-center gap-2">
                           <code className="px-2 py-1 rounded bg-muted">
-                            {license.licenseKey.substring(0, 16)}
-                            {license.licenseKey.length > 16 ? "..." : ""}
+                            {isLicenseRevealed
+                              ? license.licenseKey.substring(0, 16) +
+                                (license.licenseKey.length > 16 ? "..." : "")
+                              : maskedKey
+                            }
                           </code>
+                          <button
+                            onClick={() => toggleReveal(license.id)}
+                            className="hover:bg-muted p-1 rounded transition-colors"
+                            title={isLicenseRevealed ? "Hide details" : "Show details"}
+                          >
+                            {isLicenseRevealed ? (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </button>
                           <button
                             onClick={() =>
                               copyToClipboard(license.licenseKey)
@@ -425,7 +474,9 @@ export default function LicenseManagement() {
                           </button>
                         </div>
                       </TableCell>
-                      <TableCell>{license.licensee}</TableCell>
+                      <TableCell>
+                        {isLicenseRevealed ? license.licensee : maskedLicensee}
+                      </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(license.status)}>
                           {license.status}
@@ -488,7 +539,8 @@ export default function LicenseManagement() {
                         </button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
