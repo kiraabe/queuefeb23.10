@@ -617,14 +617,23 @@ export default function EmploymentManagement() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Unassigned</SelectItem>
-                      {windows.map((window) => (
-                        <SelectItem
-                          key={window.id}
-                          value={window.id.toString()}
-                        >
-                          {window.name}
-                        </SelectItem>
-                      ))}
+                      {windows
+                        .filter(
+                          (window) =>
+                            !users.some(
+                              (user) =>
+                                user.windowId === window.id &&
+                                user.role === "teller",
+                            ),
+                        )
+                        .map((window) => (
+                          <SelectItem
+                            key={window.id}
+                            value={window.id.toString()}
+                          >
+                            {window.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
