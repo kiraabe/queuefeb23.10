@@ -45,15 +45,29 @@ export function useLicense(): LicenseState {
       // Validate with server
       const response = await fetch("/api/license/validate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
         body: JSON.stringify({ licenseKey }),
       });
+
+      if (!response.ok) {
+        // Handle non-200 responses (e.g., 400 Missing CSRF, 500 error)
+        const errorData = await response.json().catch(() => ({}));
+        setState({
+          isLoading: false,
+          isValid: false,
+          message: errorData.message || errorData.error || `Server returned error ${response.status}`,
+        });
+        return;
+      }
 
       const data: ValidateLicenseResponse = await response.json();
 
       setState({
         isLoading: false,
-        isValid: data.valid,
+        isValid: !!data.valid,
         message: data.message,
         licensee: data.licensee,
       });

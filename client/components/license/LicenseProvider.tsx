@@ -40,17 +40,17 @@ export function LicenseProvider({ children }: LicenseProviderProps) {
     );
   }
 
-  // Show locked screen if license is invalid
-  if (licenseState.isValid === false) {
-    return (
-      <LicenseLockedScreen
-        message={licenseState.message}
-        onLicenseSubmit={handleLicenseSubmit}
-        isValidating={isSubmittingLicense}
-      />
-    );
+  // Only render app if license is explicitly valid
+  if (licenseState.isValid === true) {
+    return <>{children}</>;
   }
 
-  // License is valid, render app
-  return <>{children}</>;
+  // Show locked screen for any other state (null, false, undefined)
+  return (
+    <LicenseLockedScreen
+      message={licenseState.message}
+      onLicenseSubmit={handleLicenseSubmit}
+      isValidating={isSubmittingLicense}
+    />
+  );
 }
