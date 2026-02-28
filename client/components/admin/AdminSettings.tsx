@@ -110,6 +110,10 @@ export default function AdminSettings() {
   const handleTabChange = (value: string) => {
     if (value === "licenses" && !isLicensesUnlocked) {
       setShowPINLock(true);
+    } else if (value !== "licenses" && isLicensesUnlocked) {
+      // Auto-lock when switching away from Licenses tab
+      setIsLicensesUnlocked(false);
+      setActiveTab(value);
     } else {
       setActiveTab(value);
     }
@@ -120,6 +124,13 @@ export default function AdminSettings() {
     setShowPINLock(false);
     setActiveTab("licenses");
   };
+
+  // Auto-lock when component unmounts (navigating away from Settings page)
+  useEffect(() => {
+    return () => {
+      setIsLicensesUnlocked(false);
+    };
+  }, []);
 
 
   return (
