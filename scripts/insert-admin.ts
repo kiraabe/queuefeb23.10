@@ -30,21 +30,29 @@ async function insertAdmin() {
     console.log("Inserting admin user...");
 
     const result = await pool.query(
-      `INSERT INTO users (id, username, password_hash, role, window_id, disabled) 
-       VALUES (gen_random_uuid(), $1, $2, $3, NULL, false)
-       ON CONFLICT (username) DO UPDATE SET 
+      `INSERT INTO users (id, username, password_hash, window_id, disabled)
+       VALUES (gen_random_uuid(), $1, $2, NULL, false)
+       ON CONFLICT (username) DO UPDATE SET
          password_hash = $2,
-         role = $3,
          disabled = false
-       RETURNING id, username, role;`,
-      [username, passwordHash, "admin"],
+       RETURNING id, username;`,
+      [username, passwordHash],
     );
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
+
+      // Also insert role in user_roles
+      await pool.query(
+        `INSERT INTO user_roles (user_id, role, is_primary)
+         VALUES ($1, $2, true)
+         ON CONFLICT (user_id, role) DO UPDATE SET is_primary = true`,
+        [user.id, "admin"],
+      );
+
       console.log("✓ Admin user inserted successfully");
       console.log(`  Username: ${user.username}`);
-      console.log(`  Role: ${user.role}`);
+      console.log(`  Role: admin`);
       console.log(`  ID: ${user.id}`);
       console.log(`  Password: ${password}`);
     }

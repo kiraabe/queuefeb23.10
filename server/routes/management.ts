@@ -697,7 +697,9 @@ export const deleteWindow: RequestHandler = async (req, res) => {
 
     // Check if window has assigned tellers
     const tellersRes = await p.query(
-      `SELECT COUNT(*) as count FROM users WHERE window_id = $1 AND role = 'teller'`,
+      `SELECT COUNT(*) as count FROM users u
+       JOIN user_roles ur ON u.id = ur.user_id
+       WHERE u.window_id = $1 AND ur.role = 'teller'`,
       [windowId],
     );
 

@@ -65,7 +65,9 @@ export const seedTestData: RequestHandler = async (_req, res) => {
 
     // Get a few users to assign as employees
     const usersRes = await client.query(
-      `SELECT id, job_title_id FROM users WHERE role = 'employee' LIMIT 3`,
+      `SELECT u.id, u.job_title_id FROM users u
+       JOIN user_roles ur ON u.id = ur.user_id
+       WHERE ur.role = 'employee' LIMIT 3`,
     );
     const employees = usersRes.rows;
 

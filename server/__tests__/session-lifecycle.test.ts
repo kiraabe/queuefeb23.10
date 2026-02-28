@@ -30,10 +30,16 @@ describe("Session Lifecycle Management", () => {
     } catch {}
 
     await pool.query(
-      `INSERT INTO users (id, username, password_hash, role, disabled)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO users (id, username, password_hash, disabled)
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT DO NOTHING`,
-      [testUserId, testUsername, "hash", testRole, false],
+      [testUserId, testUsername, "hash", false],
+    );
+    await pool.query(
+      `INSERT INTO user_roles (user_id, role, is_primary)
+       VALUES ($1, $2, true)
+       ON CONFLICT DO NOTHING`,
+      [testUserId, testRole],
     );
   });
 
