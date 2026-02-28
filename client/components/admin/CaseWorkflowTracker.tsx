@@ -581,9 +581,9 @@ function WorkflowCard({
     <Card className="border-2 border-blue-200 dark:border-blue-900 w-full">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
         <div className="space-y-3">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-100 truncate max-w-[200px] sm:max-w-none">
                 Ticket {workflow.ticketInfo?.ticketCode || workflow.ticketCode}
               </CardTitle>
               {workflow.status && (
@@ -617,7 +617,8 @@ function WorkflowCard({
                   return (
                     <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1 animate-pulse">
                       <AlertTriangle className="h-3 w-3" />
-                      ⚠️ Time Exceeded
+                      <span className="hidden xs:inline">⚠️ Time Exceeded</span>
+                      <span className="xs:hidden">⚠️ Exceeded</span>
                     </Badge>
                   );
                 }
@@ -625,7 +626,8 @@ function WorkflowCard({
                   return (
                     <Badge className="bg-green-600 text-white dark:bg-green-700 flex items-center gap-1">
                       <CheckCircle className="h-3 w-3" />
-                      ✓ On Time
+                      <span className="hidden xs:inline">✓ On Time</span>
+                      <span className="xs:hidden">✓ OK</span>
                     </Badge>
                   );
                 }
@@ -638,8 +640,10 @@ function WorkflowCard({
                   const date = new Date(workflow.createdAt);
                   if (!isNaN(date.getTime())) {
                     return (
-                      <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-3 py-1 rounded-md whitespace-nowrap">
-                        {format(date, "MMM dd, yyyy HH:mm")}
+                      <div className="text-sm font-medium text-blue-800 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-950/30 px-3 py-1.5 rounded-md border border-blue-200/50 dark:border-blue-800/50 flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5 opacity-70" />
+                        <span className="hidden sm:inline">{format(date, "MMM dd, yyyy HH:mm")}</span>
+                        <span className="sm:hidden">{format(date, "MMM dd, HH:mm")}</span>
                       </div>
                     );
                   }

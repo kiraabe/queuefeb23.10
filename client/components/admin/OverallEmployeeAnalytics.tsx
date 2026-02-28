@@ -418,9 +418,14 @@ export default function OverallEmployeeAnalytics() {
       </Card>
 
       {/* Updated timestamp */}
-      <p className="text-xs text-muted-foreground text-right">
-        Last updated: {format(new Date(analytics.generatedAt), "PPpp")}
-      </p>
+      <div className="flex justify-end">
+        <p className="text-[10px] sm:text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded flex items-center gap-1.5">
+          <Clock className="h-3 w-3 opacity-70" />
+          <span>Last updated:</span>
+          <span className="hidden sm:inline">{format(new Date(analytics.generatedAt), "PPpp")}</span>
+          <span className="sm:hidden">{format(new Date(analytics.generatedAt), "MMM dd, HH:mm")}</span>
+        </p>
+      </div>
     </div>
   );
 }
