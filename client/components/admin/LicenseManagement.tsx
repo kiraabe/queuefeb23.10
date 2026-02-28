@@ -67,13 +67,31 @@ export default function LicenseManagement() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [revealedLicenses, setRevealedLicenses] = useState<Set<string>>(new Set());
 
+  // Generate a random license key
+  const generateLicenseKey = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const length = 16;
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    // Format as XXXX-XXXX-XXXX-XXXX
+    return `${result.substring(0, 4)}-${result.substring(4, 8)}-${result.substring(8, 12)}-${result.substring(12, 16)}`;
+  };
+
   // Form state for creating license
   const [formData, setFormData] = useState({
     licenseKey: "",
     licensee: "",
-    expiresAt: "",
-    notes: "",
   });
+
+  // Initialize license key when dialog opens
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsCreateDialogOpen(open);
+    if (open && !formData.licenseKey) {
+      setFormData({ ...formData, licenseKey: generateLicenseKey() });
+    }
+  };
 
   // Load licenses on mount
   useEffect(() => {
@@ -107,22 +125,13 @@ export default function LicenseManagement() {
     e.preventDefault();
 
     // Validation
-    if (!formData.licenseKey.trim() || !formData.licensee.trim()) {
-      toast.error("License key and licensee name are required");
-      return;
-    }
-
-    if (formData.licenseKey.length < 8) {
-      toast.error("License key must be at least 8 characters long");
+    if (!formData.licensee.trim()) {
+      toast.error("Licensee name is required");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const expiresAt = formData.expiresAt
-        ? new Date(formData.expiresAt).getTime()
-        : undefined;
-
       const response = await fetch("/api/admin/licenses", {
         method: "POST",
         headers: {
@@ -132,8 +141,6 @@ export default function LicenseManagement() {
         body: JSON.stringify({
           licenseKey: formData.licenseKey.trim(),
           licensee: formData.licensee.trim(),
-          expiresAt,
-          notes: formData.notes.trim() || undefined,
         }),
       });
 
@@ -154,8 +161,6 @@ export default function LicenseManagement() {
       setFormData({
         licenseKey: "",
         licensee: "",
-        expiresAt: "",
-        notes: "",
       });
       setIsCreateDialogOpen(false);
     } catch (error) {
@@ -292,7 +297,7 @@ export default function LicenseManagement() {
           </p>
         </div>
 
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -304,26 +309,34 @@ export default function LicenseManagement() {
             <DialogHeader>
               <DialogTitle>Create New License</DialogTitle>
               <DialogDescription>
-                Generate a new license for a buyer. The license key must be at
-                least 8 characters long.
+                Generate a new license for a buyer.
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleCreateLicense} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="licenseKey">License Key *</Label>
-                <Input
-                  id="licenseKey"
-                  placeholder="e.g., ACME-2024-PROD-KEY"
-                  value={formData.licenseKey}
-                  onChange={(e) =>
-                    setFormData({ ...formData, licenseKey: e.target.value })
-                  }
-                  disabled={isSubmitting}
-                  className="font-mono"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="licenseKey"
+                    value={formData.licenseKey}
+                    disabled={true}
+                    className="font-mono flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setFormData({ ...formData, licenseKey: generateLicenseKey() })
+                    }
+                    disabled={isSubmitting}
+                    className="px-3"
+                  >
+                    Regenerate
+                  </Button>
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Unique identifier for this license. Share this with the buyer.
+                  Auto-generated unique identifier. Click regenerate to create a new key.
                 </p>
               </div>
 
@@ -341,35 +354,6 @@ export default function LicenseManagement() {
                 <p className="text-xs text-muted-foreground">
                   Name of the company or organization buying the license.
                 </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="expiresAt">Expiration Date (Optional)</Label>
-                <Input
-                  id="expiresAt"
-                  type="datetime-local"
-                  value={formData.expiresAt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, expiresAt: e.target.value })
-                  }
-                  disabled={isSubmitting}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Leave empty for perpetual license.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
-                <Input
-                  id="notes"
-                  placeholder="e.g., Enterprise plan, 5 users"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, notes: e.target.value })
-                  }
-                  disabled={isSubmitting}
-                />
               </div>
 
               <DialogFooter>
