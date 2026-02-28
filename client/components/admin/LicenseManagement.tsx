@@ -344,13 +344,17 @@ For technical support or issues with license activation:
     }
   };
 
-  const isExpired = (expiresAt: number | null) => {
+  const isExpired = (expiresAt: number | string | null) => {
     if (!expiresAt) return false;
-    return Date.now() > expiresAt;
+    const timestamp = typeof expiresAt === "string" ? new Date(expiresAt).getTime() : expiresAt;
+    return Date.now() > timestamp;
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
+  const formatDate = (timestamp: number | string | null) => {
+    if (!timestamp) return "—";
+    const date = typeof timestamp === "string" ? new Date(timestamp) : new Date(timestamp);
+    if (isNaN(date.getTime())) return "Invalid Date";
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
