@@ -19,8 +19,8 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
     chunkSizeWarningLimit: 600,
-    sourcemap: false, // Disable sourcemaps to reduce build memory usage
-    minify: true, // Use default esbuild minifier (more memory efficient)
+    sourcemap: true,
+    minify: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {

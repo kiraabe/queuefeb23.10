@@ -39,8 +39,8 @@ export default defineConfig({
         entryFileNames: "production.mjs",
       },
     },
-    minify: true, // Use default esbuild minifier for memory efficiency
-    sourcemap: false, // Disable sourcemaps in production to save memory
+    minify: true,
+    sourcemap: true,
   },
   resolve: {
     alias: {
