@@ -99,6 +99,7 @@ import {
   resetUserPassword,
   listJobTitlesHandler,
 } from "./routes/management";
+import { bulkImportUsers } from "./routes/bulk-import";
 import {
   getWaitingDocumentsDb,
   markDocumentsFetched,
@@ -558,6 +559,7 @@ export function createServer() {
   // Window and user management endpoints
   app.get("/api/admin/users", listUsers); // Public read for transfer feature
   app.post("/api/admin/users", requireRole(["admin"]), createUser);
+  app.post("/api/admin/users/bulk-import", requireRole(["admin"]), bulkImportUsers);
   app.put("/api/admin/users/:id", requireRole(["admin"]), updateUser);
   app.delete("/api/admin/users/:id", requireRole(["admin"]), deleteUser);
   app.post(
