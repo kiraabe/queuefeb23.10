@@ -1195,6 +1195,14 @@ export async function initDb() {
       `CREATE INDEX IF NOT EXISTS idx_licenses_expires_at ON licenses(expires_at)`,
     );
 
+    // Add missing columns if they don't exist
+    await p.query(
+      `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS licensee_encrypted text;`,
+    ).catch(() => {}); // ignore if already exists
+    await p.query(
+      `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS notes_encrypted text;`,
+    ).catch(() => {}); // ignore if already exists
+
     console.log("✅ License management schema initialized");
 
     // Admin user creation has been removed - users must be created explicitly through the setup/management API

@@ -1244,8 +1244,7 @@ export const getSessionCountHandler: RequestHandler = async (req, res) => {
     }
 
     // Check if user is locked/blocked
-    const loginKey = `user_${username}`;
-    const blocked = isLocked(req, loginKey);
+    const blocked = isLocked(req, username);
 
     // Get active session count
     const activeSessionCount = await countActiveSessionsForUser(user.id);
