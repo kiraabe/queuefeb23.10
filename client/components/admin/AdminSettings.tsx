@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Save } from "lucide-react";
 import { toast } from "sonner";
+import LicenseManagement from "./LicenseManagement";
 import type {
   GetQueueSettingsResponse,
   UpdateQueueSettingsResponse,
@@ -102,23 +104,30 @@ export default function AdminSettings() {
 
   return (
     <div className="space-y-4">
-      {unsavedChanges && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            You have unsaved changes. Please save before leaving this page.
-          </AlertDescription>
-        </Alert>
-      )}
+      <Tabs defaultValue="queue" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="queue">Queue Configuration</TabsTrigger>
+          <TabsTrigger value="licenses">Licenses</TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Queue Configuration</CardTitle>
-          <CardDescription>
-            Configure how the queue system operates
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <TabsContent value="queue" className="space-y-4">
+          {unsavedChanges && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                You have unsaved changes. Please save before leaving this page.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Queue Configuration</CardTitle>
+              <CardDescription>
+                Configure how the queue system operates
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
           {/* Max Tickets Per Day */}
           <div className="space-y-2">
             <Label htmlFor="maxTickets">Maximum Tickets Per Day</Label>
@@ -196,9 +205,14 @@ export default function AdminSettings() {
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? "Saving..." : "Save Queue Settings"}
           </Button>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
+        <TabsContent value="licenses" className="space-y-4">
+          <LicenseManagement />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
