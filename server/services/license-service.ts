@@ -52,41 +52,41 @@ export async function validateLicense(licenseKey: string): Promise<LicenseValida
 
   // Fallback to environment variables (for backwards compatibility)
   const envLicenseKey = process.env.LICENSE_KEY;
-  const envLicensee = process.env.LICENSEE;
+  const envLicensee = process.env.LICENSEE || "Environment License";
 
-  if (envLicenseKey && envLicensee) {
-    // Check if license key matches
-    if (licenseKey !== envLicenseKey) {
+  if (envLicenseKey) {
+    // Check if license key matches (case-insensitive and trimmed)
+    if (licenseKey.trim().toLowerCase() === envLicenseKey.trim().toLowerCase()) {
+      // Check if license has expired
+      const expiresAt = process.env.LICENSE_EXPIRES_AT
+        ? parseInt(process.env.LICENSE_EXPIRES_AT, 10)
+        : null;
+
+      if (expiresAt && Date.now() > expiresAt) {
+        return {
+          valid: false,
+          message: "License has expired",
+        };
+      }
+
       return {
-        valid: false,
-        message: "Invalid license key",
+        valid: true,
+        message: `Licensed to ${envLicensee}`,
+        licensee: envLicensee,
       };
     }
-
-    // Check if license has expired
-    const expiresAt = process.env.LICENSE_EXPIRES_AT
-      ? parseInt(process.env.LICENSE_EXPIRES_AT, 10)
-      : null;
-
-    if (expiresAt && Date.now() > expiresAt) {
-      return {
-        valid: false,
-        message: "License has expired",
-      };
-    }
-
-    return {
-      valid: true,
-      message: `Licensed to ${envLicensee}`,
-      licensee: envLicensee,
-    };
   }
 
-  // If no license is configured, reject access even in development
-  console.warn("[License] No license configured - access restricted");
+  // If no license is configured, or key doesn't match, reject access
+  const isKeyProvided = !!licenseKey && licenseKey.trim().length > 0;
+
+  console.warn(`[License] Access restricted. Key provided: ${isKeyProvided}`);
+
   return {
     valid: false,
-    message: "No license key found. Please enter your license key.",
+    message: isKeyProvided
+      ? "Invalid license key. Please check your key and try again."
+      : "No license key found. Please enter your license key.",
   };
 }
 

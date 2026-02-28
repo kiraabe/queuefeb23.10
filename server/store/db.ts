@@ -3844,6 +3844,12 @@ export interface LicenseRecord {
 
 export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseRecord | null> {
   const p = getPool();
+  const crypto = await import("crypto");
+
+  // Clean the key (remove extra spaces)
+  const cleanKey = licenseKey.trim();
+  const licenseKeyHash = crypto.createHash("sha256").update(cleanKey).digest("hex");
+
   const res = await p.query(
     `SELECT
        id,
@@ -3858,8 +3864,10 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
        notes,
        notes_encrypted as "notesEncrypted"
      FROM licenses
-     WHERE license_key = $1`,
-    [licenseKey],
+     WHERE license_key = $1
+        OR LOWER(license_key) = LOWER($1)
+        OR license_key_hash = $2`,
+    [cleanKey, licenseKeyHash],
   );
 
   if (!res.rows[0]) {
