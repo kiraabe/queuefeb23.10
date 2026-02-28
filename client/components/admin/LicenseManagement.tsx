@@ -351,9 +351,30 @@ For technical support or issues with license activation:
   };
 
   const formatDate = (timestamp: number | string | null) => {
-    if (!timestamp) return "—";
-    const date = typeof timestamp === "string" ? new Date(timestamp) : new Date(timestamp);
-    if (isNaN(date.getTime())) return "Invalid Date";
+    if (!timestamp && timestamp !== 0) return "—";
+
+    let date: Date;
+
+    // Handle different input types
+    if (typeof timestamp === "string") {
+      // If it's a string that looks like a number, convert to number
+      const parsed = parseInt(timestamp, 10);
+      if (!isNaN(parsed)) {
+        date = new Date(parsed);
+      } else {
+        date = new Date(timestamp);
+      }
+    } else if (typeof timestamp === "number") {
+      date = new Date(timestamp);
+    } else {
+      return "—";
+    }
+
+    // Validate the date
+    if (isNaN(date.getTime())) {
+      return "—";
+    }
+
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",

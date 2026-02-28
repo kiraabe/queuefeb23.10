@@ -3890,7 +3890,7 @@ export async function createLicenseDb(
   expiresAt: number | null = null,
   notes: string | null = null,
 ): Promise<LicenseRecord> {
-  const { encryptField } = await import("../services/encryption");
+  const { encryptField, decryptField } = await import("../services/encryption");
   const crypto = await import("crypto");
 
   const p = getPool();
@@ -3919,12 +3919,14 @@ export async function createLicenseDb(
        id,
        license_key as "licenseKey",
        licensee,
+       licensee_encrypted as "licenseeEncrypted",
        status,
        extract(epoch from expires_at)*1000 as "expiresAt",
        extract(epoch from created_at)*1000 as "createdAt",
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
-       notes`,
+       notes,
+       notes_encrypted as "notesEncrypted"`,
     [
       licenseKey,
       licenseKeyHash,
@@ -3937,7 +3939,19 @@ export async function createLicenseDb(
       notesEncrypted,
     ],
   );
-  return res.rows[0];
+
+  const record = res.rows[0];
+  return {
+    id: record.id,
+    licenseKey: record.licenseKey,
+    licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
+    status: record.status,
+    expiresAt: record.expiresAt,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdByUserId: record.createdByUserId,
+    notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+  };
 }
 
 export async function listLicensesDb(): Promise<LicenseRecord[]> {
