@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { ValidateLicenseRequest, ValidateLicenseResponse } from "@shared/api";
 import { validateLicense } from "../services/license-service";
 
-export const validateLicenseHandler: RequestHandler = (req, res) => {
+export const validateLicenseHandler: RequestHandler = async (req, res) => {
   try {
     const { licenseKey } = req.body as ValidateLicenseRequest;
 
@@ -13,7 +13,7 @@ export const validateLicenseHandler: RequestHandler = (req, res) => {
       });
     }
 
-    const result = validateLicense(licenseKey);
+    const result = await validateLicense(licenseKey);
     const response: ValidateLicenseResponse = {
       valid: result.valid,
       message: result.message,

@@ -1168,6 +1168,32 @@ export async function initDb() {
 
     console.log("✅ Field visit workflow schema initialized");
 
+    // Create licenses table for license management
+    await p.query(`CREATE TABLE IF NOT EXISTS licenses (
+      id uuid primary key default gen_random_uuid(),
+      license_key text not null unique,
+      licensee text not null,
+      status text not null default 'active' check (status in ('active', 'inactive', 'expired', 'revoked')),
+      expires_at timestamptz,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now(),
+      created_by_user_id uuid references users(id) on delete set null,
+      notes text
+    );`);
+
+    // Create index for license key lookup
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_licenses_license_key ON licenses(license_key)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_licenses_status ON licenses(status)`,
+    );
+    await p.query(
+      `CREATE INDEX IF NOT EXISTS idx_licenses_expires_at ON licenses(expires_at)`,
+    );
+
+    console.log("✅ License management schema initialized");
+
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
     console.log(
       "ℹ️  Database initialization complete. No demo users or test data created.",
@@ -3787,6 +3813,130 @@ export async function autoCancelExpiredHolds(): Promise<void> {
       error instanceof Error ? error.message : error,
     );
   }
+}
+
+// License management database functions
+export interface LicenseRecord {
+  id: string;
+  licenseKey: string;
+  licensee: string;
+  status: 'active' | 'inactive' | 'expired' | 'revoked';
+  expiresAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+  createdByUserId: string | null;
+  notes: string | null;
+}
+
+export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseRecord | null> {
+  const p = getPool();
+  const res = await p.query(
+    `SELECT
+       id,
+       license_key as "licenseKey",
+       licensee,
+       status,
+       extract(epoch from expires_at)*1000 as "expiresAt",
+       extract(epoch from created_at)*1000 as "createdAt",
+       extract(epoch from updated_at)*1000 as "updatedAt",
+       created_by_user_id as "createdByUserId",
+       notes
+     FROM licenses
+     WHERE license_key = $1`,
+    [licenseKey],
+  );
+  return res.rows[0] || null;
+}
+
+export async function createLicenseDb(
+  licenseKey: string,
+  licensee: string,
+  createdByUserId: string | null = null,
+  expiresAt: number | null = null,
+  notes: string | null = null,
+): Promise<LicenseRecord> {
+  const p = getPool();
+  const res = await p.query(
+    `INSERT INTO licenses (
+       license_key,
+       licensee,
+       status,
+       created_by_user_id,
+       expires_at,
+       notes
+     ) VALUES ($1, $2, $3, $4, to_timestamp($5), $6)
+     RETURNING
+       id,
+       license_key as "licenseKey",
+       licensee,
+       status,
+       extract(epoch from expires_at)*1000 as "expiresAt",
+       extract(epoch from created_at)*1000 as "createdAt",
+       extract(epoch from updated_at)*1000 as "updatedAt",
+       created_by_user_id as "createdByUserId",
+       notes`,
+    [
+      licenseKey,
+      licensee,
+      'active',
+      createdByUserId,
+      expiresAt ? expiresAt / 1000 : null,
+      notes,
+    ],
+  );
+  return res.rows[0];
+}
+
+export async function listLicensesDb(): Promise<LicenseRecord[]> {
+  const p = getPool();
+  const res = await p.query(
+    `SELECT
+       id,
+       license_key as "licenseKey",
+       licensee,
+       status,
+       extract(epoch from expires_at)*1000 as "expiresAt",
+       extract(epoch from created_at)*1000 as "createdAt",
+       extract(epoch from updated_at)*1000 as "updatedAt",
+       created_by_user_id as "createdByUserId",
+       notes
+     FROM licenses
+     ORDER BY created_at DESC`,
+  );
+  return res.rows;
+}
+
+export async function updateLicenseStatusDb(
+  licenseKey: string,
+  status: 'active' | 'inactive' | 'expired' | 'revoked',
+): Promise<LicenseRecord | null> {
+  const p = getPool();
+  const res = await p.query(
+    `UPDATE licenses
+     SET status = $1, updated_at = now()
+     WHERE license_key = $2
+     RETURNING
+       id,
+       license_key as "licenseKey",
+       licensee,
+       status,
+       extract(epoch from expires_at)*1000 as "expiresAt",
+       extract(epoch from created_at)*1000 as "createdAt",
+       extract(epoch from updated_at)*1000 as "updatedAt",
+       created_by_user_id as "createdByUserId",
+       notes`,
+    [status, licenseKey],
+  );
+  return res.rows[0] || null;
+}
+
+export async function deleteLicenseDb(licenseKey: string): Promise<boolean> {
+  const p = getPool();
+  const res = await p.query(
+    `DELETE FROM licenses WHERE license_key = $1`,
+    [licenseKey],
+  );
+  return res.rowCount > 0;
 }
 
 // initialize on import (non-blocking with timeout)

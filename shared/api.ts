@@ -479,3 +479,47 @@ export interface LicenseConfig {
   licensee: string; // Name of the buyer/licensee
   expiresAt?: number; // Optional: timestamp for license expiration
 }
+
+export interface LicenseRecord {
+  id: string;
+  licenseKey: string;
+  licensee: string;
+  status: 'active' | 'inactive' | 'expired' | 'revoked';
+  expiresAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+  createdByUserId: string | null;
+  notes: string | null;
+}
+
+export interface CreateLicenseRequest {
+  licenseKey: string;
+  licensee: string;
+  expiresAt?: number; // Unix timestamp in ms
+  notes?: string;
+}
+
+export interface CreateLicenseResponse {
+  success: boolean;
+  message: string;
+  license?: LicenseRecord;
+}
+
+export interface ListLicensesResponse {
+  licenses: LicenseRecord[];
+}
+
+export interface UpdateLicenseStatusRequest {
+  status: 'active' | 'inactive' | 'expired' | 'revoked';
+}
+
+export interface UpdateLicenseStatusResponse {
+  success: boolean;
+  message: string;
+  license?: LicenseRecord;
+}
+
+export interface DeleteLicenseResponse {
+  success: boolean;
+  message: string;
+}

@@ -9,6 +9,12 @@ import { handleAdminSessionConnection } from "./services/session-websocket";
 import { handleDemo } from "./routes/demo";
 import { validateLicenseHandler } from "./routes/license";
 import {
+  createLicenseHandler,
+  listLicensesHandler,
+  updateLicenseStatusHandler,
+  deleteLicenseHandler,
+} from "./routes/license-management";
+import {
   clearDemo,
   seedTestData,
   getQueueSettings,
@@ -552,6 +558,28 @@ export function createServer() {
     "/api/admin/employee-stats",
     requireRole(["admin"]),
     getEmployeeStats,
+  );
+
+  // License management endpoints
+  app.post(
+    "/api/admin/licenses",
+    requireRole(["admin"]),
+    createLicenseHandler,
+  );
+  app.get(
+    "/api/admin/licenses",
+    requireRole(["admin"]),
+    listLicensesHandler,
+  );
+  app.put(
+    "/api/admin/licenses/:licenseKey/status",
+    requireRole(["admin"]),
+    updateLicenseStatusHandler,
+  );
+  app.delete(
+    "/api/admin/licenses/:licenseKey",
+    requireRole(["admin"]),
+    deleteLicenseHandler,
   );
 
   // Service categories and services endpoints (public for reception console)
