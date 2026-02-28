@@ -564,6 +564,19 @@ export const createWindow: RequestHandler = async (req, res) => {
 
     const p = getPool();
 
+    // Check if window name already exists
+    const existingRes = await p.query(
+      `SELECT id FROM windows WHERE LOWER(name) = LOWER($1)`,
+      [nameTrimmed],
+    );
+
+    if (existingRes.rows.length > 0) {
+      return res.status(400).json({
+        error: "Window name already exists",
+        message: "A window with this name already exists. Please choose a different name.",
+      });
+    }
+
     // Get the next window ID
     const maxIdRes = await p.query(
       `SELECT COALESCE(MAX(id), 0) as max_id FROM windows`,
@@ -634,6 +647,19 @@ export const updateWindow: RequestHandler = async (req, res) => {
     ]);
     if (!checkRes.rows.length) {
       return res.status(404).json({ error: "Window not found" });
+    }
+
+    // Check if new name is already taken by another window
+    const existingNameRes = await p.query(
+      `SELECT id FROM windows WHERE LOWER(name) = LOWER($1) AND id != $2`,
+      [nameTrimmed, Number(id)],
+    );
+
+    if (existingNameRes.rows.length > 0) {
+      return res.status(400).json({
+        error: "Window name already exists",
+        message: "Another window already has this name. Please choose a different name.",
+      });
     }
 
     const { rows } = await p.query(

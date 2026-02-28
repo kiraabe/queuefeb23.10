@@ -88,11 +88,14 @@ export async function initDb() {
     }
     await p.query(`CREATE TABLE IF NOT EXISTS windows (
     id int primary key,
-    name text not null,
+    name text not null UNIQUE,
     current_ticket_id uuid,
     busy boolean not null default false,
     updated_at timestamptz not null default now()
   );`);
+    await p.query(
+      `ALTER TABLE windows ADD CONSTRAINT windows_name_unique UNIQUE (name);`,
+    ).catch(() => {}); // ignore if already exists
     await p.query(`CREATE TABLE IF NOT EXISTS audit_logs (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default now(),

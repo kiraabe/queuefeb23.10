@@ -278,7 +278,7 @@ export default function WindowManagement() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create window");
+        throw new Error(error.message || error.error || "Failed to create window");
       }
 
       setNewWindowName("");
@@ -320,7 +320,7 @@ export default function WindowManagement() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update window");
+        throw new Error(error.message || error.error || "Failed to update window");
       }
 
       const data: UpdateWindowResponse = await response.json();
