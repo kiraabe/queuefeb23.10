@@ -8,6 +8,7 @@ import {
   Settings,
   User,
   Briefcase,
+  Lock,
 } from "lucide-react";
 import MobileAdminLayout from "@/components/admin/MobileAdminLayout";
 import AdminDashboard from "@/components/admin/AdminDashboard";
@@ -17,6 +18,7 @@ import AdminSettings from "@/components/admin/AdminSettings";
 import AdminProfile from "@/components/admin/AdminProfile";
 import EmploymentManagement from "@/components/admin/EmploymentManagement";
 import AdminWindows from "@/components/admin/AdminWindows";
+import LicenseManagement from "@/components/admin/LicenseManagement";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -74,6 +76,12 @@ export default function Admin() {
       icon: <User className="h-5 w-5" />,
       onClick: () => setActiveTab("profile"),
     },
+    {
+      id: "licenses",
+      label: "Licenses",
+      icon: <Lock className="h-5 w-5" />,
+      onClick: () => setActiveTab("licenses"),
+    },
   ];
 
   const renderContent = () => {
@@ -92,6 +100,8 @@ export default function Admin() {
         return <AdminSettings />;
       case "profile":
         return <AdminProfile />;
+      case "licenses":
+        return <LicenseManagement />;
       default:
         return <AdminDashboard />;
     }
