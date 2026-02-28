@@ -82,12 +82,11 @@ export async function validateLicense(licenseKey: string): Promise<LicenseValida
     };
   }
 
-  // If no license is configured, allow access (development mode)
-  console.warn("[License] No license configured - running in development mode");
+  // If no license is configured, reject access even in development
+  console.warn("[License] No license configured - access restricted");
   return {
-    valid: true,
-    message: "Running in development mode (no license required)",
-    licensee: "Development",
+    valid: false,
+    message: "No license key found. Please enter your license key.",
   };
 }
 

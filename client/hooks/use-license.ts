@@ -33,19 +33,7 @@ export function useLicense(): LicenseState {
       const licenseKey = storedKey || envKey;
 
       if (!licenseKey) {
-        // No license key configured - check if we're in development mode
-        const isDev = import.meta.env.DEV;
-        if (isDev) {
-          setState({
-            isLoading: false,
-            isValid: true,
-            message: "Development mode",
-            licensee: "Development",
-          });
-          return;
-        }
-
-        // No license key in production
+        // No license key in production or development (disabled bypass)
         setState({
           isLoading: false,
           isValid: false,
