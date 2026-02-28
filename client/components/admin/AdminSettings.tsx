@@ -21,15 +21,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 import LicenseManagement from "./LicenseManagement";
+import PINLock from "./PINLock";
 import type {
   GetQueueSettingsResponse,
   UpdateQueueSettingsResponse,
 } from "@shared/api";
 
+const LICENSES_PIN = "7349";
+
 export default function AdminSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [activeTab, setActiveTab] = useState("queue");
+  const [isLicensesUnlocked, setIsLicensesUnlocked] = useState(false);
+  const [showPINLock, setShowPINLock] = useState(false);
 
   // Queue Settings
   const [queueSettings, setQueueSettings] = useState({
@@ -101,10 +107,30 @@ export default function AdminSettings() {
     }
   };
 
+  const handleTabChange = (value: string) => {
+    if (value === "licenses" && !isLicensesUnlocked) {
+      setShowPINLock(true);
+    } else {
+      setActiveTab(value);
+    }
+  };
+
+  const handlePINUnlock = () => {
+    setIsLicensesUnlocked(true);
+    setShowPINLock(false);
+    setActiveTab("licenses");
+  };
+
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="queue" className="w-full">
+      <PINLock
+        isOpen={showPINLock}
+        onUnlock={handlePINUnlock}
+        correctPin={LICENSES_PIN}
+      />
+
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="queue">Queue Configuration</TabsTrigger>
           <TabsTrigger value="licenses">Licenses</TabsTrigger>
