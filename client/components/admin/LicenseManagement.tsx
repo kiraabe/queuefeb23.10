@@ -152,9 +152,11 @@ export default function LicenseManagement() {
       const data: CreateLicenseResponse = await response.json();
       toast.success("License created successfully");
 
-      // Add new license to list
+      // Add new license to list and download manual
       if (data.license) {
         setLicenses([data.license, ...licenses]);
+        // Auto-download the license manual
+        downloadLicenseManual(data.license.licenseKey, data.license.licensee);
       }
 
       // Reset form
@@ -241,6 +243,76 @@ export default function LicenseManagement() {
     navigator.clipboard.writeText(text);
     setCopiedKey(text);
     setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const downloadLicenseManual = (licenseKey: string, licensee: string) => {
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const manualContent = `
+================================================================================
+                          LICENSE ACTIVATION MANUAL
+================================================================================
+
+Generated: ${currentDate}
+
+IMPORTANT: Keep this file secure and do not share with unauthorized personnel.
+
+================================================================================
+                             LICENSE INFORMATION
+================================================================================
+
+Licensee Name: ${licensee}
+
+License Key: ${licenseKey}
+
+================================================================================
+                          ACTIVATION INSTRUCTIONS
+================================================================================
+
+1. Launch the application
+2. Navigate to the License Activation section
+3. Enter the License Key provided above: ${licenseKey}
+4. Click "Activate License"
+5. The application will be activated for ${licensee}
+
+================================================================================
+                            IMPORTANT NOTES
+================================================================================
+
+- Keep the License Key confidential and secure
+- Do not share the License Key with unauthorized users
+- Each License Key is unique to ${licensee}
+- Contact support if you have issues activating the license
+- This license is perpetual and does not expire
+
+================================================================================
+                           SUPPORT INFORMATION
+================================================================================
+
+For technical support or issues with license activation:
+- Email: support@example.com
+- Phone: +1-XXX-XXX-XXXX
+- Website: https://www.example.com/support
+
+================================================================================
+                             END OF DOCUMENT
+================================================================================
+`;
+
+    // Create a blob and trigger download
+    const blob = new Blob([manualContent.trim()], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `License-Manual-${licensee.replace(/\s+/g, "-")}-${licenseKey.substring(0, 8)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const toggleReveal = (licenseId: string) => {
