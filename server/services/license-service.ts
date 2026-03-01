@@ -42,28 +42,19 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
   // If no key provided, check if we already have a valid activation in the DB that matches the Env
   if (!licenseKey) {
     try {
-      const dbLicense = await getPrimaryLicenseDb();
-      console.log("[License] Bypass check - DB License:", {
-        exists: !!dbLicense,
-        status: dbLicense?.status,
-        activatedHost: dbLicense?.activatedHost,
-        incomingHost: host,
-        envKeyMatches: dbLicense?.licenseKey === envLicenseKey,
-      });
+      // Look for a license that matches the env key AND is bound to this host
+      const dbLicense = await getLicenseByKeyDb(envLicenseKey);
 
       if (dbLicense && dbLicense.status === 'active' && dbLicense.activatedHost === host) {
-        // TRIPLE CHECK: DB Key must match Env Key for the permanent bypass
-        if (dbLicense.licenseKey === envLicenseKey) {
-          // Check expiration
-          if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-            return { valid: false, message: "The activated license has expired." };
-          }
-          return {
-            valid: true,
-            message: `Licensed to ${dbLicense.licensee}`,
-            licensee: dbLicense.licensee,
-          };
+        // Check expiration
+        if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+          return { valid: false, message: "The activated license has expired." };
         }
+        return {
+          valid: true,
+          message: `Licensed to ${dbLicense.licensee}`,
+          licensee: dbLicense.licensee,
+        };
       }
     } catch (error) {
       console.warn("[License] Bypass check failed:", error);
