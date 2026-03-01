@@ -27,6 +27,13 @@ export function useLicense(): LicenseState {
 
   const validateLicense = useCallback(async () => {
     try {
+      // Get or generate machine ID for binding
+      let machineId = localStorage.getItem("MACHINE_ID");
+      if (!machineId) {
+        machineId = crypto.randomUUID?.() || Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("MACHINE_ID", machineId);
+      }
+
       // Get license key from localStorage or environment
       const storedKey = localStorage.getItem("LICENSE_KEY");
       const envKey = import.meta.env.VITE_LICENSE_KEY;
@@ -49,7 +56,7 @@ export function useLicense(): LicenseState {
           "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest"
         },
-        body: JSON.stringify({ licenseKey }),
+        body: JSON.stringify({ licenseKey, machineId }),
       });
 
       if (!response.ok) {

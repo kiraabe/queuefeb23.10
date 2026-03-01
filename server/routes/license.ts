@@ -4,7 +4,7 @@ import { validateLicense } from "../services/license-service";
 
 export const validateLicenseHandler: RequestHandler = async (req, res) => {
   try {
-    const { licenseKey } = req.body as ValidateLicenseRequest;
+    const { licenseKey, machineId } = req.body as ValidateLicenseRequest;
 
     if (!licenseKey || typeof licenseKey !== "string") {
       return res.status(400).json({
@@ -13,7 +13,14 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
       });
     }
 
-    const result = await validateLicense(licenseKey);
+    if (!machineId || typeof machineId !== "string") {
+      return res.status(400).json({
+        valid: false,
+        message: "Machine identity verification failed. Please try again or clear your browser data.",
+      });
+    }
+
+    const result = await validateLicense(licenseKey, machineId);
     const response: ValidateLicenseResponse = {
       valid: result.valid,
       message: result.message,

@@ -16,9 +16,10 @@ export interface LicenseValidationResult {
  * - message: human-readable message
  * - licensee: name of the licensee (if valid)
  */
-export async function validateLicense(licenseKey: string): Promise<LicenseValidationResult> {
+export async function validateLicense(licenseKey: string, machineId: string): Promise<LicenseValidationResult> {
   // Try database first
   try {
+    const { updateLicenseMachineIdDb } = await import("../store/db");
     const dbLicense = await getLicenseByKeyDb(licenseKey);
 
     if (dbLicense) {
@@ -38,10 +39,23 @@ export async function validateLicense(licenseKey: string): Promise<LicenseValida
         };
       }
 
+      // Machine ID Binding
+      if (!dbLicense.activatedMachineId) {
+        // First time activation - bind machine ID
+        await updateLicenseMachineIdDb(dbLicense.id, machineId);
+      } else if (dbLicense.activatedMachineId !== machineId) {
+        // Already bound to another machine
+        console.warn(`[License] Machine ID mismatch for key ${licenseKey.substring(0, 8)}... Expected: ${dbLicense.activatedMachineId}, Got: ${machineId}`);
+        return {
+          valid: false,
+          message: "This license key is already activated on another device. Please contact support.",
+        };
+      }
+
       // Valid license
       return {
         valid: true,
-        message: `Licensed to ${dbLicense.licensee}`,
+        message: `Licensed to ${dbLicense.licensee} (Verified)`,
         licensee: dbLicense.licensee,
       };
     }

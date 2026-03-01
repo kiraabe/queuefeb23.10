@@ -1181,7 +1181,8 @@ export async function initDb() {
       updated_at timestamptz not null default now(),
       created_by_user_id uuid references users(id) on delete set null,
       notes text,
-      notes_encrypted text
+      notes_encrypted text,
+      activated_machine_id text
     );`);
 
     // Create index for license key lookup
@@ -3858,6 +3859,7 @@ export interface LicenseRecord {
   updatedAt: number;
   createdByUserId: string | null;
   notes: string | null;
+  activatedMachineId?: string | null;
 }
 
 export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
@@ -3874,7 +3876,8 @@ export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
        notes,
-       notes_encrypted as "notesEncrypted"
+       notes_encrypted as "notesEncrypted",
+       activated_machine_id as "activatedMachineId"
      FROM licenses
      WHERE status = 'active'
      ORDER BY created_at ASC
@@ -3899,6 +3902,7 @@ export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
     updatedAt: record.updatedAt,
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+    activatedMachineId: record.activatedMachineId,
   };
 }
 
@@ -3922,7 +3926,8 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
        notes,
-       notes_encrypted as "notesEncrypted"
+       notes_encrypted as "notesEncrypted",
+       activated_machine_id as "activatedMachineId"
      FROM licenses
      WHERE license_key = $1
         OR LOWER(license_key) = LOWER($1)
@@ -3948,7 +3953,19 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
     updatedAt: record.updatedAt,
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+    activatedMachineId: record.activatedMachineId,
   };
+}
+
+export async function updateLicenseMachineIdDb(licenseId: string, machineId: string): Promise<void> {
+  const p = getPool();
+  await p.query(
+    `UPDATE licenses
+     SET activated_machine_id = $2,
+         updated_at = now()
+     WHERE id = $1`,
+    [licenseId, machineId],
+  );
 }
 
 export async function createLicenseDb(
@@ -4019,6 +4036,7 @@ export async function createLicenseDb(
     updatedAt: record.updatedAt,
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+    activatedMachineId: record.activatedMachineId,
   };
 }
 
@@ -4037,7 +4055,8 @@ export async function listLicensesDb(): Promise<LicenseRecord[]> {
        extract(epoch from updated_at)*1000 as "updatedAt",
        created_by_user_id as "createdByUserId",
        notes,
-       notes_encrypted as "notesEncrypted"
+       notes_encrypted as "notesEncrypted",
+       activated_machine_id as "activatedMachineId"
      FROM licenses
      ORDER BY created_at DESC`,
   );
@@ -4096,6 +4115,7 @@ export async function updateLicenseStatusDb(
     updatedAt: record.updatedAt,
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
+    activatedMachineId: record.activatedMachineId,
   };
 }
 

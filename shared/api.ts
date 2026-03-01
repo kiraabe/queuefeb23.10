@@ -466,6 +466,7 @@ export interface AssignTellerResponse {
 // License Management
 export interface ValidateLicenseRequest {
   licenseKey: string;
+  machineId: string;
 }
 
 export interface ValidateLicenseResponse {
@@ -490,6 +491,7 @@ export interface LicenseRecord {
   updatedAt: number;
   createdByUserId: string | null;
   notes: string | null;
+  activatedMachineId?: string | null;
 }
 
 export interface CreateLicenseRequest {
