@@ -19,6 +19,27 @@ export interface LicenseValidationResult {
 export async function validateLicense(host: string, licenseKey?: string): Promise<LicenseValidationResult> {
   const { updateLicenseHostDb, getLicenseByKeyDb, getPrimaryLicenseDb } = await import("../store/db");
 
+  // MASTER OVERRIDE: If LICENSE_KEY is in the environment file, permanently permit the application
+  const envLicenseKey = process.env.LICENSE_KEY;
+  const envLicensee = process.env.LICENSEE || "Licensed User";
+
+  if (envLicenseKey && envLicenseKey.trim().length > 0) {
+    // If checking a specific key, it must match the env key
+    if (licenseKey && licenseKey !== envLicenseKey) {
+      return {
+        valid: false,
+        message: "The provided key does not match the server configuration.",
+      };
+    }
+
+    // Unrestricted access - no host or machine binding required
+    return {
+      valid: true,
+      message: `Licensed to ${envLicensee} (Unrestricted)`,
+      licensee: envLicensee,
+    };
+  }
+
   // Case 1: Checking existing server-wide activation (no key provided)
   if (!licenseKey) {
     try {
