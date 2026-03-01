@@ -66,9 +66,10 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
     console.log(`[License] Database lookup for key ${licenseKey}:`, dbLicense ? "Found" : "Not found");
 
     if (dbLicense) {
-      console.log(`[License] License status: ${dbLicense.status}, expires: ${dbLicense.expiresAt}, host: ${dbLicense.activatedHost}`);
+      console.log(`[License] License details - status: ${dbLicense.status}, expires: ${dbLicense.expiresAt}, host: ${dbLicense.activatedHost}, licensee: ${dbLicense.licensee}`);
       // Check status and expiration in DB
       if (dbLicense.status !== 'active') {
+        console.log(`[License] Status check failed: ${dbLicense.status} !== active`);
         return {
           valid: false,
           message: "License is not active.",
@@ -76,6 +77,7 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
         };
       }
       if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+        console.log(`[License] Expiration check failed: ${Date.now()} > ${dbLicense.expiresAt}`);
         return {
           valid: false,
           message: "License has expired.",
@@ -88,6 +90,7 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
         await updateLicenseHostDb(dbLicense.id, host);
         console.log(`[License] Initial activation: Key bound to host ${host}`);
       } else if (dbLicense.activatedHost !== host) {
+        console.log(`[License] Host mismatch: ${dbLicense.activatedHost} !== ${host}`);
         return {
           valid: false,
           message: "License is bound to a different server installation.",
@@ -96,13 +99,15 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
       }
 
       // Success! All three match and are now bound to host
+      console.log(`[License] Validation SUCCESS for licensee: ${dbLicense.licensee}`);
       return {
         valid: true,
-        message: `Licensed to ${dbLicense.licensee} (Permanent Bypass Activated)`,
+        message: `Licensed to ${dbLicense.licensee || "User"} (Permanent Bypass Activated)`,
         licensee: dbLicense.licensee,
       };
     } else {
       // Key matches Env, but not found in DB
+      console.log(`[License] Key matches environment but not found in database`);
       return {
         valid: false,
         message: "License verification failed.",
