@@ -651,19 +651,18 @@ export const login: RequestHandler = async (req, res) => {
   // Build device string based on device type
   let device: string;
 
-  // Helper to check if a vendor/model string is meaningful (not single char or empty)
-  const isMeaningfulDeviceInfo = (vendor: string, model: string): boolean => {
-    const combined = `${vendor || ""} ${model || ""}`.trim();
-    // Meaningful if combined is longer than 1 char (filters out single letters like "k")
-    return combined.length > 1;
+  // Helper to check if we have any meaningful vendor or model info
+  const hasDeviceInfo = (vendor: string, model: string): boolean => {
+    return !!(vendor || model);
   };
 
   if (deviceType === "mobile" || deviceType === "tablet") {
-    // For mobile/tablet, show vendor and model if meaningful, else use OS-based fallback
-    if (isMeaningfulDeviceInfo(deviceVendor, deviceModel)) {
-      device = `${deviceVendor} ${deviceModel}`.trim();
+    // For mobile/tablet, show vendor and/or model if available
+    if (hasDeviceInfo(deviceVendor, deviceModel)) {
+      // Show vendor + model, or just model/vendor if one is missing
+      device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
     } else {
-      // Fallback based on OS if vendor/model are not meaningful
+      // Fallback based on OS if no vendor/model info at all
       if (osName === "Android") {
         device = "Android Device";
       } else if (osName === "iOS") {
@@ -673,9 +672,9 @@ export const login: RequestHandler = async (req, res) => {
       }
     }
   } else {
-    // For desktop, show "Windows PC" or "Mac" etc if vendor/model not detected
-    if (isMeaningfulDeviceInfo(deviceVendor, deviceModel)) {
-      device = `${deviceVendor} ${deviceModel}`.trim();
+    // For desktop, show vendor/model if available
+    if (hasDeviceInfo(deviceVendor, deviceModel)) {
+      device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
     } else {
       device = osName.includes("Windows") ? "Windows PC" : osName.includes("Mac") ? "Mac" : "Desktop";
     }
