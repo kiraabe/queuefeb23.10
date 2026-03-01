@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { useLicense } from "@/hooks/use-license";
+import { getLicenseErrorMessage } from "@/lib/license-errors";
 import { LicenseLockedScreen } from "./LicenseLockedScreen";
 
 interface LicenseProviderProps {
@@ -34,7 +35,8 @@ export function LicenseProvider({ children }: LicenseProviderProps) {
         // Success! Reload the page to unlock for everyone
         window.location.reload();
       } else {
-        setSubmissionError(data.message || "Activation failed. Please check your key.");
+        const errorMessage = getLicenseErrorMessage(data.errorCode, data.message);
+        setSubmissionError(errorMessage);
         setIsSubmittingLicense(false);
       }
     } catch (error) {

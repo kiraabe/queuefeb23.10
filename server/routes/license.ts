@@ -10,7 +10,8 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
     if (!licenseKey || typeof licenseKey !== "string") {
       return res.status(400).json({
         valid: false,
-        message: "Missing or invalid license key",
+        message: "Enter your license key to activate the application.",
+        errorCode: "LICENSE_NOT_PROVIDED",
       });
     }
 
@@ -18,6 +19,7 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
     const response: ValidateLicenseResponse = {
       valid: result.valid,
       message: result.message,
+      errorCode: result.errorCode,
       licensee: result.valid ? result.licensee : undefined,
     };
 
@@ -38,6 +40,7 @@ export const checkLicenseStatusHandler: RequestHandler = async (req, res) => {
     const response: ValidateLicenseResponse = {
       valid: result.valid,
       message: result.message,
+      errorCode: result.errorCode,
       licensee: result.valid ? result.licensee : undefined,
     };
 
