@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, Lock } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 interface LicenseLockedScreenProps {
   message: string;
@@ -29,9 +29,11 @@ export function LicenseLockedScreen({
         <div className="bg-white rounded-lg shadow-2xl p-8">
           {/* Header */}
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-red-100 rounded-full">
-              <Lock className="h-8 w-8 text-red-600" />
-            </div>
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F71d63217d5204f37a805c350666e42c1%2F871c0002b89a49e1a558735fd2281ab9?format=webp&width=800&height=1200"
+              alt="Application Locked Shield"
+              className="h-24 w-24 object-contain"
+            />
           </div>
 
           <h1 className="text-2xl font-bold text-center text-slate-900 mb-2">
