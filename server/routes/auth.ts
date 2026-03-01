@@ -650,18 +650,35 @@ export const login: RequestHandler = async (req, res) => {
 
   // Build device string based on device type
   let device: string;
+
+  // Helper to check if a vendor/model string is meaningful (not single char or empty)
+  const isMeaningfulDeviceInfo = (vendor: string, model: string): boolean => {
+    const combined = `${vendor || ""} ${model || ""}`.trim();
+    // Meaningful if combined is longer than 1 char (filters out single letters like "k")
+    return combined.length > 1;
+  };
+
   if (deviceType === "mobile" || deviceType === "tablet") {
-    // For mobile/tablet, show vendor and model
-    device =
-      deviceVendor || deviceModel
-        ? `${deviceVendor} ${deviceModel}`.trim()
-        : deviceType === "tablet"
-          ? "Tablet"
-          : "Mobile Device";
+    // For mobile/tablet, show vendor and model if meaningful, else use OS-based fallback
+    if (isMeaningfulDeviceInfo(deviceVendor, deviceModel)) {
+      device = `${deviceVendor} ${deviceModel}`.trim();
+    } else {
+      // Fallback based on OS if vendor/model are not meaningful
+      if (osName === "Android") {
+        device = "Android Device";
+      } else if (osName === "iOS") {
+        device = "iOS Device";
+      } else {
+        device = deviceType === "tablet" ? "Tablet" : "Mobile Device";
+      }
+    }
   } else {
-    // For desktop, show "Windows PC" or "Mac" etc if not detected
-    device =
-      deviceVendor || deviceModel ? `${deviceVendor} ${deviceModel}`.trim() : osName.includes("Windows") ? "Windows PC" : osName.includes("Mac") ? "Mac" : "Desktop";
+    // For desktop, show "Windows PC" or "Mac" etc if vendor/model not detected
+    if (isMeaningfulDeviceInfo(deviceVendor, deviceModel)) {
+      device = `${deviceVendor} ${deviceModel}`.trim();
+    } else {
+      device = osName.includes("Windows") ? "Windows PC" : osName.includes("Mac") ? "Mac" : "Desktop";
+    }
   }
 
   // Extract browser details
