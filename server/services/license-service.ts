@@ -40,48 +40,18 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
     };
   }
 
-  // 1. Permanent Bypass Check (Status Check)
-  // If no key provided, check if we already have a valid activation in the DB that matches the Env
+  // Always require manual entry - no automatic bypass
+  // User must enter the license key to proceed
   if (!licenseKey) {
-    try {
-      // Look for a license that matches the env key
-      const dbLicense = await getLicenseByKeyDb(envLicenseKey);
-
-      if (dbLicense && dbLicense.status === 'active') {
-        // Check expiration
-        if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-          return {
-            valid: false,
-            message: "License has expired.",
-            errorCode: "LICENSE_EXPIRED",
-          };
-        }
-
-        // Update host if different (allows license to be used on multiple hosts)
-        if (dbLicense.activatedHost !== host && !dbLicense.activatedHost) {
-          await updateLicenseHostDb(dbLicense.id, host);
-        }
-
-        return {
-          valid: true,
-          message: `Licensed to ${dbLicense.licensee}`,
-          licensee: dbLicense.licensee,
-        };
-      }
-    } catch (error) {
-      console.warn("[License] Bypass check failed:", error);
-    }
-
-    // App is locked - needs initial manual entry of the Env key
     return {
       valid: false,
-      message: "License key required to activate application.",
+      message: "Enter your license key to activate the application.",
       errorCode: "LICENSE_NOT_PROVIDED",
     };
   }
 
-  // 2. Manual Activation (User provided a key on lock screen)
-  // TRIPLE CHECK: Entered Key == Env Key == DB Key
+  // Manual Activation (User provided a key on lock screen)
+  // TRIPLE CHECK: Entered Key == Env Key == DB Key (all three must match)
   if (licenseKey !== envLicenseKey) {
     return {
       valid: false,
