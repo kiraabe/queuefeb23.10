@@ -1216,24 +1216,6 @@ export async function initDb() {
       `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS notes_encrypted text;`,
     ).catch(() => {}); // ignore if already exists
 
-    // Seed initial license from env if table is empty
-    const licenseCheck = await p.query(`SELECT count(*) FROM licenses`);
-    if (parseInt(licenseCheck.rows[0].count, 10) === 0) {
-      const envLicenseKey = process.env.LICENSE_KEY;
-      const envLicensee = process.env.LICENSEE;
-      if (envLicenseKey && envLicensee) {
-        console.log("ℹ️  Seeding initial license from environment variables...");
-        const { encryptField } = await import("../services/encryption");
-        const crypto = await import("crypto");
-        const licenseKeyHash = crypto.createHash("sha256").update(envLicenseKey).digest("hex");
-
-        await p.query(
-          `INSERT INTO licenses (license_key, license_key_hash, licensee, status) VALUES ($1, $2, $3, 'active')`,
-          [envLicenseKey, licenseKeyHash, envLicensee]
-        );
-      }
-    }
-
     console.log("✅ License management schema initialized");
 
     // Admin user creation has been removed - users must be created explicitly through the setup/management API
