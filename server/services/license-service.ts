@@ -1,5 +1,5 @@
 import { LicenseConfig } from "@shared/api";
-import { getLicenseByKeyDb, getPrimaryLicenseDb, LicenseRecord } from "../store/db";
+import { getLicenseByKeyDb, getPrimaryLicenseDb, updateLicenseHostDb, LicenseRecord } from "../store/db";
 
 export interface LicenseValidationResult {
   valid: boolean;
@@ -42,14 +42,20 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
   // If no key provided, check if we already have a valid activation in the DB that matches the Env
   if (!licenseKey) {
     try {
-      // Look for a license that matches the env key AND is bound to this host
+      // Look for a license that matches the env key
       const dbLicense = await getLicenseByKeyDb(envLicenseKey);
 
-      if (dbLicense && dbLicense.status === 'active' && dbLicense.activatedHost === host) {
+      if (dbLicense && dbLicense.status === 'active') {
         // Check expiration
         if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
           return { valid: false, message: "The activated license has expired." };
         }
+
+        // Update host if different (allows license to be used on multiple hosts)
+        if (dbLicense.activatedHost !== host && !dbLicense.activatedHost) {
+          await updateLicenseHostDb(dbLicense.id, host);
+        }
+
         return {
           valid: true,
           message: `Licensed to ${dbLicense.licensee}`,
