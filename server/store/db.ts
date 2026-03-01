@@ -3872,58 +3872,8 @@ export interface LicenseRecord {
   activatedHost?: string | null;
 }
 
-export async function getPrimaryLicenseDb(preferredLicenseKey?: string): Promise<LicenseRecord | null> {
+export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
   const p = getPool();
-
-  // If a preferred license key is provided, try to find a matching active license first
-  if (preferredLicenseKey) {
-    const crypto = await import("crypto");
-    const cleanKey = preferredLicenseKey.trim();
-    const licenseKeyHash = crypto.createHash("sha256").update(cleanKey).digest("hex");
-
-    const matchRes = await p.query(
-      `SELECT
-         id,
-         license_key as "licenseKey",
-         licensee,
-         licensee_encrypted as "licenseeEncrypted",
-         status,
-         extract(epoch from expires_at)*1000 as "expiresAt",
-         extract(epoch from created_at)*1000 as "createdAt",
-         extract(epoch from updated_at)*1000 as "updatedAt",
-         created_by_user_id as "createdByUserId",
-         notes,
-         notes_encrypted as "notesEncrypted",
-         activated_machine_id as "activatedMachineId",
-         activated_host as "activatedHost"
-       FROM licenses
-       WHERE status = 'active'
-         AND (license_key = $1 OR LOWER(license_key) = LOWER($1) OR license_key_hash = $2)
-       ORDER BY created_at ASC
-       LIMIT 1`,
-      [cleanKey, licenseKeyHash]
-    );
-
-    if (matchRes.rows[0]) {
-      const { decryptField } = await import("../services/encryption");
-      const record = matchRes.rows[0];
-      return {
-        id: record.id,
-        licenseKey: record.licenseKey,
-        licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
-        status: record.status,
-        expiresAt: record.expiresAt,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
-        createdByUserId: record.createdByUserId,
-        notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
-        activatedMachineId: record.activatedMachineId,
-        activatedHost: record.activatedHost,
-      };
-    }
-  }
-
-  // Fallback: return the first active license
   const res = await p.query(
     `SELECT
        id,
