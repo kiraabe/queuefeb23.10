@@ -30,7 +30,7 @@ export function LicenseLockedScreen({
           {/* Header */}
           <div className="flex justify-center mb-6">
             <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F71d63217d5204f37a805c350666e42c1%2F871c0002b89a49e1a558735fd2281ab9?format=webp&width=800&height=1200"
+              src="/locked-shield.webp"
               alt="Application Locked Shield"
               className="h-24 w-24 object-contain"
             />
