@@ -469,9 +469,20 @@ export interface ValidateLicenseRequest {
   machineId?: string; // Kept for backwards compatibility
 }
 
+export type LicenseErrorCode =
+  | "LICENSE_CONFIG_MISSING"
+  | "LICENSE_NOT_PROVIDED"
+  | "LICENSE_MISMATCH"
+  | "LICENSE_NOT_FOUND"
+  | "LICENSE_INVALID_STATUS"
+  | "LICENSE_EXPIRED"
+  | "LICENSE_HOST_MISMATCH"
+  | "LICENSE_DB_ERROR";
+
 export interface ValidateLicenseResponse {
   valid: boolean;
   message: string;
+  errorCode?: LicenseErrorCode;
   licensee?: string;
 }
 

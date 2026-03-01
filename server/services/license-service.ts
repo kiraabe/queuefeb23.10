@@ -1,9 +1,10 @@
-import { LicenseConfig } from "@shared/api";
+import { LicenseConfig, LicenseErrorCode } from "@shared/api";
 import { getLicenseByKeyDb, getPrimaryLicenseDb, updateLicenseHostDb, LicenseRecord } from "../store/db";
 
 export interface LicenseValidationResult {
   valid: boolean;
   message: string;
+  errorCode?: LicenseErrorCode;
   licensee?: string;
 }
 
@@ -34,7 +35,8 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
   if (!envLicenseKey) {
     return {
       valid: false,
-      message: "License environment variable (LICENSE_KEY) is not configured.",
+      message: "License verification failed.",
+      errorCode: "LICENSE_CONFIG_MISSING",
     };
   }
 
@@ -48,7 +50,11 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
       if (dbLicense && dbLicense.status === 'active') {
         // Check expiration
         if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-          return { valid: false, message: "The activated license has expired." };
+          return {
+            valid: false,
+            message: "License has expired.",
+            errorCode: "LICENSE_EXPIRED",
+          };
         }
 
         // Update host if different (allows license to be used on multiple hosts)
@@ -69,7 +75,8 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
     // App is locked - needs initial manual entry of the Env key
     return {
       valid: false,
-      message: "Application is locked. Please enter the configured license key to activate.",
+      message: "License key required to activate application.",
+      errorCode: "LICENSE_NOT_PROVIDED",
     };
   }
 
@@ -78,7 +85,8 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
   if (licenseKey !== envLicenseKey) {
     return {
       valid: false,
-      message: "The provided key does not match the server configuration environment variable.",
+      message: "Invalid license key provided.",
+      errorCode: "LICENSE_MISMATCH",
     };
   }
 
@@ -89,10 +97,18 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
     if (dbLicense) {
       // Check status and expiration in DB
       if (dbLicense.status !== 'active') {
-        return { valid: false, message: `The license in the database is currently ${dbLicense.status}.` };
+        return {
+          valid: false,
+          message: "License is not active.",
+          errorCode: "LICENSE_INVALID_STATUS",
+        };
       }
       if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-        return { valid: false, message: "The license in the database has expired." };
+        return {
+          valid: false,
+          message: "License has expired.",
+          errorCode: "LICENSE_EXPIRED",
+        };
       }
 
       // Host Binding - Save this host to the DB for the permanent bypass
@@ -102,7 +118,8 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
       } else if (dbLicense.activatedHost !== host) {
         return {
           valid: false,
-          message: "This license is already bound to another server installation in the database.",
+          message: "License is bound to a different server installation.",
+          errorCode: "LICENSE_HOST_MISMATCH",
         };
       }
 
@@ -116,14 +133,16 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
       // Key matches Env, but not found in DB
       return {
         valid: false,
-        message: "The environment key was not found in the database. Please ensure the admin has added it.",
+        message: "License verification failed.",
+        errorCode: "LICENSE_NOT_FOUND",
       };
     }
   } catch (error) {
     console.error("[License] Activation error:", error);
     return {
       valid: false,
-      message: "Database error during activation. Please try again.",
+      message: "License verification failed.",
+      errorCode: "LICENSE_DB_ERROR",
     };
   }
 }

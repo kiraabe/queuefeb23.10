@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { ValidateLicenseResponse } from "@shared/api";
+import { getLicenseErrorMessage } from "@/lib/license-errors";
 
 interface LicenseState {
   isLoading: boolean;
@@ -37,20 +38,25 @@ export function useLicense(): LicenseState {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        const message = getLicenseErrorMessage(errorData.errorCode, "Server verification failed.");
         setState({
           isLoading: false,
           isValid: false,
-          message: errorData.message || `Server verification failed (${response.status})`,
+          message,
         });
         return;
       }
 
       const data: ValidateLicenseResponse = await response.json();
 
+      const displayMessage = data.valid
+        ? data.message
+        : getLicenseErrorMessage(data.errorCode, data.message);
+
       setState({
         isLoading: false,
         isValid: !!data.valid,
-        message: data.message,
+        message: displayMessage,
         licensee: data.licensee,
       });
     } catch (error) {
