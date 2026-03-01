@@ -16,38 +16,39 @@ export interface LicenseValidationResult {
  * - message: human-readable message
  * - licensee: name of the licensee (if valid)
  */
+/**
+ * Validates a license key
+ *
+ * Checks all three must match to bypass: Entered Key == Environment Key == Database Key
+ * Once activated and bound to the host, it bypasses permanently.
+ *
+ * @param host - The current server host/domain
+ * @param licenseKey - The key entered by the user (if any)
+ */
 export async function validateLicense(host: string, licenseKey?: string): Promise<LicenseValidationResult> {
-  const { updateLicenseHostDb, getLicenseByKeyDb, getPrimaryLicenseDb, createLicenseDb } = await import("../store/db");
+  const { updateLicenseHostDb, getLicenseByKeyDb, getPrimaryLicenseDb } = await import("../store/db");
 
-  const envLicenseKey = process.env.LICENSE_KEY;
-  const envLicensee = process.env.LICENSEE || "Licensed User";
+  const envLicenseKey = (process.env.LICENSE_KEY || "").trim();
 
-  // 1. First, check for an existing activation in the database
-  try {
-    const dbLicense = await getPrimaryLicenseDb();
-    if (dbLicense) {
-      // If we have an active license in DB bound to this host, we check if it matches the environment key
-      if (dbLicense.status === 'active' && dbLicense.activatedHost === host) {
-        // Requirement: env = db = locked app key
-        // If an environment key is set, it must match what's in the database
-        if (envLicenseKey && envLicenseKey.trim().length > 0) {
-          if (dbLicense.licenseKey === envLicenseKey) {
-            // Matches! Check expiration
-            if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-              return { valid: false, message: "License has expired" };
-            }
-            return {
-              valid: true,
-              message: `Licensed to ${dbLicense.licensee}`,
-              licensee: dbLicense.licensee,
-            };
-          }
-          // If they don't match, we fall through to the lock logic below
-          console.warn(`[License] Database license key mismatch with environment. App will remain locked.`);
-        } else {
-          // No environment key constraint, accept the DB license
+  // If environment variable is missing, we cannot perform the triple-check
+  if (!envLicenseKey) {
+    return {
+      valid: false,
+      message: "License environment variable (LICENSE_KEY) is not configured.",
+    };
+  }
+
+  // 1. Permanent Bypass Check (Status Check)
+  // If no key provided, check if we already have a valid activation in the DB that matches the Env
+  if (!licenseKey) {
+    try {
+      const dbLicense = await getPrimaryLicenseDb();
+      if (dbLicense && dbLicense.status === 'active' && dbLicense.activatedHost === host) {
+        // TRIPLE CHECK: DB Key must match Env Key for the permanent bypass
+        if (dbLicense.licenseKey === envLicenseKey) {
+          // Check expiration
           if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-            return { valid: false, message: "License has expired" };
+            return { valid: false, message: "The activated license has expired." };
           }
           return {
             valid: true,
@@ -56,95 +57,70 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
           };
         }
       }
+    } catch (error) {
+      console.warn("[License] Bypass check failed:", error);
     }
-  } catch (error) {
-    console.warn("[License] Status check failed:", error);
-  }
 
-  // 2. If not activated in DB (status check - no key provided)
-  if (!licenseKey) {
-    // Application is locked. Even if we have an environment key, we ask for it on the first run.
-    const message = envLicenseKey && envLicenseKey.trim().length > 0
-      ? "Application is locked. Please enter the key from your environment configuration to activate."
-      : "Application is locked. Please enter your license key to activate this server.";
-
+    // App is locked - needs initial manual entry of the Env key
     return {
       valid: false,
-      message,
+      message: "Application is locked. Please enter the configured license key to activate.",
     };
   }
 
-  // 3. Activation attempt (key provided)
-  // Cross check with environment key if configured
-  if (envLicenseKey && envLicenseKey.trim().length > 0) {
-    if (licenseKey === envLicenseKey) {
-      try {
-        let dbLicense = await getLicenseByKeyDb(licenseKey);
-        if (!dbLicense) {
-          // One-time save to database to make it a "permanent permit"
-          dbLicense = await createLicenseDb(licenseKey, envLicensee);
-          console.log(`[License] Environment key saved to database for permanent activation`);
-        }
+  // 2. Manual Activation (User provided a key on lock screen)
+  // TRIPLE CHECK: Entered Key == Env Key == DB Key
+  if (licenseKey !== envLicenseKey) {
+    return {
+      valid: false,
+      message: "The provided key does not match the server configuration environment variable.",
+    };
+  }
 
-        // Host Binding
-        if (!dbLicense.activatedHost) {
-          // Bind this server's host/domain
-          await updateLicenseHostDb(dbLicense.id, host);
-          console.log(`[License] Key activated and bound to server host: ${host}`);
-        } else if (dbLicense.activatedHost !== host) {
-          console.warn(`[License] Host mismatch. Key activated on ${dbLicense.activatedHost}, tried on ${host}`);
-          return {
-            valid: false,
-            message: "This license is already activated on another server installation. Please contact support.",
-          };
-        }
+  try {
+    // Check if the key exists in the database (Pre-created by admin)
+    const dbLicense = await getLicenseByKeyDb(licenseKey);
 
-        return {
-          valid: true,
-          message: `Licensed to ${dbLicense.licensee} (Activated)`,
-          licensee: dbLicense.licensee,
-        };
-      } catch (error) {
-        console.error("[License] Activation failed:", error);
+    if (dbLicense) {
+      // Check status and expiration in DB
+      if (dbLicense.status !== 'active') {
+        return { valid: false, message: `The license in the database is currently ${dbLicense.status}.` };
       }
+      if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+        return { valid: false, message: "The license in the database has expired." };
+      }
+
+      // Host Binding - Save this host to the DB for the permanent bypass
+      if (!dbLicense.activatedHost) {
+        await updateLicenseHostDb(dbLicense.id, host);
+        console.log(`[License] Initial activation: Key bound to host ${host}`);
+      } else if (dbLicense.activatedHost !== host) {
+        return {
+          valid: false,
+          message: "This license is already bound to another server installation in the database.",
+        };
+      }
+
+      // Success! All three match and are now bound to host
+      return {
+        valid: true,
+        message: `Licensed to ${dbLicense.licensee} (Permanent Bypass Activated)`,
+        licensee: dbLicense.licensee,
+      };
     } else {
+      // Key matches Env, but not found in DB
       return {
         valid: false,
-        message: "The provided key does not match the server configuration.",
+        message: "The environment key was not found in the database. Please ensure the admin has added it.",
       };
     }
+  } catch (error) {
+    console.error("[License] Activation error:", error);
+    return {
+      valid: false,
+      message: "Database error during activation. Please try again.",
+    };
   }
-
-  // Case 4: Fallback for generic keys (only if no environment key is set)
-  if (!envLicenseKey || envLicenseKey.trim().length === 0) {
-    try {
-      const dbLicense = await getLicenseByKeyDb(licenseKey);
-      if (dbLicense) {
-        // ... same logic as before for generic keys ...
-        if (dbLicense.status !== 'active') {
-          return { valid: false, message: `License is ${dbLicense.status}` };
-        }
-        if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
-          return { valid: false, message: "License has expired" };
-        }
-        if (!dbLicense.activatedHost) {
-          await updateLicenseHostDb(dbLicense.id, host);
-        } else if (dbLicense.activatedHost !== host) {
-          return { valid: false, message: "License bound to another host." };
-        }
-        return {
-          valid: true,
-          message: `Licensed to ${dbLicense.licensee}`,
-          licensee: dbLicense.licensee,
-        };
-      }
-    } catch (e) {}
-  }
-
-  return {
-    valid: false,
-    message: "Invalid license key. Please check your entry or contact your administrator.",
-  };
 }
 
 /**
