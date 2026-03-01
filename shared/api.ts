@@ -465,8 +465,8 @@ export interface AssignTellerResponse {
 
 // License Management
 export interface ValidateLicenseRequest {
-  licenseKey: string;
-  machineId: string;
+  licenseKey?: string;
+  machineId?: string; // Kept for backwards compatibility
 }
 
 export interface ValidateLicenseResponse {

@@ -16,64 +16,79 @@ export interface LicenseValidationResult {
  * - message: human-readable message
  * - licensee: name of the licensee (if valid)
  */
-export async function validateLicense(licenseKey: string, machineId: string): Promise<LicenseValidationResult> {
-  // Try database first
+export async function validateLicense(host: string, licenseKey?: string): Promise<LicenseValidationResult> {
+  const { updateLicenseHostDb, getLicenseByKeyDb, getPrimaryLicenseDb } = await import("../store/db");
+
+  // Case 1: Checking existing server-wide activation (no key provided)
+  if (!licenseKey) {
+    try {
+      const dbLicense = await getPrimaryLicenseDb();
+      if (dbLicense) {
+        // If the server has a primary license, check if it's bound to THIS host
+        if (dbLicense.status === 'active' && dbLicense.activatedHost === host) {
+          // Verify expiration
+          if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+            return { valid: false, message: "License has expired" };
+          }
+          return {
+            valid: true,
+            message: `Licensed to ${dbLicense.licensee}`,
+            licensee: dbLicense.licensee,
+          };
+        }
+      }
+    } catch (error) {
+      console.warn("[License] Status check failed:", error);
+    }
+    return {
+      valid: false,
+      message: "Application is locked. Please enter your license key to activate this server.",
+    };
+  }
+
+  // Case 2: New activation attempt (key provided)
   try {
-    const { updateLicenseMachineIdDb } = await import("../store/db");
     const dbLicense = await getLicenseByKeyDb(licenseKey);
 
     if (dbLicense) {
-      // Check license status
+      // Check status
       if (dbLicense.status !== 'active') {
-        return {
-          valid: false,
-          message: `License is ${dbLicense.status}`,
-        };
+        return { valid: false, message: `License is ${dbLicense.status}` };
       }
 
       // Check expiration
       if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+        return { valid: false, message: "License has expired" };
+      }
+
+      // Host Binding (Server instance lock)
+      if (!dbLicense.activatedHost) {
+        // First time activation on a server - bind this server's host/domain
+        await updateLicenseHostDb(dbLicense.id, host);
+        console.log(`[License] Key ${licenseKey.substring(0, 8)}... bound to server host: ${host}`);
+      } else if (dbLicense.activatedHost !== host) {
+        // Already bound to a DIFFERENT server/installation
+        console.warn(`[License] Host mismatch. Key activated on ${dbLicense.activatedHost}, tried on ${host}`);
         return {
           valid: false,
-          message: "License has expired",
+          message: "This license is already activated on another server installation. Please contact support.",
         };
       }
 
-      // Machine ID Binding
-      if (!dbLicense.activatedMachineId) {
-        // First time activation - bind machine ID
-        await updateLicenseMachineIdDb(dbLicense.id, machineId);
-      } else if (dbLicense.activatedMachineId !== machineId) {
-        // Already bound to another machine
-        console.warn(`[License] Machine ID mismatch for key ${licenseKey.substring(0, 8)}... Expected: ${dbLicense.activatedMachineId}, Got: ${machineId}`);
-        return {
-          valid: false,
-          message: "This license key is already activated on another device. Please contact support.",
-        };
-      }
-
-      // Valid license
+      // Success
       return {
         valid: true,
-        message: `Licensed to ${dbLicense.licensee} (Verified)`,
+        message: `Licensed to ${dbLicense.licensee} (Server Activated)`,
         licensee: dbLicense.licensee,
       };
     }
   } catch (error) {
-    console.warn("[License] Database lookup failed:", error);
+    console.warn("[License] Activation failed:", error);
   }
-
-  // If no license is found in DB, or key doesn't match, reject access
-  // The environment variable fallback has been removed to enforce database-only validation
-  const isKeyProvided = !!licenseKey && licenseKey.trim().length > 0;
-
-  console.warn(`[License] Access restricted. DB validation failed. Key provided: ${isKeyProvided}`);
 
   return {
     valid: false,
-    message: isKeyProvided
-      ? "Invalid license key. Please check your key or contact your administrator."
-      : "No license key found. Please enter your license key.",
+    message: "Invalid license key. Please check your entry or contact your administrator.",
   };
 }
 

@@ -13,17 +13,33 @@ interface LicenseProviderProps {
 export function LicenseProvider({ children }: LicenseProviderProps) {
   const licenseState = useLicense();
   const [isSubmittingLicense, setIsSubmittingLicense] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const handleLicenseSubmit = async (licenseKey: string) => {
     setIsSubmittingLicense(true);
+    setSubmissionError(null);
     try {
-      // Store the license key in localStorage
-      localStorage.setItem("LICENSE_KEY", licenseKey);
-      
-      // Reload the page to re-validate with the new license key
-      window.location.reload();
+      const response = await fetch("/api/license/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ licenseKey }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.valid) {
+        // Success! Reload the page to unlock for everyone
+        window.location.reload();
+      } else {
+        setSubmissionError(data.message || "Activation failed. Please check your key.");
+        setIsSubmittingLicense(false);
+      }
     } catch (error) {
       console.error("[License] Failed to submit license:", error);
+      setSubmissionError("Network error. Please try again.");
       setIsSubmittingLicense(false);
     }
   };
@@ -48,7 +64,7 @@ export function LicenseProvider({ children }: LicenseProviderProps) {
   // Show locked screen for any other state (null, false, undefined)
   return (
     <LicenseLockedScreen
-      message={licenseState.message}
+      message={submissionError || licenseState.message}
       onLicenseSubmit={handleLicenseSubmit}
       isValidating={isSubmittingLicense}
     />

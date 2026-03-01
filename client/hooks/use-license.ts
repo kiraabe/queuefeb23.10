@@ -22,50 +22,25 @@ export function useLicense(): LicenseState {
   const [state, setState] = useState<LicenseState>({
     isLoading: true,
     isValid: null,
-    message: "Validating license...",
+    message: "Verifying server activation...",
   });
 
-  const validateLicense = useCallback(async () => {
+  const checkStatus = useCallback(async () => {
     try {
-      // Get or generate machine ID for binding
-      let machineId = localStorage.getItem("MACHINE_ID");
-      if (!machineId) {
-        machineId = crypto.randomUUID?.() || Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem("MACHINE_ID", machineId);
-      }
-
-      // Get license key from localStorage or environment
-      const storedKey = localStorage.getItem("LICENSE_KEY");
-      const envKey = import.meta.env.VITE_LICENSE_KEY;
-      const licenseKey = storedKey || envKey;
-
-      if (!licenseKey) {
-        // No license key in production or development (disabled bypass)
-        setState({
-          isLoading: false,
-          isValid: false,
-          message: "No license key found. Please enter your license key.",
-        });
-        return;
-      }
-
-      // Validate with server
-      const response = await fetch("/api/license/validate", {
-        method: "POST",
+      // Check server activation status
+      const response = await fetch("/api/license/status", {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify({ licenseKey, machineId }),
+        }
       });
 
       if (!response.ok) {
-        // Handle non-200 responses (e.g., 400 Missing CSRF, 500 error)
         const errorData = await response.json().catch(() => ({}));
         setState({
           isLoading: false,
           isValid: false,
-          message: errorData.message || errorData.error || `Server returned error ${response.status}`,
+          message: errorData.message || `Server verification failed (${response.status})`,
         });
         return;
       }
@@ -79,18 +54,18 @@ export function useLicense(): LicenseState {
         licensee: data.licensee,
       });
     } catch (error) {
-      console.error("[License] Validation failed:", error);
+      console.error("[License] Status check failed:", error);
       setState({
         isLoading: false,
         isValid: false,
-        message: "Failed to validate license. Please check your connection.",
+        message: "Unable to verify server license. Please check your connection.",
       });
     }
   }, []);
 
   useEffect(() => {
-    validateLicense();
-  }, [validateLicense]);
+    checkStatus();
+  }, [checkStatus]);
 
   return state;
 }

@@ -1182,7 +1182,8 @@ export async function initDb() {
       created_by_user_id uuid references users(id) on delete set null,
       notes text,
       notes_encrypted text,
-      activated_machine_id text
+      activated_machine_id text,
+      activated_host text
     );`);
 
     // Create index for license key lookup
@@ -1199,6 +1200,14 @@ export async function initDb() {
     // Add missing columns if they don't exist
     await p.query(
       `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS license_key_hash text;`,
+    ).catch(() => {}); // ignore if already exists
+
+    await p.query(
+      `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS activated_machine_id text;`,
+    ).catch(() => {}); // ignore if already exists
+
+    await p.query(
+      `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS activated_host text;`,
     ).catch(() => {}); // ignore if already exists
     await p.query(
       `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS licensee_encrypted text;`,
@@ -3860,6 +3869,7 @@ export interface LicenseRecord {
   createdByUserId: string | null;
   notes: string | null;
   activatedMachineId?: string | null;
+  activatedHost?: string | null;
 }
 
 export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
@@ -3877,7 +3887,8 @@ export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
        created_by_user_id as "createdByUserId",
        notes,
        notes_encrypted as "notesEncrypted",
-       activated_machine_id as "activatedMachineId"
+       activated_machine_id as "activatedMachineId",
+       activated_host as "activatedHost"
      FROM licenses
      WHERE status = 'active'
      ORDER BY created_at ASC
@@ -3903,6 +3914,7 @@ export async function getPrimaryLicenseDb(): Promise<LicenseRecord | null> {
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
     activatedMachineId: record.activatedMachineId,
+    activatedHost: record.activatedHost,
   };
 }
 
@@ -3927,7 +3939,8 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
        created_by_user_id as "createdByUserId",
        notes,
        notes_encrypted as "notesEncrypted",
-       activated_machine_id as "activatedMachineId"
+       activated_machine_id as "activatedMachineId",
+       activated_host as "activatedHost"
      FROM licenses
      WHERE license_key = $1
         OR LOWER(license_key) = LOWER($1)
@@ -3954,6 +3967,7 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
     activatedMachineId: record.activatedMachineId,
+    activatedHost: record.activatedHost,
   };
 }
 
@@ -3965,6 +3979,17 @@ export async function updateLicenseMachineIdDb(licenseId: string, machineId: str
          updated_at = now()
      WHERE id = $1`,
     [licenseId, machineId],
+  );
+}
+
+export async function updateLicenseHostDb(licenseId: string, host: string): Promise<void> {
+  const p = getPool();
+  await p.query(
+    `UPDATE licenses
+     SET activated_host = $2,
+         updated_at = now()
+     WHERE id = $1`,
+    [licenseId, host],
   );
 }
 
@@ -4037,6 +4062,7 @@ export async function createLicenseDb(
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
     activatedMachineId: record.activatedMachineId,
+    activatedHost: record.activatedHost,
   };
 }
 
@@ -4056,7 +4082,8 @@ export async function listLicensesDb(): Promise<LicenseRecord[]> {
        created_by_user_id as "createdByUserId",
        notes,
        notes_encrypted as "notesEncrypted",
-       activated_machine_id as "activatedMachineId"
+       activated_machine_id as "activatedMachineId",
+       activated_host as "activatedHost"
      FROM licenses
      ORDER BY created_at DESC`,
   );
@@ -4116,6 +4143,7 @@ export async function updateLicenseStatusDb(
     createdByUserId: record.createdByUserId,
     notes: record.notesEncrypted ? decryptField(record.notesEncrypted) : record.notes,
     activatedMachineId: record.activatedMachineId,
+    activatedHost: record.activatedHost,
   };
 }
 

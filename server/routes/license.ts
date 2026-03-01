@@ -4,7 +4,8 @@ import { validateLicense } from "../services/license-service";
 
 export const validateLicenseHandler: RequestHandler = async (req, res) => {
   try {
-    const { licenseKey, machineId } = req.body as ValidateLicenseRequest;
+    const { licenseKey } = req.body as ValidateLicenseRequest;
+    const host = req.headers.host || "localhost";
 
     if (!licenseKey || typeof licenseKey !== "string") {
       return res.status(400).json({
@@ -13,14 +14,7 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!machineId || typeof machineId !== "string") {
-      return res.status(400).json({
-        valid: false,
-        message: "Machine identity verification failed. Please try again or clear your browser data.",
-      });
-    }
-
-    const result = await validateLicense(licenseKey, machineId);
+    const result = await validateLicense(host, licenseKey);
     const response: ValidateLicenseResponse = {
       valid: result.valid,
       message: result.message,
@@ -33,6 +27,26 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
     res.status(500).json({
       valid: false,
       message: "License validation failed",
+    });
+  }
+};
+
+export const checkLicenseStatusHandler: RequestHandler = async (req, res) => {
+  try {
+    const host = req.headers.host || "localhost";
+    const result = await validateLicense(host);
+    const response: ValidateLicenseResponse = {
+      valid: result.valid,
+      message: result.message,
+      licensee: result.valid ? result.licensee : undefined,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("[License] Status check error:", error);
+    res.status(500).json({
+      valid: false,
+      message: "License status check failed",
     });
   }
 };

@@ -7,7 +7,7 @@ import type { Server as HTTPServer } from "node:http";
 import { getPool } from "./store/db";
 import { handleAdminSessionConnection } from "./services/session-websocket";
 import { handleDemo } from "./routes/demo";
-import { validateLicenseHandler } from "./routes/license";
+import { validateLicenseHandler, checkLicenseStatusHandler } from "./routes/license";
 import {
   createLicenseHandler,
   listLicensesHandler,
@@ -340,6 +340,7 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+  app.get("/api/license/status", checkLicenseStatusHandler);
   app.post("/api/license/validate", validateLicenseHandler);
 
   // Auth API
