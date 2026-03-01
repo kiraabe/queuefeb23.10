@@ -6,13 +6,13 @@ import { LicenseErrorCode } from "@shared/api";
  */
 const LICENSE_ERROR_MESSAGES: Record<LicenseErrorCode, string> = {
   LICENSE_CONFIG_MISSING: "Server configuration error. Please contact support.",
-  LICENSE_NOT_PROVIDED: "Please enter your license key to activate this application.",
-  LICENSE_MISMATCH: "The license key you entered is invalid. Please check and try again.",
-  LICENSE_NOT_FOUND: "License verification failed. Please contact support.",
-  LICENSE_INVALID_STATUS: "Your license is currently inactive. Please contact support.",
-  LICENSE_EXPIRED: "Your license has expired. Please renew it to continue.",
-  LICENSE_HOST_MISMATCH: "This license is registered to a different server. Please contact support.",
-  LICENSE_DB_ERROR: "Unable to verify license at this moment. Please try again.",
+  LICENSE_NOT_PROVIDED: "Enter your license key to activate the application.",
+  LICENSE_MISMATCH: "This license key is not valid. Please check and try again.",
+  LICENSE_NOT_FOUND: "This license key was not found. Please check and try again.",
+  LICENSE_INVALID_STATUS: "This license is not active. Please contact support.",
+  LICENSE_EXPIRED: "This license has expired. Please renew to continue using the application.",
+  LICENSE_HOST_MISMATCH: "This license is bound to a different server. Please contact support.",
+  LICENSE_DB_ERROR: "Unable to verify license. Please try again.",
 };
 
 /**
