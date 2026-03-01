@@ -42,7 +42,8 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
   // If no key provided, check if we already have a valid activation in the DB that matches the Env
   if (!licenseKey) {
     try {
-      const dbLicense = await getPrimaryLicenseDb();
+      // Pass the environment key to find the matching license
+      const dbLicense = await getPrimaryLicenseDb(envLicenseKey);
       if (dbLicense && dbLicense.status === 'active' && dbLicense.activatedHost === host) {
         // TRIPLE CHECK: DB Key must match Env Key for the permanent bypass
         if (dbLicense.licenseKey === envLicenseKey) {
