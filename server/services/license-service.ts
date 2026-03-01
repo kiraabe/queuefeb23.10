@@ -32,7 +32,35 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
       };
     }
 
-    // Unrestricted access - no host or machine binding required
+    // CROSS CHECK with DB: If this environment key is in the database, we must obey its status and expiration
+    try {
+      const dbLicense = await getLicenseByKeyDb(envLicenseKey);
+      if (dbLicense) {
+        // If the license is found in DB, check status and expiration
+        if (dbLicense.status !== 'active') {
+          return {
+            valid: false,
+            message: `The license in the environment is ${dbLicense.status}.`,
+          };
+        }
+        if (dbLicense.expiresAt && Date.now() > dbLicense.expiresAt) {
+          return {
+            valid: false,
+            message: "The license in the environment has expired.",
+          };
+        }
+        // Success using DB metadata (name, etc.)
+        return {
+          valid: true,
+          message: `Licensed to ${dbLicense.licensee} (Verified Environment Key)`,
+          licensee: dbLicense.licensee,
+        };
+      }
+    } catch (error) {
+      console.warn("[License] Environment key cross-check failed:", error);
+    }
+
+    // Unrestricted access - no host or machine binding required if not in DB or DB check fails
     return {
       valid: true,
       message: `Licensed to ${envLicensee} (Unrestricted)`,
