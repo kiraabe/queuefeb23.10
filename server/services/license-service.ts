@@ -40,9 +40,23 @@ export async function validateLicense(host: string, licenseKey?: string): Promis
     };
   }
 
-  // Always require manual entry - no automatic bypass
-  // User must enter the license key to proceed
+  // If no key provided, check if current host is already bound to an active license
   if (!licenseKey) {
+    console.log(`[License] No key provided, checking if host ${host} is already activated...`);
+    try {
+      const dbLicense = await getLicenseByKeyDb(envLicenseKey);
+      if (dbLicense && dbLicense.activatedHost === host && dbLicense.status === 'active') {
+        console.log(`[License] Host ${host} is already activated. Allowing access.`);
+        return {
+          valid: true,
+          message: `Licensed to ${dbLicense.licensee || "User"} (Permanent Bypass Activated)`,
+          licensee: dbLicense.licensee,
+        };
+      }
+    } catch (error) {
+      console.log(`[License] Error checking host activation:`, error);
+    }
+
     return {
       valid: false,
       message: "Enter your license key to activate the application.",
