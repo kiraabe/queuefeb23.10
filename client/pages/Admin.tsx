@@ -19,6 +19,8 @@ import EmploymentManagement from "@/components/admin/EmploymentManagement";
 import AdminWindows from "@/components/admin/AdminWindows";
 
 export default function Admin() {
+  // Triple-check: Env Key == Entered Key == DB Key is required for initial activation.
+  // Once activated, the host is bound in the database and this page will load automatically.
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
