@@ -800,7 +800,17 @@ export const login: RequestHandler = async (req, res) => {
     if (hasDeviceInfo(deviceVendor, deviceModel)) {
       device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
     } else {
-      device = osName.includes("Windows") ? "Windows PC" : osName.includes("Mac") ? "Mac" : "Desktop";
+      // For Windows desktop, include OS version for more specificity
+      // since brand/model info is not available in user-agent
+      if (osName === "Windows") {
+        device = `Windows PC ${osVersion ? `(${osVersion})` : ""}`.trim();
+      } else if (osName === "Mac") {
+        device = `Mac ${osVersion ? `(${osVersion})` : ""}`.trim();
+      } else if (osName === "Linux") {
+        device = "Linux Desktop";
+      } else {
+        device = "Desktop";
+      }
     }
   }
 
