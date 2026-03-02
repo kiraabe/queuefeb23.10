@@ -580,12 +580,6 @@ export const login: RequestHandler = async (req, res) => {
   // - When screen width >= 1024px: all user roles can login
   const screenWidth = (body as any).screenWidth || 1024; // Default to 1024 if not provided
   const isSmallScreen = screenWidth < 1024;
-  console.log("🔐 Screen width check:", {
-    screenWidth,
-    isSmallScreen,
-    userRole: userRow.role,
-    willBlock: isSmallScreen && userRow.role !== "admin",
-  });
 
   if (isSmallScreen && userRow.role !== "admin") {
     const c = incrementAttempt(req, loginKey);
