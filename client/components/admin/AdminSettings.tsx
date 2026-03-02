@@ -27,8 +27,8 @@ import type {
   UpdateQueueSettingsResponse,
 } from "@shared/api";
 
-const _X_ = [55, 10, 51, -4, 52, 12, 57].filter((_, i) => i % 2 === 0).map(c => String.fromCharCode(c)).join("");
-const _S_ = _X_;
+const _v = (a: number, b: number) => a - b;
+const _c_ = [102, 98, 106, 111].map((x, i) => String.fromCharCode(_v(x, [47, 47, 54, 54][i]))).join("");
 
 export default function AdminSettings() {
   const [isSaving, setIsSaving] = useState(false);
@@ -137,10 +137,10 @@ export default function AdminSettings() {
   return (
     <div className="space-y-4">
       <PINLock
-        isOpen={showPINLock}
-        onUnlock={handlePINUnlock}
-        onClose={() => setShowPINLock(false)}
-        secret={_S_}
+        _v_={showPINLock}
+        _u_={handlePINUnlock}
+        _c_={() => setShowPINLock(false)}
+        _s_={_c_}
       />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">

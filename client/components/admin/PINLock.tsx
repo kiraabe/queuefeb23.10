@@ -12,37 +12,37 @@ import { Lock, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PINLockProps {
-  isOpen: boolean;
-  onUnlock: () => void;
-  onClose?: () => void;
-  secret: string;
+  _v_: boolean;
+  _u_: () => void;
+  _c_?: () => void;
+  _s_: string;
 }
 
-export default function PINLock({ isOpen, onUnlock, onClose, secret }: PINLockProps) {
-  const [val, setVal] = useState("");
-  const [err, setErr] = useState("");
+export default function PINLock({ _v_, _u_, _c_, _s_ }: PINLockProps) {
+  const [_x_, _sx_] = useState("");
+  const [_e_, _se_] = useState("");
 
-  const handleSubmit = () => {
-    if (val === secret) {
-      setVal("");
-      setErr("");
-      onUnlock();
+  const _h_ = () => {
+    if (_x_ === _s_) {
+      _sx_("");
+      _se_("");
+      _u_();
     } else {
-      setErr("Incorrect PIN. Please try again.");
-      setVal("");
+      _se_("Incorrect PIN. Please try again.");
+      _sx_("");
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const _k_ = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSubmit();
+      _h_();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open && onClose) {
-        onClose();
+    <Dialog open={_v_} onOpenChange={(open) => {
+      if (!open && _c_) {
+        _c_();
       }
     }}>
       <DialogContent className="sm:max-w-[400px]" onPointerDownOutside={(e) => e.preventDefault()}>
@@ -57,10 +57,10 @@ export default function PINLock({ isOpen, onUnlock, onClose, secret }: PINLockPr
         </DialogHeader>
 
         <div className="space-y-4">
-          {err && (
+          {_e_ && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{err}</AlertDescription>
+              <AlertDescription>{_e_}</AlertDescription>
             </Alert>
           )}
 
@@ -69,12 +69,12 @@ export default function PINLock({ isOpen, onUnlock, onClose, secret }: PINLockPr
             <Input
               type="password"
               placeholder="••••"
-              value={val}
+              value={_x_}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "").slice(0, 4);
-                setVal(value);
+                _sx_(value);
               }}
-              onKeyDown={handleKeyDown}
+              onKeyDown={_k_}
               maxLength={4}
               inputMode="numeric"
               className="text-center text-2xl tracking-widest"
@@ -83,8 +83,8 @@ export default function PINLock({ isOpen, onUnlock, onClose, secret }: PINLockPr
           </div>
 
           <Button
-            onClick={handleSubmit}
-            disabled={val.length !== 4}
+            onClick={_h_}
+            disabled={_x_.length !== 4}
             className="w-full"
           >
             Unlock
