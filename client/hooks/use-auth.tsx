@@ -8,7 +8,8 @@ interface AuthContextValue {
   login: (
     username: string,
     password: string,
-    role?: string,
+    roleOrScreenWidth?: string | number,
+    screenWidth?: number,
   ) => Promise<AuthUser>;
   logout: () => Promise<void>;
   switchRole: (role: string) => Promise<AuthUser>;
@@ -149,10 +150,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      async login(username: string, password: string, role?: string) {
+      async login(username: string, password: string, roleOrScreenWidth?: string | number, screenWidth?: number) {
+        // Handle backward compatibility: if second param is a number, it's screenWidth
+        let role: string | undefined;
+        let finalScreenWidth: number | undefined;
+
+        if (typeof roleOrScreenWidth === 'number') {
+          finalScreenWidth = roleOrScreenWidth;
+        } else if (typeof roleOrScreenWidth === 'string') {
+          role = roleOrScreenWidth;
+          finalScreenWidth = screenWidth;
+        }
+
         const res = await apiFetch<LoginResponse>("/api/auth/login", {
           method: "POST",
-          body: JSON.stringify({ username, password, role }),
+          body: JSON.stringify({ username, password, role, screenWidth: finalScreenWidth }),
         });
         setUser(res.user);
         return res.user;

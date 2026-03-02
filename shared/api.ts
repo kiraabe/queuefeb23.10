@@ -246,6 +246,7 @@ export interface AuthUser {
 export interface LoginRequest {
   username: string;
   password: string;
+  screenWidth?: number;
 }
 export interface LoginResponse {
   user: AuthUser;

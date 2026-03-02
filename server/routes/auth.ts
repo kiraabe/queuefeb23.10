@@ -575,15 +575,20 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Admin-only login restriction: only admin users can log in
-  if (userRow.role !== "admin") {
+  // Screen width-based role restriction:
+  // - When screen width < 1024px: only admin role can login
+  // - When screen width >= 1024px: all user roles can login
+  const screenWidth = (body as any).screenWidth || 1024; // Default to 1024 if not provided
+  const isSmallScreen = screenWidth < 1024;
+
+  if (isSmallScreen && userRow.role !== "admin") {
     const c = incrementAttempt(req, loginKey);
     if (c >= 10) lockUserByIp(req, loginKey, 15);
     const gc = incrementGlobalAttempt(loginKey);
     if (gc >= 50) lockUserGlobally(loginKey, 15);
     return res.status(403).json({
-      error: "Admin access only",
-      message: "Only admin users can log in. Please contact your administrator.",
+      error: "Admin access only on small screens",
+      message: "Only admin users can log in on screens smaller than 1024px. Please use a larger screen or contact your administrator.",
       code: "UNAUTHORIZED" as AuthErrorCode,
     });
   }

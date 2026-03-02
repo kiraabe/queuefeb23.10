@@ -136,7 +136,7 @@ export default function Login() {
 
     setPending(true);
     try {
-      const user = await login(u, p);
+      const user = await login(u, p, window.innerWidth);
 
       // If user has multiple roles, redirect to role selector
       if (user.roles && user.roles.length > 1) {
