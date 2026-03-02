@@ -5,7 +5,12 @@ import { validateLicense } from "../services/license-service";
 export const validateLicenseHandler: RequestHandler = async (req, res) => {
   try {
     const { licenseKey } = req.body as ValidateLicenseRequest;
-    const host = req.headers.host || "localhost";
+
+    // Get the proper host from forwarded headers (production) or direct headers (dev)
+    // X-Forwarded-Host is set by proxies/load balancers in production
+    const forwardedHost = req.headers['x-forwarded-host'] as string || req.headers.host || "localhost";
+    // Extract just the hostname without port for consistent binding
+    const host = forwardedHost.split(':')[0];
 
     if (!licenseKey || typeof licenseKey !== "string") {
       return res.status(400).json({
@@ -35,7 +40,12 @@ export const validateLicenseHandler: RequestHandler = async (req, res) => {
 
 export const checkLicenseStatusHandler: RequestHandler = async (req, res) => {
   try {
-    const host = req.headers.host || "localhost";
+    // Get the proper host from forwarded headers (production) or direct headers (dev)
+    // X-Forwarded-Host is set by proxies/load balancers in production
+    const forwardedHost = req.headers['x-forwarded-host'] as string || req.headers.host || "localhost";
+    // Extract just the hostname without port for consistent binding
+    const host = forwardedHost.split(':')[0];
+
     const result = await validateLicense(host);
     const response: ValidateLicenseResponse = {
       valid: result.valid,
