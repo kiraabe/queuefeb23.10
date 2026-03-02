@@ -580,6 +580,12 @@ export const login: RequestHandler = async (req, res) => {
   // - When screen width >= 1024px: all user roles can login
   const screenWidth = (body as any).screenWidth || 1024; // Default to 1024 if not provided
   const isSmallScreen = screenWidth < 1024;
+  console.log("🔐 Screen width check:", {
+    screenWidth,
+    isSmallScreen,
+    userRole: userRow.role,
+    willBlock: isSmallScreen && userRow.role !== "admin",
+  });
 
   if (isSmallScreen && userRow.role !== "admin") {
     const c = incrementAttempt(req, loginKey);
@@ -644,11 +650,11 @@ export const login: RequestHandler = async (req, res) => {
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
   const deviceType = uaResult.device.type || "desktop";
 
-  // Device restriction: Non-admin users can only access from desktop
-  if (activeRole !== "admin" && (deviceType === "mobile" || deviceType === "tablet")) {
+  // Device restriction: Non-admin users can only access from desktop when screen width < 1024px
+  if (isSmallScreen && activeRole !== "admin" && (deviceType === "mobile" || deviceType === "tablet")) {
     return res.status(403).json({
       error: "Desktop only access",
-      message: "Non-admin users can only access from desktop browsers. Please use a desktop or laptop computer.",
+      message: "Non-admin users can only access from desktop browsers on small screens. Please use a larger screen or contact your administrator.",
       code: "DEVICE_NOT_ALLOWED" as AuthErrorCode,
     });
   }
