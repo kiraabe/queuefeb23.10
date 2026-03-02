@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { format } from "date-fns";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
