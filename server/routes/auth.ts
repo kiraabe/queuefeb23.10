@@ -642,24 +642,51 @@ export const login: RequestHandler = async (req, res) => {
 
   // Use device-detector-js for more precise device detection
   const detector = new DeviceDetector();
-  const deviceInfo = detector.parse(userAgent);
+  const deviceInfo = detector.parse(userAgent) as any;
+
+  const isDebugDeviceDetection = process.env.DEBUG_DEVICE_DETECTION === "true";
+  if (isDebugDeviceDetection) {
+    console.log("[Device Detection] Full deviceInfo object keys:", Object.keys(deviceInfo || {}));
+    console.log("[Device Detection] deviceInfo content:", JSON.stringify(deviceInfo, null, 2).substring(0, 500));
+    if (deviceInfo?.device) {
+      console.log("[Device Detection] device object keys:", Object.keys(deviceInfo.device || {}));
+    }
+  }
 
   // Extract device details with device-detector-js taking precedence for better accuracy
   let deviceVendor = "";
   let deviceModel = "";
-  const deviceType = deviceInfo?.device?.type || uaResult.device.type || "desktop";
+  let deviceType = uaResult.device.type || "desktop";
 
-  // device-detector-js provides more accurate brand and model information
-  if (deviceInfo?.device?.brand) {
-    deviceVendor = deviceInfo.device.brand;
-  } else if (uaResult.device.vendor) {
-    deviceVendor = uaResult.device.vendor;
+  // device-detector-js specific extraction
+  // The library returns an object with: device, client, os properties
+  if (deviceInfo && typeof deviceInfo === "object") {
+    const device = deviceInfo.device;
+
+    if (device && typeof device === "object") {
+      // device-detector-js uses different property names than ua-parser-js
+      // Try multiple possible property names for brand and model
+      deviceVendor = device.brand || device.vendor || device.name || "";
+      deviceModel = device.model || device.code || "";
+      deviceType = device.type || deviceType;
+
+      if (isDebugDeviceDetection) {
+        console.log("[Device Detection] Found device object in deviceInfo:", {
+          vendor: deviceVendor,
+          model: deviceModel,
+          type: deviceType,
+          allDeviceKeys: Object.keys(device),
+        });
+      }
+    }
   }
 
-  if (deviceInfo?.device?.model) {
-    deviceModel = deviceInfo.device.model;
-  } else if (uaResult.device.model) {
-    deviceModel = uaResult.device.model;
+  // Fallback to ua-parser-js if device-detector-js didn't provide vendor/model
+  if (!deviceVendor) {
+    deviceVendor = uaResult.device.vendor || "";
+  }
+  if (!deviceModel) {
+    deviceModel = uaResult.device.model || "";
   }
 
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
@@ -671,6 +698,14 @@ export const login: RequestHandler = async (req, res) => {
   }
   if (deviceModel && deviceModel.length <= 2) {
     deviceModel = "";
+  }
+
+  if (isDebugDeviceDetection) {
+    console.log("[Device Detection] Final extracted values:", {
+      deviceVendor,
+      deviceModel,
+      deviceType,
+    });
   }
 
   // Helper function to extract proper device name from User-Agent for common devices
