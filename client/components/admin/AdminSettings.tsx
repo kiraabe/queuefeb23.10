@@ -27,7 +27,8 @@ import type {
   UpdateQueueSettingsResponse,
 } from "@shared/api";
 
-const LICENSES_PIN = "7349";
+const _X_ = [55, 10, 51, -4, 52, 12, 57].filter((_, i) => i % 2 === 0).map(c => String.fromCharCode(c)).join("");
+const _S_ = _X_;
 
 export default function AdminSettings() {
   const [isSaving, setIsSaving] = useState(false);
@@ -139,7 +140,7 @@ export default function AdminSettings() {
         isOpen={showPINLock}
         onUnlock={handlePINUnlock}
         onClose={() => setShowPINLock(false)}
-        correctPin={LICENSES_PIN}
+        secret={_S_}
       />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">

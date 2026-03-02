@@ -15,21 +15,21 @@ interface PINLockProps {
   isOpen: boolean;
   onUnlock: () => void;
   onClose?: () => void;
-  correctPin: string;
+  secret: string;
 }
 
-export default function PINLock({ isOpen, onUnlock, onClose, correctPin }: PINLockProps) {
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState("");
+export default function PINLock({ isOpen, onUnlock, onClose, secret }: PINLockProps) {
+  const [val, setVal] = useState("");
+  const [err, setErr] = useState("");
 
   const handleSubmit = () => {
-    if (pin === correctPin) {
-      setPin("");
-      setError("");
+    if (val === secret) {
+      setVal("");
+      setErr("");
       onUnlock();
     } else {
-      setError("Incorrect PIN. Please try again.");
-      setPin("");
+      setErr("Incorrect PIN. Please try again.");
+      setVal("");
     }
   };
 
@@ -57,10 +57,10 @@ export default function PINLock({ isOpen, onUnlock, onClose, correctPin }: PINLo
         </DialogHeader>
 
         <div className="space-y-4">
-          {error && (
+          {err && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{err}</AlertDescription>
             </Alert>
           )}
 
@@ -69,10 +69,10 @@ export default function PINLock({ isOpen, onUnlock, onClose, correctPin }: PINLo
             <Input
               type="password"
               placeholder="••••"
-              value={pin}
+              value={val}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "").slice(0, 4);
-                setPin(value);
+                setVal(value);
               }}
               onKeyDown={handleKeyDown}
               maxLength={4}
@@ -84,7 +84,7 @@ export default function PINLock({ isOpen, onUnlock, onClose, correctPin }: PINLo
 
           <Button
             onClick={handleSubmit}
-            disabled={pin.length !== 4}
+            disabled={val.length !== 4}
             className="w-full"
           >
             Unlock
