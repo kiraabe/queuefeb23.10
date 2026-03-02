@@ -23,6 +23,7 @@ import { AuthProvider, useAuth, useSessionLostRedirect } from "@/hooks/use-auth"
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { RestrictPublicAccess } from "@/components/auth/RestrictPublicAccess";
 import { LicenseProvider } from "@/components/license/LicenseProvider";
+import { LanguageProvider } from "@/hooks/use-language";
 
 // Lazy load pages with heavy dependencies to reduce initial bundle
 const Admin = lazy(() => import("./pages/Admin"));
@@ -95,8 +96,9 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
+          <LanguageProvider>
+            <Toaster />
+            <Sonner />
           <BrowserRouter>
             <AuthProvider>
               <SessionMonitor />
@@ -172,6 +174,7 @@ const App = () => (
               </Routes>
             </AuthProvider>
           </BrowserRouter>
+          </LanguageProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
