@@ -5,21 +5,23 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-
-const NAV_LINKS = [
-  { label: "Overview", to: "/" },
-  { label: "Reception Console", to: "/reception" },
-  { label: "Virtual Queue", to: "/queue" },
-  { label: "Teller Console", to: "/teller" },
-  { label: "Display", to: "/display" },
-];
-
-const ADMIN_NAV_LINKS = [{ label: "Admin Panel", to: "/admin" }];
+import { useTranslation } from "@/hooks/use-translation";
 
 const SiteHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const NAV_LINKS = [
+    { label: t("navigation.home"), to: "/" },
+    { label: t("navigation.reception"), to: "/reception" },
+    { label: t("navigation.queue"), to: "/queue" },
+    { label: t("navigation.teller"), to: "/teller" },
+    { label: t("navigation.display"), to: "/display" },
+  ];
+
+  const ADMIN_NAV_LINKS = [{ label: t("navigation.admin"), to: "/admin" }];
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
@@ -102,12 +104,12 @@ const SiteHeader = () => {
                   navigate(`/login`);
                 }}
               >
-                Sign out
+                {t("buttons.cancel")}
               </Button>
             </>
           ) : (
             <Button variant="outline" onClick={() => navigate(`/login`)}>
-              Sign in
+              {t("login.signIn")}
             </Button>
           )}
         </div>
@@ -117,7 +119,7 @@ const SiteHeader = () => {
           size="icon"
           className="md:hidden"
           onClick={toggleMenu}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={isMenuOpen ? t("buttons.close") : "Open menu"}
         >
           {isMenuOpen ? (
             <X className="h-5 w-5" />
@@ -202,7 +204,7 @@ const SiteHeader = () => {
                     navigate("/login");
                   }}
                 >
-                  Sign out
+                  {t("buttons.cancel")}
                 </Button>
               </>
             ) : (
@@ -214,7 +216,7 @@ const SiteHeader = () => {
                   navigate("/login");
                 }}
               >
-                Sign in
+                {t("login.signIn")}
               </Button>
             )}
           </div>

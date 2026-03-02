@@ -1,0 +1,83 @@
+{
+  "common": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "liveStatus": "Live status",
+    "copyright": "© {year} Powered by EKD Tech solutions. All rights reserved."
+  },
+  "navigation": {
+    "home": "Home",
+    "queue": "Queue",
+    "display": "Display",
+    "login": "Login",
+    "profile": "Profile",
+    "reception": "Reception",
+    "teller": "Teller",
+    "employee": "Employee",
+    "archiever": "Archiever",
+    "admin": "Admin"
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "signIn": "Sign In",
+    "enterUsername": "Enter your username",
+    "enterPassword": "Enter your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "invalidCredentials": "Invalid username or password",
+    "sessionLimitReached": "Session limit reached",
+    "accountBlocked": "Your account is blocked",
+    "tooManyAttempts": "Too many login attempts. Please try again later"
+  },
+  "phase1": {
+    "title": "Reception / Case Manager",
+    "description": "A ticket is created with the selected service, a QR code is generated, and the ticket number is displayed to the customer.",
+    "eligibility": "Eligibility verification",
+    "eligibilityDesc": "Verify customer service eligibility before creating a ticket.",
+    "qrTicket": "Quick QR ticket issuance",
+    "qrTicketDesc": "Generate QR-coded tickets with service type and estimated wait time.",
+    "queueMgmt": "Queue management",
+    "queueMgmtDesc": "Assign customers to appropriate service lines with real-time position tracking.",
+    "notifications": "Customer notifications",
+    "notificationsDesc": "Send real-time updates via QR code scans when customer's turn approaches."
+  },
+  "phase2": {
+    "title": "Archiver / Documentation",
+    "description": "The archiver claims the ticket, fetches and verifies the required documents, and marks the case as ready.",
+    "documents": "Document collection",
+    "documentsDesc": "Gather all supporting documents and attachments for completed cases.",
+    "compliance": "Compliance verification",
+    "complianceDesc": "Verify that all required documents meet compliance standards and completeness.",
+    "archive": "Archive storage",
+    "archiveDesc": "Securely store and organize archived documents for future retrieval."
+  },
+  "phase3": {
+    "title": "Teller / Service Delivery",
+    "description": "The teller calls the ticket, serves the customer, and documents the interaction.",
+    "ticketCall": "Real-time ticket calling",
+    "ticketCallDesc": "Automatically call tickets in order with visual and audio alerts.",
+    "caseWorkflow": "Case workflow tracking",
+    "caseWorkflowDesc": "Document service interactions and capture outcomes in real-time.",
+    "analytics": "Service analytics",
+    "analyticsDesc": "Track service times, customer satisfaction, and operational metrics."
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access forbidden",
+    "serverError": "Server error",
+    "tryAgain": "Try again"
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "submit": "Submit",
+    "next": "Next",
+    "back": "Back"
+  }
+}

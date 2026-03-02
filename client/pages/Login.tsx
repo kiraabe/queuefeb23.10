@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "@/hooks/use-translation";
 
 function isMobileOrTablet(): boolean {
   const userAgent = navigator.userAgent.toLowerCase();
@@ -55,6 +56,7 @@ interface SessionInfo {
 export default function Login() {
   const [isMobile, setIsMobile] = useState(false);
   const { login } = useAuth();
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -125,12 +127,12 @@ export default function Login() {
     const p = password.trim();
 
     if (!u) {
-      setError("Please enter your username or window number.");
+      setError(t("login.enterUsername"));
       return;
     }
 
     if (!p) {
-      setError("Please enter your password.");
+      setError(t("login.enterPassword"));
       return;
     }
 
@@ -221,7 +223,7 @@ export default function Login() {
       }
     } catch (e: any) {
       setError(
-        e?.message || "An unexpected error occurred. Please try again later.",
+        e?.message || t("errors.serverError"),
       );
     } finally {
       setPending(false);
@@ -233,19 +235,19 @@ export default function Login() {
       <div className="mx-auto max-w-md">
         <Card className="border-border/60 bg-card/80">
           <CardHeader>
-            <CardTitle>Sign in</CardTitle>
+            <CardTitle>{t("login.title")}</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              Enter your username/window number and password
+              {t("login.enterUsername")}
             </p>
           </CardHeader>
           <CardContent>
             <form className="grid gap-4" onSubmit={onSubmit}>
               <div className="grid gap-2">
-                <Label htmlFor="username">Username or Window Number</Label>
+                <Label htmlFor="username">{t("login.username")}</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter username or window (1-20)"
+                  placeholder={t("login.enterUsername")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
@@ -253,7 +255,7 @@ export default function Login() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("login.password")}</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -271,7 +273,7 @@ export default function Login() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={
-                      showPassword ? "Hide password" : "Show password"
+                      showPassword ? t("login.hidePassword") : t("login.showPassword")
                     }
                     aria-pressed={showPassword}
                     className="absolute inset-y-0 right-2 inline-flex items-center rounded-md p-2 text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -324,7 +326,7 @@ export default function Login() {
 
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" disabled={pending}>
-                {pending ? "Signing in…" : "Sign in"}
+                {pending ? `${t("login.signIn")}…` : t("login.signIn")}
               </Button>
             </form>
           </CardContent>

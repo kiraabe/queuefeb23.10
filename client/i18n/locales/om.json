@@ -1,0 +1,83 @@
+{
+  "common": {
+    "privacy": "Iccittii",
+    "terms": "Kaayyolee",
+    "liveStatus": "Haala Saaxila",
+    "copyright": "© {year} EKD Tech Solutions. Mirga hundumtu eegale."
+  },
+  "navigation": {
+    "home": "Muka",
+    "queue": "Jila",
+    "display": "Mul'isa",
+    "login": "Seeni",
+    "profile": "Galmaagee",
+    "reception": "Funaanomsa",
+    "teller": "Walitti Raaga",
+    "employee": "Gadhaakuu",
+    "archiever": "Meeshuu",
+    "admin": "Bulchiinni"
+  },
+  "login": {
+    "title": "Seeni",
+    "username": "Maqaa Isa Seenu",
+    "password": "Jecha Icciitii",
+    "signIn": "Seeni",
+    "enterUsername": "Maqaa keessan galchi",
+    "enterPassword": "Jecha icciitii keessan galchi",
+    "showPassword": "Jecha icciitii mul'isi",
+    "hidePassword": "Jecha icciitii dhoksi",
+    "invalidCredentials": "Maqaa isa seenu yookiin jecha icciitii sirrii miti",
+    "sessionLimitReached": "Daangaan kan seenuu giddu oola",
+    "accountBlocked": "Herrega kees cufame",
+    "tooManyAttempts": "Yaaliin hedduun. Maalin dandeessuu yaali"
+  },
+  "phase1": {
+    "title": "Funaanomsa / Faaqa Haajaa",
+    "description": "Kaardiin seera filannoo ala qabaataan uumamuaa, Code QR mirga guutun, lakkoofsi kaardii ilaalchisuu mul'ataataa.",
+    "eligibility": "Filannoo Hirmaata",
+    "eligibilityDesc": "Seenaa Hirmaata haala tajaajilaa dura kaardii uumuu ixaa.",
+    "qrTicket": "Kaardii QR Simannoo",
+    "qrTicketDesc": "Kaardii QR kan tajaajilaa fi yeroo dhumaataa ta'e uumumaataa.",
+    "queueMgmt": "Fooyya'ina Jila",
+    "queueMgmtDesc": "Gawwatni tartiiba tajajilaa seera irra ta'aniif dantaa.",
+    "notifications": "Odeeffannoo Gawwataa",
+    "notificationsDesc": "Odeeffannoo yeroo ganama QR code sani daawwalan ergaa."
+  },
+  "phase2": {
+    "title": "Meeshuu / Galmeessuu",
+    "description": "Meeshuu kaardii mataa isaa irra fudha, barreessaa barbaachisaa fudha, ixaa isa dhaabbacchuuu.",
+    "documents": "Walitti fidaa Galmeessaa",
+    "documentsDesc": "Barreessaa hundaa fi yeroo fakkaafaa tajaajiinne muruudhaa.",
+    "compliance": "Mul'isaa Seera-gaarii",
+    "complianceDesc": "Barreessaa tar'ee seera-gaarii fi guutummaa ta'uu mul'isuu.",
+    "archive": "Kuusaa Kayyadii",
+    "archiveDesc": "Barreessaa ta'an simannoa muruudhaa."
+  },
+  "phase3": {
+    "title": "Walitti Raaga / Kennaa Tajaajilaa",
+    "description": "Walitti raagun kaardii waamaa, gawwattaa tajaajila, fi gahee barreessaa.",
+    "ticketCall": "Waamaa Kaardii Yeroo Sararaa",
+    "ticketCallDesc": "Kaardii tartiiba irra waamaa ilaalcha fi sagalee ta'uu.",
+    "caseWorkflow": "Mul'isaa Hojii Gawwataa",
+    "caseWorkflowDesc": "Gahee tajaajilaa barreessuu fi bu'aa sararaa ta'aa.",
+    "analytics": "Madaalii Tajaajilaa",
+    "analyticsDesc": "Yeroo tajaajilaa, haalli gawwataa fi hojiinne mul'isuu."
+  },
+  "errors": {
+    "notFound": "Fuulli hinargame",
+    "unauthorized": "Seeni hin-furdhee",
+    "forbidden": "Seeni cufame",
+    "serverError": "Dogoggora Mangala",
+    "tryAgain": "Yaali irra"
+  },
+  "buttons": {
+    "cancel": "Hir",
+    "save": "Olkaa'i",
+    "delete": "Balleessi",
+    "edit": "Fooyyessii",
+    "close": "Cufi",
+    "submit": "Galchi",
+    "next": "Itti Aanaa",
+    "back": "Duuba"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "common": {
+    "privacy": "ግላዊነት",
+    "terms": "ውል",
+    "liveStatus": "ቀጥታ ሁኔታ",
+    "copyright": "© {year} EKD ቴክ ሪጋዎች ያሰራዋል። ሙሉ መብቶች ተጠብቀዋል።"
+  },
+  "navigation": {
+    "home": "መነሻ",
+    "queue": "ወረፋ",
+    "display": "ማሳያ",
+    "login": "ግባ",
+    "profile": "መገለጫ",
+    "reception": "ሪሴፕሽን",
+    "teller": "ጠወራ",
+    "employee": "ሰራተኛ",
+    "archiever": "档案员",
+    "admin": "አስተዳዳሪ"
+  },
+  "login": {
+    "title": "ግባ",
+    "username": "ተጠቃሚ ስም",
+    "password": "ይለፍ ሃ句",
+    "signIn": "ግባ",
+    "enterUsername": "የተጠቃሚ ስምህን ያስገባ",
+    "enterPassword": "የይለፍ ሃ句ህን ያስገባ",
+    "showPassword": "ይለፍ ሃ句 አሳይ",
+    "hidePassword": "ይለፍ ሃ句ን ደብቅ",
+    "invalidCredentials": "ተጠቃሚ ስም ወይም ይለፍ ሃ句ት ትክክል አይደለም",
+    "sessionLimitReached": "የክፍለ-ስራ ገደብ ተደርሷል",
+    "accountBlocked": "ሂሳብህ ታግዷል",
+    "tooManyAttempts": "ብዙ ግቤት ሙከራዎች። እባክህ በኋላ ይሞክር"
+  },
+  "phase1": {
+    "title": "ሪሴፕሽን / ጉዳይ ክዋኔ",
+    "description": "ቲኬት ከተመረጠው አገልግሎት ጋር ይመሰረታል ፣ QR ኮድ ይመነጨል ፣ እና የቲኬት ቁጥር ለደንበኛ ይታያል።",
+    "eligibility": "ብቁነት ጂምግራም",
+    "eligibilityDesc": "ቲኬት ከመሥራቱ በፊት የደንበኛው አገልግሎት ብቁነት ይረጋግጡ።",
+    "qrTicket": "ፈጣን QR ቲኬት ይሰጥ",
+    "qrTicketDesc": "QR-ኮድ ቲኬቶችን ከአገልግሎት ዓይነት እና ግምታዊ ጊዜ ጋር ያመንጨ።",
+    "queueMgmt": "ወረፋ አስተዳደር",
+    "queueMgmtDesc": "ደንበኞችን ለተገቢው አገልግሎት ቀጥታዎች ወይም ገበታ ለውጥ ዕቃ።",
+    "notifications": "ደንበኛ ማስታወቂያዎች",
+    "notificationsDesc": "ደንበኛ ወደ QR ኮድ ስካን ሲደርሱ ብዙ ጊዜ በ-ሪሌ-ዓይነት ማሳወቂያ ይላኩ።"
+  },
+  "phase2": {
+    "title": "ቃል አወዳድሮ / ሰነድ",
+    "description": "ዛቁ ቲኬቱን ይወስናል ፣ አስፈላጊ ሰነዶችን ይያዛል ዳግመ ይረጋግጣል ፣ እና ጉዳዩን ዝግጁ ብሎ ምልክት ያድርግ።",
+    "documents": "የሰነድ ስብስብ",
+    "documentsDesc": "ሁሉንም ድጋፊ ሰነዶች እና ኃላፊዎች ለተጠናቀቀ ጉዳዮች ይሰበስቡ።",
+    "compliance": "ተስማሚነት ጂምግራም",
+    "complianceDesc": "ሁሉም አስፈላጊ ሰነዶች ተስማሚነት አለም አቀፍ ደረጃዎችንም ሙሉነት ይያዙ።",
+    "archive": "ጎታ ማከማቻ",
+    "archiveDesc": "ሰነዶችን ታስ ይጠብቁ እና ለወደፊት ጊዜ ለማስመልሰት ተካሄድ።"
+  },
+  "phase3": {
+    "title": "ጠወራ / አገልግሎት ስጠት",
+    "description": "ጠወራ ቲኬቱን ይጠራል ፣ ደንበኛ ያገለግለል ፣ እና ግንኙነቱን ሰነዱ።",
+    "ticketCall": "ሪያል-ግዜ ቲኬት ጠራ",
+    "ticketCallDesc": "ቅደም ተከተላ ቲኬቶችን በራስ ተነሳሽ ተታሪ ጎብኚ ወይ ሮች ጎ.",
+    "caseWorkflow": "ጉዳይ ስራ ቅደም ተከተል ዝግጅት",
+    "caseWorkflowDesc": "የአገልግሎት ግንኙነቶችን ሰነድ እና ውጤቶች በቅጡ ውስጥ ይገቡ።",
+    "analytics": "የአገልግሎት መተንተን",
+    "analyticsDesc": "አገልግሎት ጊዜ ፣ ደንበኛ 족족 እና ንግድ መስፈሮች ይከታተሉ።"
+  },
+  "errors": {
+    "notFound": "ገጽ አልተገኘም",
+    "unauthorized": "ያልተፈቀደ ድረስ",
+    "forbidden": "ድረስ ታግዷል",
+    "serverError": "ሰርቭር ስህተት",
+    "tryAgain": "እንደገና ይሞክር"
+  },
+  "buttons": {
+    "cancel": "ይሰርዙ",
+    "save": "ይቁም",
+    "delete": "ይሰርዙ",
+    "edit": "ይቀይሩ",
+    "close": "ይዝጉ",
+    "submit": "ያስገቡ",
+    "next": "ሚቀጥለው",
+    "back": "ኋላ"
+  }
+}
