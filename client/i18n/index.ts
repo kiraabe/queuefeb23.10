@@ -3,11 +3,9 @@ import am from "./locales/am.json";
 import om from "./locales/om.json";
 import type { Language } from "@/hooks/use-language";
 
-type Messages = typeof en;
-
 export type TranslationKey = `${string}.${string}`;
 
-const translations: Record<Language, Messages> = {
+const translations: Record<Language, typeof en> = {
   en,
   am,
   om,
@@ -20,12 +18,12 @@ function deepGet(obj: any, path: string): any {
 
 export function getTranslation(language: Language, key: TranslationKey): string {
   const message = deepGet(translations[language], key);
-  
+
   // Fallback to English if translation is missing
   if (!message) {
     return deepGet(translations.en, key) || key;
   }
-  
+
   return message;
 }
 
