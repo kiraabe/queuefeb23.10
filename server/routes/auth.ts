@@ -1,5 +1,6 @@
 import type { Request, Response, RequestHandler } from "express";
 import { UAParser } from "ua-parser-js";
+import DeviceDetector from "device-detector-js";
 import {
   getUserByUsername,
   getUserByWindow,
@@ -632,18 +633,36 @@ export const login: RequestHandler = async (req, res) => {
   }
 
   // Capture device and browser info
-  const parser = new UAParser(req.headers["user-agent"]);
+  const userAgent = req.headers["user-agent"] || "";
+  const parser = new UAParser(userAgent);
   const uaResult = parser.getResult();
 
   // Extract and normalize OS details
   const { osName, osVersion } = normalizeOsDetection(uaResult as any, req);
 
-  // Extract device details
-  let deviceVendor = uaResult.device.vendor || "";
-  let deviceModel = uaResult.device.model || "";
+  // Use device-detector-js for more precise device detection
+  const detector = new DeviceDetector();
+  const deviceInfo = detector.parse(userAgent);
+
+  // Extract device details with device-detector-js taking precedence for better accuracy
+  let deviceVendor = "";
+  let deviceModel = "";
+  const deviceType = deviceInfo?.device?.type || uaResult.device.type || "desktop";
+
+  // device-detector-js provides more accurate brand and model information
+  if (deviceInfo?.device?.brand) {
+    deviceVendor = deviceInfo.device.brand;
+  } else if (uaResult.device.vendor) {
+    deviceVendor = uaResult.device.vendor;
+  }
+
+  if (deviceInfo?.device?.model) {
+    deviceModel = deviceInfo.device.model;
+  } else if (uaResult.device.model) {
+    deviceModel = uaResult.device.model;
+  }
+
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
-  const deviceType = uaResult.device.type || "desktop";
-  const userAgent = req.headers["user-agent"] || "";
 
   // Filter out single-character or obviously invalid device info (like "K", "X", etc.)
   // These are often parsing artifacts and not real device names
