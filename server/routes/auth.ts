@@ -580,12 +580,6 @@ export const login: RequestHandler = async (req, res) => {
   // - When screen width >= 1024px: all user roles can login
   const screenWidth = (body as any).screenWidth || 1024; // Default to 1024 if not provided
   const isSmallScreen = screenWidth < 1024;
-  console.log("📏 Login screenWidth:", {
-    receivedScreenWidth: (body as any).screenWidth,
-    finalScreenWidth: screenWidth,
-    isSmallScreen,
-    userRole: userRow.role,
-  });
 
   if (isSmallScreen && userRow.role !== "admin") {
     const c = incrementAttempt(req, loginKey);
@@ -649,6 +643,7 @@ export const login: RequestHandler = async (req, res) => {
   let deviceModel = uaResult.device.model || "";
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
   const deviceType = uaResult.device.type || "desktop";
+  const userAgent = req.headers["user-agent"] || "";
 
   // Filter out single-character or obviously invalid device info (like "K", "X", etc.)
   // These are often parsing artifacts and not real device names
@@ -659,6 +654,97 @@ export const login: RequestHandler = async (req, res) => {
     deviceModel = "";
   }
 
+  // Helper function to extract proper device name from User-Agent for common devices
+  const extractDeviceNameFromUA = (): string | null => {
+    const ua = userAgent.toLowerCase();
+
+    // iPhone/iPad patterns
+    if (ua.includes("iphone")) {
+      const match = userAgent.match(/iPhone\s*(?:OS\s*)?(\d+)/i);
+      if (match) {
+        const version = match[1];
+        // Try to extract the specific iPhone model from User-Agent
+        // iPhone models: X, XS, XS Max, 11, 11 Pro, 11 Pro Max, 12, 12 mini, 12 Pro, 12 Pro Max, 13, 13 mini, 13 Pro, 13 Pro Max, 14, 14 Plus, 14 Pro, 14 Pro Max, 15, 15 Plus, 15 Pro, 15 Pro Max
+        if (ua.includes("iphone13,1")) return "iPhone 12 mini";
+        if (ua.includes("iphone13,2")) return "iPhone 12";
+        if (ua.includes("iphone13,3")) return "iPhone 12 Pro";
+        if (ua.includes("iphone13,4")) return "iPhone 12 Pro Max";
+        if (ua.includes("iphone14,4")) return "iPhone 13 mini";
+        if (ua.includes("iphone14,5")) return "iPhone 13";
+        if (ua.includes("iphone14,2")) return "iPhone 13 Pro";
+        if (ua.includes("iphone14,3")) return "iPhone 13 Pro Max";
+        if (ua.includes("iphone15,1")) return "iPhone 14";
+        if (ua.includes("iphone15,2")) return "iPhone 14 Pro";
+        if (ua.includes("iphone15,3")) return "iPhone 14 Pro Max";
+        if (ua.includes("iphone15,4")) return "iPhone 15";
+        if (ua.includes("iphone15,5")) return "iPhone 15 Plus";
+        if (ua.includes("iphone16,1")) return "iPhone 15 Pro";
+        if (ua.includes("iphone16,2")) return "iPhone 15 Pro Max";
+        return `iPhone ${version}`;
+      }
+      return "iPhone";
+    }
+
+    // iPad patterns
+    if (ua.includes("ipad")) {
+      if (ua.includes("ipad pro")) return "iPad Pro";
+      if (ua.includes("ipad air")) return "iPad Air";
+      if (ua.includes("ipad mini")) return "iPad Mini";
+      return "iPad";
+    }
+
+    // Samsung patterns
+    if (ua.includes("samsung") || ua.includes("sm-")) {
+      // Samsung model codes: SM-G950F (S8), SM-G960F (S9), SM-G970F (S10), SM-G980F (S20), etc.
+      const match = userAgent.match(/sm-g(\d{3})/i);
+      if (match) {
+        const modelCode = match[1];
+        const modelMap: Record<string, string> = {
+          "950": "Samsung Galaxy S8",
+          "955": "Samsung Galaxy S8+",
+          "960": "Samsung Galaxy S9",
+          "965": "Samsung Galaxy S9+",
+          "970": "Samsung Galaxy S10",
+          "975": "Samsung Galaxy S10+",
+          "977": "Samsung Galaxy S10e",
+          "980": "Samsung Galaxy S20",
+          "981": "Samsung Galaxy S20+",
+          "988": "Samsung Galaxy S20 Ultra",
+          "990": "Samsung Galaxy S21",
+          "991": "Samsung Galaxy S21+",
+          "998": "Samsung Galaxy S21 Ultra",
+          "998b": "Samsung Galaxy S22 Ultra",
+          "900": "Samsung Galaxy S22",
+          "901": "Samsung Galaxy S22+",
+          "910": "Samsung Galaxy S23",
+          "911": "Samsung Galaxy S23+",
+          "918": "Samsung Galaxy S23 Ultra",
+        };
+        return modelMap[modelCode] || `Samsung Galaxy S${parseInt(modelCode[0]) * 10 + parseInt(modelCode[1])}`;
+      }
+      if (ua.includes("samsung sm-")) {
+        const match = userAgent.match(/samsung\s+(sm-[a-z0-9]+)/i);
+        if (match) return `Samsung ${match[1].toUpperCase()}`;
+      }
+      return "Samsung Device";
+    }
+
+    // Google Pixel patterns
+    if (ua.includes("pixel")) {
+      const match = userAgent.match(/Pixel\s+(\d+)/i);
+      if (match) return `Google Pixel ${match[1]}`;
+      return "Google Pixel";
+    }
+
+    return null;
+  };
+
+  // Try to extract full device name from User-Agent
+  const extractedDeviceName = extractDeviceNameFromUA();
+
+  // Build device string based on device type
+  let device: string;
+
   // Device restriction: Non-admin users can only access from desktop when screen width < 1024px
   if (isSmallScreen && activeRole !== "admin" && (deviceType === "mobile" || deviceType === "tablet")) {
     return res.status(403).json({
@@ -668,17 +754,16 @@ export const login: RequestHandler = async (req, res) => {
     });
   }
 
-  // Build device string based on device type
-  let device: string;
-
   // Helper to check if we have any meaningful vendor or model info
   const hasDeviceInfo = (vendor: string, model: string): boolean => {
     return !!(vendor || model);
   };
 
   if (deviceType === "mobile" || deviceType === "tablet") {
-    // For mobile/tablet, show vendor and/or model if available
-    if (hasDeviceInfo(deviceVendor, deviceModel)) {
+    // First try to use the extracted device name from User-Agent
+    if (extractedDeviceName) {
+      device = extractedDeviceName;
+    } else if (hasDeviceInfo(deviceVendor, deviceModel)) {
       // Show vendor + model, or just model/vendor if one is missing
       device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
     } else {
