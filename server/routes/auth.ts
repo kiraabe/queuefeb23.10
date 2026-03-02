@@ -645,10 +645,19 @@ export const login: RequestHandler = async (req, res) => {
   const { osName, osVersion } = normalizeOsDetection(uaResult as any, req);
 
   // Extract device details
-  const deviceVendor = uaResult.device.vendor || "";
-  const deviceModel = uaResult.device.model || "";
+  let deviceVendor = uaResult.device.vendor || "";
+  let deviceModel = uaResult.device.model || "";
   const isBot = uaResult.ua?.toLowerCase().includes("bot");
   const deviceType = uaResult.device.type || "desktop";
+
+  // Filter out single-character or obviously invalid device info (like "K", "X", etc.)
+  // These are often parsing artifacts and not real device names
+  if (deviceVendor && deviceVendor.length <= 2) {
+    deviceVendor = "";
+  }
+  if (deviceModel && deviceModel.length <= 2) {
+    deviceModel = "";
+  }
 
   // Device restriction: Non-admin users can only access from desktop when screen width < 1024px
   if (isSmallScreen && activeRole !== "admin" && (deviceType === "mobile" || deviceType === "tablet")) {
