@@ -138,6 +138,7 @@ export default function AdminSettings() {
       <PINLock
         isOpen={showPINLock}
         onUnlock={handlePINUnlock}
+        onClose={() => setShowPINLock(false)}
         correctPin={LICENSES_PIN}
       />
 

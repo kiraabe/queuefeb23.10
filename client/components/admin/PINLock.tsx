@@ -14,10 +14,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface PINLockProps {
   isOpen: boolean;
   onUnlock: () => void;
+  onClose?: () => void;
   correctPin: string;
 }
 
-export default function PINLock({ isOpen, onUnlock, correctPin }: PINLockProps) {
+export default function PINLock({ isOpen, onUnlock, onClose, correctPin }: PINLockProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
 
@@ -39,7 +40,11 @@ export default function PINLock({ isOpen, onUnlock, correctPin }: PINLockProps) 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open && onClose) {
+        onClose();
+      }
+    }}>
       <DialogContent className="sm:max-w-[400px]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <div className="flex items-center gap-2">
