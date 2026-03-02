@@ -60,11 +60,18 @@ export function encryptField(plaintext: string | null): string | null {
 }
 
 /**
- * Decrypt a string value
+ * Decrypt a string value safely
+ * Returns original value if decryption fails (e.g., not encrypted)
  */
 export function decryptField(encrypted: string | null): string | null {
   if (!encrypted) {
     return null;
+  }
+
+  // Very simple check: encrypted strings are IV(24) + TAG(32) + DATA(at least 2 hex)
+  // Total at least 58 characters and only hex
+  if (encrypted.length < 58 || !/^[0-9a-fA-F]+$/.test(encrypted)) {
+    return encrypted;
   }
 
   try {
@@ -86,8 +93,9 @@ export function decryptField(encrypted: string | null): string | null {
 
     return decrypted;
   } catch (error) {
-    console.error("Decryption error:", error);
-    throw new Error("Failed to decrypt data");
+    // Return original if decryption fails (likely not encrypted or wrong key)
+    console.warn("Decryption failed, returning original value:", error instanceof Error ? error.message : "unknown error");
+    return encrypted;
   }
 }
 

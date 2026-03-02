@@ -1171,8 +1171,8 @@ export async function initDb() {
     // Create licenses table for license management
     await p.query(`CREATE TABLE IF NOT EXISTS licenses (
       id uuid primary key default gen_random_uuid(),
-      license_key text not null unique,
-      license_key_hash text,
+      license_key text not null,
+      license_key_hash text unique,
       licensee text not null,
       licensee_encrypted text,
       status text not null default 'active' check (status in ('active', 'inactive', 'expired', 'revoked')),
@@ -1188,7 +1188,7 @@ export async function initDb() {
 
     // Create index for license key lookup
     await p.query(
-      `CREATE INDEX IF NOT EXISTS idx_licenses_license_key ON licenses(license_key)`,
+      `CREATE INDEX IF NOT EXISTS idx_licenses_license_key_hash ON licenses(license_key_hash)`,
     );
     await p.query(
       `CREATE INDEX IF NOT EXISTS idx_licenses_status ON licenses(status)`,
@@ -1201,6 +1201,16 @@ export async function initDb() {
     await p.query(
       `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS license_key_hash text;`,
     ).catch(() => {}); // ignore if already exists
+
+    // Make hash unique if it's not
+    await p.query(
+      `ALTER TABLE licenses ADD CONSTRAINT licenses_license_key_hash_unique UNIQUE (license_key_hash);`,
+    ).catch(() => {});
+
+    // Remove old unique constraint on license_key if it exists (it was named licenses_license_key_key by default in Postgres)
+    await p.query(
+      `ALTER TABLE licenses DROP CONSTRAINT IF EXISTS licenses_license_key_key;`,
+    ).catch(() => {});
 
     await p.query(
       `ALTER TABLE licenses ADD COLUMN IF NOT EXISTS activated_machine_id text;`,
@@ -3924,10 +3934,8 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
        activated_machine_id as "activatedMachineId",
        activated_host as "activatedHost"
      FROM licenses
-     WHERE license_key = $1
-        OR LOWER(license_key) = LOWER($1)
-        OR license_key_hash = $2`,
-    [cleanKey, licenseKeyHash],
+     WHERE license_key_hash = $1`,
+    [licenseKeyHash],
   );
 
   if (!res.rows[0]) {
@@ -3940,7 +3948,7 @@ export async function getLicenseByKeyDb(licenseKey: string): Promise<LicenseReco
 
   return {
     id: record.id,
-    licenseKey: record.licenseKey,
+    licenseKey: decryptField(record.licenseKey) || record.licenseKey,
     licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
     status: record.status,
     expiresAt: record.expiresAt,
@@ -4020,7 +4028,7 @@ export async function createLicenseDb(
        notes,
        notes_encrypted as "notesEncrypted"`,
     [
-      licenseKey,
+      encryptedLicenseKey,
       licenseKeyHash,
       licensee,
       licenseeEncrypted,
@@ -4035,7 +4043,7 @@ export async function createLicenseDb(
   const record = res.rows[0];
   return {
     id: record.id,
-    licenseKey: record.licenseKey,
+    licenseKey: decryptField(record.licenseKey) || record.licenseKey,
     licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
     status: record.status,
     expiresAt: record.expiresAt,
@@ -4073,7 +4081,7 @@ export async function listLicensesDb(): Promise<LicenseRecord[]> {
   // Decrypt fields for all records
   return res.rows.map(record => ({
     id: record.id,
-    licenseKey: record.licenseKey,
+    licenseKey: decryptField(record.licenseKey) || record.licenseKey,
     licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
     status: record.status,
     expiresAt: record.expiresAt,
@@ -4089,11 +4097,15 @@ export async function updateLicenseStatusDb(
   status: 'active' | 'inactive' | 'expired' | 'revoked',
 ): Promise<LicenseRecord | null> {
   const { decryptField } = await import("../services/encryption");
+  const crypto = await import("crypto");
   const p = getPool();
+
+  const licenseKeyHash = crypto.createHash("sha256").update(licenseKey).digest("hex");
+
   const res = await p.query(
     `UPDATE licenses
      SET status = $1, updated_at = now()
-     WHERE license_key = $2
+     WHERE license_key_hash = $2
      RETURNING
        id,
        license_key as "licenseKey",
@@ -4106,7 +4118,7 @@ export async function updateLicenseStatusDb(
        created_by_user_id as "createdByUserId",
        notes,
        notes_encrypted as "notesEncrypted"`,
-    [status, licenseKey],
+    [status, licenseKeyHash],
   );
 
   if (!res.rows[0]) {
@@ -4116,7 +4128,7 @@ export async function updateLicenseStatusDb(
   const record = res.rows[0];
   return {
     id: record.id,
-    licenseKey: record.licenseKey,
+    licenseKey: decryptField(record.licenseKey) || record.licenseKey,
     licensee: record.licenseeEncrypted ? decryptField(record.licenseeEncrypted) || record.licensee : record.licensee,
     status: record.status,
     expiresAt: record.expiresAt,
@@ -4130,10 +4142,13 @@ export async function updateLicenseStatusDb(
 }
 
 export async function deleteLicenseDb(licenseKey: string): Promise<boolean> {
+  const crypto = await import("crypto");
   const p = getPool();
+  const licenseKeyHash = crypto.createHash("sha256").update(licenseKey).digest("hex");
+
   const res = await p.query(
-    `DELETE FROM licenses WHERE license_key = $1`,
-    [licenseKey],
+    `DELETE FROM licenses WHERE license_key_hash = $1`,
+    [licenseKeyHash],
   );
   return res.rowCount > 0;
 }
