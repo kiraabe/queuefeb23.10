@@ -61,7 +61,7 @@ export default function AdminFooter() {
               href="https://ekd-tech-solutions.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors underline"
+              className="text-muted-foreground hover:text-primary transition-colors"
             >
               EKD Tech solutions
             </a>
