@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CheckCircle2, Package, ArrowRight } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "@/hooks/use-translation";
 import { toast } from "sonner";
 import { CaseActionDialog } from "@/components/employee/CaseActionDialog";
 import { HoldCaseDialog } from "@/components/employee/HoldCaseDialog";
@@ -434,6 +435,7 @@ const CaseHistoryRow = ({ ticket, userMap }: CaseHistoryRowProps) => {
 };
 
 const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
+  const { t } = useTranslation();
   // For in-progress cases, calculate elapsed time from start until now
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
@@ -681,12 +683,12 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             variant="secondary"
           >
             {ticket.status === "done"
-              ? "Completed"
+              ? t("employee.status.completed")
               : hasActiveHold
-                ? "On Hold"
+                ? t("employee.status.onHold")
                 : ticket.status === "on_hold"
-                  ? "On Hold"
-                  : "Received"}
+                  ? t("employee.status.onHold")
+                  : t("employee.received")}
           </Badge>
           {hasActiveHold && timeUntilExpiration !== null && (
             <Badge
@@ -699,25 +701,25 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
                     : "border-yellow-500 text-yellow-600 dark:text-yellow-400"
               }`}
             >
-              Expires: {formatTimeRemaining(timeUntilExpiration)}
+              {t("employee.messages.expiresIn")} {formatTimeRemaining(timeUntilExpiration)}
             </Badge>
           )}
         </div>
         <p className="text-xs text-muted-foreground mb-2">
-          Owner: {ticket.ownerName || "—"} · Woreda: {ticket.woreda || "—"}
+          {t("employee.owner")} {ticket.ownerName || "—"} · {t("employee.woreda")} {ticket.woreda || "—"}
         </p>
         <p className="text-xs text-muted-foreground">
-          Category: {ticket.serviceCategory || "—"}
+          {t("employee.category")} {ticket.serviceCategory || "—"}
         </p>
         {Array.isArray(ticket.selectedServices) &&
           ticket.selectedServices.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              Services: {ticket.selectedServices.join(", ")}
+              {t("employee.services")} {ticket.selectedServices.join(", ")}
             </p>
           )}
         {ticket.notes && (
           <p className="text-xs text-muted-foreground mt-1">
-            Notes: {ticket.notes}
+            {t("employee.notes")} {ticket.notes}
           </p>
         )}
       </div>
@@ -731,7 +733,7 @@ const TicketRow = ({ ticket, onComplete, onActionStart }: TicketRowProps) => {
             !ticket.completedAt && (
               <div className="flex items-center gap-1">
                 <span className="text-xs text-muted-foreground">
-                  {hasActiveHold ? "(paused" : "(in progress"}
+                  ({hasActiveHold ? t("employee.messages.paused") : t("employee.messages.inProgress")}
                 </span>
                 <span
                   className={`inline-flex h-2 w-2 rounded-full ${
@@ -839,6 +841,7 @@ export default function Employee() {
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<"proceed" | null>(null);
   const { logout, user } = useAuth();
+  const { t } = useTranslation();
 
   const statsQuery = useQuery({
     queryKey: ["employee-stats"],
@@ -947,8 +950,8 @@ export default function Employee() {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">
               {user?.fullName
-                ? `Welcome, ${user.fullName}`
-                : "Employee Dashboard"}
+                ? t("employee.welcome", { name: user.fullName })
+                : t("employee.dashboard")}
             </h1>
             {getJobTitleName && (
               <p className="text-sm text-muted-foreground font-medium">
@@ -956,7 +959,7 @@ export default function Employee() {
               </p>
             )}
             <p className="text-muted-foreground">
-              Track your daily cases and performance metrics
+              {t("employee.subtitle")}
             </p>
           </div>
           <UserProfileDropdown />
@@ -967,7 +970,7 @@ export default function Employee() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Cases Received
+                {t("employee.received")}
               </CardTitle>
               <Package className="h-4 w-4 text-blue-600 dark:text-blue-300" />
             </CardHeader>
@@ -975,14 +978,14 @@ export default function Employee() {
               <div className="text-2xl font-bold">
                 {stats?.receivedToday ?? 0}
               </div>
-              <p className="text-xs text-muted-foreground">Today</p>
+              <p className="text-xs text-muted-foreground">{t("employee.today")}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Cases Completed
+                {t("employee.completed")}
               </CardTitle>
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-300" />
             </CardHeader>
@@ -990,14 +993,14 @@ export default function Employee() {
               <div className="text-2xl font-bold">
                 {stats?.completedToday ?? 0}
               </div>
-              <p className="text-xs text-muted-foreground">Today</p>
+              <p className="text-xs text-muted-foreground">{t("employee.today")}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Cases Proceeded
+                {t("employee.proceeded")}
               </CardTitle>
               <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-300" />
             </CardHeader>
@@ -1005,7 +1008,7 @@ export default function Employee() {
               <div className="text-2xl font-bold">
                 {stats?.proceedToday ?? 0}
               </div>
-              <p className="text-xs text-muted-foreground">Today</p>
+              <p className="text-xs text-muted-foreground">{t("employee.today")}</p>
             </CardContent>
           </Card>
         </div>
@@ -1013,26 +1016,26 @@ export default function Employee() {
         {/* Cases Tab View */}
         <Card>
           <CardHeader>
-            <CardTitle>Cases</CardTitle>
+            <CardTitle>{t("employee.cases")}</CardTitle>
             <CardDescription>
-              View your received cases and case history
+              {t("employee.casesDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList>
-                <TabsTrigger value="received">Received Cases</TabsTrigger>
-                <TabsTrigger value="history">History</TabsTrigger>
+                <TabsTrigger value="received">{t("employee.tabs.received")}</TabsTrigger>
+                <TabsTrigger value="history">{t("employee.tabs.history")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="received" className="space-y-4 mt-4">
                 {ticketsQuery.isPending ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Loading cases...
+                    {t("employee.loadingCases")}
                   </div>
                 ) : tabItems.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No cases received yet
+                    {t("employee.noCases")}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -1055,31 +1058,31 @@ export default function Employee() {
                     size="sm"
                     onClick={() => setTimePeriod("today")}
                   >
-                    Today
+                    {t("employee.timeFilters.today")}
                   </Button>
                   <Button
                     variant={timePeriod === "week" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setTimePeriod("week")}
                   >
-                    This Week
+                    {t("employee.timeFilters.week")}
                   </Button>
                   <Button
                     variant={timePeriod === "month" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setTimePeriod("month")}
                   >
-                    This Month
+                    {t("employee.timeFilters.month")}
                   </Button>
                 </div>
 
                 {historyQuery.isPending ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Loading case history...
+                    {t("employee.loadingHistory")}
                   </div>
                 ) : tabItems.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No case history yet
+                    {t("employee.noHistory")}
                   </div>
                 ) : (
                   <>
@@ -1097,12 +1100,14 @@ export default function Employee() {
                     {historyQuery.data && historyQuery.data.total > 0 && (
                       <div className="flex items-center justify-between mt-6 pt-4 border-t">
                         <p className="text-sm text-muted-foreground">
-                          Showing {(historyPage - 1) * itemsPerPage + 1} to{" "}
-                          {Math.min(
-                            historyPage * itemsPerPage,
-                            historyQuery.data.total,
-                          )}{" "}
-                          of {historyQuery.data.total} cases
+                          {t("employee.pagination.showing", {
+                            start: (historyPage - 1) * itemsPerPage + 1,
+                            end: Math.min(
+                              historyPage * itemsPerPage,
+                              historyQuery.data.total,
+                            ),
+                            total: historyQuery.data.total,
+                          })}
                         </p>
                         <div className="flex gap-2">
                           <Button
@@ -1113,7 +1118,7 @@ export default function Employee() {
                             }
                             disabled={historyPage === 1}
                           >
-                            Previous
+                            {t("employee.pagination.previous")}
                           </Button>
                           <div className="flex items-center gap-2 px-3 py-1 border rounded-md">
                             <span className="text-sm font-medium">
@@ -1137,7 +1142,7 @@ export default function Employee() {
                               Math.ceil(historyQuery.data!.total / itemsPerPage)
                             }
                           >
-                            Next
+                            {t("employee.pagination.next")}
                           </Button>
                         </div>
                       </div>

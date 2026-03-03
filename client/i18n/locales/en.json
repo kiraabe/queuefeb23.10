@@ -390,6 +390,7 @@
     "title": "Employee Dashboard",
     "subtitle": "Track your daily cases and performance metrics",
     "welcome": "Welcome, {name}",
+    "dashboard": "Employee Dashboard",
     "cases": "Cases",
     "casesDesc": "View your received cases and case history",
     "received": "Cases Received",
@@ -411,6 +412,9 @@
     },
     "ticket": "Ticket {code}",
     "customer": "Customer:",
+    "owner": "Owner:",
+    "woreda": "Woreda:",
+    "notes": "Notes:",
     "started": "Started:",
     "ended": "Ended:",
     "totalDuration": "Total Duration:",
@@ -433,12 +437,15 @@
     "elapsed": "Elapsed",
     "employeesTime": "Employees time",
     "timeSpent": "time spent",
+    "onHoldText": "on hold",
+    "received": "Received",
     "status": {
       "initiated": "Initiated",
       "completed": "Completed",
       "completedCheck": "✓ Completed",
       "forwarded": "→ Forwarded",
-      "inProgress": "⏳ In Progress"
+      "inProgress": "⏳ In Progress",
+      "onHold": "On Hold"
     },
     "actions": {
       "start": "Start",
@@ -447,12 +454,24 @@
       "hold": "⏸ Hold",
       "resume": "Resume"
     },
-    "pagination": "Showing {start} to {end} of {total} cases",
-    "pageInfo": "Page {current} of {total} ({total} total records)",
+    "messages": {
+      "inProgress": "in progress",
+      "paused": "paused",
+      "to": "to",
+      "expiresIn": "Expires:"
+    },
+    "pagination": {
+      "showing": "Showing {start} to {end} of {total} cases",
+      "pageInfo": "Page {current} of {total} ({total} total records)",
+      "previous": "Previous",
+      "next": "Next"
+    },
     "errors": {
       "startFailed": "Failed to start case",
       "completeFailed": "Failed to complete case",
-      "resumeFailed": "Failed to resume case"
+      "resumeFailed": "Failed to resume case",
+      "noCurrentTicket": "No current ticket to proceed",
+      "employeeNotFound": "Employee not found"
     },
     "toast": {
       "started": "Case started",

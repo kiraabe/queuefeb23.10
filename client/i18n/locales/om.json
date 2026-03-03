@@ -392,6 +392,7 @@
     "title": "Dashboard Gadhaakuu",
     "subtitle": "Haajaawwan kee guyyaa fi madaalii yaaliinsaa hordofi",
     "welcome": "Galmeessii, {name}",
+    "dashboard": "Dashboard Gadhaakuu",
     "cases": "Haajaawwan",
     "casesDesc": "Haajaawwan kee arginsaa fi seenaa ilaalit",
     "received": "Haajaawwan Arginsaa",
@@ -413,6 +414,9 @@
     },
     "ticket": "Kaardii {code}",
     "customer": "Gawwattaa:",
+    "owner": "Huwwaa:",
+    "woreda": "Woreda:",
+    "notes": "Ramadi:",
     "started": "Jalqabaa:",
     "ended": "Xumuura:",
     "totalDuration": "Yeroo Hunda:",
@@ -435,26 +439,41 @@
     "elapsed": "Dhufe",
     "employeesTime": "Yeroo Gadhaakuu",
     "timeSpent": "Yeroo Fayyadamaa",
+    "onHoldText": "Dhaabbaa",
+    "received": "Arginsaa",
     "status": {
       "initiated": "Jalqabaa",
       "completed": "Xumuura",
       "completedCheck": "✓ Xumuura",
       "forwarded": "→ Geeddarre",
-      "inProgress": "⏳ Yeroo irratti hojii"
+      "inProgress": "⏳ Yeroo irratti hojii",
+      "onHold": "Dhaabbaa"
     },
     "actions": {
       "start": "Jalqabi",
       "complete": "Xumuuri",
       "proceed": "Itti Aanaa",
       "hold": "⏸ Dhaabbaa",
-      "resume": "Jalqabi"
+      "resume": "Deebi'i Jalqabi"
     },
-    "pagination": "Mul'isaa {start} gara {end} kan {total} haajaawwan",
-    "pageInfo": "Fuula {current} kan {total} ({total} barreessaa hunda)",
+    "messages": {
+      "inProgress": "Yeroo irratti hojii",
+      "paused": "Cufaa",
+      "to": "gara",
+      "expiresIn": "Itti Aanaa:"
+    },
+    "pagination": {
+      "showing": "Mul'isaa {start} gara {end} kan {total} haajaawwan",
+      "pageInfo": "Fuula {current} kan {total} ({total} barreessaa hunda)",
+      "previous": "Duraa",
+      "next": "Itti Aanaa"
+    },
     "errors": {
       "startFailed": "Haajaa jalqabuu hin dandeenye",
       "completeFailed": "Haajaa xumuuru hin dandeenye",
-      "resumeFailed": "Haajaa jalqabuu hin dandeenye"
+      "resumeFailed": "Haajaa jalqabuu hin dandeenye",
+      "noCurrentTicket": "Kaardii ammaa hin jiru",
+      "employeeNotFound": "Gadhaakuu hin argamne"
     },
     "toast": {
       "started": "Haajaa jalqabaa",

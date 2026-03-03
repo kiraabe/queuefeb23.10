@@ -390,8 +390,9 @@
   },
   "employee": {
     "title": "ሰራተኛ ዳሽቦርድ",
-    "subtitle": "ሪ ሳምንታዊ ጉዳዮች እና አፈጻጸም ሜትሪክ ይከታተሉ",
+    "subtitle": "ቀን ግብዝ ጉዳዮች እና አፈጻጸም ሜትሪክ ይከታተሉ",
     "welcome": "ተወዳጂ ፣ {name}",
+    "dashboard": "ሰራተኛ ዳሽቦርድ",
     "cases": "ጉዳዮች",
     "casesDesc": "ቀብልህ ጉዳዮች እና ጉዳይ ታሪክ ይመልከቱ",
     "received": "ጉዳዮች ቀብልህ",
@@ -413,53 +414,71 @@
     },
     "ticket": "ቲኬት {code}",
     "customer": "ደንበኛ:",
+    "owner": "ባለቤት:",
+    "woreda": "Woreda:",
+    "notes": "ማስታወሻ:",
     "started": "ጀመረ:",
-    "ended": "ቋሚ:",
+    "ended": "ወደቀ:",
     "totalDuration": "ጠቅላላ ርዝመት:",
     "employeesTotal": "ሰራተኞች ጠቅላላ:",
     "forwardedTo": "ወደ ተለወጠ:",
-    "lastForwardedTo": "ድሕረ ተለወጠ:",
+    "lastForwardedTo": "የመጨረሻ ተለወጠ:",
     "category": "ምድብ:",
     "services": "አገልግሎቶች:",
     "landCert": "Land Cert (ካርታ):",
     "cert": "Cert (ካርታ):",
-    "workflowChain": "Workflow Chain",
+    "workflowChain": "የስራ ፍሰት ሰንሰለት",
     "onHold": "ጉዳይ ተገድቶ",
-    "paused": "ጠንቆ",
+    "paused": "ተቋርጦ",
     "heldBy": "ተገድቦ ለ:",
     "subject": "ርእስ:",
     "details": "ዝርዝር:",
-    "heldAt": "ተገድቦ ከ:",
-    "resumedAt": "ተጀመረ ከ:",
+    "heldAt": "ተገድቦ ወደ:",
+    "resumedAt": "ተጀመረ ወደ:",
     "totalTime": "ጠቅላላ ጉዳይ ጊዜ",
     "elapsed": "ያለፈ",
     "employeesTime": "ሰራተኞች ጊዜ",
-    "timeSpent": "ጊዜ ሳለ",
+    "timeSpent": "ጊዜ ወጥቷል",
+    "onHoldText": "ተገድቦ",
+    "received": "ቀብልህ",
     "status": {
       "initiated": "ተጀመረ",
       "completed": "ተጠናቀቀ",
       "completedCheck": "✓ ተጠናቀቀ",
       "forwarded": "→ ተሰደደ",
-      "inProgress": "⏳ እየሰራ"
+      "inProgress": "⏳ እየሰራ",
+      "onHold": "ተገድቦ"
     },
     "actions": {
       "start": "ጀምር",
       "complete": "ጠናቅቅ",
       "proceed": "ቀጥል",
       "hold": "⏸ ጊዜ",
-      "resume": "ተጀምር"
+      "resume": "ደግም ጀምር"
     },
-    "pagination": "እያሳየ {start} ወደ {end} ከ {total} ጉዳዮች",
-    "pageInfo": "ገጽ {current} ከ {total} ({total} ጠቅላላ ሰነዶች)",
+    "messages": {
+      "inProgress": "እየሰራ",
+      "paused": "ተቋርጦ",
+      "to": "ወደ",
+      "expiresIn": "ያልቃል:"
+    },
+    "pagination": {
+      "showing": "እያሳየ {start} ወደ {end} ከ {total} ጉዳዮች",
+      "pageInfo": "ገጽ {current} ከ {total} ({total} ጠቅላላ ሰነዶች)",
+      "previous": "ቀዳሚ",
+      "next": "ሚቀጥለው"
+    },
     "errors": {
       "startFailed": "ጉዳይ ጀምር ተስኖ",
       "completeFailed": "ጉዳይ ጠናቅቅ ተስኖ",
-      "resumeFailed": "ጉዳይ ተጀምር ተስኖ"
+      "resumeFailed": "ጉዳይ ደግም ጀምር ተስኖ",
+      "noCurrentTicket": "ምንም ወቅታዊ ቲኬት ተስጓ",
+      "employeeNotFound": "ሰራተኛ አልተገኘም"
     },
     "toast": {
       "started": "ጉዳይ ጀመረ",
-      "completed": "ጉዳይ ተጠናቀቀ",
-      "holdExpired": "አይችሉም ተጀምር: 3-ቀን ጊዜ ፈጃ። ይህ ጉዳይ ራስ-ተደምደም ይሆናል።"
+      "completed": "ጉዳይ በትክክል ተጠናቀቀ",
+      "holdExpired": "ደግም መጀመር አይቻለም: 3-ቀን ጊዜ ያልቃ። ይህ ጉዳይ በራስ-ሰር ይሰረዛል።"
     }
   }
 }
