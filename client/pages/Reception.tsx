@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { ConsoleShell } from "@/components/layout/ConsoleShell";
-import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
+import { useTranslation } from "@/hooks/use-translation";
 import QRCode from "qrcode";
 import { toast } from "sonner";
 
@@ -346,6 +346,7 @@ function TicketPreview({
 }
 
 export default function Reception() {
+  const { t } = useTranslation();
   const [ownerName, setOwnerName] = useState("");
   const [woreda, setWoreda] = useState("");
   const [landCertificateKarta, setLandCertificateKarta] = useState("");
@@ -520,16 +521,15 @@ export default function Reception() {
 
   return (
     <ConsoleShell
-      title="Reception Console"
+      title={t("reception.title")}
       className="lg:grid-cols-1"
-      action={<UserProfileDropdown />}
     >
       <section className="w-full grid gap-8 sm:gap-12 py-4 sm:py-6">
         <Card className="w-full border-border/60 bg-card/90 p-4 sm:p-6 md:p-8 shadow-2xl">
           <CardHeader className="space-y-2 mb-6">
             <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
               <ClipboardSignature className="h-5 sm:h-6 w-5 sm:w-6 text-primary flex-shrink-0" />
-              <span>Issue virtual ticket</span>
+              <span>{t("reception.issueTicket")}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -538,24 +538,24 @@ export default function Reception() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="owner-name" className="text-sm font-medium">
-                    Property owner's full name
+                    {t("reception.ownerLabel")}
                   </Label>
                   <Input
                     id="owner-name"
                     value={ownerName}
                     onChange={(event) => setOwnerName(event.target.value)}
-                    placeholder="Add guest or organization name"
+                    placeholder={t("reception.ownerPlaceholder")}
                     required
                     className="h-10"
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="woreda" className="text-sm font-medium">
-                    Woreda
+                    {t("reception.woredaLabel")}
                   </Label>
                   <Select value={woreda} onValueChange={setWoreda}>
                     <SelectTrigger id="woreda" className="h-10">
-                      <SelectValue placeholder="Select woreda" />
+                      <SelectValue placeholder={t("reception.woredaPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {WOREDA_OPTIONS.map((option) => (
