@@ -79,5 +79,10 @@
     "submit": "ያስገቡ",
     "next": "ሚቀጥለው",
     "back": "ኋላ"
+  },
+  "language": {
+    "select": "ቋንቋ ይምረጡ",
+    "changeLanguage": "ቋንቋ ይቀይሩ",
+    "current": "ያሁኑ ቋንቋ"
   }
 }

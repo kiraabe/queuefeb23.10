@@ -79,5 +79,10 @@
     "submit": "Galchi",
     "next": "Itti Aanaa",
     "back": "Duuba"
+  },
+  "language": {
+    "select": "Afaan Filadhu",
+    "changeLanguage": "Afaan Jijji",
+    "current": "Afaan Ammaa"
   }
 }

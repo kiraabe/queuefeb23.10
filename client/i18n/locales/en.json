@@ -79,5 +79,10 @@
     "submit": "Submit",
     "next": "Next",
     "back": "Back"
+  },
+  "language": {
+    "select": "Select Language",
+    "changeLanguage": "Change Language",
+    "current": "Current Language"
   }
 }

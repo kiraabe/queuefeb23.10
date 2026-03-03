@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "@/hooks/use-translation";
+import { LanguageSwitcher } from "@/components/language/LanguageSwitcher";
 
 const SiteHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -89,6 +90,7 @@ const SiteHeader = () => {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher variant="dropdown-icon" />
           {user ? (
             <>
               <button
@@ -179,6 +181,10 @@ const SiteHeader = () => {
 
           {/* Mobile Auth Section */}
           <div className="flex flex-col gap-2 border-t border-border/40 pt-4 mt-2">
+            <div className="px-2">
+              <p className="text-xs text-muted-foreground mb-2">{t("language.select")}</p>
+              <LanguageSwitcher variant="select" className="w-full" />
+            </div>
             {user ? (
               <>
                 <button
