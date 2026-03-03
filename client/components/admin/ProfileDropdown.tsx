@@ -5,11 +5,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User, LogOut } from "lucide-react";
+import { Settings, User, LogOut, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { LanguageSwitcher } from "@/components/language/LanguageSwitcher";
+import { useLanguage, Language, LANGUAGE_LABELS } from "@/hooks/use-language";
 
 interface NavItem {
   id: string;
@@ -24,6 +27,7 @@ interface ProfileDropdownProps {
 
 export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
   const { user, logout } = useAuth();
+  const { language, setLanguage } = useLanguage();
 
   const settingsItem = navItems.find((item) => item.id === "settings");
   const profileItem = navItems.find((item) => item.id === "profile");
@@ -71,10 +75,23 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <div className="px-2 py-2">
-          <p className="text-xs text-muted-foreground mb-2">Language</p>
-          <LanguageSwitcher variant="dropdown" size="sm" />
-        </div>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Globe className="h-4 w-4 mr-2" />
+            <span>Language</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
+              <DropdownMenuItem
+                key={lang}
+                onClick={() => setLanguage(lang as Language)}
+                className={language === lang ? "bg-accent" : ""}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-destructive focus:text-destructive">
           <LogOut className="mr-2 h-4 w-4" />

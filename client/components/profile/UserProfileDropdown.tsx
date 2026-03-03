@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, ChevronDown } from "lucide-react";
+import { LogOut, User, ChevronDown, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useLanguage } from "@/hooks/use-language";
+import { useLanguage, Language, LANGUAGE_LABELS } from "@/hooks/use-language";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -12,13 +12,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LanguageSwitcher } from "@/components/language/LanguageSwitcher";
 
 export function UserProfileDropdown() {
   const { user, logout } = useAuth();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -82,10 +85,23 @@ export function UserProfileDropdown() {
 
           <DropdownMenuSeparator />
 
-          <div className="px-2 py-2">
-            <p className="text-xs text-muted-foreground mb-2">Language</p>
-            <LanguageSwitcher variant="dropdown" size="sm" />
-          </div>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Globe className="h-4 w-4 mr-2" />
+              <span>Language</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
+                <DropdownMenuItem
+                  key={lang}
+                  onClick={() => setLanguage(lang as Language)}
+                  className={language === lang ? "bg-accent" : ""}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
           <DropdownMenuSeparator />
 
@@ -149,10 +165,23 @@ export function UserProfileDropdown() {
 
         <DropdownMenuSeparator />
 
-        <div className="px-2 py-2">
-          <p className="text-xs text-muted-foreground mb-2">Language</p>
-          <LanguageSwitcher variant="dropdown" size="sm" />
-        </div>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Globe className="h-4 w-4 mr-2" />
+            <span>Language</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
+              <DropdownMenuItem
+                key={lang}
+                onClick={() => setLanguage(lang as Language)}
+                className={language === lang ? "bg-accent" : ""}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
 
         <DropdownMenuSeparator />
 
