@@ -297,6 +297,7 @@
     "kartaNoLabel": "karta (ካርታ) No.",
     "kartaNoPlaceholder": "Lakkoofsa barreessaa galchi",
     "categoryLabel": "Gosa Tajaajilaa",
+    "categoryPlaceholder": "Gosa filadhu",
     "servicesLabel": "Tajaajila filadhu",
     "loadingServices": "Tajaajila yeroo irratti...",
     "noServices": "Gosa kanaaf tajaajila hin jiru.",

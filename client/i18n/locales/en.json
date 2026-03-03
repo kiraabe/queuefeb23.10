@@ -295,6 +295,7 @@
     "kartaNoLabel": "karta (ካርታ) No.",
     "kartaNoPlaceholder": "Enter certificate number",
     "categoryLabel": "Service Category",
+    "categoryPlaceholder": "Select a category",
     "servicesLabel": "Select Services",
     "loadingServices": "Loading services…",
     "noServices": "No services available for this category.",

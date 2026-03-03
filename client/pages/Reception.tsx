@@ -59,21 +59,21 @@ const WOREDA_OPTIONS = [
 const RECEPTION_GAINS = [
   {
     icon: BadgeCheck,
-    title: "Eligibility checkpoint",
-    description:
-      "Quick guidance prompts reception to confirm the right paperwork before generating the QR ticket.",
+    titleKey: "reception.eligibility.title",
+    descriptionKey:
+      "reception.eligibility.desc",
   },
   {
     icon: ShieldCheck,
-    title: "No personal data stored",
-    description:
-      "Tickets are tied to QR IDs, not phone numbers. Privacy policies stay intact across every interaction.",
+    titleKey: "reception.privacy.title",
+    descriptionKey:
+      "reception.privacy.desc",
   },
   {
     icon: Handshake,
-    title: "Seamless hand-offs",
-    description:
-      "Window staff receive context automatically, including service type, notes, and priority markers.",
+    titleKey: "reception.handoff.title",
+    descriptionKey:
+      "reception.handoff.desc",
   },
 ];
 
@@ -172,6 +172,8 @@ function TicketPreview({
     };
   }, [ticket?.code]);
 
+  const { t } = useTranslation();
+
   const display = ticket
     ? {
         code: ticket.code,
@@ -180,7 +182,7 @@ function TicketPreview({
         selectedServiceNames: details.selectedServiceNames,
       }
     : {
-        code: "Auto-assigned",
+        code: t("reception.autoAssigned"),
         ownerName: details.ownerName,
         woreda: details.woreda,
         selectedServiceNames: details.selectedServiceNames,
@@ -194,42 +196,41 @@ function TicketPreview({
   return (
     <div className="rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 md:p-5 text-sm sm:text-base text-primary">
       <p className="font-semibold text-xs sm:text-sm uppercase tracking-wide">
-        Ticket preview
+        {t("reception.preview")}
       </p>
       {!ticket && (
         <p className="mt-2 text-primary/80 text-sm">
-          Fill out the form to automatically issue the next order number and
-          generate a QR ticket.
+          {t("reception.previewDesc")}
         </p>
       )}
       <div className="mt-4 grid gap-2 sm:gap-3 text-primary/80 text-sm">
         <p>
-          <span className="font-semibold text-primary">Order number:</span>{" "}
+          <span className="font-semibold text-primary">{t("reception.orderNo")}</span>{" "}
           <span className="font-mono text-base sm:text-lg font-bold text-primary">
             {display.code}
           </span>
         </p>
         {display.ownerName && (
           <p>
-            <span className="font-semibold text-primary">Property owner:</span>{" "}
+            <span className="font-semibold text-primary">{t("reception.owner")}</span>{" "}
             <span className="text-primary/90">{display.ownerName}</span>
           </p>
         )}
         {display.woreda && (
           <p>
-            <span className="font-semibold text-primary">Woreda:</span>{" "}
+            <span className="font-semibold text-primary">{t("reception.woreda")}</span>{" "}
             <span className="text-primary/90">{display.woreda}</span>
           </p>
         )}
         <p>
-          <span className="font-semibold text-primary">Service:</span>{" "}
+          <span className="font-semibold text-primary">{t("reception.service")}</span>{" "}
           <span className="text-primary/90">{selectedServiceLabel}</span>
         </p>
         {display.selectedServiceNames &&
           display.selectedServiceNames.length > 0 && (
             <div>
               <p className="font-semibold text-primary mb-1">
-                Selected Services:
+                {t("reception.services")}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-primary/90 text-sm">
                 {display.selectedServiceNames.map((name) => (
@@ -271,7 +272,7 @@ function TicketPreview({
         {ticket && trackingUrl && (
           <div className="space-y-2 pt-2 border-t border-primary/20">
             <p className="font-semibold text-primary text-xs sm:text-sm">
-              Tracking URL:
+              {t("reception.trackingUrl")}
             </p>
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
               <a
@@ -287,7 +288,7 @@ function TicketPreview({
                 onClick={() => {
                   try {
                     navigator.clipboard.writeText(trackingUrl);
-                    toast.success("Tracking URL copied to clipboard");
+                    toast.success(t("reception.toast.urlCopied"));
                   } catch {
                     try {
                       const tmp = document.createElement("textarea");
@@ -296,15 +297,15 @@ function TicketPreview({
                       tmp.select();
                       document.execCommand("copy");
                       document.body.removeChild(tmp);
-                      toast.success("Tracking URL copied to clipboard");
+                      toast.success(t("reception.toast.urlCopied"));
                     } catch {
-                      toast.error("Unable to copy URL");
+                      toast.error(t("reception.toast.copyFailed"));
                     }
                   }
                 }}
                 className="shrink-0 rounded bg-primary/10 px-3 sm:px-2 py-2 sm:py-1 text-xs font-medium hover:bg-primary/20 transition-colors active:bg-primary/30"
               >
-                Copy
+                {t("reception.copy")}
               </button>
             </div>
           </div>
@@ -321,7 +322,7 @@ function TicketPreview({
               <div className="flex items-center gap-2 text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-xs sm:text-sm">
-                  Generating QR preview…
+                  {t("reception.generating2")}
                 </span>
               </div>
             )}
@@ -329,15 +330,14 @@ function TicketPreview({
         ) : (
           <div className="rounded-lg sm:rounded-xl border border-primary/30 bg-white/70 p-3 text-primary/90">
             <p className="text-xs sm:text-sm">
-              QR code appears here once you generate the ticket. Reception can
-              print or show it on-screen instantly.
+              {t("reception.qrPlaceholder")}
             </p>
           </div>
         )}
         {isGenerating && !ticket && (
           <div className="flex items-center gap-2 text-primary">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Generating QR ticket…</span>
+            <span className="text-sm">{t("reception.generatingTicket")}</span>
           </div>
         )}
       </div>
@@ -612,14 +612,14 @@ export default function Reception() {
               {serviceCategories.length > 0 && (
                 <div className="space-y-3 border-t border-border/40 pt-6">
                   <Label className="text-sm font-medium">
-                    Service Category
+                    {t("reception.categoryLabel")}
                   </Label>
                   <Select
                     value={selectedCategory}
                     onValueChange={setSelectedCategory}
                   >
                     <SelectTrigger id="category" className="h-10">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder={t("reception.categoryPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {serviceCategories.map((cat) => (
@@ -635,17 +635,17 @@ export default function Reception() {
               {/* Services section */}
               {selectedCategory && (
                 <div className="space-y-3 border-t border-border/40 pt-6">
-                  <Label className="text-sm font-medium">Select Services</Label>
+                  <Label className="text-sm font-medium">{t("reception.servicesLabel")}</Label>
                   {loadingCategoryServices ? (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Loading services…</span>
+                      <span className="text-sm">{t("reception.loadingServices")}</span>
                     </div>
                   ) : categoryServices.length === 0 ? (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        No services available for this category.
+                        {t("reception.noServices")}
                       </AlertDescription>
                     </Alert>
                   ) : (
@@ -692,15 +692,14 @@ export default function Reception() {
                 {createTicket.isPending ? (
                   <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Generating…</span>
+                    <span>{t("reception.generating")}</span>
                   </span>
                 ) : (
-                  "Generate QR Ticket"
+                  t("reception.generateBtn")
                 )}
               </Button>
               <p className="text-center text-xs sm:text-sm text-muted-foreground">
-                QR auto-refreshes every 60 seconds. Print or display to the
-                guest instantly.
+                {t("reception.autoRefresh")}
               </p>
             </form>
           </CardContent>
@@ -711,7 +710,7 @@ export default function Reception() {
         <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3">
           {RECEPTION_GAINS.map((item) => (
             <Card
-              key={item.title}
+              key={item.titleKey}
               className="border-border/60 bg-card/80 p-4 sm:p-6 shadow-md shadow-primary/5 hover:bg-card/90 transition-colors"
             >
               <CardHeader className="space-y-3 mb-4">
@@ -719,12 +718,12 @@ export default function Reception() {
                   <item.icon className="h-5 sm:h-6 w-5 sm:w-6" />
                 </div>
                 <CardTitle className="text-base sm:text-lg">
-                  {item.title}
+                  {t(item.titleKey as any)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                  {item.description}
+                  {t(item.descriptionKey as any)}
                 </CardDescription>
               </CardContent>
             </Card>
