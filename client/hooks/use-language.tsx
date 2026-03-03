@@ -46,5 +46,5 @@ export const useLanguage = () => {
 export const LANGUAGE_LABELS: Record<Language, string> = {
   en: "English",
   am: "አማርኛ (Amharic)",
-  om: "Afaan Oromo (Coming Soon)",
+  om: "Afaan Oromo",
 };
