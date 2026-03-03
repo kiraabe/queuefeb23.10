@@ -53,14 +53,14 @@ export default function AdminFooter() {
           </p>
           <div className="flex gap-4">
             <a
-              href="/privacy"
+              href="/admin/privacy"
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Privacy
             </a>
             <span className="text-xs text-muted-foreground">•</span>
             <a
-              href="/terms"
+              href="/admin/terms"
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               Terms

@@ -119,8 +119,6 @@ const App = () => (
                 {/* Semi-public routes - available to all authenticated users */}
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/role-selector" element={<RoleSelector />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
                 <Route path="/tickets/:code" element={<TicketStatus />} />
 
                 {/* Role-specific routes */}
@@ -147,6 +145,8 @@ const App = () => (
                       </Suspense>
                     }
                   />
+                  <Route path="/employee/privacy" element={<Privacy />} />
+                  <Route path="/employee/terms" element={<Terms />} />
                 </Route>
                 <Route element={<RequireAuth role="archiever" />}>
                   <Route
@@ -157,6 +157,8 @@ const App = () => (
                       </Suspense>
                     }
                   />
+                  <Route path="/archiever/privacy" element={<Privacy />} />
+                  <Route path="/archiever/terms" element={<Terms />} />
                 </Route>
                 <Route element={<RequireAuth role="admin" />}>
                   <Route
@@ -167,6 +169,8 @@ const App = () => (
                       </Suspense>
                     }
                   />
+                  <Route path="/admin/privacy" element={<Privacy />} />
+                  <Route path="/admin/terms" element={<Terms />} />
                 </Route>
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
