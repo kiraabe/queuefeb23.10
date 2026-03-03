@@ -78,7 +78,11 @@
     "close": "Cufi",
     "submit": "Galchi",
     "next": "Itti Aanaa",
-    "back": "Duuba"
+    "back": "Duuba",
+    "logout": "Ba'i",
+    "signingOut": "Ba'aa jira...",
+    "myProfile": "Galmaagee Koo",
+    "language": "Afaan"
   },
   "language": {
     "select": "Afaan Filadhu",

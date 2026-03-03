@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, User, ChevronDown, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage, Language, LANGUAGE_LABELS } from "@/hooks/use-language";
+import { useTranslation } from "@/hooks/use-translation";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 export function UserProfileDropdown() {
   const { user, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -88,7 +90,7 @@ export function UserProfileDropdown() {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Globe className="h-4 w-4 mr-2" />
-              <span>Language</span>
+              <span>{t("buttons.language")}</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
@@ -111,7 +113,7 @@ export function UserProfileDropdown() {
             className="text-red-600 dark:text-red-400 cursor-pointer"
           >
             <LogOut className="h-4 w-4 mr-2" />
-            <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
+            <span>{isLoggingOut ? t("buttons.signingOut") : t("buttons.logout")}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -159,7 +161,7 @@ export function UserProfileDropdown() {
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={() => navigate("/profile")}>
             <User className="h-4 w-4 mr-2" />
-            <span>My Profile</span>
+            <span>{t("buttons.myProfile")}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
@@ -168,7 +170,7 @@ export function UserProfileDropdown() {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Globe className="h-4 w-4 mr-2" />
-            <span>Language</span>
+            <span>{t("buttons.language")}</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
@@ -191,7 +193,7 @@ export function UserProfileDropdown() {
           className="text-red-600 dark:text-red-400 cursor-pointer"
         >
           <LogOut className="h-4 w-4 mr-2" />
-          <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
+          <span>{isLoggingOut ? t("buttons.signingOut") : t("buttons.logout")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

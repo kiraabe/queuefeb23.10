@@ -72,7 +72,11 @@
     "close": "Close",
     "submit": "Submit",
     "next": "Next",
-    "back": "Back"
+    "back": "Back",
+    "logout": "Sign out",
+    "signingOut": "Signing out...",
+    "myProfile": "My Profile",
+    "language": "Language"
   },
   "language": {
     "select": "Select Language",

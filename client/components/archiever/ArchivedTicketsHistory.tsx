@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface ArchivedTicket {
   id: string;
@@ -38,6 +39,7 @@ interface ArchivedTicket {
 }
 
 export function ArchivedTicketsHistory() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [timeFilter, setTimeFilter] = useState<"all" | "today" | "week">("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -214,7 +216,7 @@ export function ArchivedTicketsHistory() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Retrieved
+              {t("archiever.history.totalRetrieved")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -222,7 +224,7 @@ export function ArchivedTicketsHistory() {
               {stats.total}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Tickets processed by archivers
+              {t("archiever.history.ticketsProcessed")}
             </p>
           </CardContent>
         </Card>
@@ -230,7 +232,7 @@ export function ArchivedTicketsHistory() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Retrieved Today
+              {t("archiever.history.retrievedToday")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -238,7 +240,7 @@ export function ArchivedTicketsHistory() {
               {stats.today}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Completed retrieval operations
+              {t("archiever.history.completedOps")}
             </p>
           </CardContent>
         </Card>
@@ -246,7 +248,7 @@ export function ArchivedTicketsHistory() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg. Processing Time
+              {t("archiever.history.avgTime")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -254,7 +256,7 @@ export function ArchivedTicketsHistory() {
               {formatTime(stats.avgTime)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Average time per ticket
+              {t("archiever.history.avgTimeDesc")}
             </p>
           </CardContent>
         </Card>
@@ -265,9 +267,9 @@ export function ArchivedTicketsHistory() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Archived Tickets</CardTitle>
+              <CardTitle>{t("archiever.history.title")}</CardTitle>
               <CardDescription>
-                Read-only history of retrieved tickets
+                {t("archiever.history.description")}
               </CardDescription>
             </div>
             <Badge variant="outline">{filteredTickets.length}</Badge>
@@ -276,7 +278,7 @@ export function ArchivedTicketsHistory() {
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <Input
-              placeholder="Search by ticket code, customer name, or service..."
+              placeholder={t("archiever.history.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="max-w-md"
@@ -289,21 +291,21 @@ export function ArchivedTicketsHistory() {
                 size="sm"
                 onClick={() => handleTimeFilterChange("all")}
               >
-                All
+                {t("archiever.history.all")}
               </Button>
               <Button
                 variant={timeFilter === "today" ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleTimeFilterChange("today")}
               >
-                Today
+                {t("archiever.history.today")}
               </Button>
               <Button
                 variant={timeFilter === "week" ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleTimeFilterChange("week")}
               >
-                This Week
+                {t("archiever.history.week")}
               </Button>
             </div>
           </div>
@@ -316,17 +318,17 @@ export function ArchivedTicketsHistory() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Failed to load archived history. Please try again.
+                {t("archiever.history.errors.loadFailed")}
               </AlertDescription>
             </Alert>
           ) : filteredTickets.length === 0 ? (
             <div className="text-center py-12">
               <Archive className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-lg font-medium">No archived tickets</p>
+              <p className="text-lg font-medium">{t("archiever.history.empty")}</p>
               <p className="text-sm text-muted-foreground">
                 {searchTerm
-                  ? "No tickets match your search"
-                  : "Tickets retrieved by archivers will appear here"}
+                  ? t("archiever.history.emptySearch")
+                  : t("archiever.history.emptyDesc")}
               </p>
             </div>
           ) : (
@@ -347,14 +349,14 @@ export function ArchivedTicketsHistory() {
                         {/* Ticket Code */}
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Ticket Details
+                            {t("archiever.history.details")}
                           </p>
                           <div className="flex flex-col gap-1">
                             <p className="text-lg font-bold text-blue-600">
                               {ticket.code}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {ticket.ownerName || "N/A"}
+                              {ticket.ownerName || t("common.na")}
                             </p>
                           </div>
                         </div>
@@ -362,17 +364,17 @@ export function ArchivedTicketsHistory() {
                         {/* Service Category */}
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Service Category
+                            {t("archiever.workspace.serviceCategory")}
                           </p>
                           <p className="font-medium text-sm">
-                            {ticket.serviceCategory || "N/A"}
+                            {ticket.serviceCategory || t("common.na")}
                           </p>
                         </div>
 
                         {/* Start Time */}
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Start Time
+                            {t("archiever.history.startTime")}
                           </p>
                           <p className="text-sm">
                             {formatDateAndTime(ticket.archiverStartedAt)}
@@ -382,7 +384,7 @@ export function ArchivedTicketsHistory() {
                         {/* Retrieved Time */}
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Retrieved Time
+                            {t("archiever.history.retrievedTime")}
                           </p>
                           <p className="text-sm">
                             {formatDateAndTime(ticket.retrievedAt)}
@@ -392,7 +394,7 @@ export function ArchivedTicketsHistory() {
                         {/* Duration */}
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Duration
+                            {t("archiever.history.duration")}
                           </p>
                           <p className="text-sm font-medium">
                             {formatTime(ticket.processingTime)}
@@ -410,7 +412,7 @@ export function ArchivedTicketsHistory() {
                                 className="w-full"
                               >
                                 <Check className="h-4 w-4 mr-2" />
-                                Archived
+                                {t("archiever.history.archived")}
                               </Button>
                             </div>
                           ) : (
@@ -426,12 +428,12 @@ export function ArchivedTicketsHistory() {
                               {archivingTicket === ticket.id ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Archiving...
+                                  {t("archiever.history.archiving")}
                                 </>
                               ) : (
                                 <>
                                   <Archive className="h-4 w-4 mr-2" />
-                                  Back To Archive
+                                  {t("archiever.history.backBtn")}
                                 </>
                               )}
                             </Button>
@@ -449,7 +451,7 @@ export function ArchivedTicketsHistory() {
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            Processing Time
+                            {t("archiever.workspace.processingTime")}
                           </p>
                           <p className="font-semibold text-sm">
                             {formatTime(ticket.processingTime)}
@@ -465,9 +467,11 @@ export function ArchivedTicketsHistory() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="text-sm text-muted-foreground">
-                    Showing {startIndex + 1} to{" "}
-                    {Math.min(endIndex, filteredTickets.length)} of{" "}
-                    {filteredTickets.length} tickets
+                    {t("archiever.history.pagingInfo", {
+                      start: startIndex + 1,
+                      end: Math.min(endIndex, filteredTickets.length),
+                      total: filteredTickets.length,
+                    })}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -477,10 +481,13 @@ export function ArchivedTicketsHistory() {
                       disabled={currentPage === 1}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {t("common.previous")}
                     </Button>
                     <div className="text-sm font-medium">
-                      Page {currentPage} of {totalPages}
+                      {t("archiever.history.pageInfo", {
+                        current: currentPage,
+                        total: totalPages,
+                      })}
                     </div>
                     <Button
                       variant="outline"
@@ -490,7 +497,7 @@ export function ArchivedTicketsHistory() {
                       }
                       disabled={currentPage === totalPages}
                     >
-                      Next
+                      {t("common.next")}
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>

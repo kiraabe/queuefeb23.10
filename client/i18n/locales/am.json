@@ -78,7 +78,11 @@
     "close": "ይዝጉ",
     "submit": "ያስገቡ",
     "next": "ሚቀጥለው",
-    "back": "ኋላ"
+    "back": "ኋላ",
+    "logout": "ውጣ",
+    "signingOut": "በመውጣት ላይ...",
+    "myProfile": " የእኔ መገለጫ",
+    "language": "ቋንቋ"
   },
   "language": {
     "select": "ቋንቋ ይምረጡ",
