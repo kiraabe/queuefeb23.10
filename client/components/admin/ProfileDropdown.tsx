@@ -63,13 +63,13 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {profileItem && (
-          <DropdownMenuItem onClick={profileItem.onClick} className="cursor-pointer">
+          <DropdownMenuItem onSelect={profileItem.onClick} className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
         )}
         {settingsItem && (
-          <DropdownMenuItem onClick={settingsItem.onClick} className="cursor-pointer">
+          <DropdownMenuItem onSelect={settingsItem.onClick} className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
@@ -84,7 +84,7 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
             {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
               <DropdownMenuItem
                 key={lang}
-                onClick={() => setLanguage(lang as Language)}
+                onSelect={() => setLanguage(lang as Language)}
                 className={language === lang ? "bg-accent" : ""}
               >
                 {label}
@@ -93,7 +93,7 @@ export function ProfileDropdown({ navItems }: ProfileDropdownProps) {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-destructive focus:text-destructive">
+        <DropdownMenuItem onSelect={() => logout()} className="cursor-pointer text-destructive focus:text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>

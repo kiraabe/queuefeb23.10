@@ -64,7 +64,7 @@ export function LanguageSwitcher({
           {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
             <DropdownMenuItem
               key={lang}
-              onClick={() => setLanguage(lang as Language)}
+              onSelect={() => setLanguage(lang as Language)}
               className={language === lang ? "bg-accent" : ""}
             >
               {label}
@@ -92,7 +92,7 @@ export function LanguageSwitcher({
         {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
           <DropdownMenuItem
             key={lang}
-            onClick={() => setLanguage(lang as Language)}
+            onSelect={() => setLanguage(lang as Language)}
             className={language === lang ? "bg-accent" : ""}
           >
             {label}

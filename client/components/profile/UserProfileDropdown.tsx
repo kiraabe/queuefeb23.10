@@ -94,7 +94,7 @@ export function UserProfileDropdown() {
               {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
                 <DropdownMenuItem
                   key={lang}
-                  onClick={() => setLanguage(lang as Language)}
+                  onSelect={() => setLanguage(lang as Language)}
                   className={language === lang ? "bg-accent" : ""}
                 >
                   {label}
@@ -106,7 +106,7 @@ export function UserProfileDropdown() {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={handleLogout}
+            onSelect={handleLogout}
             disabled={isLoggingOut}
             className="text-red-600 dark:text-red-400 cursor-pointer"
           >
@@ -157,7 +157,7 @@ export function UserProfileDropdown() {
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => navigate("/profile")}>
+          <DropdownMenuItem onSelect={() => navigate("/profile")}>
             <User className="h-4 w-4 mr-2" />
             <span>My Profile</span>
           </DropdownMenuItem>
@@ -174,7 +174,7 @@ export function UserProfileDropdown() {
             {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
               <DropdownMenuItem
                 key={lang}
-                onClick={() => setLanguage(lang as Language)}
+                onSelect={() => setLanguage(lang as Language)}
                 className={language === lang ? "bg-accent" : ""}
               >
                 {label}
@@ -186,7 +186,7 @@ export function UserProfileDropdown() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onClick={handleLogout}
+          onSelect={handleLogout}
           disabled={isLoggingOut}
           className="text-red-600 dark:text-red-400 cursor-pointer"
         >
