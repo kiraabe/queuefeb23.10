@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, AlertCircle, Clock, Lock } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 import {
   Card,
   CardContent,
@@ -38,6 +39,7 @@ export function GlobalQueuePanel({
   onTicketSelected,
   selectedTicketId,
 }: GlobalQueuePanelProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [startingTicketId, setStartingTicketId] = useState<string | null>(null);
 
@@ -49,16 +51,13 @@ export function GlobalQueuePanel({
         const response = await fetch("/api/archiever/global-queue");
 
         if (response.status === 401 || response.status === 403) {
-          throw new Error(
-            "Your session has expired or you don't have permission. Please log in again.",
-          );
+          throw new Error(t("common.sessionExpired"));
         }
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(
-            errorData.error ||
-              `Failed to fetch global queue (${response.status})`,
+            errorData.error || t("archiever.queue.errors.fetchFailed"),
           );
         }
 
@@ -68,9 +67,7 @@ export function GlobalQueuePanel({
           fetchError instanceof TypeError &&
           fetchError.message.includes("fetch")
         ) {
-          throw new Error(
-            "Cannot connect to server. Please check your connection and try again.",
-          );
+          throw new Error(t("common.connectionError"));
         }
         throw fetchError;
       }
@@ -96,11 +93,11 @@ export function GlobalQueuePanel({
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["archiever-global-queue"] });
       onTicketSelected(data.ticket.id, data.ticket.code);
-      toast.success(`Started working on ticket ${data.ticket.code}`);
+      toast.success(t("archiever.queue.toast.startSuccess", { code: data.ticket.code }));
       setStartingTicketId(null);
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to start ticket");
+      toast.error(error.message || t("archiever.queue.errors.startFailed"));
       setStartingTicketId(null);
     },
   });
@@ -115,7 +112,7 @@ export function GlobalQueuePanel({
   };
 
   const formatWaitTime = (minutes: number) => {
-    if (minutes < 1) return "Just now";
+    if (minutes < 1) return t("common.dash");
     if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
     return `${hours}h ${minutes % 60}m`;
@@ -127,7 +124,7 @@ export function GlobalQueuePanel({
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Waiting for Archiver
+              {t("archiever.queue.waitingFor")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -135,7 +132,7 @@ export function GlobalQueuePanel({
               {waitingTickets.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Tickets in global queue
+              {t("archiever.queue.count")}
             </p>
           </CardContent>
         </Card>
@@ -143,7 +140,7 @@ export function GlobalQueuePanel({
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Being Processed
+              {t("archiever.queue.processing")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -151,7 +148,7 @@ export function GlobalQueuePanel({
               {lockedTickets.length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Tickets claimed by archivers
+              {t("archiever.queue.claimedCount")}
             </p>
           </CardContent>
         </Card>
@@ -159,9 +156,9 @@ export function GlobalQueuePanel({
 
       <Card>
         <CardHeader>
-          <CardTitle>Global Queue</CardTitle>
+          <CardTitle>{t("archiever.queue.title")}</CardTitle>
           <CardDescription>
-            Tickets waiting for document retrieval (FIFO order)
+            {t("archiever.queue.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -176,7 +173,7 @@ export function GlobalQueuePanel({
                 <AlertDescription>
                   {error instanceof Error
                     ? error.message
-                    : "Failed to load queue. Please try again."}
+                    : t("archiever.queue.errors.loadFailed")}
                 </AlertDescription>
               </Alert>
               <Button
@@ -184,7 +181,7 @@ export function GlobalQueuePanel({
                 variant="outline"
                 className="w-full"
               >
-                Try Again
+                {t("common.tryAgain")}
               </Button>
             </div>
           ) : waitingTickets.length === 0 ? (
@@ -204,9 +201,9 @@ export function GlobalQueuePanel({
                   />
                 </svg>
               </div>
-              <p className="text-lg font-medium">Queue is empty</p>
+              <p className="text-lg font-medium">{t("archiever.queue.empty")}</p>
               <p className="text-sm text-muted-foreground">
-                No tickets waiting for document retrieval
+                {t("archiever.queue.emptyDesc")}
               </p>
             </div>
           ) : (
@@ -235,24 +232,24 @@ export function GlobalQueuePanel({
                       <div className="grid grid-cols-2 gap-2 text-sm mb-2">
                         <div>
                           <p className="text-muted-foreground text-xs">
-                            Customer
+                            {t("archiever.queue.customer")}
                           </p>
                           <p className="font-medium">
-                            {ticket.ownerName || "N/A"}
+                            {ticket.ownerName || t("common.na")}
                           </p>
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">
-                            Service
+                            {t("archiever.queue.service")}
                           </p>
                           <p className="font-medium">
-                            {ticket.service || "N/A"}
+                            {ticket.service || t("common.na")}
                           </p>
                         </div>
                         {ticket.landCertificateKarta && (
                           <div>
                             <p className="text-muted-foreground text-xs">
-                              Land Holding Rights Certificate (ካርታ) ser no.
+                              {t("archiever.queue.landCert")}
                             </p>
                             <p className="font-medium">
                               {ticket.landCertificateKarta}
@@ -262,7 +259,7 @@ export function GlobalQueuePanel({
                         {ticket.landCertificateDigital && (
                           <div>
                             <p className="text-muted-foreground text-xs">
-                              Land Holding Rights Certificate (ካርታ) No.
+                              {t("archiever.queue.landCertNo")}
                             </p>
                             <p className="font-medium">
                               {ticket.landCertificateDigital}
@@ -275,10 +272,10 @@ export function GlobalQueuePanel({
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           <span>
-                            Waiting: {formatWaitTime(ticket.waitDuration)}
+                            {t("archiever.queue.waiting", { minutes: formatWaitTime(ticket.waitDuration) })}
                           </span>
                         </div>
-                        {ticket.woreda && <span>Woreda: {ticket.woreda}</span>}
+                        {ticket.woreda && <span>{t("archiever.queue.woreda", { woreda: ticket.woreda })}</span>}
                       </div>
                     </div>
 
@@ -291,7 +288,7 @@ export function GlobalQueuePanel({
                       {startingTicketId === ticket.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        "Start"
+                        t("archiever.queue.start")
                       )}
                     </Button>
                   </div>
@@ -305,7 +302,7 @@ export function GlobalQueuePanel({
       {lockedTickets.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Currently Being Processed</CardTitle>
+            <CardTitle className="text-sm">{t("archiever.indicator.processing")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -325,7 +322,7 @@ export function GlobalQueuePanel({
                     <div className="min-w-0">
                       <p className="font-semibold text-sm">{ticket.code}</p>
                       <p className="text-xs text-muted-foreground">
-                        {ticket.ownerName || "N/A"} • {ticket.service}
+                        {ticket.ownerName || t("common.na")} • {ticket.service}
                       </p>
                     </div>
                   </div>
@@ -333,7 +330,7 @@ export function GlobalQueuePanel({
                     variant="secondary"
                     className="text-xs whitespace-nowrap ml-2"
                   >
-                    In Progress
+                    {t("archiever.queue.inProgress")}
                   </Badge>
                 </button>
               ))}

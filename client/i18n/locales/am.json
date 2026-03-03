@@ -84,5 +84,339 @@
     "select": "ቋንቋ ይምረጡ",
     "changeLanguage": "ቋንቋ ይቀይሩ",
     "current": "ያሁኑ ቋንቋ"
+  },
+  "common": {
+    "na": "N/A",
+    "dash": "—",
+    "loading": "ይጫናል...",
+    "error": "ስህተት",
+    "success": "ስኬት",
+    "warning": "ማስጠንቀቂያ",
+    "tryAgain": "እንደገና ይሞክር",
+    "close": "ይዝጉ",
+    "select": "ይምረጡ",
+    "search": "ይፈልጉ",
+    "notFound": "አልተገኘም",
+    "previous": "ቀዳሚ",
+    "next": "ሚቀጥለው",
+    "page": "ገጽ",
+    "of": "ከ",
+    "total": "ጠቅላላ",
+    "showing": "እያሳየ",
+    "to": "ወደ",
+    "sessionExpired": "የእርስዎ ክፍለ-ስራ ጊዜ ፈጃ ወይም ምንም ፈቃድ የሎትም። እባክህ ግባ።",
+    "connectionError": "ከሰርቨር ጋር ግንኙነት መቋቋም አይቻለም። የእርስዎን ግንኙነት ይመልከቱ እና እንደገና ይሞክሩ።",
+    "processingError": "ስህተት ተከስቷል። እባክህ እንደገና ይሞክር።",
+    "unknown": "ያልታወቀ"
+  },
+  "archiever": {
+    "title": "ቃል አወዳድሮ መስተዋወቂያ",
+    "tabs": {
+      "queue": "ዓለምአቀፍ ወረፋ",
+      "workspace": "ቲኬት ላይ ሥራ",
+      "history": "ታሪክ"
+    },
+    "queue": {
+      "title": "ዓለምአቀፍ ወረፋ",
+      "description": "ሰነድ ማስመለስ ለሚጠብቅ ቲኬቶች (FIFO ቅደም ተከተል)",
+      "waitingFor": "ቃል አወዳድሮ ለሚጠብቅ",
+      "processing": "እየተሰራ",
+      "count": "በዓለምአቀፍ ወረፋ ውስጥ ቲኬቶች",
+      "claimedCount": "ቃል አወዳድሮዎች በጠይቀ ቲኬቶች",
+      "empty": "ወረፋ ባዶ ነው",
+      "emptyDesc": "ሰነድ ማስመለስ ለሚጠብቅ ምንም ቲኬቶች የሉም",
+      "selectPrompt": "ዓለምአቀፍ ወረፋ ላይ ቲኬት ይምረጡ",
+      "customer": "ደንበኛ",
+      "service": "አገልግሎት",
+      "landCert": "Land Holding Rights Certificate (ካርታ) ser no.",
+      "landCertNo": "Land Holding Rights Certificate (ካርታ) No.",
+      "waiting": "ይጠብቁ: {minutes}",
+      "woreda": "Woreda: {woreda}",
+      "start": "ጀምር",
+      "inProgress": "እየተሰራ",
+      "errors": {
+        "fetchFailed": "ዓለምአቀፍ ወረፋ ማምጣት ተስኖ",
+        "loadFailed": "ወረፋ ጫና ተስኖ። እባክህ እንደገና ይሞክር።",
+        "startFailed": "ቲኬት ጀምር ተስኖ"
+      },
+      "toast": {
+        "startSuccess": "ቲኬት {code} ላይ ሥራ ተጀመረ"
+      }
+    },
+    "workspace": {
+      "title": "ቲኬት መረጃ",
+      "ticketCode": "ቲኬት ኮድ",
+      "customerName": "ደንበኛ ስም",
+      "serviceCategory": "አገልግሎት ምድብ",
+      "processingTime": "ሂደት ጊዜ",
+      "owner": "ባለቤት ስም",
+      "woreda": "Woreda",
+      "service": "አገልግሎት",
+      "certificates": "Land Certificates",
+      "certSerNo": "Land Certificate (ካርታ) ser no.",
+      "certNo": "Certificate (ካርታ) No.",
+      "documents": "የሰነድ ይዘት",
+      "markDocuments": "ሰነዶችን ታገዷ/ተረጋግጠ ምልክት ያድርጉ",
+      "noDocuments": "ይህ አገልግሎት ስላለበት ምንም ሰነድ የሉም",
+      "verified": "በ {time} ተረጋግጧል",
+      "found": "ታገዋ",
+      "notFound": "አልተገኘም",
+      "processing": "እየሰራ...",
+      "retrieveBtn": "ተመለሱ - ወደ አገልግሎት ወረፋ ተወስዷል",
+      "releasing": "ተለቋል...",
+      "releaseBtn": "ወደ ዓለምአቀፍ ወረፋ ተመለስ",
+      "selectTicket": "ምንም ቲኬት ተመርጦ አለ አቃ། ዓለምአቀፍ ወረፋ ላይ ቲኬት ይምረጡ።",
+      "errors": {
+        "fetchFailed": "ቲኬት ዝርዝር ማምጣት ተስኖ",
+        "loadFailed": "ቲኬት ዝርዝር ጫና ተስኖ። እባክህ እንደገና ይሞክር።"
+      },
+      "toast": {
+        "updateSuccess": "የሰነድ ሁኔታ ተሻሻለ",
+        "updateFailed": "የሰነድ ሁኔታ ሙከራ ተስኖ",
+        "retrieveSuccess": "ቲኬት ወደ አገልግሎት ማከማቻ ተወስዷል",
+        "missingDocs": "ጠፍተዋል ሰነዶች: {list}",
+        "retrieveFailed": "ቲኬት ተመለስ ምልክት ተስኖ",
+        "releaseSuccess": "ቲኬት ወደ ዓለምአቀፍ ወረፋ ተለቋል",
+        "releaseFailed": "ቲኬት ተወቃ ተስኖ"
+      }
+    },
+    "history": {
+      "title": "ታስ ቲኬቶች",
+      "description": "ተመለሱ ቲኬቶች የተወሰነ የታሪክ",
+      "totalRetrieved": "ጠቅላላ ተመለሱ",
+      "ticketsProcessed": "ቃል አወዳድሮዎች ባሰሩ ቲኬቶች",
+      "retrievedToday": "ዛሬ ተመለሱ",
+      "completedOps": "ተጠናቀቁ ማልካሞት",
+      "avgTime": "ሚዲያ ሂደት ጊዜ",
+      "avgTimeDesc": "ሚዲያ ጊዜ በ ቲኬት",
+      "empty": "ምንም ታስ ቲኬቶች የሉም",
+      "emptySearch": "ምንም ቲኬቶች ተስማምተዋል",
+      "emptyDesc": "ቃል አወዳድሮዎች ስራ ላይ ቲኬቶች እዚህ ታዩ ይሆናል",
+      "searchPlaceholder": "ቲኬት ኮድ ፣ ደንበኛ ስም ፣ ወይም አገልግሎት ይፈልጉ...",
+      "all": "ሁሉም",
+      "today": "ዛሬ",
+      "week": "ይህ ሳምንት",
+      "details": "ቲኬት ዝርዝር",
+      "startTime": "ጀማሪ ጊዜ",
+      "retrievedTime": "ተመለሱ ጊዜ",
+      "duration": "ርዝመት",
+      "backBtn": "ወደ ታስ ተመለስ",
+      "archiving": "ታስ...",
+      "archived": "ታስ",
+      "pagingInfo": "እያሳየ {start} ወደ {end} ከ {total} ቲኬቶች",
+      "pageInfo": "ገጽ {current} ከ {total}",
+      "errors": {
+        "fetchFailed": "ታሪክ ማምጣት ተስኖ",
+        "loadFailed": "ታስ ታሪክ ጫና ተስኖ። እባክህ እንደገና ይሞክር።"
+      },
+      "toast": {
+        "archiveSuccess": "ቲኬት {code} ታስ ምልክት ተደርጎ",
+        "archiveFailed": "ቲኬት ታስ ተስኖ"
+      }
+    },
+    "indicator": {
+      "noActive": "ንቅ ቲኬት የሉም",
+      "selectPrompt": "ዓለምአቀፍ ወረፋ ላይ ቲኬት ይምረጡ",
+      "processing": "ሳሚነቱ ሂደት",
+      "active": "ንቅ",
+      "elapsedTime": "ያለፈ ጊዜ",
+      "note": "ማስታወሻ: ሌሎች ቃል አወዳድሮ ይህ ቲኬት ተጠይቀው ሊወሰዱ አይችሉም"
+    }
+  },
+  "teller": {
+    "title": "ጠወራ ኮንሶል",
+    "controls": "Window ቁጥጥር",
+    "currentTicket": "ወቅታዊ ቲኬት",
+    "owner": "ባለቤት",
+    "woreda": "Woreda",
+    "kartaSerNo": "karta (ካርታ) ser no.",
+    "kartaNo": "karta (ካርታ) No.",
+    "notes": "ማስታወሻ",
+    "callNext": "ሚቀጥለው ጥራ",
+    "recall": "ተመለስ ጥራ",
+    "done": "ጨርሳ",
+    "skip": "ዝለል",
+    "transfer": "ዝውውር",
+    "selectWindow": "ታጠቁ window ይምረጡ",
+    "serving": "ያገልግላል",
+    "idle": "አንቃ",
+    "history": "ቲኬት ታሪክ ለ {name}",
+    "today": "ዛሬ ተጠናቀቁ",
+    "skipped": "ዛሬ ዝለሉ",
+    "ongoing": "ቀጥተኛ",
+    "transferred": "ዝውውር ተደርጓል",
+    "skipReason": "ዝለላ ምክንያት? (አማራጭ)",
+    "errors": {
+      "clearFailed": "Windows ማጽዳት ተስኖ"
+    },
+    "toast": {
+      "cleared": "ሁሉም windows ተጽዋ እና ይህ ወደ ባዶ ተመለሡ",
+      "recalled": "ወቅታዊ ቲኬት ተመለሡ",
+      "transferSuccess": "{code} ወደ {target} ዝውውር ተደርጓል",
+      "transferComplete": "ዝውውር ተጠናቀቀ",
+      "transferFailed": "ዝውውር ተስኞ"
+    }
+  },
+  "admin": {
+    "title": "አስተዳዳሪ ፓነል",
+    "description": "ስርዓት ጥቂ ሂደቶች ፣ ወረፋ መግለጫ ፣ እና ቅንብሮች ቀንብር",
+    "nav": {
+      "dashboard": "ዳሽቦርድ",
+      "employment": "ሥራ",
+      "sessions": "ክፍለ-ስራ",
+      "tickets": "ቲኬቶች",
+      "windows": "Windows",
+      "settings": "ቅንብሮች",
+      "profile": "መገለጫ"
+    }
+  },
+  "reception": {
+    "title": "ሪሴፕሽን ኮንሶል",
+    "issueTicket": "ሀሰተኛ ቲኬት ስጥ",
+    "preview": "ቲኬት ቅድመ-ዕይታ",
+    "previewDesc": "ቅጹን ሙላ አሁንም ቁጥር ስጥ እና QR ቲኬት ያመንጫ።",
+    "owner": "የንብረት ባለቤት:",
+    "woreda": "Woreda:",
+    "service": "አገልግሎት:",
+    "services": "ተመረጠ አገልግሎቶች:",
+    "kartaSerNo": "karta (ካርታ) ser no.:",
+    "kartaNo": "karta (ካርታ) No.:",
+    "notes": "ማስታወሻ:",
+    "trackingUrl": "የክወተ URL:",
+    "copy": "ገጽ",
+    "ownerLabel": "የንብረት ባለቤት ሙሉ ስም",
+    "ownerPlaceholder": "ስም ወይም ድርጅት ስም ይሰጡ",
+    "woredaLabel": "Woreda",
+    "woredaPlaceholder": "Woreda ይምረጡ",
+    "kartaSerNoLabel": "karta (ካርታ) ser no.",
+    "kartaSerNoPlaceholder": "የሰርቭ ቁጥር ያስገቡ",
+    "kartaNoLabel": "karta (ካርታ) No.",
+    "kartaNoPlaceholder": "የጥያቄ ቁጥር ያስገቡ",
+    "categoryLabel": "አገልግሎት ምድብ",
+    "servicesLabel": "አገልግሎቶች ይምረጡ",
+    "loadingServices": "አገልግሎቶች ይጫናል…",
+    "noServices": "ይህ ምድብ ምንም አገልግሎቶች የሉም።",
+    "generating": "ይመሰረታል…",
+    "generateBtn": "QR ቲኬት ያመንጫ",
+    "autoRefresh": "QR ሰአታ በ 60 ሰከንድ ይሻሻላል። ወደ ስቴ ወይም ጎብኚ አሳይ።",
+    "orderNo": "ትዕዛዝ ቁጥር:",
+    "autoAssigned": "ራስ-ተሰጥ",
+    "qrPlaceholder": "QR ኮድ ሳለ ውስጥ ይቆምብ। ሪሴፕሽን ሊጠፍ ወይም ተደምደም።",
+    "generating2": "QR ቅድመ-ዕይታ ይመሰረታል…",
+    "generatingTicket": "QR ቲኬት ይመሰረታል…",
+    "eligibility": {
+      "title": "ብቁነት ሚናስር",
+      "desc": "ፈጣን ስብከት ሪሴፕሽን ትክክል ወረቀቶች ያረጋግጡ ከ QR ቲኬት ፈጣን።"
+    },
+    "privacy": {
+      "title": "ምንም ግላዊ ሰነዶች ታስ",
+      "desc": "ቲኬቶች QR IDs ተያያዥ ነው ፣ ስልክ ቁጥር አይደለም። ግላዊነት ሕግዎች ተጠብቀዋል በሁሉም ግንኙነት።"
+    },
+    "handoff": {
+      "title": "ታስታ ይሥራ-ድምጽ",
+      "desc": "Window ሠራተኛ አገልግሎት ምድብ ፣ ማስታወሻ ፣ ቅደም ተከተል ምልክቶች ራስ-ተያዥ።"
+    },
+    "script": {
+      "verify": "ተወዳጂ አስተቃቅሞ አገልግሎት ብቁነት ያረጋግጡ",
+      "capture": "አገልግሎት ምርጫ & ሙላ ሙላ",
+      "generate": "QR ቲኬት ያመንጫ እና ርቦ መመሪያ ያረጋግጡ"
+    },
+    "woreda1": "Woreda 1",
+    "woreda2": "Woreda 2",
+    "woreda3": "Woreda 3",
+    "woreda4": "Woreda 4",
+    "woreda5": "Woreda 5",
+    "woreda6": "Woreda 6",
+    "woreda7": "Woreda 7",
+    "woreda8": "Woreda 8",
+    "woreda9": "Woreda 9",
+    "woreda10": "Woreda 10",
+    "woreda11": "Woreda 11",
+    "woreda12": "Woreda 12",
+    "woreda13": "Woreda 13",
+    "errors": {
+      "categoryFailed": "ምድቦች ጫና ተስኖ",
+      "servicesFailed": "አገልግሎቶች ጫና ተስኖ",
+      "createFailed": "ቲኬት መፍጠር አይችሉም።"
+    },
+    "toast": {
+      "success": "ቲኬት {code} ወጣ",
+      "urlCopied": "የክወተ URL ወደ ሚዲያ ገጽ ተወስደ",
+      "copyFailed": "URL ገጽ አልተቻለም"
+    }
+  },
+  "employee": {
+    "title": "ሰራተኛ ዳሽቦርድ",
+    "subtitle": "ሪ ሳምንታዊ ጉዳዮች እና አፈጻጸም ሜትሪክ ይከታተሉ",
+    "welcome": "ተወዳጂ ፣ {name}",
+    "cases": "ጉዳዮች",
+    "casesDesc": "ቀብልህ ጉዳዮች እና ጉዳይ ታሪክ ይመልከቱ",
+    "received": "ጉዳዮች ቀብልህ",
+    "completed": "ጉዳዮች ተጠናቀቁ",
+    "proceeded": "ጉዳዮች ተቀጥል",
+    "today": "ዛሬ",
+    "tabs": {
+      "received": "ቀብልህ ጉዳዮች",
+      "history": "ታሪክ"
+    },
+    "loadingCases": "ጉዳዮች ይጫናል...",
+    "noCases": "ምንም ቀብልህ ጉዳዮች የሉም",
+    "loadingHistory": "ጉዳይ ታሪክ ይጫናል...",
+    "noHistory": "ምንም ጉዳይ ታሪክ የሉም",
+    "timeFilters": {
+      "today": "ዛሬ",
+      "week": "ይህ ሳምንት",
+      "month": "ይህ ወር"
+    },
+    "ticket": "ቲኬት {code}",
+    "customer": "ደንበኛ:",
+    "started": "ጀመረ:",
+    "ended": "ቋሚ:",
+    "totalDuration": "ጠቅላላ ርዝመት:",
+    "employeesTotal": "ሰራተኞች ጠቅላላ:",
+    "forwardedTo": "ወደ ተለወጠ:",
+    "lastForwardedTo": "ድሕረ ተለወጠ:",
+    "category": "ምድብ:",
+    "services": "አገልግሎቶች:",
+    "landCert": "Land Cert (ካርታ):",
+    "cert": "Cert (ካርታ):",
+    "workflowChain": "Workflow Chain",
+    "onHold": "ጉዳይ ተገድቶ",
+    "paused": "ጠንቆ",
+    "heldBy": "ተገድቦ ለ:",
+    "subject": "ርእስ:",
+    "details": "ዝርዝር:",
+    "heldAt": "ተገድቦ ከ:",
+    "resumedAt": "ተጀመረ ከ:",
+    "totalTime": "ጠቅላላ ጉዳይ ጊዜ",
+    "elapsed": "ያለፈ",
+    "employeesTime": "ሰራተኞች ጊዜ",
+    "timeSpent": "ጊዜ ሳለ",
+    "status": {
+      "initiated": "ተጀመረ",
+      "completed": "ተጠናቀቀ",
+      "completedCheck": "✓ ተጠናቀቀ",
+      "forwarded": "→ ተሰደደ",
+      "inProgress": "⏳ እየሰራ"
+    },
+    "actions": {
+      "start": "ጀምር",
+      "complete": "ጠናቅቅ",
+      "proceed": "ቀጥል",
+      "hold": "⏸ ጊዜ",
+      "resume": "ተጀምር"
+    },
+    "pagination": "እያሳየ {start} ወደ {end} ከ {total} ጉዳዮች",
+    "pageInfo": "ገጽ {current} ከ {total} ({total} ጠቅላላ ሰነዶች)",
+    "errors": {
+      "startFailed": "ጉዳይ ጀምር ተስኖ",
+      "completeFailed": "ጉዳይ ጠናቅቅ ተስኖ",
+      "resumeFailed": "ጉዳይ ተጀምር ተስኖ"
+    },
+    "toast": {
+      "started": "ጉዳይ ጀመረ",
+      "completed": "ጉዳይ ተጠናቀቀ",
+      "holdExpired": "አይችሉም ተጀምር: 3-ቀን ጊዜ ፈጃ። ይህ ጉዳይ ራስ-ተደምደም ይሆናል።"
+    }
   }
 }

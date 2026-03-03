@@ -9,10 +9,12 @@ import { ArchivedTicketsHistory } from "@/components/archiever/ArchivedTicketsHi
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { UserProfileDropdown } from "@/components/profile/UserProfileDropdown";
+import { useTranslation } from "@/hooks/use-translation";
 import type { JobTitle } from "@shared/api";
 
 export default function Archiever() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [selectedTicketId, setSelectedTicketId] = useState<
     string | undefined
   >();
@@ -20,7 +22,7 @@ export default function Archiever() {
     string | undefined
   >();
   const [activeTab, setActiveTab] = useState("queue");
-  const [headerTitle, setHeaderTitle] = useState("Archiver Interface");
+  const [headerTitle, setHeaderTitle] = useState(t("archiever.title"));
 
 
   // Fetch job titles to get the name from jobTitleId
@@ -37,7 +39,7 @@ export default function Archiever() {
 
   // Update header title when user or job titles change
   useEffect(() => {
-    let title = "Archiver Interface";
+    let title = t("archiever.title");
 
     if (user?.fullName) {
       title = user.fullName;
@@ -46,14 +48,14 @@ export default function Archiever() {
         const jobTitle = jobTitles.find((jt) => jt.id === user.jobTitleId);
         if (jobTitle) {
           const jobTitleName =
-            jobTitle.nameAmharic || jobTitle.nameEnglish || "No Title";
+            jobTitle.nameAmharic || jobTitle.nameEnglish || t("common.na");
           title = `${user.fullName} - ${jobTitleName}`;
         }
       }
     }
 
     setHeaderTitle(title);
-  }, [user, jobTitles]);
+  }, [user, jobTitles, t]);
 
   const handleTicketSelected = (ticketId: string, ticketCode: string) => {
     setSelectedTicketId(ticketId);
@@ -83,11 +85,11 @@ export default function Archiever() {
         <div className="lg:col-span-3">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="queue">Global Queue</TabsTrigger>
+              <TabsTrigger value="queue">{t("archiever.tabs.queue")}</TabsTrigger>
               <TabsTrigger value="workspace" disabled={!selectedTicketId}>
-                Working on Ticket
+                {t("archiever.tabs.workspace")}
               </TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="history">{t("archiever.tabs.history")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="queue" className="space-y-4">
@@ -107,7 +109,7 @@ export default function Archiever() {
               ) : (
                 <Card className="p-8 text-center">
                   <p className="text-muted-foreground">
-                    Select a ticket from the Global Queue to begin
+                    {t("archiever.queue.selectPrompt")}
                   </p>
                 </Card>
               )}

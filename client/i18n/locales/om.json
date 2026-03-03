@@ -84,5 +84,339 @@
     "select": "Afaan Filadhu",
     "changeLanguage": "Afaan Jijji",
     "current": "Afaan Ammaa"
+  },
+  "common": {
+    "na": "N/A",
+    "dash": "—",
+    "loading": "Yeroo fudhaa...",
+    "error": "Dogoggora",
+    "success": "Milkaa'ina",
+    "warning": "Abaarsa",
+    "tryAgain": "Yaali irra",
+    "close": "Cufi",
+    "select": "Filadhu",
+    "search": "Barbaadi",
+    "notFound": "Hin argame",
+    "previous": "Duraa",
+    "next": "Itti Aanaa",
+    "page": "Fuula",
+    "of": "kan",
+    "total": "hunda",
+    "showing": "Mul'isaa",
+    "to": "gara",
+    "sessionExpired": "Yeroo seenaa keessan dhuume yookiin furdhaa hin qabdan. Seeni.",
+    "connectionError": "Mangalichaa waliin hidha bu'u hin dandeenye. Waliidhaa keessan ilaali.",
+    "processingError": "Dogoggori uumaame. Yaali irra.",
+    "unknown": "Beekamuu miti"
+  },
+  "archiever": {
+    "title": "Mul'isaa Meeshuu",
+    "tabs": {
+      "queue": "Jila Gudetha",
+      "workspace": "Kaardii irratti Hojeetti",
+      "history": "Seenaa"
+    },
+    "queue": {
+      "title": "Jila Gudetha",
+      "description": "Kaardii barreessaa erro irra jiran (Tartiiba FIFO)",
+      "waitingFor": "Meeshuu dhaabbee",
+      "processing": "Yeroo irratti hojii",
+      "count": "Kaardii jila gudetha irra",
+      "claimedCount": "Kaardii meeshuun akka malee",
+      "empty": "Jila duwwaa dha",
+      "emptyDesc": "Barreessaa erro irra jiran kaardii hin jiru",
+      "selectPrompt": "Jila gudetha irraa kaardii filadhu",
+      "customer": "Gawwattaa",
+      "service": "Tajaajila",
+      "landCert": "Land Holding Rights Certificate (ካርታ) ser no.",
+      "landCertNo": "Land Holding Rights Certificate (ካርታ) No.",
+      "waiting": "Eegaa: {minutes}",
+      "woreda": "Woreda: {woreda}",
+      "start": "Jalqabi",
+      "inProgress": "Yeroo irratti hojii",
+      "errors": {
+        "fetchFailed": "Jila gudetha geeffuu hin dandeenye",
+        "loadFailed": "Jila fakkaasuuf hin dandeenye. Yaali irra.",
+        "startFailed": "Kaardii jalqabuu hin dandeenye"
+      },
+      "toast": {
+        "startSuccess": "Kaardii {code} irratti hojeetti jalqabaa"
+      }
+    },
+    "workspace": {
+      "title": "Odeeffannoo Kaardii",
+      "ticketCode": "Koodii Kaardii",
+      "customerName": "Maqaa Gawwataa",
+      "serviceCategory": "Gosa Tajaajilaa",
+      "processingTime": "Yeroo Hojeetti",
+      "owner": "Maqaa Huwwaa",
+      "woreda": "Woreda",
+      "service": "Tajaajila",
+      "certificates": "Land Certificates",
+      "certSerNo": "Land Certificate (ካርታ) ser no.",
+      "certNo": "Certificate (ካርታ) No.",
+      "documents": "Tartiiba Barreessaa",
+      "markDocuments": "Barreessaa arguu/sakattaa ramadi",
+      "noDocuments": "Tajaajilaa kanaaf barreessaa barbaachisu hin jiru",
+      "verified": "Sakattaa {time} irratti",
+      "found": "Argaa",
+      "notFound": "Hin argamne",
+      "processing": "Yeroo irratti...",
+      "retrieveBtn": "Argi - Jila Tajaajilaa gara",
+      "releasing": "Furuu...",
+      "releaseBtn": "Jila Gudetha gara deebi'i",
+      "selectTicket": "Kaardii hin filamnee. Jila gudetha irraa kaardii filadhu.",
+      "errors": {
+        "fetchFailed": "Odeeffannoo kaardii geeffuu hin dandeenye",
+        "loadFailed": "Odeeffannoo kaardii fakkaasuuf hin dandeenye. Yaali irra."
+      },
+      "toast": {
+        "updateSuccess": "Haala barreessaa haaraa ta'aa",
+        "updateFailed": "Barreessaa haaraa ta'uu hin dandeenye",
+        "retrieveSuccess": "Kaardii kuusaa tajaajilaa gara galcha",
+        "missingDocs": "Barreessaa hin jiru: {list}",
+        "retrieveFailed": "Kaardii argu ramadi hin dandeenye",
+        "releaseSuccess": "Kaardii jila gudetha gara furamee",
+        "releaseFailed": "Kaardii furuu hin dandeenye"
+      }
+    },
+    "history": {
+      "title": "Kaardii Kuuse",
+      "description": "Seenaa galmaa ta'uu kaardii",
+      "totalRetrieved": "Hunda Argaa",
+      "ticketsProcessed": "Kaardii meeshuun hojeessa",
+      "retrievedToday": "Har'a Argaa",
+      "completedOps": "Hojedhaaf xumuura",
+      "avgTime": "Yeroo Hojeetti Giddu",
+      "avgTimeDesc": "Yeroo giddu kaardii tokkof",
+      "empty": "Kaardii kuuse hin jiru",
+      "emptySearch": "Kaardii argamuu hin dandeenye",
+      "emptyDesc": "Kaardii meeshuun argu kuuse irraa mul'ataataa",
+      "searchPlaceholder": "Koodii kaardii, maqaa gawwataa, yookiin tajaajila barbaadi...",
+      "all": "Hunda",
+      "today": "Har'a",
+      "week": "Torban kun",
+      "details": "Bal'inataa Kaardii",
+      "startTime": "Yeroo Jalqabaa",
+      "retrievedTime": "Yeroo Argaa",
+      "duration": "Yeroo",
+      "backBtn": "Kuusaa gara deebi'i",
+      "archiving": "Kuusaa...",
+      "archived": "Kuuse",
+      "pagingInfo": "Mul'isaa {start} gara {end} kan {total} kaardii",
+      "pageInfo": "Fuula {current} kan {total}",
+      "errors": {
+        "fetchFailed": "Seenaa geeffuu hin dandeenye",
+        "loadFailed": "Seenaa kuusaa fakkaasuuf hin dandeenye. Yaali irra."
+      },
+      "toast": {
+        "archiveSuccess": "Kaardii {code} kuuse ramadi ta'aa",
+        "archiveFailed": "Kaardii kuusaa hin dandeenye"
+      }
+    },
+    "indicator": {
+      "noActive": "Kaardii guutummaa hin jiru",
+      "selectPrompt": "Jila gudetha irraa kaardii filadhu",
+      "processing": "Hojeetti irratti",
+      "active": "Guutummaa",
+      "elapsedTime": "Yeroo dhufe",
+      "note": "Ramadi: Meeshuu kaaniis kaardii kana fudhachuuf hin dandeenyu"
+    }
+  },
+  "teller": {
+    "title": "Walitti Raaga Konsoolii",
+    "controls": "Kontiroolii Window",
+    "currentTicket": "Kaardii ammaa",
+    "owner": "Huwwaa",
+    "woreda": "Woreda",
+    "kartaSerNo": "karta (ካርታ) ser no.",
+    "kartaNo": "karta (ካርታ) No.",
+    "notes": "Ramadi",
+    "callNext": "Itti Aanaa Waamaa",
+    "recall": "Irra deebi'i Waamaa",
+    "done": "Xumuura",
+    "skip": "Catii",
+    "transfer": "Geeddari",
+    "selectWindow": "Window itti aanaa filadhu",
+    "serving": "Tajaajila",
+    "idle": "Dhaabbaa",
+    "history": "Seenaa Kaardii {name} kam",
+    "today": "Har'a Xumuura",
+    "skipped": "Har'a Caatame",
+    "ongoing": "Yeroo irratti hojii",
+    "transferred": "Geeddarre",
+    "skipReason": "Sababni cataaf? (dirqala)",
+    "errors": {
+      "clearFailed": "Windows ol'aanuu hin dandeenye"
+    },
+    "toast": {
+      "cleared": "Windows hunda ol'aantee dhaabbaa ta'aa",
+      "recalled": "Kaardii ammaa irra deebi'amaa",
+      "transferSuccess": "{code} {target} gara geeddarre",
+      "transferComplete": "Geeddari xumuura",
+      "transferFailed": "Geeddari hin dandeenye"
+    }
+  },
+  "admin": {
+    "title": "Konsoolii Bulchiinni",
+    "description": "Tajaajila sirni, jila mul'isaa, fi qindaa'ina kuusaa",
+    "nav": {
+      "dashboard": "Dashboard",
+      "employment": "Kadhaa",
+      "sessions": "Sessiooni",
+      "tickets": "Kaardii",
+      "windows": "Windows",
+      "settings": "Qindaa'ina",
+      "profile": "Galmaagee"
+    }
+  },
+  "reception": {
+    "title": "Funaanomsa Konsoolii",
+    "issueTicket": "Kaardii haalu argisi",
+    "preview": "Mul'isaa Kaardii",
+    "previewDesc": "Foormii guuti lakkoofsa dirqala mul'isaa fi kaardii QR mu'isaa.",
+    "owner": "Huwwaa hojii:",
+    "woreda": "Woreda:",
+    "service": "Tajaajila:",
+    "services": "Tajaajila filatamee:",
+    "kartaSerNo": "karta (ካርታ) ser no.:",
+    "kartaNo": "karta (ካርታ) No.:",
+    "notes": "Ramadi:",
+    "trackingUrl": "URL Hordofaa:",
+    "copy": "Garagal",
+    "ownerLabel": "Maqaa guutuu huwwaa hojii",
+    "ownerPlaceholder": "Maqaa konkolaataachaa ykn hinaaf galchi",
+    "woredaLabel": "Woreda",
+    "woredaPlaceholder": "Woreda filadhu",
+    "kartaSerNoLabel": "karta (ካርታ) ser no.",
+    "kartaSerNoPlaceholder": "Lakkoofsa seeraa galchi",
+    "kartaNoLabel": "karta (ካርታ) No.",
+    "kartaNoPlaceholder": "Lakkoofsa barreessaa galchi",
+    "categoryLabel": "Gosa Tajaajilaa",
+    "servicesLabel": "Tajaajila filadhu",
+    "loadingServices": "Tajaajila yeroo irratti...",
+    "noServices": "Gosa kanaaf tajaajila hin jiru.",
+    "generating": "Uumaachuu...",
+    "generateBtn": "Kaardii QR mu'isa",
+    "autoRefresh": "QR yeroo saglaamaa 60 irra haaraa ta'aa. Maaliif yookiin mul'isa.",
+    "orderNo": "Lakkoofsa ajaja:",
+    "autoAssigned": "Ofuma ramada",
+    "qrPlaceholder": "Kaardii QR mu'isaa yeroo fudhaa. Funaanomsi mul'isuu yookiin ul'isuu dandeessa.",
+    "generating2": "Mul'isaa QR jalqabaa yeroo irratti...",
+    "generatingTicket": "Kaardii QR yeroo irratti...",
+    "eligibility": {
+      "title": "Mul'isaa Hirmaata",
+      "desc": "Gadaa funaanomsa qajeelfama didan kallattii barreessaa kaardii QR jalqabuu ixaa."
+    },
+    "privacy": {
+      "title": "Odeeffannoo dhuunfaa kuuse hin ta'u",
+      "desc": "Kaardii QR ID ti waliin walqabataa, lakkoofsa bilbilaa ti hin ta'u. Ijaarsa iccittii moggaa gahee hundaa keessa eegale."
+    },
+    "handoff": {
+      "title": "Geeddari waliidhaa sadii",
+      "desc": "Hoojjii window itti gahee, ramadi, mallattoo duraa ofuma argaa."
+    },
+    "script": {
+      "verify": "Galmeessii hirmaata mul'isaa fi jidduu tajaajilaa",
+      "capture": "Filanno tajaajilaa & gaafii itti aanaa",
+      "generate": "Kaardii QR uumaa fi ajajaa ixaa mul'isaa"
+    },
+    "woreda1": "Woreda 1",
+    "woreda2": "Woreda 2",
+    "woreda3": "Woreda 3",
+    "woreda4": "Woreda 4",
+    "woreda5": "Woreda 5",
+    "woreda6": "Woreda 6",
+    "woreda7": "Woreda 7",
+    "woreda8": "Woreda 8",
+    "woreda9": "Woreda 9",
+    "woreda10": "Woreda 10",
+    "woreda11": "Woreda 11",
+    "woreda12": "Woreda 12",
+    "woreda13": "Woreda 13",
+    "errors": {
+      "categoryFailed": "Gosa fakkaasuuf hin dandeenye",
+      "servicesFailed": "Tajaajila fakkaasuuf hin dandeenye",
+      "createFailed": "Kaardii uumaachuu hin dandeenye."
+    },
+    "toast": {
+      "success": "Kaardii {code} mu'isaa",
+      "urlCopied": "URL hordofaa garagal galmaa ta'aa",
+      "copyFailed": "URL garagal hin dandeenye"
+    }
+  },
+  "employee": {
+    "title": "Dashboard Gadhaakuu",
+    "subtitle": "Haajaawwan kee guyyaa fi madaalii yaaliinsaa hordofi",
+    "welcome": "Galmeessii, {name}",
+    "cases": "Haajaawwan",
+    "casesDesc": "Haajaawwan kee arginsaa fi seenaa ilaalit",
+    "received": "Haajaawwan Arginsaa",
+    "completed": "Haajaawwan Xumuura",
+    "proceeded": "Haajaawwan Itti Aanaa",
+    "today": "Har'a",
+    "tabs": {
+      "received": "Haajaawwan Arginsaa",
+      "history": "Seenaa"
+    },
+    "loadingCases": "Haajaawwan yeroo irratti...",
+    "noCases": "Haajaawwan arguu hin dandeenye",
+    "loadingHistory": "Seenaa haajaa yeroo irratti...",
+    "noHistory": "Seenaa haajaa hin jiru",
+    "timeFilters": {
+      "today": "Har'a",
+      "week": "Torban kun",
+      "month": "Ji'a kun"
+    },
+    "ticket": "Kaardii {code}",
+    "customer": "Gawwattaa:",
+    "started": "Jalqabaa:",
+    "ended": "Xumuura:",
+    "totalDuration": "Yeroo Hunda:",
+    "employeesTotal": "Gadhaakuu Hunda:",
+    "forwardedTo": "Gara Geeddarre:",
+    "lastForwardedTo": "Dhumaa Geeddarre:",
+    "category": "Gosa:",
+    "services": "Tajaajila:",
+    "landCert": "Land Cert (ካርታ):",
+    "cert": "Cert (ካርታ):",
+    "workflowChain": "Waliidhaa Hojii",
+    "onHold": "Haajaa Dhaabbaa",
+    "paused": "Cufaa",
+    "heldBy": "Dhaabbaa Guyyaa:",
+    "subject": "Jidha:",
+    "details": "Bal'inataa:",
+    "heldAt": "Dhaabbaa Yeroo:",
+    "resumedAt": "Jalqabaa Itti:",
+    "totalTime": "Yeroo Haajaa Hunda",
+    "elapsed": "Dhufe",
+    "employeesTime": "Yeroo Gadhaakuu",
+    "timeSpent": "Yeroo Fayyadamaa",
+    "status": {
+      "initiated": "Jalqabaa",
+      "completed": "Xumuura",
+      "completedCheck": "✓ Xumuura",
+      "forwarded": "→ Geeddarre",
+      "inProgress": "⏳ Yeroo irratti hojii"
+    },
+    "actions": {
+      "start": "Jalqabi",
+      "complete": "Xumuuri",
+      "proceed": "Itti Aanaa",
+      "hold": "⏸ Dhaabbaa",
+      "resume": "Jalqabi"
+    },
+    "pagination": "Mul'isaa {start} gara {end} kan {total} haajaawwan",
+    "pageInfo": "Fuula {current} kan {total} ({total} barreessaa hunda)",
+    "errors": {
+      "startFailed": "Haajaa jalqabuu hin dandeenye",
+      "completeFailed": "Haajaa xumuuru hin dandeenye",
+      "resumeFailed": "Haajaa jalqabuu hin dandeenye"
+    },
+    "toast": {
+      "started": "Haajaa jalqabaa",
+      "completed": "Haajaa xumuura milkaa'ina",
+      "holdExpired": "Hin dandeenye jalqabi: Yeroo dhaabbaa guyyaa 3 dhuume. Haajaan kuni ofuma cufama."
+    }
   }
 }

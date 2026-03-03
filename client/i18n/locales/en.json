@@ -84,5 +84,339 @@
     "select": "Select Language",
     "changeLanguage": "Change Language",
     "current": "Current Language"
+  },
+  "common": {
+    "na": "N/A",
+    "dash": "—",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "tryAgain": "Try Again",
+    "close": "Close",
+    "select": "Select",
+    "search": "Search",
+    "notFound": "Not found",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "total": "total",
+    "showing": "Showing",
+    "to": "to",
+    "sessionExpired": "Your session has expired or you don't have permission. Please log in again.",
+    "connectionError": "Cannot connect to server. Please check your connection and try again.",
+    "processingError": "An error occurred. Please try again.",
+    "unknown": "Unknown"
+  },
+  "archiever": {
+    "title": "Archiver Interface",
+    "tabs": {
+      "queue": "Global Queue",
+      "workspace": "Working on Ticket",
+      "history": "History"
+    },
+    "queue": {
+      "title": "Global Queue",
+      "description": "Tickets waiting for document retrieval (FIFO order)",
+      "waitingFor": "Waiting for Archiver",
+      "processing": "Being Processed",
+      "count": "Tickets in global queue",
+      "claimedCount": "Tickets claimed by archivers",
+      "empty": "Queue is empty",
+      "emptyDesc": "No tickets waiting for document retrieval",
+      "selectPrompt": "Select a ticket from the Global Queue to begin",
+      "customer": "Customer",
+      "service": "Service",
+      "landCert": "Land Holding Rights Certificate (ካርታ) ser no.",
+      "landCertNo": "Land Holding Rights Certificate (ካርታ) No.",
+      "waiting": "Waiting: {minutes}",
+      "woreda": "Woreda: {woreda}",
+      "start": "Start",
+      "inProgress": "In Progress",
+      "errors": {
+        "fetchFailed": "Failed to fetch global queue",
+        "loadFailed": "Failed to load queue. Please try again.",
+        "startFailed": "Failed to start ticket"
+      },
+      "toast": {
+        "startSuccess": "Started working on ticket {code}"
+      }
+    },
+    "workspace": {
+      "title": "Ticket Information",
+      "ticketCode": "Ticket Code",
+      "customerName": "Customer Name",
+      "serviceCategory": "Service Category",
+      "processingTime": "Processing Time",
+      "owner": "Owner Name",
+      "woreda": "Woreda",
+      "service": "Service",
+      "certificates": "Land Certificates",
+      "certSerNo": "Land Certificate (ካርታ) ser no.",
+      "certNo": "Certificate (ካርታ) No.",
+      "documents": "Document Checklist",
+      "markDocuments": "Mark documents as found/verified",
+      "noDocuments": "No required documents for this service",
+      "verified": "Verified at {time}",
+      "found": "Found",
+      "notFound": "Not Found",
+      "processing": "Processing...",
+      "retrieveBtn": "Retrieved - Move to Service Queue",
+      "releasing": "Releasing...",
+      "releaseBtn": "Return to Global Queue",
+      "selectTicket": "No ticket selected. Choose a ticket from the global queue to start.",
+      "errors": {
+        "fetchFailed": "Failed to fetch ticket details",
+        "loadFailed": "Failed to load ticket details. Please try again."
+      },
+      "toast": {
+        "updateSuccess": "Document status updated",
+        "updateFailed": "Failed to update document",
+        "retrieveSuccess": "Ticket moved to service-specific repository",
+        "missingDocs": "Missing documents: {list}",
+        "retrieveFailed": "Failed to mark ticket as retrieved",
+        "releaseSuccess": "Ticket released back to global queue",
+        "releaseFailed": "Failed to release ticket"
+      }
+    },
+    "history": {
+      "title": "Archived Tickets",
+      "description": "Read-only history of retrieved tickets",
+      "totalRetrieved": "Total Retrieved",
+      "ticketsProcessed": "Tickets processed by archivers",
+      "retrievedToday": "Retrieved Today",
+      "completedOps": "Completed retrieval operations",
+      "avgTime": "Avg. Processing Time",
+      "avgTimeDesc": "Average time per ticket",
+      "empty": "No archived tickets",
+      "emptySearch": "No tickets match your search",
+      "emptyDesc": "Tickets retrieved by archivers will appear here",
+      "searchPlaceholder": "Search by ticket code, customer name, or service...",
+      "all": "All",
+      "today": "Today",
+      "week": "This Week",
+      "details": "Ticket Details",
+      "startTime": "Start Time",
+      "retrievedTime": "Retrieved Time",
+      "duration": "Duration",
+      "backBtn": "Back To Archive",
+      "archiving": "Archiving...",
+      "archived": "Archived",
+      "pagingInfo": "Showing {start} to {end} of {total} tickets",
+      "pageInfo": "Page {current} of {total}",
+      "errors": {
+        "fetchFailed": "Failed to fetch history",
+        "loadFailed": "Failed to load archived history. Please try again."
+      },
+      "toast": {
+        "archiveSuccess": "Ticket {code} marked as archived",
+        "archiveFailed": "Failed to archive ticket"
+      }
+    },
+    "indicator": {
+      "noActive": "No active ticket",
+      "selectPrompt": "Select a ticket from the global queue to start",
+      "processing": "Currently Processing",
+      "active": "Active",
+      "elapsedTime": "Elapsed Time",
+      "note": "Note: Other archivists cannot claim this ticket while you're working on it"
+    }
+  },
+  "teller": {
+    "title": "Teller Console",
+    "controls": "Window Controls",
+    "currentTicket": "Current ticket",
+    "owner": "Owner",
+    "woreda": "Woreda",
+    "kartaSerNo": "karta (ካርታ) ser no.",
+    "kartaNo": "karta (ካርታ) No.",
+    "notes": "Notes",
+    "callNext": "Call Next",
+    "recall": "Recall",
+    "done": "Done",
+    "skip": "Skip",
+    "transfer": "Transfer",
+    "selectWindow": "Select target window for transfer",
+    "serving": "Serving",
+    "idle": "Idle",
+    "history": "Ticket History for {name}",
+    "today": "Today's Completed",
+    "skipped": "Today's Skipped",
+    "ongoing": "Ongoing",
+    "transferred": "Transferred",
+    "skipReason": "Reason for skipping? (optional)",
+    "errors": {
+      "clearFailed": "Failed to clear windows"
+    },
+    "toast": {
+      "cleared": "All windows cleared and reset to idle",
+      "recalled": "Recalled current ticket",
+      "transferSuccess": "Transferred {code} to {target}",
+      "transferComplete": "Transfer complete",
+      "transferFailed": "Transfer failed"
+    }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "description": "Manage system operations, monitor queues, and configure settings",
+    "nav": {
+      "dashboard": "Dashboard",
+      "employment": "Employment",
+      "sessions": "Sessions",
+      "tickets": "Tickets",
+      "windows": "Windows",
+      "settings": "Settings",
+      "profile": "Profile"
+    }
+  },
+  "reception": {
+    "title": "Reception Console",
+    "issueTicket": "Issue virtual ticket",
+    "preview": "Ticket preview",
+    "previewDesc": "Fill out the form to automatically issue the next order number and generate a QR ticket.",
+    "owner": "Property owner:",
+    "woreda": "Woreda:",
+    "service": "Service:",
+    "services": "Selected Services:",
+    "kartaSerNo": "karta (ካርታ) ser no.:",
+    "kartaNo": "karta (ካርታ) No.:",
+    "notes": "Notes:",
+    "trackingUrl": "Tracking URL:",
+    "copy": "Copy",
+    "ownerLabel": "Property owner's full name",
+    "ownerPlaceholder": "Add guest or organization name",
+    "woredaLabel": "Woreda",
+    "woredaPlaceholder": "Select woreda",
+    "kartaSerNoLabel": "karta (ካርታ) ser no.",
+    "kartaSerNoPlaceholder": "Enter certificate serial number",
+    "kartaNoLabel": "karta (ካርታ) No.",
+    "kartaNoPlaceholder": "Enter certificate number",
+    "categoryLabel": "Service Category",
+    "servicesLabel": "Select Services",
+    "loadingServices": "Loading services…",
+    "noServices": "No services available for this category.",
+    "generating": "Generating…",
+    "generateBtn": "Generate QR Ticket",
+    "autoRefresh": "QR auto-refreshes every 60 seconds. Print or display to the guest instantly.",
+    "orderNo": "Order number:",
+    "autoAssigned": "Auto-assigned",
+    "qrPlaceholder": "QR code appears here once you generate the ticket. Reception can print or show it on-screen instantly.",
+    "generating2": "Generating QR preview…",
+    "generatingTicket": "Generating QR ticket…",
+    "eligibility": {
+      "title": "Eligibility checkpoint",
+      "desc": "Quick guidance prompts reception to confirm the right paperwork before generating the QR ticket."
+    },
+    "privacy": {
+      "title": "No personal data stored",
+      "desc": "Tickets are tied to QR IDs, not phone numbers. Privacy policies stay intact across every interaction."
+    },
+    "handoff": {
+      "title": "Seamless hand-offs",
+      "desc": "Window staff receive context automatically, including service type, notes, and priority markers."
+    },
+    "script": {
+      "verify": "Welcome and verify service eligibility",
+      "capture": "Capture service selection & add context",
+      "generate": "Generate QR ticket and confirm lounge instructions"
+    },
+    "woreda1": "Woreda 1",
+    "woreda2": "Woreda 2",
+    "woreda3": "Woreda 3",
+    "woreda4": "Woreda 4",
+    "woreda5": "Woreda 5",
+    "woreda6": "Woreda 6",
+    "woreda7": "Woreda 7",
+    "woreda8": "Woreda 8",
+    "woreda9": "Woreda 9",
+    "woreda10": "Woreda 10",
+    "woreda11": "Woreda 11",
+    "woreda12": "Woreda 12",
+    "woreda13": "Woreda 13",
+    "errors": {
+      "categoryFailed": "Failed to load categories",
+      "servicesFailed": "Failed to load services",
+      "createFailed": "Unable to create ticket."
+    },
+    "toast": {
+      "success": "Ticket {code} generated",
+      "urlCopied": "Tracking URL copied to clipboard",
+      "copyFailed": "Unable to copy URL"
+    }
+  },
+  "employee": {
+    "title": "Employee Dashboard",
+    "subtitle": "Track your daily cases and performance metrics",
+    "welcome": "Welcome, {name}",
+    "cases": "Cases",
+    "casesDesc": "View your received cases and case history",
+    "received": "Cases Received",
+    "completed": "Cases Completed",
+    "proceeded": "Cases Proceeded",
+    "today": "Today",
+    "tabs": {
+      "received": "Received Cases",
+      "history": "History"
+    },
+    "loadingCases": "Loading cases...",
+    "noCases": "No cases received yet",
+    "loadingHistory": "Loading case history...",
+    "noHistory": "No case history yet",
+    "timeFilters": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month"
+    },
+    "ticket": "Ticket {code}",
+    "customer": "Customer:",
+    "started": "Started:",
+    "ended": "Ended:",
+    "totalDuration": "Total Duration:",
+    "employeesTotal": "Employees Total:",
+    "forwardedTo": "Forwarded To:",
+    "lastForwardedTo": "Last Forwarded To:",
+    "category": "Category:",
+    "services": "Services:",
+    "landCert": "Land Cert (ካርታ):",
+    "cert": "Cert (ካርታ):",
+    "workflowChain": "Workflow Chain",
+    "onHold": "Case On Hold",
+    "paused": "Paused",
+    "heldBy": "Held By:",
+    "subject": "Subject:",
+    "details": "Details:",
+    "heldAt": "Held at:",
+    "resumedAt": "Resumed at:",
+    "totalTime": "Total case time",
+    "elapsed": "Elapsed",
+    "employeesTime": "Employees time",
+    "timeSpent": "time spent",
+    "status": {
+      "initiated": "Initiated",
+      "completed": "Completed",
+      "completedCheck": "✓ Completed",
+      "forwarded": "→ Forwarded",
+      "inProgress": "⏳ In Progress"
+    },
+    "actions": {
+      "start": "Start",
+      "complete": "Complete",
+      "proceed": "Proceed",
+      "hold": "⏸ Hold",
+      "resume": "Resume"
+    },
+    "pagination": "Showing {start} to {end} of {total} cases",
+    "pageInfo": "Page {current} of {total} ({total} total records)",
+    "errors": {
+      "startFailed": "Failed to start case",
+      "completeFailed": "Failed to complete case",
+      "resumeFailed": "Failed to resume case"
+    },
+    "toast": {
+      "started": "Case started",
+      "completed": "Case completed successfully",
+      "holdExpired": "Cannot resume: 3-day hold period has expired. This case will be automatically cancelled."
+    }
   }
 }

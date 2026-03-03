@@ -2,6 +2,7 @@ import { AlertCircle, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 interface MyActiveWorkIndicatorProps {
   ticketCode?: string;
@@ -14,6 +15,7 @@ export function MyActiveWorkIndicator({
   startTime,
   isWorkingOnTicket,
 }: MyActiveWorkIndicatorProps) {
+  const { t } = useTranslation();
   const [elapsedTime, setElapsedTime] = useState("0m 0s");
 
   useEffect(() => {
@@ -40,9 +42,9 @@ export function MyActiveWorkIndicator({
         <CardContent className="pt-6">
           <div className="text-center py-6">
             <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-            <p className="text-muted-foreground">No active ticket</p>
+            <p className="text-muted-foreground">{t("archiever.indicator.noActive")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Select a ticket from the global queue to start
+              {t("archiever.indicator.selectPrompt")}
             </p>
           </div>
         </CardContent>
@@ -56,21 +58,21 @@ export function MyActiveWorkIndicator({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full animate-pulse bg-green-500" />
-            <CardTitle className="text-base">Currently Processing</CardTitle>
+            <CardTitle className="text-base">{t("archiever.indicator.processing")}</CardTitle>
           </div>
-          <Badge variant="default">Active</Badge>
+          <Badge variant="default">{t("archiever.indicator.active")}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <p className="text-xs text-muted-foreground mb-1">Ticket Code</p>
+          <p className="text-xs text-muted-foreground mb-1">{t("archiever.workspace.ticketCode")}</p>
           <p className="text-2xl font-bold text-green-600">{ticketCode}</p>
         </div>
 
         <div className="flex items-center gap-2 p-3 rounded-lg bg-white border">
           <Clock className="h-5 w-5 text-green-600 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground">Elapsed Time</p>
+            <p className="text-xs text-muted-foreground">{t("archiever.indicator.elapsedTime")}</p>
             <p className="text-lg font-semibold text-green-700">
               {elapsedTime}
             </p>
@@ -78,8 +80,7 @@ export function MyActiveWorkIndicator({
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Note: Other archivists cannot claim this ticket while you're working
-          on it
+          {t("archiever.indicator.note")}
         </p>
       </CardContent>
     </Card>
