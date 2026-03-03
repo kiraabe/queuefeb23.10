@@ -112,7 +112,7 @@ export default function Admin() {
   // Desktop layout with tabs and footer
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 container mx-auto px-4 py-6">
+      <div className="flex-1 container mx-auto px-4 py-6 pb-12">
         <div className="space-y-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
