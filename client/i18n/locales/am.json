@@ -250,6 +250,44 @@
     "ongoing": "ቀጥተኛ",
     "transferred": "ዝውውር ተደርጓል",
     "skipReason": "ዝለላ ምክንያት? (አማራጭ)",
+    "stats": {
+      "customersServedToday": "ዛሬ የተገለገሉ ደንበኞች",
+      "ticketsSkipped": "ዝለሉ ቲኬቶች",
+      "currentlyServing": "አሁን ያገልግላል",
+      "waiting": "በመጠበቅ",
+      "proceedToday": "ዛሬ ቀጥል"
+    },
+    "window": {
+      "service": "አገልግሎት",
+      "services": "አገልግሎቶች",
+      "callNextTooltip": "ሚቀጥለው ቲኬት ጥራ (FIFO)",
+      "pleaseSkipFirst": "እባክህ መጀመሪያ ወቅታዊ ቲኬት ዝለል",
+      "announceAgain": "ወቅታዊ ቲኬት ደግሞ ማስታወቂያ",
+      "skipCurrentTicket": "ወቅታዊ ቲኬት ዝለል",
+      "markAsCompleted": "ወቅታዊ ቲኬት ጠናቅቅ ምልክት",
+      "selectJobTitle": "ሥራ ዕዋጣ ይምረጡ",
+      "selectEmployee": "ሰራተኛ ይምረጡ",
+      "loadingJobTitles": "ሥራ ዕዋጣ ይጫናል...",
+      "failedLoadJobTitles": "ሥራ ዕዋጣ ጫናት ተስኖ",
+      "noJobTitles": "ሥራ ዕዋጣ ባይችግር",
+      "loadingEmployees": "ሰራተኞች ይጫናል...",
+      "noEmployeesWithTitle": "ይህ ሥራ ዕዋጣ ሰራተኞች ባይችግር",
+      "proceedButton": "ቀጥል",
+      "selectEmployeeFirst": "መጀመሪያ ሰራተኛ ይምረጡ",
+      "transferTicketToEmployee": "ወቅታዊ ቲኬት ለተመረጠ ሰራተኛ ዝውውር",
+      "callNextFirst": "ቲኬት ለማግኘት መጀመሪያ ሚቀጥለው ጥራ"
+    },
+    "tabs": {
+      "todayCompleted": "ዛሬ ተጠናቀቁ",
+      "todaySkipped": "ዛሬ ዝለሉ",
+      "ongoing": "ቀጥተኛ",
+      "proceed": "ቀጥል"
+    },
+    "sections": {
+      "completedToday": "ዛሬ ተጠናቀቁ",
+      "skippedToday": "ዛሬ ዝለሉ",
+      "proceedTransfers": "ዝውውር ቀጥል"
+    },
     "errors": {
       "clearFailed": "Windows ማጽዳት ተስኖ"
     },

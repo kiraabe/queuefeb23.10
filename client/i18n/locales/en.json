@@ -248,6 +248,44 @@
     "ongoing": "Ongoing",
     "transferred": "Transferred",
     "skipReason": "Reason for skipping? (optional)",
+    "stats": {
+      "customersServedToday": "Customers Served Today",
+      "ticketsSkipped": "Tickets Skipped",
+      "currentlyServing": "Currently Serving",
+      "waiting": "Waiting",
+      "proceedToday": "Proceed Today"
+    },
+    "window": {
+      "service": "Service",
+      "services": "Services",
+      "callNextTooltip": "Call next ticket (FIFO)",
+      "pleaseSkipFirst": "Please skip the current ticket first",
+      "announceAgain": "Announce current ticket again",
+      "skipCurrentTicket": "Skip current ticket",
+      "markAsCompleted": "Mark current ticket as completed",
+      "selectJobTitle": "Select Job Title",
+      "selectEmployee": "Select Employee",
+      "loadingJobTitles": "Loading job titles...",
+      "failedLoadJobTitles": "Failed to load job titles",
+      "noJobTitles": "No job titles available",
+      "loadingEmployees": "Loading employees...",
+      "noEmployeesWithTitle": "No employees with this job title",
+      "proceedButton": "Proceed",
+      "selectEmployeeFirst": "Select an employee first",
+      "transferTicketToEmployee": "Transfer ticket to selected employee",
+      "callNextFirst": "Call next to get a ticket first"
+    },
+    "tabs": {
+      "todayCompleted": "Today's Completed",
+      "todaySkipped": "Today's Skipped",
+      "ongoing": "Ongoing",
+      "proceed": "Proceed"
+    },
+    "sections": {
+      "completedToday": "Completed Today",
+      "skippedToday": "Skipped Today",
+      "proceedTransfers": "Proceed Transfers"
+    },
     "errors": {
       "clearFailed": "Failed to clear windows"
     },

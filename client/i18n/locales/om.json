@@ -250,6 +250,44 @@
     "ongoing": "Yeroo irratti hojii",
     "transferred": "Geeddarre",
     "skipReason": "Sababni cataaf? (dirqala)",
+    "stats": {
+      "customersServedToday": "Gawwattoonni Har'a Tajaajile",
+      "ticketsSkipped": "Kaardii Caataman",
+      "currentlyServing": "Ammaa Tajaajila",
+      "waiting": "Eegaa",
+      "proceedToday": "Har'a Itti Aanaa"
+    },
+    "window": {
+      "service": "Tajaajila",
+      "services": "Tajaajila",
+      "callNextTooltip": "Kaardii itti aanaa waamaa (FIFO)",
+      "pleaseSkipFirst": "Maalin duraa kaardii ammaa catii",
+      "announceAgain": "Kaardii ammaa irra deebi'ii mul'isa",
+      "skipCurrentTicket": "Kaardii ammaa catii",
+      "markAsCompleted": "Kaardii ammaa xumuura ramadi",
+      "selectJobTitle": "Tiitilii Hojii Filadhu",
+      "selectEmployee": "Gadhaakuu Filadhu",
+      "loadingJobTitles": "Tiitilii Hojii yeroo irratti...",
+      "failedLoadJobTitles": "Tiitilii Hojii fakkaasuuf hin dandeenye",
+      "noJobTitles": "Tiitilii Hojii hin jiru",
+      "loadingEmployees": "Gadhaakuu yeroo irratti...",
+      "noEmployeesWithTitle": "Tiitilii Hojii kanaaf Gadhaakuu hin jiru",
+      "proceedButton": "Itti Aanaa",
+      "selectEmployeeFirst": "Maalin duraa Gadhaakuu filadhu",
+      "transferTicketToEmployee": "Kaardii Gadhaakuu filatamee gara geeddari",
+      "callNextFirst": "Kaardii argachuuf maalin duraa itti aanaa waamaa"
+    },
+    "tabs": {
+      "todayCompleted": "Har'a Xumuura",
+      "todaySkipped": "Har'a Caatame",
+      "ongoing": "Yeroo irratti hojii",
+      "proceed": "Itti Aanaa"
+    },
+    "sections": {
+      "completedToday": "Har'a Xumuura",
+      "skippedToday": "Har'a Caatame",
+      "proceedTransfers": "Geeddari Itti Aanaa"
+    },
     "errors": {
       "clearFailed": "Windows ol'aanuu hin dandeenye"
     },

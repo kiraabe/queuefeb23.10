@@ -42,6 +42,7 @@ import type {
   ListUsersResponse,
 } from "@shared/api";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "@/hooks/use-translation";
 
 const SERVICE_INFO: Record<ServiceType, { name: string; description: string }> =
   {
@@ -160,6 +161,7 @@ export default function TellerWindow() {
   const { id } = useParams<{ id: string }>();
   const windowId = Number(id);
   const { user } = useAuth();
+  const { t } = useTranslation();
   if (!Number.isFinite(windowId) || windowId < 1)
     return <Navigate to="/teller" replace />;
   if (user && user.role === "teller" && user.windowId !== windowId)
@@ -801,7 +803,7 @@ export default function TellerWindow() {
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Customers Served Today
+            {t("teller.stats.customersServedToday")}
           </div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.servedToday ?? 0}
@@ -809,7 +811,7 @@ export default function TellerWindow() {
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Tickets Skipped
+            {t("teller.stats.ticketsSkipped")}
           </div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.skippedToday ?? 0}
@@ -817,21 +819,21 @@ export default function TellerWindow() {
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Currently Serving
+            {t("teller.stats.currentlyServing")}
           </div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.inProgress ?? 0}
           </div>
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
-          <div className="text-xs uppercase text-muted-foreground">Waiting</div>
+          <div className="text-xs uppercase text-muted-foreground">{t("teller.stats.waiting")}</div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.waiting ?? 0}
           </div>
         </Card>
         <Card className="border-border/60 bg-card/90 p-4">
           <div className="text-xs uppercase text-muted-foreground">
-            Proceed Today
+            {t("teller.stats.proceedToday")}
           </div>
           <div className="mt-1 text-2xl font-semibold">
             {stats.proceedToday ?? 0}
@@ -891,7 +893,7 @@ export default function TellerWindow() {
               aria-live="polite"
             >
               <p className="text-xs uppercase text-muted-foreground tracking-wider">
-                Current ticket
+                {t("teller.currentTicket")}
               </p>
               <div className="mt-2 flex items-end justify-between gap-4">
                 <h2
@@ -923,7 +925,7 @@ export default function TellerWindow() {
                 {currentTicket && (
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                      <Layers className="h-3.5 w-3.5" /> Service
+                      <Layers className="h-3.5 w-3.5" /> {t("teller.window.service")}
                     </div>
                     <p className="text-sm font-semibold">
                       {serviceMeta?.name ?? currentTicket.service}
@@ -932,7 +934,7 @@ export default function TellerWindow() {
                 )}
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                    <User className="h-3.5 w-3.5" /> Owner
+                    <User className="h-3.5 w-3.5" /> {t("teller.owner")}
                   </div>
                   <p className="truncate text-sm font-medium">
                     {w.currentTicketId && (currentTicket?.ownerName ?? "")
@@ -942,7 +944,7 @@ export default function TellerWindow() {
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" /> Woreda
+                    <MapPin className="h-3.5 w-3.5" /> {t("teller.woreda")}
                   </div>
                   <p className="truncate text-sm font-medium">
                     {w.currentTicketId && (currentTicket?.woreda ?? "")
@@ -976,7 +978,7 @@ export default function TellerWindow() {
                   } sm:min-w-0`}
                 >
                   <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                    <Layers className="h-3.5 w-3.5" /> Services
+                    <Layers className="h-3.5 w-3.5" /> {t("teller.window.services")}
                   </div>
                   {Array.isArray(currentTicket?.selectedServices) &&
                   currentTicket?.selectedServices.length > 0 ? (
@@ -1007,13 +1009,13 @@ export default function TellerWindow() {
                     onClick={() => callNext.mutate()}
                     disabled={callNext.isPending || Boolean(w?.currentTicketId)}
                   >
-                    <Play className="mr-2 h-4 w-4" /> Call Next
+                    <Play className="mr-2 h-4 w-4" /> {t("teller.callNext")}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   {w?.currentTicketId
-                    ? "Please skip the current ticket first"
-                    : "Call next ticket (FIFO)"}
+                    ? t("teller.window.pleaseSkipFirst")
+                    : t("teller.window.callNextTooltip")}
                 </TooltipContent>
               </Tooltip>
 
@@ -1024,10 +1026,10 @@ export default function TellerWindow() {
                     onClick={() => recall.mutate(undefined)}
                     disabled={recall.isPending || !w.currentTicketId}
                   >
-                    <Megaphone className="mr-2 h-4 w-4" /> Recall
+                    <Megaphone className="mr-2 h-4 w-4" /> {t("teller.recall")}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Announce current ticket again</TooltipContent>
+                <TooltipContent>{t("teller.window.announceAgain")}</TooltipContent>
               </Tooltip>
 
               <Tooltip>
@@ -1035,17 +1037,17 @@ export default function TellerWindow() {
                   <Button
                     variant="destructive"
                     onClick={() => {
-                      const reason = prompt("Reason for skipping? (optional)");
+                      const reason = prompt(t("teller.skipReason"));
                       if (reason !== null) {
                         skip.mutate(reason || undefined);
                       }
                     }}
                     disabled={skip.isPending || !w.currentTicketId}
                   >
-                    <SkipForward className="mr-2 h-4 w-4" /> Skip
+                    <SkipForward className="mr-2 h-4 w-4" /> {t("teller.skip")}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Skip current ticket</TooltipContent>
+                <TooltipContent>{t("teller.window.skipCurrentTicket")}</TooltipContent>
               </Tooltip>
 
               <Tooltip>
@@ -1054,22 +1056,22 @@ export default function TellerWindow() {
                     onClick={() => complete.mutate()}
                     disabled={complete.isPending || !w.currentTicketId}
                   >
-                    <Play className="mr-2 h-4 w-4" /> Complete
+                    <Play className="mr-2 h-4 w-4" /> {t("teller.done")}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  Mark current ticket as completed
+                  {t("teller.window.markAsCompleted")}
                 </TooltipContent>
               </Tooltip>
 
               {w.currentTicketId && jobTitlesQuery.isLoading && (
                 <p className="text-xs text-muted-foreground">
-                  Loading job titles...
+                  {t("teller.window.loadingJobTitles")}
                 </p>
               )}
               {w.currentTicketId && jobTitlesQuery.isError && (
                 <p className="text-xs text-red-600">
-                  Failed to load job titles
+                  {t("teller.window.failedLoadJobTitles")}
                 </p>
               )}
               {w.currentTicketId &&
@@ -1078,7 +1080,7 @@ export default function TellerWindow() {
                 (!jobTitlesQuery.data?.jobTitles ||
                   jobTitlesQuery.data.jobTitles.length === 0) && (
                   <p className="text-xs text-muted-foreground">
-                    No job titles available
+                    {t("teller.window.noJobTitles")}
                   </p>
                 )}
               {w.currentTicketId &&
@@ -1093,7 +1095,7 @@ export default function TellerWindow() {
                         setSelectedEmployeeId(null);
                       }}
                     >
-                      <option value="">Select Job Title</option>
+                      <option value="">{t("teller.window.selectJobTitle")}</option>
                       {jobTitlesQuery.data.jobTitles.map((title) => (
                         <option key={title.id} value={title.id}>
                           {title.nameAmharic}
@@ -1115,10 +1117,10 @@ export default function TellerWindow() {
                       >
                         <option value="">
                           {usersQuery.isPending
-                            ? "Loading employees..."
+                            ? t("teller.window.loadingEmployees")
                             : employeesWithJobTitle.length === 0
-                              ? "No employees with this job title"
-                              : "Select Employee"}
+                              ? t("teller.window.noEmployeesWithTitle")
+                              : t("teller.window.selectEmployee")}
                         </option>
                         {employeesWithJobTitle.map((employee) => (
                           <option key={employee.id} value={employee.id}>
@@ -1153,15 +1155,15 @@ export default function TellerWindow() {
                           }}
                           disabled={transfer.isPending || !selectedEmployeeId}
                         >
-                          <Layers className="mr-2 h-4 w-4" /> Proceed
+                          <Layers className="mr-2 h-4 w-4" /> {t("teller.window.proceedButton")}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
                         {!w.currentTicketId
-                          ? "Call next to get a ticket first"
+                          ? t("teller.window.callNextFirst")
                           : !selectedEmployeeId
-                            ? "Select an employee first"
-                            : "Transfer ticket to selected employee"}
+                            ? t("teller.window.selectEmployeeFirst")
+                            : t("teller.window.transferTicketToEmployee")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1175,16 +1177,16 @@ export default function TellerWindow() {
       <div className="mt-6">
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="completed">Today's Completed</TabsTrigger>
-            <TabsTrigger value="skipped">Today's Skipped</TabsTrigger>
-            <TabsTrigger value="serving">Ongoing</TabsTrigger>
-            <TabsTrigger value="proceed">Proceed</TabsTrigger>
+            <TabsTrigger value="completed">{t("teller.tabs.todayCompleted")}</TabsTrigger>
+            <TabsTrigger value="skipped">{t("teller.tabs.todaySkipped")}</TabsTrigger>
+            <TabsTrigger value="serving">{t("teller.tabs.ongoing")}</TabsTrigger>
+            <TabsTrigger value="proceed">{t("teller.tabs.proceed")}</TabsTrigger>
           </TabsList>
           <TabsContent value="completed">
             <div className="mt-3">
               <TicketSection
                 items={tabItems}
-                title="Completed Today"
+                title={t("teller.sections.completedToday")}
                 pageSize={10}
                 currentWindowId={windowId}
               />
@@ -1194,7 +1196,7 @@ export default function TellerWindow() {
             <div className="mt-3">
               <TicketSection
                 items={tabItems}
-                title="Skipped Today"
+                title={t("teller.sections.skippedToday")}
                 pageSize={10}
                 currentWindowId={windowId}
               />
@@ -1204,7 +1206,7 @@ export default function TellerWindow() {
             <div className="mt-3">
               <TicketSection
                 items={tabItems}
-                title="Ongoing"
+                title={t("teller.tabs.ongoing")}
                 pageSize={10}
                 currentWindowId={windowId}
               />
@@ -1214,7 +1216,7 @@ export default function TellerWindow() {
             <div className="mt-3">
               <TicketSection
                 items={tabItems}
-                title="Proceed Transfers"
+                title={t("teller.sections.proceedTransfers")}
                 pageSize={10}
                 currentWindowId={windowId}
               />
