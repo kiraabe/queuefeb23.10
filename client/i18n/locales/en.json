@@ -1,10 +1,4 @@
 {
-  "common": {
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "liveStatus": "Live status",
-    "copyright": "© {year} Powered by EKD Tech solutions. All rights reserved."
-  },
   "navigation": {
     "home": "Home",
     "queue": "Queue",
@@ -86,6 +80,10 @@
     "current": "Current Language"
   },
   "common": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "liveStatus": "Live status",
+    "copyright": "© {year} Powered by EKD Tech solutions. All rights reserved.",
     "na": "N/A",
     "dash": "—",
     "loading": "Loading...",
