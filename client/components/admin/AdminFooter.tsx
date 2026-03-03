@@ -56,7 +56,16 @@ export default function AdminFooter() {
 
           {/* Copyright */}
           <div className="text-xs text-muted-foreground">
-            © {currentYear} Powered by EKD Tech solutions.
+            © {currentYear} Powered by{" "}
+            <a
+              href="https://ekd-tech-solutions.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors underline"
+            >
+              EKD Tech solutions
+            </a>
+            .
           </div>
         </div>
       </div>
