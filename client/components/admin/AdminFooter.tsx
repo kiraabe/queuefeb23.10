@@ -15,43 +15,15 @@ export default function AdminFooter() {
 
   return (
     <footer className="border-t border-border bg-muted/30 mt-auto">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Company Info */}
-          <div className="space-y-2 flex-1">
-            <h4 className="font-semibold text-sm">CTTCS Solution</h4>
-            <p className="text-xs text-muted-foreground">
-              Track cases, ensure compliance
-            </p>
+          <div className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">CTTCS Solution</span> • Track cases, ensure compliance
           </div>
 
-          {/* Language Selector */}
-          <div className="space-y-2 min-w-max">
-            <label className="text-xs font-medium text-muted-foreground block">
-              Language
-            </label>
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-32 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="am">Amharic</SelectItem>
-                  <SelectItem value="or">Oromo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="border-t border-border mt-6 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            © {currentYear} Powered by EKD Tech solutions. All rights reserved.
-          </p>
-          <div className="flex gap-4">
+          {/* Links */}
+          <div className="flex items-center gap-3">
             <a
               href="/admin/privacy"
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -65,6 +37,26 @@ export default function AdminFooter() {
             >
               Terms
             </a>
+          </div>
+
+          {/* Language Selector */}
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="w-28 h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="am">Amharic</SelectItem>
+                <SelectItem value="or">Oromo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-xs text-muted-foreground">
+            © {currentYear} Powered by EKD Tech solutions.
           </div>
         </div>
       </div>
