@@ -106,7 +106,7 @@ const SiteHeader = () => {
                   navigate(`/login`);
                 }}
               >
-                {t("buttons.cancel")}
+                sign out topbr
               </Button>
             </>
           ) : (
@@ -210,7 +210,7 @@ const SiteHeader = () => {
                     navigate("/login");
                   }}
                 >
-                  {t("buttons.cancel")}
+                  sign out topbr
                 </Button>
               </>
             ) : (
