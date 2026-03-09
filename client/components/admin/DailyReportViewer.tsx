@@ -29,6 +29,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api";
+import { formatCSVCell, downloadCSVFile } from "@/lib/csv";
 
 interface DailyReport {
   reportDate: string;
@@ -247,31 +248,32 @@ export default function DailyReportViewer() {
 
     const lines: string[] = [];
 
+    // Helper to format a row
+    const row = (...cells: any[]) => cells.map(formatCSVCell).join(",");
+
     // Report Header
-    lines.push("DAILY QUEUE REPORT");
-    lines.push(`Report Date Range: ${report.reportDate}`);
-    lines.push(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`);
+    lines.push(row("DAILY QUEUE REPORT"));
+    lines.push(row(`Report Date Range: ${report.reportDate}`));
+    lines.push(row(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`));
     lines.push("");
 
     // Summary Section
-    lines.push("SUMMARY");
+    lines.push(row("SUMMARY"));
+    lines.push(row("Metric", "Value"));
+    lines.push(row("Total Tickets Created", report.summary.totalTicketsCreated));
+    lines.push(row("Total Served", report.summary.served));
+    lines.push(row("Total Skipped", report.summary.skipped));
+    lines.push(row("Total Transferred", report.summary.transferred));
     lines.push(
-      "Metric,Value",
-    );
-    lines.push(`Total Tickets Created,${report.summary.totalTicketsCreated}`);
-    lines.push(`Total Served,${report.summary.served}`);
-    lines.push(`Total Skipped,${report.summary.skipped}`);
-    lines.push(`Total Transferred,${report.summary.transferred}`);
-    lines.push(
-      `Average Service Time (seconds),${report.summary.averageServiceTime ?? "N/A"}`,
+      row("Average Service Time (seconds)", report.summary.averageServiceTime ?? "N/A"),
     );
     lines.push("");
 
     // Window Statistics Section - use ALL windows from report
     if (report.windowStats && report.windowStats.length > 0) {
-      lines.push("WINDOW STATISTICS");
+      lines.push(row("WINDOW STATISTICS"));
       lines.push(
-        "Window ID,Window Name,Teller,Served Tickets,Avg Service Time (seconds),Performance"
+        row("Window ID", "Window Name", "Teller", "Served Tickets", "Avg Service Time (seconds)", "Performance")
       );
       report.windowStats.forEach((window) => {
         const windowId = window.windowId !== null && window.windowId !== undefined ? window.windowId : "N/A";
@@ -282,8 +284,9 @@ export default function DailyReportViewer() {
            window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "N/A";
         const avgTime = window.averageServiceTime !== null && window.averageServiceTime !== undefined ? window.averageServiceTime : "N/A";
         const servedCount = window.servedTickets !== null && window.servedTickets !== undefined ? window.servedTickets : 0;
+
         lines.push(
-          `${windowId},"${windowName}","${window.tellerName}",${servedCount},${avgTime},"${performance}"`
+          row(windowId, windowName, window.tellerName, servedCount, avgTime, performance)
         );
       });
       lines.push("");
@@ -291,9 +294,9 @@ export default function DailyReportViewer() {
 
     // Detailed Ticket Table - use ALL tickets (not filtered for CSV export)
     if (report.detailedTickets && report.detailedTickets.length > 0) {
-      lines.push("DETAILED TICKET TABLE");
+      lines.push(row("DETAILED TICKET TABLE"));
       lines.push(
-        "Ticket Code,Service,Ticketer Full Name,Wereda,Selected Services,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
+        row("Ticket Code", "Service", "Ticketer Full Name", "Wereda", "Selected Services", "Window ID", "Window Name", "Created At", "Service Start", "Service End", "Duration (seconds)", "Standard Time (minutes)", "Performance")
       );
       report.detailedTickets.forEach((ticket) => {
         const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
@@ -310,19 +313,28 @@ export default function DailyReportViewer() {
         const windowName = ticket.windowName || (ticket.windowId !== null && ticket.windowId !== undefined ? `Window ${ticket.windowId}` : "N/A");
 
         lines.push(
-          `"${ticket.ticketCode}","${ticket.service}","${ticket.ownerName || ""}","${ticket.woreda || ""}","${selectedServices}",${windowId},"${windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
+          row(
+            ticket.ticketCode,
+            ticket.service,
+            ticket.ownerName || "",
+            ticket.woreda || "",
+            selectedServices,
+            windowId,
+            windowName,
+            createdDate,
+            startDate,
+            endDate,
+            ticket.serviceDurationSeconds ?? "N/A",
+            standardTime,
+            performance
+          )
         );
       });
     }
 
     const csv = lines.join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `report-${report.reportDate.replace(/ /g, "_")}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const filename = `report-${report.reportDate.replace(/ /g, "_")}.csv`;
+    downloadCSVFile(csv, filename);
   };
 
   const toggleWindowExpanded = (windowId: number) => {

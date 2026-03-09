@@ -27,6 +27,7 @@ import {
   endOfDay,
 } from "date-fns";
 import type { QueueSnapshot, WindowState, Ticket } from "@shared/api";
+import { generateCSV, downloadCSVFile } from "@/lib/csv";
 
 type TimeFilter = "all" | "today" | "month";
 
@@ -226,17 +227,8 @@ export default function WindowMonitoring() {
       stat.completionRate,
     ]);
 
-    const csv = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = getCSVFileName();
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const csv = generateCSV([headers, ...rows]);
+    downloadCSVFile(csv, getCSVFileName());
   };
 
   return (

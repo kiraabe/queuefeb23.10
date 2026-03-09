@@ -41,6 +41,7 @@ import { format } from "date-fns";
 import type { QueueSnapshot, Ticket, ListUsersResponse, ListJobTitlesResponse, CaseHoldsResponse } from "@shared/api";
 import { ProcessFlowChart } from "../teller/ProcessFlowChart";
 import { CompletedTicketSummary } from "../teller/CompletedTicketSummary";
+import { generateCSV, downloadCSVFile } from "@/lib/csv";
 
 const ITEMS_PER_PAGE = 10;
 const HOLD_EXPIRATION_SECONDS = 72 * 60 * 60; // 72 hours
@@ -281,7 +282,7 @@ export default function TicketManagement() {
     }
 
     const rows = filteredTickets.map((t) => {
-      const row = [
+      const row: any[] = [
         t.code,
         t.status,
         t.service,
@@ -304,17 +305,9 @@ export default function TicketManagement() {
       return row;
     });
 
-    const csv = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `tickets-${format(new Date(), "yyyy-MM-dd")}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const csv = generateCSV([headers, ...rows]);
+    const filename = `tickets-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    downloadCSVFile(csv, filename);
   };
 
   return (
