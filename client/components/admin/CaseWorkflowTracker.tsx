@@ -449,6 +449,7 @@ function WorkflowCard({
     if (!workflow.totalDuration) {
       return {
         exceeds: false,
+        performanceLevel: "on_time" as const,
         standardMinutes: null,
         standardSeconds: null,
         source: null as "category" | "services" | null
@@ -461,9 +462,21 @@ function WorkflowCard({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
+        const percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
+
+        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
+        if (percentageOfStandard <= 100) {
+          performanceLevel = "on_time";
+        } else if (percentageOfStandard <= 120) {
+          performanceLevel = "slightly_over";
+        } else {
+          performanceLevel = "significantly_over";
+        }
+
         const exceeds = workflow.totalDuration > standardSeconds;
         return {
           exceeds,
+          performanceLevel,
           standardMinutes: totalMinutes,
           standardSeconds,
           source: "services" as const
@@ -477,9 +490,21 @@ function WorkflowCard({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
+        const percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
+
+        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
+        if (percentageOfStandard <= 100) {
+          performanceLevel = "on_time";
+        } else if (percentageOfStandard <= 120) {
+          performanceLevel = "slightly_over";
+        } else {
+          performanceLevel = "significantly_over";
+        }
+
         const exceeds = workflow.totalDuration > standardSeconds;
         return {
           exceeds,
+          performanceLevel,
           standardMinutes,
           standardSeconds,
           source: "category" as const
@@ -489,6 +514,7 @@ function WorkflowCard({
 
     return {
       exceeds: false,
+      performanceLevel: "on_time" as const,
       standardMinutes: null,
       standardSeconds: null,
       source: null as "category" | "services" | null
@@ -829,18 +855,78 @@ function WorkflowCard({
 
               {/* Standard Time Comparison */}
               {(() => {
-                const { exceeds, standardMinutes, standardSeconds, source } =
+                const { performanceLevel, standardMinutes, standardSeconds, source } =
                   getStandardTimeStatus();
                 const selectedServices = workflow.ticketInfo?.selectedServices || [];
 
                 // Always show the comparison section
                 if (standardSeconds) {
+                  const percentageOfStandard = Math.round(
+                    ((workflow.totalDuration || 0) / standardSeconds) * 100
+                  );
+
+                  // Determine background color based on performance level
+                  const getBgColor = () => {
+                    switch (performanceLevel) {
+                      case "on_time":
+                        return "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800";
+                      case "slightly_over":
+                        return "bg-yellow-50 dark:bg-yellow-950/50 border-yellow-200 dark:border-yellow-800";
+                      case "significantly_over":
+                        return "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800";
+                      default:
+                        return "bg-gray-50 dark:bg-gray-950/50 border-gray-200 dark:border-gray-800";
+                    }
+                  };
+
+                  // Determine progress bar color
+                  const getProgressColor = () => {
+                    switch (performanceLevel) {
+                      case "on_time":
+                        return "bg-green-600 dark:bg-green-500";
+                      case "slightly_over":
+                        return "bg-yellow-600 dark:bg-yellow-500";
+                      case "significantly_over":
+                        return "bg-red-600 dark:bg-red-500";
+                      default:
+                        return "bg-gray-600 dark:bg-gray-500";
+                    }
+                  };
+
+                  // Determine status message and color
+                  const getStatusMessage = () => {
+                    switch (performanceLevel) {
+                      case "on_time":
+                        return {
+                          text: "Within standard time",
+                          color: "text-green-600 dark:text-green-400"
+                        };
+                      case "slightly_over":
+                        return {
+                          text: `Slightly over by ${formatSeconds(
+                            (workflow.totalDuration || 0) - standardSeconds
+                          )} (${percentageOfStandard - 100}%)`,
+                          color: "text-yellow-600 dark:text-yellow-400"
+                        };
+                      case "significantly_over":
+                        return {
+                          text: `Significantly over by ${formatSeconds(
+                            (workflow.totalDuration || 0) - standardSeconds
+                          )} (${percentageOfStandard - 100}%)`,
+                          color: "text-red-600 dark:text-red-400"
+                        };
+                      default:
+                        return {
+                          text: "Unknown",
+                          color: "text-gray-600 dark:text-gray-400"
+                        };
+                    }
+                  };
+
+                  const status = getStatusMessage();
+
                   return (
-                    <div className={`mt-4 p-4 rounded-lg border space-y-4 ${
-                      exceeds
-                        ? "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800"
-                        : "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800"
-                    }`}>
+                    <div className={`mt-4 p-4 rounded-lg border space-y-4 ${getBgColor()}`}>
                       {/* Show selected services with their standard times if available */}
                       {source === "services" && selectedServices.length > 0 && (
                         <div className="space-y-2">
@@ -888,11 +974,7 @@ function WorkflowCard({
                           <div className="flex items-center gap-2">
                             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                               <div
-                                className={`h-2 rounded-full transition-all ${
-                                  exceeds
-                                    ? "bg-red-600 dark:bg-red-500"
-                                    : "bg-green-600 dark:bg-green-500"
-                                }`}
+                                className={`h-2 rounded-full transition-all ${getProgressColor()}`}
                                 style={{
                                   width: `${Math.min(
                                     ((workflow.totalDuration || 0) /
@@ -904,25 +986,16 @@ function WorkflowCard({
                               ></div>
                             </div>
                             <span className="text-sm font-semibold whitespace-nowrap">
-                              {Math.round(
-                                ((workflow.totalDuration || 0) / standardSeconds) * 100
-                              )}%
+                              {percentageOfStandard}%
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
-                            {exceeds ? (
-                              <span className="text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
-                                <AlertTriangle className="h-3 w-3" />
-                                Exceeded by{" "}
-                                {formatSeconds(
-                                  (workflow.totalDuration || 0) - standardSeconds
-                                )}
-                              </span>
-                            ) : (
-                              <span className="text-green-600 dark:text-green-400 font-semibold">
-                                Within standard time
-                              </span>
-                            )}
+                            <span className={`${status.color} font-semibold flex items-center gap-1`}>
+                              {performanceLevel === "on_time" && <CheckCircle className="h-3 w-3" />}
+                              {performanceLevel === "slightly_over" && <AlertTriangle className="h-3 w-3" />}
+                              {performanceLevel === "significantly_over" && <AlertTriangle className="h-3 w-3" />}
+                              {status.text}
+                            </span>
                           </p>
                         </div>
                       </div>
