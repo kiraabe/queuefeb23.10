@@ -19,17 +19,15 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import RoleSelector from "./pages/RoleSelector";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
+import Employee from "./pages/Employee";
+import Archiever from "./pages/Archiever";
+import TellerWindow from "./pages/TellerWindow";
 import { AuthProvider, useAuth, useSessionLostRedirect } from "@/hooks/use-auth";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { RestrictPublicAccess } from "@/components/auth/RestrictPublicAccess";
 import { LicenseProvider } from "@/components/license/LicenseProvider";
 import { LanguageProvider } from "@/hooks/use-language";
-
-// Lazy load pages with heavy dependencies to reduce initial bundle
-const Admin = lazy(() => import("@/pages/Admin"));
-const Employee = lazy(() => import("@/pages/Employee"));
-const Archiever = lazy(() => import("@/pages/Archiever"));
-const TellerWindow = lazy(() => import("@/pages/TellerWindow"));
 
 // Loading fallback component
 function LoadingFallback() {
@@ -129,21 +127,13 @@ const App = () => (
                 <Route element={<RequireAuth role="teller" />}>
                   <Route
                     path="/teller/:id"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <TellerWindow />
-                      </Suspense>
-                    }
+                    element={<TellerWindow />}
                   />
                 </Route>
                 <Route element={<RequireAuth role="employee" />}>
                   <Route
                     path="/employee"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Employee />
-                      </Suspense>
-                    }
+                    element={<Employee />}
                   />
                   <Route path="/employee/privacy" element={<Privacy />} />
                   <Route path="/employee/terms" element={<Terms />} />
@@ -151,11 +141,7 @@ const App = () => (
                 <Route element={<RequireAuth role="archiever" />}>
                   <Route
                     path="/archiever"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Archiever />
-                      </Suspense>
-                    }
+                    element={<Archiever />}
                   />
                   <Route path="/archiever/privacy" element={<Privacy />} />
                   <Route path="/archiever/terms" element={<Terms />} />
@@ -163,11 +149,7 @@ const App = () => (
                 <Route element={<RequireAuth role="admin" />}>
                   <Route
                     path="/admin"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Admin />
-                      </Suspense>
-                    }
+                    element={<Admin />}
                   />
                   <Route path="/admin/privacy" element={<Privacy />} />
                   <Route path="/admin/terms" element={<Terms />} />
