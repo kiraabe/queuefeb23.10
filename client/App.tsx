@@ -26,10 +26,10 @@ import { LicenseProvider } from "@/components/license/LicenseProvider";
 import { LanguageProvider } from "@/hooks/use-language";
 
 // Lazy load pages with heavy dependencies to reduce initial bundle
-const Admin = lazy(() => import("./pages/Admin"));
-const Employee = lazy(() => import("./pages/Employee"));
-const Archiever = lazy(() => import("./pages/Archiever"));
-const TellerWindow = lazy(() => import("./pages/TellerWindow"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const Employee = lazy(() => import("@/pages/Employee"));
+const Archiever = lazy(() => import("@/pages/Archiever"));
+const TellerWindow = lazy(() => import("@/pages/TellerWindow"));
 
 // Loading fallback component
 function LoadingFallback() {
