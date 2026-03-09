@@ -1005,7 +1005,10 @@ function WorkflowCard({
                           </div>
                           <div className="flex items-center gap-3">
                             <div className="flex-1 flex items-center gap-2">
-                              <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-visible">
+                              <div
+                                className="flex-1 relative h-4 rounded-full shadow-sm overflow-visible group cursor-help"
+                                title={`${performanceLevel === "on_time" ? "On Time" : performanceLevel === "slightly_over" ? "Slightly Over" : performanceLevel === "moderately_over" ? "Moderately Over" : "Significantly Over"}: ${percentageOfStandard}% | Actual: ${formatSeconds(workflow.totalDuration || 0)} | Standard: ${formatSeconds(standardSeconds)}`}
+                              >
                                 {/* Gradient background from green (good) to red (bad) */}
                                 <div
                                   className="absolute inset-0 rounded-full"
@@ -1017,7 +1020,7 @@ function WorkflowCard({
 
                                 {/* Current position indicator */}
                                 <div
-                                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all"
+                                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-slate-400 dark:group-hover:ring-slate-600"
                                   style={{
                                     left: `calc(${Math.min(
                                       ((workflow.totalDuration || 0) /
@@ -1038,8 +1041,29 @@ function WorkflowCard({
                                     }}
                                   ></div>
                                 )}
+
+                                {/* Hover tooltip */}
+                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none shadow-lg border border-slate-700 dark:border-slate-600">
+                                  <div className="font-semibold">
+                                    {performanceLevel === "on_time" && "✓ On Time"}
+                                    {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                                    {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
+                                    {performanceLevel === "significantly_over" && "✕ Significantly Over"}
+                                  </div>
+                                  <div className="text-xs opacity-90 mt-1">
+                                    {percentageOfStandard}% of standard
+                                  </div>
+                                  <div className="text-xs opacity-90">
+                                    Actual: {formatSeconds(workflow.totalDuration || 0)}
+                                  </div>
+                                  <div className="text-xs opacity-90">
+                                    Standard: {formatSeconds(standardSeconds)}
+                                  </div>
+                                  {/* Tooltip arrow */}
+                                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-700 transform rotate-45 border-b border-r border-slate-700 dark:border-slate-600"></div>
+                                </div>
                               </div>
-                              <span className="text-sm font-bold whitespace-nowrap min-w-fit">
+                              <span className="text-sm font-bold whitespace-nowrap min-w-fit group cursor-help" title={`Total: ${percentageOfStandard}%`}>
                                 {percentageOfStandard}%
                               </span>
                             </div>
