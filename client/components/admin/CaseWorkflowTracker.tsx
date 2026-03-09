@@ -1009,11 +1009,11 @@ function WorkflowCard({
                                 className="flex-1 relative h-4 rounded-full shadow-sm overflow-visible group cursor-help"
                                 title={`${performanceLevel === "on_time" ? "On Time" : performanceLevel === "slightly_over" ? "Slightly Over" : performanceLevel === "moderately_over" ? "Moderately Over" : "Significantly Over"}: ${percentageOfStandard}% | Actual: ${formatSeconds(workflow.totalDuration || 0)} | Standard: ${formatSeconds(standardSeconds)}`}
                               >
-                                {/* Gradient background from green (good) to red (bad) */}
+                                {/* Gradient background with color stops for performance levels */}
                                 <div
                                   className="absolute inset-0 rounded-full"
                                   style={{
-                                    background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))",
+                                    background: "linear-gradient(to right, rgb(34, 197, 94) 0%, rgb(34, 197, 94) 35%, rgb(251, 191, 36) 35%, rgb(251, 191, 36) 60%, rgb(251, 146, 60) 60%, rgb(251, 146, 60) 80%, rgb(239, 68, 68) 80%, rgb(239, 68, 68) 100%)",
                                     width: "100%"
                                   }}
                                 ></div>
