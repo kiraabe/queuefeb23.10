@@ -955,22 +955,36 @@ function WorkflowCard({
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-4">
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-muted-foreground mb-2">
-                            Total Standard Time: {standardMinutes} minutes
-                            ({formatSeconds(standardSeconds)})
-                            {source === "services" && (
-                              <span className="text-xs ml-2 opacity-75">
-                                (combined from selected services)
-                              </span>
-                            )}
-                            {source === "category" && (
-                              <span className="text-xs ml-2 opacity-75">
-                                (from service category)
-                              </span>
-                            )}
-                          </p>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <p className="text-sm font-semibold text-muted-foreground">
+                              Total Standard Time: {standardMinutes} minutes
+                              ({formatSeconds(standardSeconds)})
+                              {source === "services" && (
+                                <span className="text-xs ml-2 opacity-75">
+                                  (combined from selected services)
+                                </span>
+                              )}
+                              {source === "category" && (
+                                <span className="text-xs ml-2 opacity-75">
+                                  (from service category)
+                                </span>
+                              )}
+                            </p>
+                            {/* Color Level Indicator Badge */}
+                            <div className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                              performanceLevel === "on_time"
+                                ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : performanceLevel === "slightly_over"
+                                  ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                  : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                            }`}>
+                              {performanceLevel === "on_time" && "✓ On Time"}
+                              {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                              {performanceLevel === "significantly_over" && "✕ Significantly Over"}
+                            </div>
+                          </div>
                           <div className="flex items-center gap-3">
                             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-sm">
                               <div
@@ -986,7 +1000,7 @@ function WorkflowCard({
                               ></div>
                             </div>
                             <span className="text-sm font-bold whitespace-nowrap min-w-fit">
-                              {percentageOfStandard}%
+                              {Math.min(percentageOfStandard, 100)}%
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
