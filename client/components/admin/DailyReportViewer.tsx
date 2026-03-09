@@ -273,11 +273,13 @@ export default function DailyReportViewer() {
     if (report.windowStats && report.windowStats.length > 0) {
       lines.push(row("WINDOW STATISTICS"));
       lines.push(
-        row("Window ID", "Window Name", "Teller", "Served Tickets", "Avg Service Time (seconds)", "Performance")
+        row("Window Name", "Teller", "Served Tickets", "Avg Service Time (seconds)", "Performance")
       );
       report.windowStats.forEach((window) => {
         const windowId = window.windowId !== null && window.windowId !== undefined ? window.windowId : "N/A";
-        const windowName = window.windowName || (window.windowId !== null && window.windowId !== undefined ? `Window ${window.windowId}` : "N/A");
+        const windowName = (window.windowName && window.windowName !== "null")
+          ? window.windowName
+          : (windowId !== "N/A" ? `Window ${windowId}` : "N/A");
         const performance = window.performanceLevel ?
           (window.performanceLevel === "on_time" ? "On Time" :
            window.performanceLevel === "slightly_over" ? "Slightly Over" :
@@ -286,7 +288,7 @@ export default function DailyReportViewer() {
         const servedCount = window.servedTickets !== null && window.servedTickets !== undefined ? window.servedTickets : 0;
 
         lines.push(
-          row(windowId, windowName, window.tellerName, servedCount, avgTime, performance)
+          row(windowName, window.tellerName, servedCount, avgTime, performance)
         );
       });
       lines.push("");
@@ -296,7 +298,7 @@ export default function DailyReportViewer() {
     if (report.detailedTickets && report.detailedTickets.length > 0) {
       lines.push(row("DETAILED TICKET TABLE"));
       lines.push(
-        row("Ticket Code", "Service", "Ticketer Full Name", "Wereda", "Selected Services", "Window ID", "Window Name", "Created At", "Service Start", "Service End", "Duration (seconds)", "Standard Time (minutes)", "Performance")
+        row("Ticket Code", "Service", "Ticketer Full Name", "Wereda", "Selected Services", "Window Name", "Created At", "Service Start", "Service End", "Duration (seconds)", "Standard Time (minutes)", "Performance")
       );
       report.detailedTickets.forEach((ticket) => {
         const formatCSVDate = (ts: number | null | undefined) => {
@@ -318,8 +320,11 @@ export default function DailyReportViewer() {
         const selectedServices = Array.isArray(ticket.selectedServices)
           ? ticket.selectedServices.join("; ")
           : ticket.selectedServices || "";
+
         const windowId = ticket.windowId !== null && ticket.windowId !== undefined ? ticket.windowId : "N/A";
-        const windowName = ticket.windowName || (ticket.windowId !== null && ticket.windowId !== undefined ? `Window ${ticket.windowId}` : "N/A");
+        const windowName = (ticket.windowName && ticket.windowName !== "null")
+          ? ticket.windowName
+          : (windowId !== "N/A" ? `Window ${windowId}` : "N/A");
 
         lines.push(
           row(
@@ -328,7 +333,6 @@ export default function DailyReportViewer() {
             ticket.ownerName || "",
             ticket.woreda || "",
             selectedServices,
-            windowId,
             windowName,
             createdDate,
             startDate,
@@ -519,7 +523,7 @@ export default function DailyReportViewer() {
                   <TableHead className="min-w-[120px]">Ticketer Name</TableHead>
                   <TableHead className="min-w-[100px]">Wereda</TableHead>
                   <TableHead className="min-w-[120px]">Selected Services</TableHead>
-                  <TableHead className="min-w-[60px]">Window</TableHead>
+                  <TableHead className="min-w-[100px]">Window Name</TableHead>
                   <TableHead className="min-w-[130px]">Service Start</TableHead>
                   <TableHead className="min-w-[130px]">Service End</TableHead>
                   <TableHead className="text-right min-w-[80px]">Duration</TableHead>
@@ -554,8 +558,10 @@ export default function DailyReportViewer() {
                           "—"
                         )}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        W{ticket.windowId || "—"}
+                      <TableCell className="text-sm font-medium">
+                        {(ticket.windowName && ticket.windowName !== "null")
+                          ? ticket.windowName
+                          : (ticket.windowId !== null && ticket.windowId !== undefined ? `Window ${ticket.windowId}` : "—")}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {format(

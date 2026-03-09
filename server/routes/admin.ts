@@ -722,7 +722,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
 
         // Generate window name: prioritize window_name, then use window_id with "Window " prefix, otherwise "N/A"
         let windowName = "N/A";
-        if (r.window_name) {
+        if (r.window_name && r.window_name !== "null") {
           windowName = r.window_name;
         } else if (r.window_id !== null && r.window_id !== undefined) {
           windowName = `Window ${r.window_id}`;

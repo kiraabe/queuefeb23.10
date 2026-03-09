@@ -202,7 +202,6 @@ export default function WindowMonitoring() {
 
   const downloadWindowsCSV = () => {
     const headers = [
-      "Window ID",
       "Window Name",
       "Teller",
       "Served",
@@ -215,7 +214,6 @@ export default function WindowMonitoring() {
     ];
 
     const rows = windowStats.map((stat) => [
-      stat.window.id,
       stat.window.name,
       stat.window.tellerUsername || "N/A",
       stat.servedToday,
