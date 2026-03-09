@@ -986,16 +986,25 @@ function WorkflowCard({
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-sm">
+                            <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-hidden">
+                              {/* Gradient background from red (bad) to yellow to green (excellent) */}
                               <div
-                                className={`h-3 rounded-full transition-all shadow-md ${getProgressColor()}`}
+                                className="absolute inset-0 rounded-full"
                                 style={{
-                                  width: `${Math.min(
+                                  background: "linear-gradient(to right, rgb(239, 68, 68), rgb(251, 146, 60), rgb(251, 191, 36), rgb(34, 197, 94))"
+                                }}
+                              ></div>
+
+                              {/* Current position indicator */}
+                              <div
+                                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all"
+                                style={{
+                                  left: `calc(${Math.min(
                                     ((workflow.totalDuration || 0) /
                                       standardSeconds) *
                                       100,
                                     100
-                                  )}%`,
+                                  )}% - 8px)`,
                                 }}
                               ></div>
                             </div>
