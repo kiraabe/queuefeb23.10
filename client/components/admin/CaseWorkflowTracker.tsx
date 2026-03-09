@@ -464,11 +464,13 @@ function WorkflowCard({
         const standardSeconds = totalMinutes * 60;
         const percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
 
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
+        let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
           performanceLevel = "on_time";
         } else if (percentageOfStandard <= 120) {
           performanceLevel = "slightly_over";
+        } else if (percentageOfStandard <= 150) {
+          performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
         }
@@ -492,11 +494,13 @@ function WorkflowCard({
         const standardSeconds = standardMinutes * 60;
         const percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
 
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
+        let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
           performanceLevel = "on_time";
         } else if (percentageOfStandard <= 120) {
           performanceLevel = "slightly_over";
+        } else if (percentageOfStandard <= 150) {
+          performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
         }
@@ -872,6 +876,8 @@ function WorkflowCard({
                         return "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800";
                       case "slightly_over":
                         return "bg-yellow-50 dark:bg-yellow-950/50 border-yellow-200 dark:border-yellow-800";
+                      case "moderately_over":
+                        return "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800";
                       case "significantly_over":
                         return "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800";
                       default:
@@ -886,6 +892,8 @@ function WorkflowCard({
                         return "bg-green-600 dark:bg-green-500";
                       case "slightly_over":
                         return "bg-yellow-600 dark:bg-yellow-500";
+                      case "moderately_over":
+                        return "bg-orange-600 dark:bg-orange-500";
                       case "significantly_over":
                         return "bg-red-600 dark:bg-red-500";
                       default:
@@ -907,6 +915,13 @@ function WorkflowCard({
                             (workflow.totalDuration || 0) - standardSeconds
                           )} (${percentageOfStandard - 100}%)`,
                           color: "text-yellow-600 dark:text-yellow-400"
+                        };
+                      case "moderately_over":
+                        return {
+                          text: `Moderately over by ${formatSeconds(
+                            (workflow.totalDuration || 0) - standardSeconds
+                          )} (${percentageOfStandard - 100}%)`,
+                          color: "text-orange-600 dark:text-orange-400"
                         };
                       case "significantly_over":
                         return {
@@ -978,10 +993,13 @@ function WorkflowCard({
                                 ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
                                 : performanceLevel === "slightly_over"
                                   ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                  : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                  : performanceLevel === "moderately_over"
+                                    ? "bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                    : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
                             }`}>
                               {performanceLevel === "on_time" && "✓ On Time"}
                               {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                              {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
                               {performanceLevel === "significantly_over" && "✕ Significantly Over"}
                             </div>
                           </div>
