@@ -514,6 +514,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
            ORDER BY th.transferred_at DESC
            LIMIT 1)
         ) as window_name,
+        t.owner_name,
+        t.woreda,
+        t.selected_services,
         extract(epoch from t.created_at)*1000 as created_at,
         extract(epoch from t.started_at)*1000 as started_at,
         extract(epoch from t.completed_at)*1000 as completed_at
@@ -678,6 +681,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           service: r.service,
           windowId: r.window_id,
           windowName: r.window_name || `Window ${r.window_id}` || "N/A",
+          ownerName: r.owner_name || undefined,
+          woreda: r.woreda || undefined,
+          selectedServices: r.selected_services || undefined,
           createdAt: Math.round(Number(r.created_at)),
           startedAt: Math.round(Number(r.started_at)),
           completedAt: Math.round(Number(r.completed_at)),

@@ -54,6 +54,9 @@ interface DailyReport {
     service: string;
     windowId: number | null;
     windowName: string;
+    ownerName?: string;
+    woreda?: string;
+    selectedServices?: string[];
     createdAt: number;
     startedAt: number;
     completedAt: number;
@@ -105,10 +108,18 @@ const getPerformanceBarColor = (level: string | null) => {
   }
 };
 
+interface EmployeeStats {
+  totalEmployees: number;
+  totalCases: number;
+  topPerformer: string;
+  avgDuration: number | null;
+}
+
 export default function DailyReportViewer() {
   const [report, setReport] = useState<DailyReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
 
   // Date range state
   const [fromDate, setFromDate] = useState<Date | null>(() => {
@@ -191,6 +202,18 @@ export default function DailyReportViewer() {
 
   useEffect(() => {
     fetchReport(fromDate, toDate);
+
+    // Also fetch employee stats
+    const fetchEmployeeStats = async () => {
+      try {
+        const data = await apiFetch<EmployeeStats>("/api/admin/employee-stats");
+        setEmployeeStats(data);
+      } catch (err) {
+        console.debug("[DailyReportViewer] Error fetching employee stats");
+      }
+    };
+
+    fetchEmployeeStats();
   }, [fromDate, toDate]);
 
   // Get unique services from detailedTickets
@@ -258,17 +281,23 @@ export default function DailyReportViewer() {
     // Detailed Ticket Table
     lines.push("DETAILED TICKET TABLE");
     lines.push(
-      "Ticket Code,Service,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
+      "Ticket Code,Service,Ticketer Full Name,Wereda,Selected Services,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
     );
     filteredTickets.forEach((ticket) => {
       const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
       const startDate = format(new Date(ticket.startedAt), "yyyy-MM-dd HH:mm:ss");
       const endDate = format(new Date(ticket.completedAt), "yyyy-MM-dd HH:mm:ss");
-      const performance = ticket.performanceLevel || "N/A";
-      const standardTime = ticket.standardTimeMinutes || "N/A";
-      
+      const performance = ticket.performanceLevel === "on_time" ? "On Time" :
+                         ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
+                         ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
+      const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes}` : "N/A";
+      const selectedServices = Array.isArray(ticket.selectedServices)
+        ? ticket.selectedServices.join("; ")
+        : ticket.selectedServices || "";
+      const windowName = ticket.windowName || `Window ${ticket.windowId || "N/A"}`;
+
       lines.push(
-        `"${ticket.ticketCode}","${ticket.service}",${ticket.windowId},"${ticket.windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
+        `"${ticket.ticketCode}","${ticket.service}","${ticket.ownerName || ""}","${ticket.woreda || ""}","${selectedServices}",${ticket.windowId || "N/A"},"${windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
       );
     });
 
@@ -485,6 +514,56 @@ export default function DailyReportViewer() {
         </CardContent>
       </Card>
 
+      {/* Employee Statistics Section */}
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle className="text-xl">Employee Statistics</CardTitle>
+          <CardDescription>Staff performance and workload summary</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {employeeStats ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="rounded-lg border p-4 bg-card">
+                <p className="text-xs font-semibold text-muted-foreground uppercase">
+                  Total Employees
+                </p>
+                <p className="text-2xl font-bold text-foreground mt-2">
+                  {employeeStats.totalEmployees}
+                </p>
+              </div>
+              <div className="rounded-lg border p-4 bg-blue-50 dark:bg-blue-950/20">
+                <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase">
+                  Total Cases
+                </p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                  {employeeStats.totalCases}
+                </p>
+              </div>
+              <div className="rounded-lg border p-4 bg-green-50 dark:bg-green-950/20">
+                <p className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase">
+                  Top Performer
+                </p>
+                <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-2 truncate">
+                  {employeeStats.topPerformer}
+                </p>
+              </div>
+              <div className="rounded-lg border p-4 bg-purple-50 dark:bg-purple-950/20">
+                <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase">
+                  Avg Duration
+                </p>
+                <p className="text-lg font-bold text-purple-600 dark:text-purple-400 mt-2">
+                  {formatSeconds(employeeStats.avgDuration)}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No employee data available
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Window Statistics Section */}
       <Card className="border-border/70">
         <CardHeader>
@@ -575,7 +654,7 @@ export default function DailyReportViewer() {
             Detailed Tickets ({filteredTickets.length})
           </CardTitle>
           <CardDescription>
-            Service performance with standard time comparison
+            Ticket details with service performance and customer information
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -583,14 +662,17 @@ export default function DailyReportViewer() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[100px]">Ticket #</TableHead>
-                  <TableHead className="min-w-[120px]">Service</TableHead>
-                  <TableHead className="min-w-[80px]">Window</TableHead>
-                  <TableHead className="min-w-[160px]">Service Start</TableHead>
-                  <TableHead className="min-w-[160px]">Service End</TableHead>
-                  <TableHead className="text-right min-w-[100px]">Duration</TableHead>
-                  <TableHead className="text-right min-w-[120px]">Standard</TableHead>
-                  <TableHead className="min-w-[80px]">Performance</TableHead>
+                  <TableHead className="min-w-[80px]">Ticket #</TableHead>
+                  <TableHead className="min-w-[100px]">Service</TableHead>
+                  <TableHead className="min-w-[120px]">Ticketer Name</TableHead>
+                  <TableHead className="min-w-[100px]">Wereda</TableHead>
+                  <TableHead className="min-w-[120px]">Selected Services</TableHead>
+                  <TableHead className="min-w-[60px]">Window</TableHead>
+                  <TableHead className="min-w-[130px]">Service Start</TableHead>
+                  <TableHead className="min-w-[130px]">Service End</TableHead>
+                  <TableHead className="text-right min-w-[80px]">Duration</TableHead>
+                  <TableHead className="text-right min-w-[90px]">Standard</TableHead>
+                  <TableHead className="min-w-[90px]">Performance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -604,18 +686,35 @@ export default function DailyReportViewer() {
                         {ticket.service}
                       </TableCell>
                       <TableCell className="text-sm">
+                        {ticket.ownerName || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {ticket.woreda || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {Array.isArray(ticket.selectedServices) && ticket.selectedServices.length > 0 ? (
+                          <div className="space-y-1">
+                            {ticket.selectedServices.map((service, idx) => (
+                              <div key={idx} className="text-xs">• {service}</div>
+                            ))}
+                          </div>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
                         W{ticket.windowId || "—"}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {format(
                           new Date(ticket.startedAt),
-                          "yyyy-MM-dd HH:mm:ss"
+                          "MM-dd HH:mm"
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {format(
                           new Date(ticket.completedAt),
-                          "yyyy-MM-dd HH:mm:ss"
+                          "MM-dd HH:mm"
                         )}
                       </TableCell>
                       <TableCell className="text-right font-medium">
@@ -634,11 +733,11 @@ export default function DailyReportViewer() {
                           )}
                         >
                           {ticket.performanceLevel === "on_time"
-                            ? "✓ OK"
+                            ? "✓ On Time"
                             : ticket.performanceLevel === "slightly_over"
-                              ? "⚠ +20%"
+                              ? "⚠ Slightly Over"
                               : ticket.performanceLevel === "significantly_over"
-                                ? "✕ +20%"
+                                ? "✕ Over"
                                 : "—"}
                         </span>
                       </TableCell>
@@ -646,7 +745,7 @@ export default function DailyReportViewer() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                       No tickets found for the selected filters
                     </TableCell>
                   </TableRow>
