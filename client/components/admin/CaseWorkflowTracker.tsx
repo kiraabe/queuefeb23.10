@@ -991,7 +991,7 @@ function WorkflowCard({
                               <div
                                 className="absolute inset-0 rounded-full"
                                 style={{
-                                  background: "linear-gradient(to right, rgb(239, 68, 68), rgb(251, 146, 60), rgb(251, 191, 36), rgb(34, 197, 94))"
+                                  background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
                                 }}
                               ></div>
 
