@@ -304,13 +304,8 @@ function TicketRow({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        let percentageOfStandard: number;
-        // If Actual Work Time equals Standard Time, set percentage to 35%
-        if (totalDuration === standardSeconds) {
-          percentageOfStandard = 35;
-        } else {
-          percentageOfStandard = (totalDuration / standardSeconds) * 100;
-        }
+        // Formula: (Standard Time ÷ Actual Work Time) × 35
+        const percentageOfStandard = (standardSeconds / (totalDuration || 1)) * 35;
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -338,13 +333,8 @@ function TicketRow({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        let percentageOfStandard: number;
-        // If Actual Work Time equals Standard Time, set percentage to 35%
-        if (totalDuration === standardSeconds) {
-          percentageOfStandard = 35;
-        } else {
-          percentageOfStandard = (totalDuration / standardSeconds) * 100;
-        }
+        // Formula: (Standard Time ÷ Actual Work Time) × 35
+        const percentageOfStandard = (standardSeconds / (totalDuration || 1)) * 35;
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -656,15 +646,10 @@ function TicketRow({
                   const selectedServices = ticket.selectedServices || [];
 
                   if (standardSeconds && totalDuration) {
-                    let percentageOfStandard: number;
-                    // If Actual Work Time equals Standard Time, set percentage to 35%
-                    if (totalDuration === standardSeconds) {
-                      percentageOfStandard = 35;
-                    } else {
-                      percentageOfStandard = Math.round(
-                        (totalDuration / standardSeconds) * 100
-                      );
-                    }
+                    // Formula: (Standard Time ÷ Actual Work Time) × 35
+                    const percentageOfStandard = Math.round(
+                      (standardSeconds / totalDuration) * 35
+                    );
 
                     const getBgColor = () => {
                       switch (performanceLevel) {

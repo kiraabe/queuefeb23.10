@@ -462,13 +462,8 @@ function WorkflowCard({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        let percentageOfStandard: number;
-        // If Actual Work Time equals Standard Time, set percentage to 35%
-        if (workflow.totalDuration === standardSeconds) {
-          percentageOfStandard = 35;
-        } else {
-          percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
-        }
+        // Formula: (Standard Time ÷ Actual Work Time) × 35
+        const percentageOfStandard = (standardSeconds / (workflow.totalDuration || 1)) * 35;
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -498,13 +493,8 @@ function WorkflowCard({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        let percentageOfStandard: number;
-        // If Actual Work Time equals Standard Time, set percentage to 35%
-        if (workflow.totalDuration === standardSeconds) {
-          percentageOfStandard = 35;
-        } else {
-          percentageOfStandard = (workflow.totalDuration / standardSeconds) * 100;
-        }
+        // Formula: (Standard Time ÷ Actual Work Time) × 35
+        const percentageOfStandard = (standardSeconds / (workflow.totalDuration || 1)) * 35;
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -877,15 +867,10 @@ function WorkflowCard({
 
                 // Always show the comparison section
                 if (standardSeconds) {
-                  let percentageOfStandard: number;
-                  // If Actual Work Time equals Standard Time, set percentage to 35%
-                  if ((workflow.totalDuration || 0) === standardSeconds) {
-                    percentageOfStandard = 35;
-                  } else {
-                    percentageOfStandard = Math.round(
-                      ((workflow.totalDuration || 0) / standardSeconds) * 100
-                    );
-                  }
+                  // Formula: (Standard Time ÷ Actual Work Time) × 35
+                  const percentageOfStandard = Math.round(
+                    (standardSeconds / (workflow.totalDuration || 1)) * 35
+                  );
 
                   // Determine background color based on performance level
                   const getBgColor = () => {
