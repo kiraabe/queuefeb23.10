@@ -598,6 +598,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     // Load service categories and their standard times, and create service code to name mapping
     const serviceStandardTimes: Record<string, number> = {};
     const serviceCategoryNames: Record<string, string> = {}; // Map category code to name
+    const serviceIdToName: Record<string, string> = {}; // Map service ID (UUID) to service name
     try {
       const categoriesRes = await p.query(
         `SELECT id, code, name FROM service_categories ORDER BY name ASC`
@@ -607,11 +608,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         serviceCategoryNames[category.code] = category.name;
 
         const servicesRes = await p.query(
-          `SELECT name, standard_time_minutes FROM services WHERE category_id = $1 ORDER BY name ASC`,
+          `SELECT id, name, standard_time_minutes FROM services WHERE category_id = $1 ORDER BY name ASC`,
           [category.id]
         );
 
         for (const service of servicesRes.rows) {
+          // Map service ID to name for selected_services resolution
+          serviceIdToName[service.id] = service.name;
+
           if (service.name && service.standard_time_minutes) {
             serviceStandardTimes[service.name] = Number(service.standard_time_minutes);
           }
@@ -620,6 +624,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
 
       console.log("[getDailyReport] Loaded service standard times:", serviceStandardTimes);
       console.log("[getDailyReport] Loaded service category names:", serviceCategoryNames);
+      console.log("[getDailyReport] Loaded service ID to name mapping:", serviceIdToName);
     } catch (err) {
       console.debug("[getDailyReport] Error loading service standard times:", err);
     }
@@ -685,15 +690,15 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         let windowName = "N/A";
         if (r.window_name) {
           windowName = r.window_name;
-        } else if (r.window_id) {
+        } else if (r.window_id !== null && r.window_id !== undefined) {
           windowName = `Window ${r.window_id}`;
         }
 
-        // Map selected service codes to their names
+        // Map selected service IDs (UUIDs) to their names
         let selectedServiceNames: string[] | undefined = undefined;
         if (r.selected_services && Array.isArray(r.selected_services)) {
-          selectedServiceNames = r.selected_services.map((code: string) =>
-            serviceCategoryNames[code] || code // Use the category name if available, otherwise keep the code
+          selectedServiceNames = r.selected_services.map((serviceId: string) =>
+            serviceIdToName[serviceId] || serviceId // Use the service name if available, otherwise keep the ID
           );
         }
 
@@ -701,7 +706,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           ticketId: r.id,
           ticketCode: r.code,
           service: r.service,
-          windowId: r.window_id || null,
+          windowId: r.window_id !== null && r.window_id !== undefined ? r.window_id : null,
           windowName: windowName,
           ownerName: r.owner_name || undefined,
           woreda: r.woreda || undefined,

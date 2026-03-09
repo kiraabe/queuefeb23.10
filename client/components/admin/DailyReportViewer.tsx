@@ -273,7 +273,7 @@ export default function DailyReportViewer() {
       );
       report.windowStats.forEach((window) => {
         const windowId = window.windowId !== null && window.windowId !== undefined ? window.windowId : "N/A";
-        const windowName = window.windowName || `Window ${window.windowId}`;
+        const windowName = window.windowName || (window.windowId !== null && window.windowId !== undefined ? `Window ${window.windowId}` : "N/A");
         const performance = window.performanceLevel ?
           (window.performanceLevel === "on_time" ? "On Time" :
            window.performanceLevel === "slightly_over" ? "Slightly Over" :
@@ -305,7 +305,7 @@ export default function DailyReportViewer() {
           ? ticket.selectedServices.join("; ")
           : ticket.selectedServices || "";
         const windowId = ticket.windowId !== null && ticket.windowId !== undefined ? ticket.windowId : "N/A";
-        const windowName = ticket.windowName || `Window ${ticket.windowId || "N/A"}`;
+        const windowName = ticket.windowName || (ticket.windowId !== null && ticket.windowId !== undefined ? `Window ${ticket.windowId}` : "N/A");
 
         lines.push(
           `"${ticket.ticketCode}","${ticket.service}","${ticket.ownerName || ""}","${ticket.woreda || ""}","${selectedServices}",${windowId},"${windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
