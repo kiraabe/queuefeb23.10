@@ -103,7 +103,7 @@ export function ChangePasswordForm() {
     setIsLoading(true);
 
     try {
-      const response = await apiFetch("/api/auth/change-password", {
+      const response = await apiFetch<{ ok: boolean; message: string }>("/api/auth/change-password", {
         method: "POST",
         body: JSON.stringify({
           currentPassword,
@@ -112,20 +112,14 @@ export function ChangePasswordForm() {
         }),
       });
 
-      if (response.ok) {
-        setSuccess(true);
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        toast.success("Password changed successfully");
+      setSuccess(true);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Password changed successfully");
 
-        // Reset success message after 3 seconds
-        setTimeout(() => setSuccess(false), 3000);
-      } else {
-        const error = response as any;
-        setValidationErrors([error.message || "Failed to change password"]);
-        toast.error(error.message || "Failed to change password");
-      }
+      // Reset success message after 3 seconds
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to change password";
