@@ -472,7 +472,6 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     let toDate: string;
 
     if (req.query.fromDate && req.query.toDate) {
-      // User specified date range - already in ISO format from frontend
       fromDate = req.query.fromDate as string;
       toDate = req.query.toDate as string;
       console.log("[getDailyReport] Received date range from frontend:", {
@@ -494,57 +493,8 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       });
     }
 
-    // Get skipped tickets with details
-    const skippedRes = await p.query(
-      `SELECT
-        t.id,
-        t.code,
-        t.service,
-        t.number,
-        extract(epoch from t.created_at)*1000 as created_at,
-        extract(epoch from t.skipped_at)*1000 as skipped_at,
-        t.skipped_by_window,
-        w.name as skipped_by_window_name,
-        t.remark
-      FROM tickets t
-      LEFT JOIN windows w ON t.skipped_by_window = w.id
-      WHERE t.status = 'skipped'
-        AND t.created_at >= $1
-        AND t.created_at <= $2
-      ORDER BY t.skipped_at DESC`,
-      [fromDate, toDate],
-    );
-
-    // Get transfer history with details
-    const transfersRes = await p.query(
-      `SELECT
-        th.id,
-        t.id as ticket_id,
-        t.code,
-        t.service,
-        t.number,
-        extract(epoch from t.created_at)*1000 as created_at,
-        extract(epoch from th.transferred_at)*1000 as transferred_at,
-        th.from_window,
-        wf.name as from_window_name,
-        th.to_window,
-        wt.name as to_window_name,
-        t.remark
-      FROM transfer_history th
-      JOIN tickets t ON t.id = th.ticket_id
-      LEFT JOIN windows wf ON th.from_window = wf.id
-      LEFT JOIN windows wt ON th.to_window = wt.id
-      WHERE t.created_at >= $1
-        AND t.created_at <= $2
-      ORDER BY th.transferred_at DESC`,
-      [fromDate, toDate],
-    );
-
-    // Get all tickets created in the date range
-    // Note: We try to find the window that actually served the ticket by:
-    // 1. First checking the ticket's window_id
-    // 2. If that's null, checking the last window in transfer_history (the one who completed it)
-    const allTicketsRes = await p.query(
+    // Get all served tickets (ONLY served tickets for this simplified report)
+    const servedTicketsRes = await p.query(
       `SELECT
         t.id,
         t.code,
@@ -565,64 +515,26 @@ export const getDailyReport: RequestHandler = async (req, res) => {
            LIMIT 1)
         ) as window_name,
         extract(epoch from t.created_at)*1000 as created_at,
+        extract(epoch from t.started_at)*1000 as started_at,
         extract(epoch from t.completed_at)*1000 as completed_at
       FROM tickets t
       LEFT JOIN windows w ON t.window_id = w.id
-      WHERE t.created_at >= $1
+      WHERE t.status = 'done'
+        AND t.created_at >= $1
         AND t.created_at <= $2
       ORDER BY t.created_at ASC`,
       [fromDate, toDate],
     );
 
-    // Get window statistics with assigned teller (show teller who served tickets in date range or is assigned to window)
+    // Get window statistics - ONLY for served tickets
     const windowStatsRes = await p.query(
       `WITH window_served_tickets AS (
-        SELECT w.id as window_id, COUNT(DISTINCT t.id) as served_count
+        SELECT w.id as window_id, COUNT(DISTINCT t.id) as served_count,
+          ROUND(AVG(EXTRACT(EPOCH FROM (t.completed_at - t.started_at))))::int as avg_service_time
         FROM windows w
         LEFT JOIN tickets t ON (
           (t.window_id = w.id
           OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id))
-          AND t.status = 'done'
-          AND t.created_at >= $1::timestamptz
-          AND t.created_at <= $2::timestamptz
-        )
-        GROUP BY w.id
-      ),
-      window_skipped_tickets AS (
-        SELECT w.id as window_id, COUNT(DISTINCT t.id) as skipped_count
-        FROM windows w
-        LEFT JOIN tickets t ON (
-          t.skipped_by_window = w.id
-          AND t.status = 'skipped'
-          AND t.created_at >= $1::timestamptz
-          AND t.created_at <= $2::timestamptz
-        )
-        GROUP BY w.id
-      ),
-      window_transfers_from AS (
-        SELECT w.id as window_id, COUNT(DISTINCT th.id) as transfers_from_count
-        FROM windows w
-        LEFT JOIN transfer_history th ON th.from_window = w.id
-        LEFT JOIN tickets t ON t.id = th.ticket_id
-          AND t.created_at >= $1::timestamptz
-          AND t.created_at <= $2::timestamptz
-        GROUP BY w.id
-      ),
-      window_transfers_to AS (
-        SELECT w.id as window_id, COUNT(DISTINCT th.id) as transfers_to_count
-        FROM windows w
-        LEFT JOIN transfer_history th ON th.to_window = w.id
-        LEFT JOIN tickets t ON t.id = th.ticket_id
-          AND t.created_at >= $1::timestamptz
-          AND t.created_at <= $2::timestamptz
-        GROUP BY w.id
-      ),
-      window_avg_service_time AS (
-        SELECT w.id as window_id,
-          ROUND(AVG(EXTRACT(EPOCH FROM (t.completed_at - t.started_at))))::int as avg_time
-        FROM windows w
-        LEFT JOIN tickets t ON (
-          (t.window_id = w.id OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id))
           AND t.status = 'done'
           AND t.created_at >= $1::timestamptz
           AND t.created_at <= $2::timestamptz
@@ -642,32 +554,15 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           'Unassigned'
         ) as teller_name,
         COALESCE(wst.served_count, 0)::int as served,
-        COALESCE(ws.skipped_count, 0)::int as skipped,
-        COALESCE(wtf.transfers_from_count, 0)::int as transfers_from,
-        COALESCE(wtt.transfers_to_count, 0)::int as transfers_to,
-        COALESCE(wast.avg_time, NULL)::int as avg_service_time
+        COALESCE(wst.avg_service_time, NULL)::int as avg_service_time
       FROM windows w
       LEFT JOIN window_served_tickets wst ON wst.window_id = w.id
-      LEFT JOIN window_skipped_tickets ws ON ws.window_id = w.id
-      LEFT JOIN window_transfers_from wtf ON wtf.window_id = w.id
-      LEFT JOIN window_transfers_to wtt ON wtt.window_id = w.id
-      LEFT JOIN window_avg_service_time wast ON wast.window_id = w.id
+      WHERE COALESCE(wst.served_count, 0) > 0
       ORDER BY w.id`,
       [fromDate, toDate],
     );
 
-    console.log("[getDailyReport] Window stats query result:", {
-      rowCount: windowStatsRes.rows?.length || 0,
-      rows: windowStatsRes.rows?.slice(0, 3), // Log first 3 rows for debugging
-    });
-
-    // Get total tickets created in the date range
-    const totalTicketsRes = await p.query(
-      `SELECT COUNT(*)::int as total FROM tickets WHERE created_at >= $1 AND created_at <= $2`,
-      [fromDate, toDate],
-    );
-
-    // Get summary statistics
+    // Get summary statistics - only served tickets
     const summaryRes = await p.query(
       `SELECT
         COUNT(CASE WHEN status = 'done' THEN 1 END)::int as served,
@@ -685,9 +580,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       dateRange: { fromDate, toDate },
       summary,
       windowStatsCount: windowStatsRes.rows?.length || 0,
-      allTicketsCount: allTicketsRes.rows?.length || 0,
-      skippedCount: skippedRes.rows?.length || 0,
-      transfersCount: transfersRes.rows?.length || 0,
+      servedTicketsCount: servedTicketsRes.rows?.length || 0,
     });
 
     // Format report date range
@@ -700,159 +593,100 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         ? fromDateStr
         : `${fromDateStr} to ${toDateStr}`;
 
-    // Get employee case performance data for the date range
-    const employeePerfRes = await p.query(
-      `SELECT
-        ecp.employee_id,
-        u.full_name,
-        u.username,
-        COUNT(DISTINCT ecp.id) as total_cases_started,
-        COUNT(DISTINCT CASE WHEN ecp.status = 'completed' THEN ecp.id END) as cases_completed,
-        COUNT(DISTINCT CASE WHEN ecp.status = 'proceeded' THEN ecp.id END) as cases_proceeded,
-        ROUND(AVG(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as avg_case_time,
-        ROUND(SUM(EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at))))::int as total_time_spent
-      FROM employee_case_performance ecp
-      LEFT JOIN users u ON ecp.employee_id = u.id
-      LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      WHERE t.created_at >= $1 AND t.created_at <= $2
-      GROUP BY ecp.employee_id, u.full_name, u.username
-      ORDER BY cases_completed DESC`,
-      [fromDate, toDate],
-    );
+    // Load service categories and their standard times
+    const serviceStandardTimes: Record<string, number> = {};
+    try {
+      const categoriesRes = await p.query(
+        `SELECT id, code, name FROM service_categories ORDER BY name ASC`
+      );
 
-    console.log("[getDailyReport] Employee performance data:", {
-      count: employeePerfRes.rows?.length || 0,
-      rows: employeePerfRes.rows?.slice(0, 5),
-    });
+      for (const category of categoriesRes.rows) {
+        const servicesRes = await p.query(
+          `SELECT name, standard_time_minutes FROM services WHERE category_id = $1 ORDER BY name ASC`,
+          [category.id]
+        );
 
-    // Get case workflow details (employee case performance by employee) for the date range
-    const caseWorkflowRes = await p.query(
-      `SELECT
-        ecp.id,
-        ecp.employee_id,
-        u.full_name,
-        u.username,
-        ecp.ticket_id,
-        t.code as ticket_code,
-        t.service,
-        extract(epoch from ecp.started_at)*1000 as started_at,
-        extract(epoch from ecp.ended_at)*1000 as ended_at,
-        ecp.status,
-        EXTRACT(EPOCH FROM (ecp.ended_at - ecp.started_at)) as duration_seconds,
-        COALESCE(jt.name_english, ut.name_english, 'Unknown') as job_title_name
-      FROM employee_case_performance ecp
-      LEFT JOIN users u ON ecp.employee_id = u.id
-      LEFT JOIN tickets t ON ecp.ticket_id = t.id
-      LEFT JOIN job_title jt ON ecp.job_title_id = jt.id
-      LEFT JOIN job_title ut ON u.job_title_id = ut.id
-      WHERE t.created_at >= $1 AND t.created_at <= $2
-      ORDER BY ecp.started_at ASC`,
-      [fromDate, toDate],
-    );
+        for (const service of servicesRes.rows) {
+          if (service.name && service.standard_time_minutes) {
+            serviceStandardTimes[service.name] = Number(service.standard_time_minutes);
+          }
+        }
+      }
 
-    // Get category performance data (aggregate by service) for the date range
-    const categoryPerfRes = await p.query(
-      `SELECT
-        t.service as service_name,
-        COUNT(DISTINCT t.id) as total_tickets,
-        COUNT(DISTINCT CASE WHEN t.status = 'done' THEN t.id END) as served,
-        COUNT(DISTINCT CASE WHEN t.status = 'skipped' THEN t.id END) as skipped,
-        COUNT(DISTINCT CASE WHEN t.status = 'transferred' THEN t.id END) as transferred,
-        ROUND(AVG(CASE WHEN t.started_at IS NOT NULL AND t.completed_at IS NOT NULL THEN EXTRACT(EPOCH FROM (t.completed_at - t.started_at)) ELSE NULL END))::int as avg_service_time
-      FROM tickets t
-      WHERE t.created_at >= $1 AND t.created_at <= $2
-      GROUP BY t.service
-      ORDER BY total_tickets DESC`,
-      [fromDate, toDate],
-    );
+      console.log("[getDailyReport] Loaded service standard times:", serviceStandardTimes);
+    } catch (err) {
+      console.debug("[getDailyReport] Error loading service standard times:", err);
+    }
 
     const report = {
       reportDate: reportDate,
       generatedAt: new Date().toISOString(),
       summary: {
-        totalTicketsCreated: Number(totalTicketsRes.rows[0]?.total || 0),
+        totalTicketsCreated: Number(summary.total || 0),
         served: Number(summary.served || 0),
         skipped: Number(summary.skipped || 0),
         transferred: Number(summary.transferred || 0),
         averageServiceTime: summary.avg_service_time || null,
       },
-      allTickets: allTicketsRes.rows.map((r: any) => ({
-        ticketId: r.id,
-        ticketCode: r.code,
-        service: r.service,
-        status: r.status,
-        windowId: r.window_id,
-        windowName: r.window_name,
-        createdAt: Math.round(Number(r.created_at)),
-        completedAt: r.completed_at ? Math.round(Number(r.completed_at)) : null,
-      })),
-      skipped: skippedRes.rows.map((r: any) => ({
-        ticketId: r.id,
-        ticketCode: r.code,
-        service: r.service,
-        ticketNumber: r.number,
-        createdAt: Math.round(Number(r.created_at)),
-        skippedAt: Math.round(Number(r.skipped_at)),
-        skippedByWindow: r.skipped_by_window,
-        skippedByWindowName: r.skipped_by_window_name,
-        remark: r.remark,
-      })),
-      transfers: transfersRes.rows.map((r: any) => ({
-        transferId: r.id,
-        ticketId: r.ticket_id,
-        ticketCode: r.code,
-        service: r.service,
-        ticketNumber: r.number,
-        createdAt: Math.round(Number(r.created_at)),
-        transferredAt: Math.round(Number(r.transferred_at)),
-        fromWindow: r.from_window,
-        fromWindowName: r.from_window_name,
-        toWindow: r.to_window,
-        toWindowName: r.to_window_name,
-        remark: r.remark,
-      })),
-      windowStats: windowStatsRes.rows.map((r: any) => ({
-        windowId: r.id,
-        windowName: r.name,
-        tellerName: r.teller_name || "N/A",
-        served: Number(r.served || 0),
-        skipped: Number(r.skipped || 0),
-        transfersFrom: Number(r.transfers_from || 0),
-        transfersTo: Number(r.transfers_to || 0),
-        averageServiceTime: r.avg_service_time || null,
-      })),
-      employeePerformance: employeePerfRes.rows.map((r: any) => ({
-        employeeId: r.employee_id,
-        employeeName: r.full_name || r.username || "Unknown",
-        totalCasesStarted: Number(r.total_cases_started || 0),
-        casesCompleted: Number(r.cases_completed || 0),
-        casesProceed: Number(r.cases_proceeded || 0),
-        averageCaseTime: r.avg_case_time || null,
-        totalTimeSpent: r.total_time_spent || null,
-      })),
-      caseWorkflow: caseWorkflowRes.rows.map((r: any) => ({
-        caseId: r.id,
-        employeeId: r.employee_id,
-        employeeName: r.full_name || r.username || "Unknown",
-        ticketId: r.ticket_id,
-        ticketCode: r.ticket_code,
-        service: r.service,
-        jobTitle: r.job_title_name,
-        startedAt: r.started_at ? Math.round(Number(r.started_at)) : null,
-        endedAt: r.ended_at ? Math.round(Number(r.ended_at)) : null,
-        status: r.status,
-        durationSeconds: r.duration_seconds
-          ? Math.round(Number(r.duration_seconds))
-          : null,
-      })),
-      categoryPerformance: categoryPerfRes.rows.map((r: any) => ({
-        categoryName: r.service_name || "Uncategorized",
-        totalTickets: Number(r.total_tickets || 0),
-        served: Number(r.served || 0),
-        skipped: Number(r.skipped || 0),
-        transferred: Number(r.transferred || 0),
-        averageServiceTime: r.avg_service_time || null,
-      })),
+      windowStats: windowStatsRes.rows.map((r: any) => {
+        const avgServiceTime = r.avg_service_time || null;
+        const standardTime = serviceStandardTimes[r.name] || null;
+
+        let performanceLevel = "on_time";
+        if (avgServiceTime && standardTime) {
+          const standardSeconds = standardTime * 60;
+          const percentageOfStandard = (avgServiceTime / standardSeconds) * 100;
+          if (percentageOfStandard > 120) {
+            performanceLevel = "significantly_over";
+          } else if (percentageOfStandard > 100) {
+            performanceLevel = "slightly_over";
+          }
+        }
+
+        return {
+          windowId: r.id,
+          windowName: r.name,
+          tellerName: r.teller_name || "Unassigned",
+          servedTickets: Number(r.served || 0),
+          averageServiceTime: avgServiceTime,
+          performanceLevel: standardTime ? performanceLevel : null,
+        };
+      }),
+      detailedTickets: servedTicketsRes.rows.map((r: any) => {
+        const duration = r.completed_at && r.started_at
+          ? Math.round((r.completed_at - r.started_at) / 1000)
+          : null;
+
+        const standardTime = serviceStandardTimes[r.service] || null;
+        let performanceLevel = null;
+
+        if (duration && standardTime) {
+          const standardSeconds = standardTime * 60;
+          const percentageOfStandard = (duration / standardSeconds) * 100;
+          if (percentageOfStandard > 120) {
+            performanceLevel = "significantly_over";
+          } else if (percentageOfStandard > 100) {
+            performanceLevel = "slightly_over";
+          } else {
+            performanceLevel = "on_time";
+          }
+        }
+
+        return {
+          ticketId: r.id,
+          ticketCode: r.code,
+          service: r.service,
+          windowId: r.window_id,
+          windowName: r.window_name || `Window ${r.window_id}` || "N/A",
+          createdAt: Math.round(Number(r.created_at)),
+          startedAt: Math.round(Number(r.started_at)),
+          completedAt: Math.round(Number(r.completed_at)),
+          serviceDurationSeconds: duration,
+          standardTimeMinutes: standardTime,
+          performanceLevel: performanceLevel,
+        };
+      }),
+      serviceStandardTimes: serviceStandardTimes,
     };
 
     res.json(report);

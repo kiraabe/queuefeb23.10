@@ -18,27 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertCircle,
   Download,
   RefreshCw,
-  TrendingUp,
   Calendar as CalendarIcon,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import { format, subYears, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 interface DailyReport {
   reportDate: string;
@@ -50,82 +40,28 @@ interface DailyReport {
     transferred: number;
     averageServiceTime: number | null;
   };
-  allTickets: Array<{
-    ticketId: string;
-    ticketCode: string;
-    service: string;
-    status: string;
-    windowId: number | null;
-    windowName: string | null;
-    createdAt: number;
-    completedAt: number | null;
-    category?: string;
-  }>;
-  skipped: Array<{
-    ticketId: string;
-    ticketCode: string;
-    service: string;
-    ticketNumber: number;
-    createdAt: number;
-    skippedAt: number;
-    skippedByWindow: number | null;
-    skippedByWindowName: string | null;
-    remark: string | null;
-  }>;
-  transfers: Array<{
-    transferId: string;
-    ticketId: string;
-    ticketCode: string;
-    service: string;
-    ticketNumber: number;
-    createdAt: number;
-    transferredAt: number;
-    fromWindow: number;
-    fromWindowName: string | null;
-    toWindow: number;
-    toWindowName: string | null;
-    remark: string | null;
-  }>;
   windowStats: Array<{
     windowId: number;
     windowName: string;
     tellerName: string;
-    served: number;
-    skipped: number;
-    transfersFrom: number;
-    transfersTo: number;
+    servedTickets: number;
     averageServiceTime: number | null;
+    performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null;
   }>;
-  employeePerformance: Array<{
-    employeeId: string;
-    employeeName: string;
-    totalCasesStarted: number;
-    casesCompleted: number;
-    casesProceed: number;
-    averageCaseTime: number | null;
-    totalTimeSpent: number | null;
-  }>;
-  caseWorkflow: Array<{
-    caseId: string;
-    employeeId: string;
-    employeeName: string;
+  detailedTickets: Array<{
     ticketId: string;
     ticketCode: string;
     service: string;
-    jobTitle: string;
-    startedAt: number | null;
-    endedAt: number | null;
-    status: string;
-    durationSeconds: number | null;
+    windowId: number | null;
+    windowName: string;
+    createdAt: number;
+    startedAt: number;
+    completedAt: number;
+    serviceDurationSeconds: number | null;
+    standardTimeMinutes: number | null;
+    performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null;
   }>;
-  categoryPerformance: Array<{
-    categoryName: string;
-    totalTickets: number;
-    served: number;
-    skipped: number;
-    transferred: number;
-    averageServiceTime: number | null;
-  }>;
+  serviceStandardTimes: Record<string, number>;
 }
 
 const formatSeconds = (seconds: number | null) => {
@@ -143,6 +79,32 @@ const formatSeconds = (seconds: number | null) => {
   }
 };
 
+const getPerformanceColor = (level: string | null) => {
+  switch (level) {
+    case "on_time":
+      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+    case "slightly_over":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+    case "significantly_over":
+      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
+  }
+};
+
+const getPerformanceBarColor = (level: string | null) => {
+  switch (level) {
+    case "on_time":
+      return "bg-green-600";
+    case "slightly_over":
+      return "bg-yellow-600";
+    case "significantly_over":
+      return "bg-red-600";
+    default:
+      return "bg-gray-600";
+  }
+};
+
 export default function DailyReportViewer() {
   const [report, setReport] = useState<DailyReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -156,20 +118,22 @@ export default function DailyReportViewer() {
   });
   const [toDate, setToDate] = useState<Date | null>(new Date());
 
+  // Filter state
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [selectedWindow, setSelectedWindow] = useState<number | null>(null);
+  const [expandedWindows, setExpandedWindows] = useState<Set<number>>(new Set());
+
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Ensure dates are valid
       if (!from || !to) {
         setError("Please select both From and To dates");
         setLoading(false);
         return;
       }
 
-      // Create date range using UTC to avoid timezone issues
-      // Parse the local date and convert to UTC start/end of day
       const fromUTC = new Date(
         Date.UTC(
           from.getFullYear(),
@@ -203,9 +167,7 @@ export default function DailyReportViewer() {
 
       console.log("[DailyReportViewer] Report data received:", {
         windowStatsCount: data.windowStats?.length || 0,
-        skippedCount: data.skipped?.length || 0,
-        transfersCount: data.transfers?.length || 0,
-        allTicketsCount: data.allTickets?.length || 0,
+        detailedTicketsCount: data.detailedTickets?.length || 0,
         summary: data.summary,
         reportDate: data.reportDate,
       });
@@ -228,121 +190,49 @@ export default function DailyReportViewer() {
   };
 
   useEffect(() => {
-    console.log("[DailyReportViewer] Dates changed, fetching new report", {
-      fromDate: fromDate?.toLocaleDateString(),
-      toDate: toDate?.toLocaleDateString(),
-    });
     fetchReport(fromDate, toDate);
   }, [fromDate, toDate]);
+
+  // Get unique services from detailedTickets
+  const services = useMemo(() => {
+    if (!report) return [];
+    return Array.from(new Set(report.detailedTickets.map((t) => t.service))).sort();
+  }, [report]);
+
+  // Get unique windows from windowStats
+  const windows = useMemo(() => {
+    if (!report) return [];
+    return report.windowStats.map((w) => w.windowId).sort((a, b) => a - b);
+  }, [report]);
+
+  // Filter detailed tickets based on selected service and window
+  const filteredTickets = useMemo(() => {
+    if (!report) return [];
+    return report.detailedTickets.filter((ticket) => {
+      const serviceMatch =
+        !selectedService || ticket.service === selectedService;
+      const windowMatch =
+        selectedWindow === null || ticket.windowId === selectedWindow;
+      return serviceMatch && windowMatch;
+    });
+  }, [report, selectedService, selectedWindow]);
 
   const downloadCSV = () => {
     if (!report) return;
 
     const lines: string[] = [];
 
+    // Report Header
     lines.push("DAILY QUEUE REPORT");
-    lines.push(`Report Date: ${report.reportDate}`);
+    lines.push(`Report Date Range: ${report.reportDate}`);
     lines.push(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`);
     lines.push("");
 
+    // Summary Section
     lines.push("SUMMARY");
     lines.push(
-      "Total Tickets Created,Served,Skipped,Transferred,Avg Service Time (sec)",
+      "Metric,Value",
     );
-    lines.push(
-      `${report.summary.totalTicketsCreated},${report.summary.served},${report.summary.skipped},${report.summary.transferred},${report.summary.averageServiceTime ?? "-"}`,
-    );
-    lines.push("");
-
-    lines.push("SUMMARY LISTS");
-    lines.push("");
-
-    lines.push("REGISTERED TICKETS");
-    lines.push(`Total: ${report.summary.totalTicketsCreated}`);
-    lines.push("Breakdown:");
-    lines.push(`  Served: ${report.summary.served}`);
-    lines.push(`  Skipped: ${report.summary.skipped}`);
-    lines.push(`  Transferred: ${report.summary.transferred}`);
-    lines.push("");
-
-    lines.push("SERVED TICKETS SUMMARY");
-    lines.push(`Total Served: ${report.summary.served}`);
-    lines.push(
-      "Avg Service Time: " +
-        (report.summary.averageServiceTime
-          ? `${report.summary.averageServiceTime}s`
-          : "N/A"),
-    );
-    lines.push("");
-
-    lines.push("SKIPPED TICKETS SUMMARY");
-    lines.push(`Total Skipped: ${report.summary.skipped}`);
-    lines.push("");
-
-    lines.push(`ALL TICKETS CREATED (${report.reportDate})`);
-    lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
-    report.allTickets.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const completedDate = t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "";
-      const windowName =
-        t.windowName || (t.windowId ? `Window ${t.windowId}` : "");
-      lines.push(
-        `${t.ticketCode},${t.service},${t.status},${windowName},${createdDate},${completedDate}`,
-      );
-    });
-    lines.push("");
-
-    const skippedTickets = report.allTickets.filter(
-      (t) => t.status === "skipped",
-    );
-    lines.push("SKIPPED TICKETS LIST");
-    lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
-    skippedTickets.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const completedDate = t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "";
-      const windowName =
-        t.windowName || (t.windowId ? `Window ${t.windowId}` : "");
-      lines.push(
-        `${t.ticketCode},${t.service},${t.status},${windowName},${createdDate},${completedDate}`,
-      );
-    });
-    lines.push("");
-
-    const waitingTickets = report.allTickets.filter(
-      (t) => t.status === "waiting",
-    );
-    lines.push("WAITING TICKETS LIST");
-    lines.push("Ticket Code,Service,Status,Window,Created At,Completed At");
-    waitingTickets.forEach((t) => {
-      const createdDate = format(new Date(t.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const completedDate = t.completedAt
-        ? format(new Date(t.completedAt), "yyyy-MM-dd HH:mm:ss")
-        : "";
-      const windowName =
-        t.windowName || (t.windowId ? `Window ${t.windowId}` : "");
-      lines.push(
-        `${t.ticketCode},${t.service},${t.status},${windowName},${createdDate},${completedDate}`,
-      );
-    });
-    lines.push("");
-
-    lines.push("WINDOW STATISTICS");
-    lines.push(
-      '"Window ID","Window Name","Teller","Served Today","Skipped Today","Transferred From","Transferred To","Avg Service Time (seconds)"',
-    );
-    report.windowStats.forEach((w) => {
-      lines.push(
-        `"${w.windowId}","${w.windowName}","${w.tellerName}","${w.served}","${w.skipped}","${w.transfersFrom}","${w.transfersTo}","${w.averageServiceTime ?? "N/A"}"`,
-      );
-    });
-    lines.push("");
-
-    lines.push("ADVANCED ANALYTICS");
-    lines.push("Metric,Value");
     lines.push(`Total Tickets Created,${report.summary.totalTicketsCreated}`);
     lines.push(`Total Served,${report.summary.served}`);
     lines.push(`Total Skipped,${report.summary.skipped}`);
@@ -350,59 +240,35 @@ export default function DailyReportViewer() {
     lines.push(
       `Average Service Time (seconds),${report.summary.averageServiceTime ?? "N/A"}`,
     );
-    const completionRate =
-      report.summary.totalTicketsCreated > 0
-        ? Math.round(
-            (report.summary.served / report.summary.totalTicketsCreated) * 100,
-          )
-        : 0;
-    lines.push(`Completion Rate (%),${completionRate}`);
-    const skipRate =
-      report.summary.totalTicketsCreated > 0
-        ? Math.round(
-            (report.summary.skipped /
-              Math.max(report.summary.totalTicketsCreated, 1)) *
-              100,
-          )
-        : 0;
-    lines.push(`Skip Rate (%),${skipRate}`);
     lines.push("");
 
-    lines.push("EMPLOYEE PERFORMANCE DETAILS");
+    // Window Statistics Section
+    lines.push("WINDOW STATISTICS");
     lines.push(
-      "Employee Name,Total Cases Started,Cases Completed,Cases Proceeded,Average Case Time (seconds),Total Time Spent (seconds)",
+      "Window ID,Window Name,Teller,Served Tickets,Avg Service Time (seconds),Performance"
     );
-    report.employeePerformance.forEach((e) => {
+    report.windowStats.forEach((window) => {
+      const performance = window.performanceLevel || "N/A";
       lines.push(
-        `${e.employeeName},${e.totalCasesStarted},${e.casesCompleted},${e.casesProceed},${e.averageCaseTime ?? "N/A"},${e.totalTimeSpent ?? "N/A"}`,
+        `${window.windowId},"${window.windowName}","${window.tellerName}",${window.servedTickets},${window.averageServiceTime ?? "N/A"},"${performance}"`
       );
     });
     lines.push("");
 
-    lines.push("CATEGORY PERFORMANCE DETAILS");
+    // Detailed Ticket Table
+    lines.push("DETAILED TICKET TABLE");
     lines.push(
-      "Category Name,Total Tickets,Served,Skipped,Transferred,Average Service Time (seconds)",
+      "Ticket Code,Service,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
     );
-    report.categoryPerformance.forEach((c) => {
+    filteredTickets.forEach((ticket) => {
+      const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
+      const startDate = format(new Date(ticket.startedAt), "yyyy-MM-dd HH:mm:ss");
+      const endDate = format(new Date(ticket.completedAt), "yyyy-MM-dd HH:mm:ss");
+      const performance = ticket.performanceLevel || "N/A";
+      const standardTime = ticket.standardTimeMinutes || "N/A";
+      
       lines.push(
-        `${c.categoryName},${c.totalTickets},${c.served},${c.skipped},${c.transferred},${c.averageServiceTime ?? "N/A"}`,
-      );
-    });
-    lines.push("");
-
-    lines.push("CASE WORKFLOW");
-    lines.push(
-      "Employee Name,Job Title,Ticket Code,Service,Status,Started At,Ended At,Duration (seconds)",
-    );
-    report.caseWorkflow.forEach((c) => {
-      const startedDate = c.startedAt
-        ? format(new Date(c.startedAt), "yyyy-MM-dd HH:mm:ss")
-        : "N/A";
-      const endedDate = c.endedAt
-        ? format(new Date(c.endedAt), "yyyy-MM-dd HH:mm:ss")
-        : "N/A";
-      lines.push(
-        `${c.employeeName},${c.jobTitle},${c.ticketCode},${c.service},${c.status},${startedDate},${endedDate},${c.durationSeconds ?? "N/A"}`,
+        `"${ticket.ticketCode}","${ticket.service}",${ticket.windowId},"${ticket.windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
       );
     });
 
@@ -411,405 +277,385 @@ export default function DailyReportViewer() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    // Use the reportDate which now includes the date range
-    const filename = `report-${report.reportDate.replace(/ /g, "_")}.csv`;
-    a.download = filename;
-    document.body.appendChild(a);
+    a.download = `report-${report.reportDate.replace(/ /g, "_")}.csv`;
     a.click();
-    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Date Range Picker - Always Visible */}
+  const toggleWindowExpanded = (windowId: number) => {
+    const newSet = new Set(expandedWindows);
+    if (newSet.has(windowId)) {
+      newSet.delete(windowId);
+    } else {
+      newSet.add(windowId);
+    }
+    setExpandedWindows(newSet);
+  };
+
+  if (loading) {
+    return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
-            Report Period
-          </CardTitle>
-          <CardDescription>
-            Current range: {fromDate ? format(fromDate, "MMM dd, yyyy") : "—"}{" "}
-            to {toDate ? format(toDate, "MMM dd, yyyy") : "—"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Input Row - All controls aligned */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
-              {/* From Date Input */}
-              <div className="flex-1 min-w-0">
-                <label className="text-sm font-medium block mb-2">
-                  From Date
-                </label>
-                <div className="relative">
-                  <ReactDatePicker
-                    selected={fromDate}
-                    onChange={(date) => {
-                      setFromDate(date);
-                      if (date && toDate && date > toDate) {
-                        setToDate(date);
-                      }
-                    }}
-                    minDate={subYears(new Date(), 1)}
-                    maxDate={new Date()}
-                    dateFormat="MMM dd, yyyy"
-                    placeholderText="Pick a date"
-                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    wrapperClassName="w-full"
-                    popperClassName="react-datepicker-popper"
-                  />
-                </div>
-              </div>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            Loading report...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-              {/* To Date Input */}
-              <div className="flex-1 min-w-0">
-                <label className="text-sm font-medium block mb-2">
-                  To Date
-                </label>
-                <div className="relative">
-                  <ReactDatePicker
-                    selected={toDate}
-                    onChange={(date) => setToDate(date)}
-                    minDate={fromDate || subYears(new Date(), 1)}
-                    maxDate={new Date()}
-                    dateFormat="MMM dd, yyyy"
-                    placeholderText="Pick a date"
-                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    wrapperClassName="w-full"
-                    popperClassName="react-datepicker-popper"
-                  />
-                </div>
-              </div>
+  if (error) {
+    return (
+      <Card className="border-red-200 dark:border-red-900">
+        <CardContent className="pt-6">
+          <Alert variant="default" className="border-red-500 bg-red-50 dark:bg-red-950/30">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800 dark:text-red-300">
+              {error}
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 w-full sm:w-auto">
-                <Button
-                  onClick={() => fetchReport(fromDate, toDate)}
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
-                <Button
-                  onClick={downloadCSV}
-                  disabled={!report}
-                  className="w-full sm:w-auto"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download CSV
-                </Button>
-              </div>
+  return (
+    <div className="space-y-6">
+      {/* Report Header and Controls */}
+      <Card className="border-2 border-blue-200 dark:border-blue-900">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                Daily Queue Report
+              </CardTitle>
+              <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
+                {report ? (
+                  <>
+                    <span className="font-semibold">Report Period: </span>
+                    {report.reportDate}
+                    <br />
+                    <span className="text-xs">
+                      Generated: {format(new Date(report.generatedAt), "PPpp")}
+                    </span>
+                  </>
+                ) : (
+                  "No data available"
+                )}
+              </CardDescription>
             </div>
+            <Button
+              onClick={downloadCSV}
+              disabled={!report}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6 space-y-6">
+          {/* Date Range Picker */}
+          <div className="flex flex-wrap gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <CalendarIcon className="h-4 w-4 inline mr-2" />
+                From Date
+              </label>
+              <ReactDatePicker
+                selected={fromDate}
+                onChange={(date) => setFromDate(date)}
+                dateFormat="yyyy-MM-dd"
+                className="rounded-md border border-input px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <CalendarIcon className="h-4 w-4 inline mr-2" />
+                To Date
+              </label>
+              <ReactDatePicker
+                selected={toDate}
+                onChange={(date) => setToDate(date)}
+                dateFormat="yyyy-MM-dd"
+                className="rounded-md border border-input px-3 py-2"
+              />
+            </div>
+            <Button
+              onClick={() => fetchReport(fromDate, toDate)}
+              variant="outline"
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
 
-            {/* Helper Text Row */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  Up to 1 year prior from today
-                </p>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  Up to today's date
-                </p>
-              </div>
-              <div className="w-full sm:w-auto" />
+          {/* Filter Options */}
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Filter by Service
+              </label>
+              <select
+                value={selectedService || ""}
+                onChange={(e) => setSelectedService(e.target.value || null)}
+                className="w-full rounded-md border border-input px-3 py-2"
+              >
+                <option value="">All Services</option>
+                {services.map((service) => (
+                  <option key={service} value={service}>
+                    {service}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Filter by Window
+              </label>
+              <select
+                value={selectedWindow !== null ? selectedWindow : ""}
+                onChange={(e) =>
+                  setSelectedWindow(e.target.value ? Number(e.target.value) : null)
+                }
+                className="w-full rounded-md border border-input px-3 py-2"
+              >
+                <option value="">All Windows</option>
+                {windows.map((window) => (
+                  <option key={window} value={window}>
+                    Window {window}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Report Content - Conditional Rendering */}
-      {!fromDate || !toDate ? (
-        <Card>
-          <CardContent className="pt-6">
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Please select both From and To dates to view the report
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      ) : loading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Queue Report</CardTitle>
-            <CardDescription>
-              Loading data for {format(fromDate, "MMM dd, yyyy")} to{" "}
-              {format(toDate, "MMM dd, yyyy")}...
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <p className="text-muted-foreground">Fetching report data...</p>
+      {/* Summary Section */}
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle className="text-xl">Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div className="rounded-lg border p-4 bg-card">
+              <p className="text-xs font-semibold text-muted-foreground uppercase">
+                Total Created
+              </p>
+              <p className="text-2xl font-bold text-foreground mt-2">
+                {report?.summary.totalTicketsCreated ?? 0}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      ) : error ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Queue Report</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      ) : !report ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Queue Report</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              No report data available for the selected date range
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Queue Report</CardTitle>
-            <CardDescription>
-              {report.reportDate.includes(" to ")
-                ? `Period: ${report.reportDate}`
-                : format(new Date(report.reportDate), "EEEE, MMMM d, yyyy")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="summary">Summary</TabsTrigger>
-                <TabsTrigger value="employees">Employees</TabsTrigger>
-                <TabsTrigger value="services">Services</TabsTrigger>
-                <TabsTrigger value="skipped">Skipped</TabsTrigger>
-              </TabsList>
+            <div className="rounded-lg border p-4 bg-green-50 dark:bg-green-950/20">
+              <p className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase">
+                Served
+              </p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
+                {report?.summary.served ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border p-4 bg-yellow-50 dark:bg-yellow-950/20">
+              <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 uppercase">
+                Skipped
+              </p>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                {report?.summary.skipped ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border p-4 bg-blue-50 dark:bg-blue-950/20">
+              <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase">
+                Transferred
+              </p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                {report?.summary.transferred ?? 0}
+              </p>
+            </div>
+            <div className="rounded-lg border p-4 bg-purple-50 dark:bg-purple-950/20">
+              <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase">
+                Avg Service Time
+              </p>
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400 mt-2">
+                {formatSeconds(report?.summary.averageServiceTime ?? null)}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-              <TabsContent value="summary" className="space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Tickets
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {report.summary.totalTicketsCreated}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Served</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {report.summary.served}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Skipped</p>
-                    <p className="text-2xl font-bold text-orange-600">
-                      {report.summary.skipped}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Transferred</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {report.summary.transferred}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Avg Service</p>
-                    <p className="text-2xl font-bold">
-                      {formatSeconds(report.summary.averageServiceTime)}
-                    </p>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="employees">
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Employee performance metrics based on case workflow data
-                  </p>
-                  {report.employeePerformance.length === 0 ? (
-                    <p className="text-muted-foreground">
-                      No employee data available for the selected period
-                    </p>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Employee</TableHead>
-                          <TableHead className="text-right">
-                            Cases Started
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Cases Completed
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Cases Proceeded
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Avg Case Time
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Total Time Spent
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {report.employeePerformance.map((employee) => (
-                          <TableRow key={employee.employeeId}>
-                            <TableCell className="font-medium">
-                              {employee.employeeName}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {employee.totalCasesStarted}
-                            </TableCell>
-                            <TableCell className="text-right text-green-600 font-semibold">
-                              {employee.casesCompleted}
-                            </TableCell>
-                            <TableCell className="text-right text-blue-600 font-semibold">
-                              {employee.casesProceed}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {formatSeconds(employee.averageCaseTime)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {formatSeconds(employee.totalTimeSpent)}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="services">
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Service category performance and distribution
-                  </p>
-                  {report.allTickets.length === 0 ? (
-                    <p className="text-muted-foreground">
-                      No service data available
-                    </p>
-                  ) : (
-                    <div className="space-y-4">
-                      {(() => {
-                        const serviceMap = new Map<
-                          string,
-                          { total: number; served: number }
-                        >();
-                        for (const ticket of report.allTickets) {
-                          const service = ticket.service || "Uncategorized";
-                          if (!serviceMap.has(service)) {
-                            serviceMap.set(service, { total: 0, served: 0 });
-                          }
-                          const stat = serviceMap.get(service)!;
-                          stat.total++;
-                          if (ticket.status === "done") {
-                            stat.served++;
-                          }
-                        }
-                        const services = Array.from(serviceMap.entries())
-                          .map(([name, stats]) => ({
-                            name,
-                            ...stats,
-                            rate: Math.round(
-                              (stats.served / stats.total) * 100,
-                            ),
-                          }))
-                          .sort((a, b) => b.total - a.total);
-
-                        return (
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Service</TableHead>
-                                <TableHead className="text-right">
-                                  Total
-                                </TableHead>
-                                <TableHead className="text-right">
-                                  Served
-                                </TableHead>
-                                <TableHead className="text-right">
-                                  Completion Rate
-                                </TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {services.map((service) => (
-                                <TableRow key={service.name}>
-                                  <TableCell className="font-medium">
-                                    {service.name}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    {service.total}
-                                  </TableCell>
-                                  <TableCell className="text-right text-green-600 font-medium">
-                                    {service.served}
-                                  </TableCell>
-                                  <TableCell className="text-right font-semibold">
-                                    {service.rate}%
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        );
-                      })()}
+      {/* Window Statistics Section */}
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle className="text-xl">Window Performance Statistics</CardTitle>
+          <CardDescription>Based on served tickets only</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {report?.windowStats && report.windowStats.length > 0 ? (
+              report.windowStats.map((window) => (
+                <div
+                  key={window.windowId}
+                  className="rounded-lg border p-4 bg-card hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg">
+                          {window.windowName}
+                        </h3>
+                        <span className="text-sm text-muted-foreground">
+                          (ID: {window.windowId})
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Teller: <span className="font-medium">{window.tellerName}</span>
+                      </p>
                     </div>
-                  )}
-                </div>
-              </TabsContent>
+                    <button
+                      onClick={() => toggleWindowExpanded(window.windowId)}
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                    >
+                      {expandedWindows.has(window.windowId) ? (
+                        <ChevronUp className="h-5 w-5" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
 
-              <TabsContent value="skipped">
-                {report.skipped.length === 0 ? (
-                  <p className="text-muted-foreground py-4">
-                    No skipped tickets in this period
-                  </p>
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Served Tickets
+                      </p>
+                      <p className="text-xl font-bold mt-1">
+                        {window.servedTickets}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Avg Service Time
+                      </p>
+                      <p className="text-lg font-bold mt-1">
+                        {formatSeconds(window.averageServiceTime)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Performance
+                      </p>
+                      <p className={cn("text-sm font-bold mt-1 px-2 py-1 rounded-md w-fit", getPerformanceColor(window.performanceLevel))}>
+                        {window.performanceLevel === "on_time"
+                          ? "✓ On Time"
+                          : window.performanceLevel === "slightly_over"
+                            ? "⚠ Slightly Over"
+                            : window.performanceLevel === "significantly_over"
+                              ? "✕ Over"
+                              : "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                No window data available
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Detailed Ticket Table */}
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle className="text-xl">
+            Detailed Tickets ({filteredTickets.length})
+          </CardTitle>
+          <CardDescription>
+            Service performance with standard time comparison
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[100px]">Ticket #</TableHead>
+                  <TableHead className="min-w-[120px]">Service</TableHead>
+                  <TableHead className="min-w-[80px]">Window</TableHead>
+                  <TableHead className="min-w-[160px]">Service Start</TableHead>
+                  <TableHead className="min-w-[160px]">Service End</TableHead>
+                  <TableHead className="text-right min-w-[100px]">Duration</TableHead>
+                  <TableHead className="text-right min-w-[120px]">Standard</TableHead>
+                  <TableHead className="min-w-[80px]">Performance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTickets.length > 0 ? (
+                  filteredTickets.map((ticket) => (
+                    <TableRow key={ticket.ticketId}>
+                      <TableCell className="font-semibold">
+                        {ticket.ticketCode}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {ticket.service}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        W{ticket.windowId || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(ticket.startedAt),
+                          "yyyy-MM-dd HH:mm:ss"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(ticket.completedAt),
+                          "yyyy-MM-dd HH:mm:ss"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatSeconds(ticket.serviceDurationSeconds)}
+                      </TableCell>
+                      <TableCell className="text-right text-sm">
+                        {ticket.standardTimeMinutes
+                          ? `${ticket.standardTimeMinutes} min`
+                          : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={cn(
+                            "inline-block px-2 py-1 rounded text-xs font-semibold whitespace-nowrap",
+                            getPerformanceColor(ticket.performanceLevel)
+                          )}
+                        >
+                          {ticket.performanceLevel === "on_time"
+                            ? "✓ OK"
+                            : ticket.performanceLevel === "slightly_over"
+                              ? "⚠ +20%"
+                              : ticket.performanceLevel === "significantly_over"
+                                ? "✕ +20%"
+                                : "—"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Code</TableHead>
-                        <TableHead>Service</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead>Skipped By</TableHead>
-                        <TableHead>Reason</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.skipped.map((skip) => (
-                        <TableRow key={skip.ticketId}>
-                          <TableCell className="font-medium">
-                            {skip.ticketCode}
-                          </TableCell>
-                          <TableCell>{skip.service}</TableCell>
-                          <TableCell>
-                            {format(new Date(skip.createdAt), "HH:mm:ss")}
-                          </TableCell>
-                          <TableCell>
-                            {skip.skippedByWindowName ||
-                              `Window ${skip.skippedByWindow}`}
-                          </TableCell>
-                          <TableCell className="text-sm max-w-xs truncate">
-                            {skip.remark || "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      No tickets found for the selected filters
+                    </TableCell>
+                  </TableRow>
                 )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
