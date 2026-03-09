@@ -5,6 +5,7 @@ import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiFetch } from "@/lib/api";
 import SiteHeader from "@/components/layout/SiteHeader";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import {
   Card,
   CardContent,
@@ -296,6 +297,9 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
             </CardContent>
           </Card>
 
+          {/* Change Password Form */}
+          <ChangePasswordForm />
+
           {/* Additional Info */}
           <Card className="mt-8 border-border/60 bg-card/90 shadow-lg border-dashed">
             <CardHeader>
@@ -304,7 +308,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
             <CardContent>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  To change your password or update account details, please
+                  To update account details other than your password, please
                   contact your administrator.
                 </p>
                 <p>

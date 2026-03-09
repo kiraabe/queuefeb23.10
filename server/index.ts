@@ -64,6 +64,7 @@ import {
   requireTellerForWindowParam,
   requireAuthentication,
   switchRole,
+  changePassword,
 } from "./routes/auth";
 import { cleanupAllStaleSessions } from "./store/sessions";
 import { autoCancelExpiredHolds, DB_CONFIG } from "./store/db";
@@ -351,6 +352,7 @@ export function createServer() {
   app.post("/api/auth/tab-opened", tabOpened);
   app.post("/api/auth/tab-closed", tabClosed);
   app.post("/api/auth/switch-role", switchRole);
+  app.post("/api/auth/change-password", requireAuthentication(), changePassword);
   app.get("/api/auth/session-count/:username", getSessionCountHandler); // Public endpoint for login page
 
   // New Session/Heartbeat API

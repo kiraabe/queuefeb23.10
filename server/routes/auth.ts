@@ -7,7 +7,7 @@ import {
   logAudit,
   getPool,
 } from "../store/db";
-import { parseCookies, verifyPassword } from "../utils/auth";
+import { parseCookies, verifyPassword, hashPassword } from "../utils/auth";
 import type {
   AuthErrorCode,
   AuthUser,
@@ -1461,4 +1461,149 @@ export const sessionPing: RequestHandler = async (req, res) => {
   const result = await authenticateRequest(req, res, { touch: true });
   if (!result.ok) return respondWithAuthError(res, result);
   res.json({ ok: true, lastActivityAt: result.session.lastActivityAt.getTime() });
+};
+
+/**
+ * Validates password strength requirements
+ * - Minimum 8 characters
+ * - At least one uppercase letter
+ * - At least one lowercase letter
+ * - At least one number
+ * - At least one special character
+ */
+function validatePasswordStrength(password: string): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  if (!password || password.length < 8) {
+    errors.push("Password must be at least 8 characters long");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Password must contain at least one uppercase letter");
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Password must contain at least one lowercase letter");
+  }
+  if (!/\d/.test(password)) {
+    errors.push("Password must contain at least one number");
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push("Password must contain at least one special character");
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+export const changePassword: RequestHandler = async (req, res) => {
+  try {
+    // Authenticate the request
+    const result = await authenticateRequest(req, res, { touch: true });
+    if (!result.ok) return respondWithAuthError(res, result);
+
+    const userId = result.session.userId;
+    const body = req.body || {};
+
+    // Validate input
+    const currentPassword = ensurePassword(body.currentPassword);
+    const newPassword = ensurePassword(body.newPassword);
+    const confirmPassword = ensurePassword(body.confirmPassword);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        message: "Please provide current password, new password, and confirm password",
+        code: "INVALID_INPUT",
+      });
+    }
+
+    // Check if new password matches confirm password
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        error: "Passwords do not match",
+        message: "New password and confirm password do not match",
+        code: "PASSWORD_MISMATCH",
+      });
+    }
+
+    // Validate new password strength
+    const strengthCheck = validatePasswordStrength(newPassword);
+    if (!strengthCheck.valid) {
+      return res.status(400).json({
+        error: "Password does not meet security requirements",
+        message: strengthCheck.errors.join(". "),
+        code: "WEAK_PASSWORD",
+      });
+    }
+
+    // Prevent using the same password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        error: "New password cannot be the same as current password",
+        message: "Please choose a different password",
+        code: "SAME_PASSWORD",
+      });
+    }
+
+    // Get user from database
+    const pool = getPool();
+    const { rows } = await pool.query(
+      `SELECT id, password_hash FROM users WHERE id = $1 LIMIT 1`,
+      [userId],
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({
+        error: "User not found",
+        message: "Could not find user account",
+        code: "USER_NOT_FOUND",
+      });
+    }
+
+    const user = rows[0];
+
+    // Verify current password is correct
+    const currentPasswordValid = verifyPassword(currentPassword, user.password_hash);
+    if (!currentPasswordValid) {
+      return res.status(401).json({
+        error: "Invalid current password",
+        message: "The current password you provided is incorrect",
+        code: "INVALID_CURRENT_PASSWORD",
+      });
+    }
+
+    // Hash the new password
+    const newPasswordHash = hashPassword(newPassword);
+
+    // Update password in database
+    await pool.query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [
+      newPasswordHash,
+      userId,
+    ]);
+
+    // Log audit
+    await logAudit({
+      action: "auth.password_changed",
+      userId: result.session.userId,
+      username: result.session.username,
+      role: result.session.activeRole,
+      windowId: result.session.windowId ?? null,
+    });
+
+    res.json({
+      ok: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    console.error("[changePassword] Error:", error);
+    res.status(500).json({
+      error: "Failed to change password",
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
+      code: "INTERNAL_ERROR",
+    });
+  }
 };
