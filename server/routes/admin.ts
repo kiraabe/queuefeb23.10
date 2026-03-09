@@ -578,6 +578,13 @@ export const getDailyReport: RequestHandler = async (req, res) => {
     );
 
     const summary = summaryRes.rows[0] || {};
+
+    // Debug: Log selected_services from tickets
+    console.log("[getDailyReport] Served tickets with selected_services:", servedTicketsRes.rows?.map((r: any) => ({
+      code: r.code,
+      selected_services: r.selected_services
+    })));
+
     console.log("[getDailyReport] Summary statistics:", {
       dateRange: { fromDate, toDate },
       summary,
@@ -625,6 +632,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       console.log("[getDailyReport] Loaded service standard times:", serviceStandardTimes);
       console.log("[getDailyReport] Loaded service category names:", serviceCategoryNames);
       console.log("[getDailyReport] Loaded service ID to name mapping:", serviceIdToName);
+
+      // Debug: Show the actual service IDs we loaded
+      const loadedServiceIds = Object.keys(serviceIdToName);
+      console.log("[getDailyReport] Loaded service IDs:", loadedServiceIds);
     } catch (err) {
       console.debug("[getDailyReport] Error loading service standard times:", err);
     }
@@ -697,9 +708,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         // Map selected service IDs (UUIDs) to their names
         let selectedServiceNames: string[] | undefined = undefined;
         if (r.selected_services && Array.isArray(r.selected_services)) {
-          selectedServiceNames = r.selected_services.map((serviceId: string) =>
-            serviceIdToName[serviceId] || serviceId // Use the service name if available, otherwise keep the ID
-          );
+          selectedServiceNames = r.selected_services.map((serviceId: string) => {
+            const mappedName = serviceIdToName[serviceId];
+            if (!mappedName) {
+              console.log(`[getDailyReport] No mapping found for service ID: ${serviceId}`);
+              console.log(`[getDailyReport] Available service IDs:`, Object.keys(serviceIdToName));
+            }
+            return mappedName || serviceId; // Use the service name if available, otherwise keep the ID
+          });
         }
 
         return {

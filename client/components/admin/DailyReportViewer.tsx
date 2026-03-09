@@ -181,7 +181,9 @@ export default function DailyReportViewer() {
         detailedTicketsCount: data.detailedTickets?.length || 0,
         summary: data.summary,
         reportDate: data.reportDate,
+        windowStatsData: data.windowStats ? data.windowStats.slice(0, 3) : 'NO DATA',
       });
+      console.log("[DailyReportViewer] Full data object:", data);
       setReport(data);
     } catch (err) {
       let errorMsg = "Unknown error occurred";
