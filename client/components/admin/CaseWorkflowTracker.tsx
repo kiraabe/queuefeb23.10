@@ -971,10 +971,10 @@ function WorkflowCard({
                               </span>
                             )}
                           </p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-sm">
                               <div
-                                className={`h-2 rounded-full transition-all ${getProgressColor()}`}
+                                className={`h-3 rounded-full transition-all shadow-md ${getProgressColor()}`}
                                 style={{
                                   width: `${Math.min(
                                     ((workflow.totalDuration || 0) /
@@ -985,7 +985,7 @@ function WorkflowCard({
                                 }}
                               ></div>
                             </div>
-                            <span className="text-sm font-semibold whitespace-nowrap">
+                            <span className="text-sm font-bold whitespace-nowrap min-w-fit">
                               {percentageOfStandard}%
                             </span>
                           </div>
