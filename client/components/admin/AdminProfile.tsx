@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/use-auth";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import {
   Card,
   CardContent,
@@ -14,9 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  AlertCircle,
   LogOut,
   ShieldCheck,
   Sun,
@@ -191,6 +190,9 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
+      {/* Change Password Card */}
+      <ChangePasswordForm />
+
       {/* Settings Card */}
       <Card>
         <CardHeader>
@@ -198,14 +200,6 @@ export default function AdminProfile() {
           <CardDescription>Manage your account preferences</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Password changes can be managed by contacting your system
-              administrator.
-            </AlertDescription>
-          </Alert>
-
           <div className="space-y-2">
             <Label htmlFor="theme">Theme Preference</Label>
             {mounted && (
