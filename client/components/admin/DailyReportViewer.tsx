@@ -271,9 +271,15 @@ export default function DailyReportViewer() {
       "Window ID,Window Name,Teller,Served Tickets,Avg Service Time (seconds),Performance"
     );
     report.windowStats.forEach((window) => {
-      const performance = window.performanceLevel || "N/A";
+      const windowName = window.windowName || `Window ${window.windowId}`;
+      const performance = window.performanceLevel ?
+        (window.performanceLevel === "on_time" ? "On Time" :
+         window.performanceLevel === "slightly_over" ? "Slightly Over" :
+         window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "—";
+      const avgTime = window.averageServiceTime ?? "—";
+      const servedCount = window.servedTickets ?? 0;
       lines.push(
-        `${window.windowId},"${window.windowName}","${window.tellerName}",${window.servedTickets},${window.averageServiceTime ?? "N/A"},"${performance}"`
+        `${window.windowId || "N/A"},"${windowName}","${window.tellerName}",${servedCount},${avgTime},"${performance}"`
       );
     });
     lines.push("");
@@ -568,7 +574,7 @@ export default function DailyReportViewer() {
       <Card className="border-border/70">
         <CardHeader>
           <CardTitle className="text-xl">Window Performance Statistics</CardTitle>
-          <CardDescription>Based on served tickets only</CardDescription>
+          <CardDescription>All windows with their performance metrics</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -582,10 +588,10 @@ export default function DailyReportViewer() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-lg">
-                          {window.windowName}
+                          {window.windowName || `Window ${window.windowId}`}
                         </h3>
                         <span className="text-sm text-muted-foreground">
-                          (ID: {window.windowId})
+                          (ID: {window.windowId || "N/A"})
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -610,7 +616,7 @@ export default function DailyReportViewer() {
                         Served Tickets
                       </p>
                       <p className="text-xl font-bold mt-1">
-                        {window.servedTickets}
+                        {window.servedTickets || "0"}
                       </p>
                     </div>
                     <div>
@@ -618,7 +624,7 @@ export default function DailyReportViewer() {
                         Avg Service Time
                       </p>
                       <p className="text-lg font-bold mt-1">
-                        {formatSeconds(window.averageServiceTime)}
+                        {window.averageServiceTime ? formatSeconds(window.averageServiceTime) : "—"}
                       </p>
                     </div>
                     <div>
@@ -632,7 +638,7 @@ export default function DailyReportViewer() {
                             ? "⚠ Slightly Over"
                             : window.performanceLevel === "significantly_over"
                               ? "✕ Over"
-                              : "N/A"}
+                              : "—"}
                       </p>
                     </div>
                   </div>

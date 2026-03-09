@@ -529,7 +529,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       [fromDate, toDate],
     );
 
-    // Get window statistics - ONLY for served tickets
+    // Get window statistics - for ALL windows (served and unserved)
     const windowStatsRes = await p.query(
       `WITH window_served_tickets AS (
         SELECT w.id as window_id, COUNT(DISTINCT t.id) as served_count,
@@ -560,7 +560,6 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         COALESCE(wst.avg_service_time, NULL)::int as avg_service_time
       FROM windows w
       LEFT JOIN window_served_tickets wst ON wst.window_id = w.id
-      WHERE COALESCE(wst.served_count, 0) > 0
       ORDER BY w.id`,
       [fromDate, toDate],
     );
@@ -634,8 +633,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       windowStats: windowStatsRes.rows.map((r: any) => {
         const avgServiceTime = r.avg_service_time || null;
         const standardTime = serviceStandardTimes[r.name] || null;
+        const servedCount = Number(r.served || 0);
 
-        let performanceLevel = "on_time";
+        let performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null = null;
         if (avgServiceTime && standardTime) {
           const standardSeconds = standardTime * 60;
           const percentageOfStandard = (avgServiceTime / standardSeconds) * 100;
@@ -643,6 +643,8 @@ export const getDailyReport: RequestHandler = async (req, res) => {
             performanceLevel = "significantly_over";
           } else if (percentageOfStandard > 100) {
             performanceLevel = "slightly_over";
+          } else {
+            performanceLevel = "on_time";
           }
         }
 
@@ -650,9 +652,9 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           windowId: r.id,
           windowName: r.name,
           tellerName: r.teller_name || "Unassigned",
-          servedTickets: Number(r.served || 0),
+          servedTickets: servedCount,
           averageServiceTime: avgServiceTime,
-          performanceLevel: standardTime ? performanceLevel : null,
+          performanceLevel: servedCount > 0 && standardTime ? performanceLevel : null,
         };
       }),
       detailedTickets: servedTicketsRes.rows.map((r: any) => {
@@ -675,12 +677,20 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           }
         }
 
+        // Generate window name: prioritize window_name, then use window_id with "Window " prefix, otherwise "N/A"
+        let windowName = "N/A";
+        if (r.window_name) {
+          windowName = r.window_name;
+        } else if (r.window_id) {
+          windowName = `Window ${r.window_id}`;
+        }
+
         return {
           ticketId: r.id,
           ticketCode: r.code,
           service: r.service,
-          windowId: r.window_id,
-          windowName: r.window_name || `Window ${r.window_id}` || "N/A",
+          windowId: r.window_id || null,
+          windowName: windowName,
           ownerName: r.owner_name || undefined,
           woreda: r.woreda || undefined,
           selectedServices: r.selected_services || undefined,
