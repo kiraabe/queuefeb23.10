@@ -159,7 +159,7 @@ export function ChangePasswordForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
           {/* Error Messages */}
           {validationErrors.length > 0 && (
             <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4">
