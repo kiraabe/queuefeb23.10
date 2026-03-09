@@ -602,7 +602,7 @@ export function createServer() {
   );
   app.get(
     "/api/admin/job-titles",
-    requireRole(["admin", "employee", "teller", "archiever"]),
+    requireRole(["admin", "employee", "teller", "archiever", "reception"]),
     listJobTitlesHandler,
   );
   app.get(
