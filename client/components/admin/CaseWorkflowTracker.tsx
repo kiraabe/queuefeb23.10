@@ -986,31 +986,45 @@ function WorkflowCard({
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-hidden">
-                              {/* Gradient background from red (bad) to yellow to green (excellent) */}
-                              <div
-                                className="absolute inset-0 rounded-full"
-                                style={{
-                                  background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
-                                }}
-                              ></div>
+                            <div className="flex-1 flex items-center gap-2">
+                              <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-visible">
+                                {/* Gradient background from green (good) to red (bad) */}
+                                <div
+                                  className="absolute inset-0 rounded-full"
+                                  style={{
+                                    background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))",
+                                    width: "100%"
+                                  }}
+                                ></div>
 
-                              {/* Current position indicator */}
-                              <div
-                                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all"
-                                style={{
-                                  left: `calc(${Math.min(
-                                    ((workflow.totalDuration || 0) /
-                                      standardSeconds) *
-                                      100,
-                                    100
-                                  )}% - 8px)`,
-                                }}
-                              ></div>
+                                {/* Current position indicator */}
+                                <div
+                                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all"
+                                  style={{
+                                    left: `calc(${Math.min(
+                                      ((workflow.totalDuration || 0) /
+                                        standardSeconds) *
+                                        100,
+                                      100
+                                    )}% - 8px)`,
+                                    zIndex: 10
+                                  }}
+                                ></div>
+
+                                {/* 100% marker line */}
+                                {percentageOfStandard > 100 && (
+                                  <div
+                                    className="absolute top-0 bottom-0 w-0.5 bg-white dark:bg-slate-900 opacity-70 transition-all"
+                                    style={{
+                                      left: "100%"
+                                    }}
+                                  ></div>
+                                )}
+                              </div>
+                              <span className="text-sm font-bold whitespace-nowrap min-w-fit">
+                                {percentageOfStandard}%
+                              </span>
                             </div>
-                            <span className="text-sm font-bold whitespace-nowrap min-w-fit">
-                              {Math.min(percentageOfStandard, 100)}%
-                            </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
                             <span className={`${status.color} font-semibold flex items-center gap-1`}>
