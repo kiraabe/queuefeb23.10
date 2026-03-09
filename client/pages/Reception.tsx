@@ -482,8 +482,13 @@ export default function Reception() {
     );
     const serviceCode = selectedCategoryObj?.code || "rights-group"; // Default service
 
+    // Get the first selected service name for the main service field
+    const firstSelectedServiceId = Array.from(selectedServices)[0];
+    const firstSelectedService = categoryServices.find((s) => s.id === firstSelectedServiceId);
+    const serviceName = firstSelectedService?.name || serviceCode;
+
     createTicket.mutate({
-      service: serviceCode,
+      service: serviceName,
       ownerName: ownerName.trim(),
       woreda,
       serviceCategory: serviceCode, // Use the code, not the ID, for proper window routing
