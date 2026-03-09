@@ -1020,7 +1020,15 @@ function WorkflowCard({
 
                                 {/* Current position indicator */}
                                 <div
-                                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all group-hover:ring-2 group-hover:ring-offset-2 group-hover:ring-slate-400 dark:group-hover:ring-slate-600"
+                                  className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all group-hover:ring-2 group-hover:ring-offset-2 ${
+                                    performanceLevel === "on_time"
+                                      ? "bg-green-600 dark:bg-green-500 group-hover:ring-green-400 dark:group-hover:ring-green-300"
+                                      : performanceLevel === "slightly_over"
+                                        ? "bg-yellow-600 dark:bg-yellow-500 group-hover:ring-yellow-400 dark:group-hover:ring-yellow-300"
+                                        : performanceLevel === "moderately_over"
+                                          ? "bg-orange-600 dark:bg-orange-500 group-hover:ring-orange-400 dark:group-hover:ring-orange-300"
+                                          : "bg-red-600 dark:bg-red-500 group-hover:ring-red-400 dark:group-hover:ring-red-300"
+                                  }`}
                                   style={{
                                     left: `calc(${Math.min(
                                       ((workflow.totalDuration || 0) /
