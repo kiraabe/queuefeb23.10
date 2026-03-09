@@ -682,9 +682,32 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           ? Math.round((r.completed_at - r.started_at) / 1000)
           : null;
 
-        const standardTime = serviceStandardTimes[r.service] || null;
-        let performanceLevel = null;
+        // Map selected service IDs (UUIDs) to their names and collect standard times
+        let selectedServiceNames: string[] | undefined = undefined;
+        let totalStandardTime = 0;
+        let hasStandardTime = false;
 
+        if (r.selected_services && Array.isArray(r.selected_services)) {
+          selectedServiceNames = r.selected_services.map((serviceId: string) => {
+            const mappedName = serviceIdToName[serviceId];
+
+            // Find standard time for this specific service ID
+            // Note: serviceStandardTimes is currently indexed by name, which is fragile.
+            // But we can also look up by name from serviceIdToName.
+            if (mappedName && serviceStandardTimes[mappedName]) {
+              totalStandardTime += serviceStandardTimes[mappedName];
+              hasStandardTime = true;
+            }
+
+            return mappedName || serviceId;
+          });
+        }
+
+        // Fallback to category standard time if no specific services selected
+        const categoryStandardTime = serviceStandardTimes[r.service] || null;
+        const standardTime = hasStandardTime ? totalStandardTime : categoryStandardTime;
+
+        let performanceLevel = null;
         if (duration && standardTime) {
           const standardSeconds = standardTime * 60;
           const percentageOfStandard = (duration / standardSeconds) * 100;
@@ -705,23 +728,10 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           windowName = `Window ${r.window_id}`;
         }
 
-        // Map selected service IDs (UUIDs) to their names
-        let selectedServiceNames: string[] | undefined = undefined;
-        if (r.selected_services && Array.isArray(r.selected_services)) {
-          selectedServiceNames = r.selected_services.map((serviceId: string) => {
-            const mappedName = serviceIdToName[serviceId];
-            if (!mappedName) {
-              console.log(`[getDailyReport] No mapping found for service ID: ${serviceId}`);
-              console.log(`[getDailyReport] Available service IDs:`, Object.keys(serviceIdToName));
-            }
-            return mappedName || serviceId; // Use the service name if available, otherwise keep the ID
-          });
-        }
-
         return {
           ticketId: r.id,
           ticketCode: r.code,
-          service: r.service,
+          service: serviceCategoryNames[r.service] || r.service,
           windowId: r.window_id !== null && r.window_id !== undefined ? r.window_id : null,
           windowName: windowName,
           ownerName: r.owner_name || undefined,

@@ -299,9 +299,18 @@ export default function DailyReportViewer() {
         row("Ticket Code", "Service", "Ticketer Full Name", "Wereda", "Selected Services", "Window ID", "Window Name", "Created At", "Service Start", "Service End", "Duration (seconds)", "Standard Time (minutes)", "Performance")
       );
       report.detailedTickets.forEach((ticket) => {
-        const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
-        const startDate = format(new Date(ticket.startedAt), "yyyy-MM-dd HH:mm:ss");
-        const endDate = format(new Date(ticket.completedAt), "yyyy-MM-dd HH:mm:ss");
+        const formatCSVDate = (ts: number | null | undefined) => {
+          if (!ts || ts === 0) return "N/A";
+          try {
+            return format(new Date(ts), "yyyy-MM-dd HH:mm:ss");
+          } catch (e) {
+            return "N/A";
+          }
+        };
+
+        const createdDate = formatCSVDate(ticket.createdAt);
+        const startDate = formatCSVDate(ticket.startedAt);
+        const endDate = formatCSVDate(ticket.completedAt);
         const performance = ticket.performanceLevel === "on_time" ? "On Time" :
                            ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
                            ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
