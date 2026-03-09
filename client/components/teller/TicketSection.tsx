@@ -305,7 +305,7 @@ function TicketRow({
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
         // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = (standardSeconds / (totalDuration || 1)) * 35;
+        const percentageOfStandard = Math.round((standardSeconds / (totalDuration || 1)) * 35);
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -334,7 +334,7 @@ function TicketRow({
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
         // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = (standardSeconds / (totalDuration || 1)) * 35;
+        const percentageOfStandard = Math.round((standardSeconds / (totalDuration || 1)) * 35);
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
         if (percentageOfStandard <= 100) {

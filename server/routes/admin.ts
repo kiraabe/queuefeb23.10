@@ -663,7 +663,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         if (avgServiceTime && standardTime) {
           const standardSeconds = standardTime * 60;
           // Formula: (Standard Time ÷ Actual Work Time) × 35
-          const percentageOfStandard = (standardSeconds / avgServiceTime) * 35;
+          const percentageOfStandard = Math.round((standardSeconds / avgServiceTime) * 35);
           if (percentageOfStandard > 120) {
             performanceLevel = "significantly_over";
           } else if (percentageOfStandard > 100) {
@@ -716,7 +716,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         if (duration && standardTime) {
           const standardSeconds = standardTime * 60;
           // Formula: (Standard Time ÷ Actual Work Time) × 35
-          const percentageOfStandard = (standardSeconds / duration) * 35;
+          const percentageOfStandard = Math.round((standardSeconds / duration) * 35);
           if (percentageOfStandard > 120) {
             performanceLevel = "significantly_over";
           } else if (percentageOfStandard > 100) {

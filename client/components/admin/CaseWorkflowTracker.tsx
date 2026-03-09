@@ -463,7 +463,7 @@ function WorkflowCard({
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
         // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = (standardSeconds / (workflow.totalDuration || 1)) * 35;
+        const percentageOfStandard = Math.round((standardSeconds / (workflow.totalDuration || 1)) * 35);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
@@ -494,7 +494,7 @@ function WorkflowCard({
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
         // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = (standardSeconds / (workflow.totalDuration || 1)) * 35;
+        const percentageOfStandard = Math.round((standardSeconds / (workflow.totalDuration || 1)) * 35);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard <= 100) {
