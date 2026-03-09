@@ -106,7 +106,7 @@ const SiteHeader = () => {
                   navigate(`/login`);
                 }}
               >
-                sign out topbr
+                sign out
               </Button>
             </>
           ) : (
