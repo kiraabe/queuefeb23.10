@@ -595,14 +595,17 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         ? fromDateStr
         : `${fromDateStr} to ${toDateStr}`;
 
-    // Load service categories and their standard times
+    // Load service categories and their standard times, and create service code to name mapping
     const serviceStandardTimes: Record<string, number> = {};
+    const serviceCategoryNames: Record<string, string> = {}; // Map category code to name
     try {
       const categoriesRes = await p.query(
         `SELECT id, code, name FROM service_categories ORDER BY name ASC`
       );
 
       for (const category of categoriesRes.rows) {
+        serviceCategoryNames[category.code] = category.name;
+
         const servicesRes = await p.query(
           `SELECT name, standard_time_minutes FROM services WHERE category_id = $1 ORDER BY name ASC`,
           [category.id]
@@ -616,6 +619,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
       }
 
       console.log("[getDailyReport] Loaded service standard times:", serviceStandardTimes);
+      console.log("[getDailyReport] Loaded service category names:", serviceCategoryNames);
     } catch (err) {
       console.debug("[getDailyReport] Error loading service standard times:", err);
     }
@@ -685,6 +689,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           windowName = `Window ${r.window_id}`;
         }
 
+        // Map selected service codes to their names
+        let selectedServiceNames: string[] | undefined = undefined;
+        if (r.selected_services && Array.isArray(r.selected_services)) {
+          selectedServiceNames = r.selected_services.map((code: string) =>
+            serviceCategoryNames[code] || code // Use the category name if available, otherwise keep the code
+          );
+        }
+
         return {
           ticketId: r.id,
           ticketCode: r.code,
@@ -693,7 +705,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           windowName: windowName,
           ownerName: r.owner_name || undefined,
           woreda: r.woreda || undefined,
-          selectedServices: r.selected_services || undefined,
+          selectedServices: selectedServiceNames,
           createdAt: Math.round(Number(r.created_at)),
           startedAt: Math.round(Number(r.started_at)),
           completedAt: Math.round(Number(r.completed_at)),

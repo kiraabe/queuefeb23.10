@@ -265,47 +265,53 @@ export default function DailyReportViewer() {
     );
     lines.push("");
 
-    // Window Statistics Section
-    lines.push("WINDOW STATISTICS");
-    lines.push(
-      "Window ID,Window Name,Teller,Served Tickets,Avg Service Time (seconds),Performance"
-    );
-    report.windowStats.forEach((window) => {
-      const windowName = window.windowName || `Window ${window.windowId}`;
-      const performance = window.performanceLevel ?
-        (window.performanceLevel === "on_time" ? "On Time" :
-         window.performanceLevel === "slightly_over" ? "Slightly Over" :
-         window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "—";
-      const avgTime = window.averageServiceTime ?? "—";
-      const servedCount = window.servedTickets ?? 0;
+    // Window Statistics Section - use ALL windows from report
+    if (report.windowStats && report.windowStats.length > 0) {
+      lines.push("WINDOW STATISTICS");
       lines.push(
-        `${window.windowId || "N/A"},"${windowName}","${window.tellerName}",${servedCount},${avgTime},"${performance}"`
+        "Window ID,Window Name,Teller,Served Tickets,Avg Service Time (seconds),Performance"
       );
-    });
-    lines.push("");
+      report.windowStats.forEach((window) => {
+        const windowId = window.windowId !== null && window.windowId !== undefined ? window.windowId : "N/A";
+        const windowName = window.windowName || `Window ${window.windowId}`;
+        const performance = window.performanceLevel ?
+          (window.performanceLevel === "on_time" ? "On Time" :
+           window.performanceLevel === "slightly_over" ? "Slightly Over" :
+           window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "N/A";
+        const avgTime = window.averageServiceTime !== null && window.averageServiceTime !== undefined ? window.averageServiceTime : "N/A";
+        const servedCount = window.servedTickets !== null && window.servedTickets !== undefined ? window.servedTickets : 0;
+        lines.push(
+          `${windowId},"${windowName}","${window.tellerName}",${servedCount},${avgTime},"${performance}"`
+        );
+      });
+      lines.push("");
+    }
 
-    // Detailed Ticket Table
-    lines.push("DETAILED TICKET TABLE");
-    lines.push(
-      "Ticket Code,Service,Ticketer Full Name,Wereda,Selected Services,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
-    );
-    filteredTickets.forEach((ticket) => {
-      const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
-      const startDate = format(new Date(ticket.startedAt), "yyyy-MM-dd HH:mm:ss");
-      const endDate = format(new Date(ticket.completedAt), "yyyy-MM-dd HH:mm:ss");
-      const performance = ticket.performanceLevel === "on_time" ? "On Time" :
-                         ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
-                         ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
-      const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes}` : "N/A";
-      const selectedServices = Array.isArray(ticket.selectedServices)
-        ? ticket.selectedServices.join("; ")
-        : ticket.selectedServices || "";
-      const windowName = ticket.windowName || `Window ${ticket.windowId || "N/A"}`;
-
+    // Detailed Ticket Table - use ALL tickets (not filtered for CSV export)
+    if (report.detailedTickets && report.detailedTickets.length > 0) {
+      lines.push("DETAILED TICKET TABLE");
       lines.push(
-        `"${ticket.ticketCode}","${ticket.service}","${ticket.ownerName || ""}","${ticket.woreda || ""}","${selectedServices}",${ticket.windowId || "N/A"},"${windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
+        "Ticket Code,Service,Ticketer Full Name,Wereda,Selected Services,Window ID,Window Name,Created At,Service Start,Service End,Duration (seconds),Standard Time (minutes),Performance"
       );
-    });
+      report.detailedTickets.forEach((ticket) => {
+        const createdDate = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm:ss");
+        const startDate = format(new Date(ticket.startedAt), "yyyy-MM-dd HH:mm:ss");
+        const endDate = format(new Date(ticket.completedAt), "yyyy-MM-dd HH:mm:ss");
+        const performance = ticket.performanceLevel === "on_time" ? "On Time" :
+                           ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
+                           ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
+        const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes}` : "N/A";
+        const selectedServices = Array.isArray(ticket.selectedServices)
+          ? ticket.selectedServices.join("; ")
+          : ticket.selectedServices || "";
+        const windowId = ticket.windowId !== null && ticket.windowId !== undefined ? ticket.windowId : "N/A";
+        const windowName = ticket.windowName || `Window ${ticket.windowId || "N/A"}`;
+
+        lines.push(
+          `"${ticket.ticketCode}","${ticket.service}","${ticket.ownerName || ""}","${ticket.woreda || ""}","${selectedServices}",${windowId},"${windowName}","${createdDate}","${startDate}","${endDate}",${ticket.serviceDurationSeconds ?? "N/A"},"${standardTime}","${performance}"`
+        );
+      });
+    }
 
     const csv = lines.join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
