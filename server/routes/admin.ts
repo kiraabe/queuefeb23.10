@@ -500,7 +500,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         t.code,
         t.service,
         t.status,
-        COALESCE(t.window_id, (
+        COALESCE(t.window_id, t.transferred_from_window, (
           SELECT to_window FROM transfer_history
           WHERE ticket_id = t.id
           ORDER BY transferred_at DESC
@@ -512,7 +512,8 @@ export const getDailyReport: RequestHandler = async (req, res) => {
            JOIN windows tw ON th.to_window = tw.id
            WHERE th.ticket_id = t.id
            ORDER BY th.transferred_at DESC
-           LIMIT 1)
+           LIMIT 1),
+          (SELECT name FROM windows WHERE id = t.transferred_from_window)
         ) as window_name,
         t.owner_name,
         t.woreda,
@@ -537,6 +538,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         FROM windows w
         LEFT JOIN tickets t ON (
           (t.window_id = w.id
+          OR t.transferred_from_window = w.id
           OR EXISTS (SELECT 1 FROM transfer_history th WHERE th.to_window = w.id AND th.ticket_id = t.id))
           AND t.status = 'done'
           AND t.created_at >= $1::timestamptz
