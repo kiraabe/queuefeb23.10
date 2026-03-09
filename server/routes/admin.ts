@@ -500,7 +500,7 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         t.code,
         t.service,
         t.status,
-        COALESCE(t.window_id, t.transferred_from_window, (
+        COALESCE(t.window_id, t.transferred_from_window, t.transferred_to_window, t.skipped_by_window, (
           SELECT to_window FROM transfer_history
           WHERE ticket_id = t.id
           ORDER BY transferred_at DESC
@@ -508,12 +508,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         )) as window_id,
         COALESCE(
           w.name,
+          (SELECT name FROM windows WHERE id = t.transferred_from_window),
+          (SELECT name FROM windows WHERE id = t.transferred_to_window),
+          (SELECT name FROM windows WHERE id = t.skipped_by_window),
           (SELECT tw.name FROM transfer_history th
            JOIN windows tw ON th.to_window = tw.id
            WHERE th.ticket_id = t.id
            ORDER BY th.transferred_at DESC
-           LIMIT 1),
-          (SELECT name FROM windows WHERE id = t.transferred_from_window)
+           LIMIT 1)
         ) as window_name,
         t.owner_name,
         t.woreda,
@@ -724,10 +726,12 @@ export const getDailyReport: RequestHandler = async (req, res) => {
 
         // Generate window name: prioritize window_name, then use window_id with "Window " prefix, otherwise "N/A"
         let windowName = "N/A";
-        if (r.window_name && r.window_name !== "null") {
+        const effectiveWindowId = r.window_id;
+
+        if (r.window_name && r.window_name !== "null" && r.window_name !== "N/A") {
           windowName = r.window_name;
-        } else if (r.window_id !== null && r.window_id !== undefined) {
-          windowName = `Window ${r.window_id}`;
+        } else if (effectiveWindowId !== null && effectiveWindowId !== undefined && effectiveWindowId !== 0) {
+          windowName = `Window ${effectiveWindowId}`;
         }
 
         return {
