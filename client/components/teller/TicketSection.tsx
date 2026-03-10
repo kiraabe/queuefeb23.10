@@ -812,16 +812,23 @@ function TicketRow({
                                   </TooltipContent>
                                 </Tooltip>
 
-                                {/* Performance Dot Tooltip */}
+                                {/* Performance Arrow Indicator */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div
-                                      className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all cursor-help"
+                                      className="absolute -top-6 -translate-y-full flex flex-col items-center cursor-help"
                                       style={{
-                                        left: `calc(${percentageOfStandard}% - 8px)`,
+                                        left: `calc(${percentageOfStandard}% - 12px)`,
                                         zIndex: 10
                                       }}
-                                    ></div>
+                                    >
+                                      {/* Percentage text */}
+                                      <div className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1">
+                                        {percentageOfStandard}%
+                                      </div>
+                                      {/* Arrow pointing down */}
+                                      <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-200"></div>
+                                    </div>
                                   </TooltipTrigger>
                                   <TooltipContent side="top">
                                     <div className="space-y-1 text-xs">
@@ -836,9 +843,6 @@ function TicketRow({
                                   </TooltipContent>
                                 </Tooltip>
                               </div>
-                              <span className="text-sm font-bold whitespace-nowrap min-w-fit">
-                                {percentageOfStandard}%
-                              </span>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
                               <span className={`${status.color} font-semibold flex items-center gap-1`}>
