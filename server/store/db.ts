@@ -67,10 +67,13 @@ export function getPool() {
     });
 
     pool.on("connect", () => {
-      // Set statement timeout on each new connection
+      // Set statement timeout and encoding on each new connection
       // This applies to all queries on that connection
-      pool!.query(`SET statement_timeout = ${DB_CONFIG.queryTimeoutMillis};`).catch((err) => {
-        console.warn("Failed to set statement timeout:", err);
+      pool!.query(`
+        SET statement_timeout = ${DB_CONFIG.queryTimeoutMillis};
+        SET client_encoding = 'UTF8';
+      `).catch((err) => {
+        console.warn("Failed to set connection parameters:", err);
       });
     });
   }

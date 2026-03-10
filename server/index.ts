@@ -229,8 +229,19 @@ export function createServer() {
     next();
   });
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ charset: "utf-8" }));
+  app.use(express.urlencoded({ extended: true, charset: "utf-8" }));
+
+  // Ensure all responses have proper UTF-8 charset
+  app.use((req, res, next) => {
+    const originalJson = res.json;
+    res.json = function(data) {
+      res.charset = "utf-8";
+      res.type("application/json; charset=utf-8");
+      return originalJson.call(this, data);
+    };
+    next();
+  });
 
   // Extract user ID from authentication context for rate limiting
   app.use(extractUserIdMiddleware);
