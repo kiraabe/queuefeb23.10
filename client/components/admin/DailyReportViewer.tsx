@@ -335,6 +335,7 @@ export default function DailyReportViewer() {
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(9);
         pdf.setFillColor(200, 200, 200);
+        pdf.setTextColor(0, 0, 0);
         let xPos = margin;
         headers.forEach((header) => {
           pdf.rect(xPos, yPosition, colWidth, 6, "F");
@@ -346,6 +347,7 @@ export default function DailyReportViewer() {
         // Rows
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(8);
+        pdf.setTextColor(0, 0, 0);
         rows.forEach((row) => {
           if (yPosition + 6 > pageHeight - margin) {
             pdf.addPage();
