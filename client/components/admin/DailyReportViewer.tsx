@@ -451,6 +451,40 @@ export default function DailyReportViewer() {
         addTable(["Category", "Total", "Served", "Skipped", "Transferred", "Completion %", "Avg Time"], catRows);
       }
 
+      // ========== DETAILED TICKETS TABLE ==========
+      if (report.detailedTickets && report.detailedTickets.length > 0) {
+        addText("DETAILED TICKETS", { section: true });
+        const ticketRows = report.detailedTickets.slice(0, 50).map((ticket) => {
+          const formatDate = (ts: number | null | undefined) => {
+            if (!ts || ts === 0) return "—";
+            try {
+              return format(new Date(ts), "MM-dd HH:mm");
+            } catch {
+              return "—";
+            }
+          };
+          const performance = ticket.performanceLevel === "on_time" ? "✓ On Time" :
+                             ticket.performanceLevel === "slightly_over" ? "⚠ Slightly Over" :
+                             ticket.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
+                             ticket.performanceLevel === "significantly_over" ? "✕ Over" : "—";
+          const windowName = (ticket.windowName && ticket.windowName !== "null")
+            ? ticket.windowName
+            : (ticket.windowId ? `Window ${ticket.windowId}` : "—");
+          const duration = formatSeconds(ticket.serviceDurationSeconds);
+          return [
+            ticket.ticketCode,
+            ticket.service,
+            ticket.ownerName || "—",
+            windowName,
+            formatDate(ticket.startedAt),
+            formatDate(ticket.completedAt),
+            duration,
+            performance
+          ];
+        });
+        addTable(["Ticket #", "Service", "Name", "Window", "Start", "End", "Duration", "Performance"], ticketRows);
+      }
+
       // ========== PERFORMANCE ANALYSIS ==========
       addText("PERFORMANCE ANALYSIS", { section: true });
       const performanceCounts = {
