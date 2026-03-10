@@ -287,24 +287,21 @@ export default function DailyReportViewer() {
     // Helper to format a row
     const row = (...cells: any[]) => cells.map(formatCSVCell).join(",");
 
-    // Helper for section divider
-    const divider = () => lines.push(row("─".repeat(100)));
-    const blank = () => lines.push("");
-
     // ========== REPORT HEADER ==========
-    lines.push(row("═════════════════════════════════════════════════════════════════════════════════════════════════════"));
-    lines.push(row("DAILY QUEUE MANAGEMENT SYSTEM - COMPREHENSIVE REPORT"));
-    lines.push(row("═════════════════════════════════════════════════════════════════════════════════════════════════════"));
-    blank();
-    lines.push(row("REPORT INFORMATION"));
-    lines.push(divider());
+    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
+    lines.push("DAILY QUEUE MANAGEMENT SYSTEM - COMPREHENSIVE REPORT");
+    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
+    lines.push("");
+
+    lines.push("REPORT INFORMATION");
+    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
     lines.push(row("Report Period:", report.reportDate));
     lines.push(row("Generated Date:", format(new Date(report.generatedAt), "PPpp")));
-    blank();
+    lines.push("");
 
     // ========== EXECUTIVE SUMMARY ==========
-    lines.push(row("EXECUTIVE SUMMARY"));
-    lines.push(divider());
+    lines.push("EXECUTIVE SUMMARY");
+    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
     lines.push(row("Metric", "Value"));
     lines.push(row("Total Tickets Created", report.summary.totalTicketsCreated));
     lines.push(row("Tickets Served", report.summary.served));
@@ -318,12 +315,12 @@ export default function DailyReportViewer() {
       ? `${Math.round((report.summary.served / report.summary.totalTicketsCreated) * 100)}%`
       : "N/A";
     lines.push(row("Service Completion Rate", completionRate));
-    blank();
+    lines.push("");
 
     // ========== WINDOW PERFORMANCE SUMMARY ==========
     if (report.windowStats && report.windowStats.length > 0) {
-      lines.push(row("WINDOW PERFORMANCE SUMMARY"));
-      lines.push(divider());
+      lines.push("WINDOW PERFORMANCE SUMMARY");
+      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
       lines.push(
         row("Window", "Teller", "Tickets Served", "Avg Service Time", "Performance Level")
       );
@@ -345,20 +342,19 @@ export default function DailyReportViewer() {
           )
         );
       });
-      blank();
+      lines.push("");
     }
 
     // ========== DETAILED TICKETS SECTION ==========
     if (report.detailedTickets && report.detailedTickets.length > 0) {
-      lines.push(row("DETAILED TICKET RECORDS"));
+      lines.push("DETAILED TICKET RECORDS");
       lines.push(row("Total Records:", report.detailedTickets.length));
-      lines.push(divider());
-      blank();
+      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
+      lines.push("");
 
       lines.push(
         row("Ticket #", "Service", "Ticketer Name", "Wereda", "Selected Services", "Window", "Service Start", "Service End", "Duration", "Standard", "Performance")
       );
-      lines.push(divider());
 
       report.detailedTickets.forEach((ticket) => {
         const formatCSVDate = (ts: number | null | undefined) => {
@@ -403,20 +399,19 @@ export default function DailyReportViewer() {
           )
         );
       });
-      blank();
+      lines.push("");
     }
 
     // ========== EMPLOYEE PERFORMANCE SUMMARY ==========
     if (analytics && analytics.employees && analytics.employees.length > 0) {
-      lines.push(row("EMPLOYEE PERFORMANCE SUMMARY"));
+      lines.push("EMPLOYEE PERFORMANCE SUMMARY");
       lines.push(row("Total Employees:", analytics.employees.length));
-      lines.push(divider());
-      blank();
+      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
+      lines.push("");
 
       lines.push(
         row("Employee Name", "Cases Started", "Completed", "Forwarded", "Avg Time/Case", "Total Time", "Completion Rate")
       );
-      lines.push(divider());
 
       analytics.employees.slice(0, 20).forEach((emp) => {
         const avgCaseTime = emp.averageCaseTime
@@ -425,7 +420,7 @@ export default function DailyReportViewer() {
         const totalTime = emp.totalTimeSpent
           ? `${Math.round(emp.totalTimeSpent / 3600)} hrs`
           : "N/A";
-        const completionRate = emp.totalCasesStarted > 0
+        const completionRateEmp = emp.totalCasesStarted > 0
           ? `${Math.round((emp.casesCompleted / emp.totalCasesStarted) * 100)}%`
           : "N/A";
 
@@ -437,30 +432,29 @@ export default function DailyReportViewer() {
             emp.casesProceed,
             avgCaseTime,
             totalTime,
-            completionRate
+            completionRateEmp
           )
         );
       });
-      blank();
+      lines.push("");
     }
 
     // ========== CATEGORY PERFORMANCE DETAILS ==========
     if (analytics && analytics.categories && analytics.categories.length > 0) {
-      lines.push(row("SERVICE CATEGORY PERFORMANCE DETAILS"));
+      lines.push("SERVICE CATEGORY PERFORMANCE DETAILS");
       lines.push(row("Total Categories:", analytics.categories.length));
-      lines.push(divider());
-      blank();
+      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
+      lines.push("");
 
       lines.push(
         row("Category", "Total", "Served", "Skipped", "Transferred", "Completion Rate", "Avg Service Time")
       );
-      lines.push(divider());
 
       analytics.categories.forEach((cat) => {
         const avgTime = cat.averageServiceTime
           ? `${Math.round(cat.averageServiceTime / 60)} min`
           : "N/A";
-        const completionRate = `${cat.completionRate}%`;
+        const completionRateCat = `${cat.completionRate}%`;
 
         lines.push(
           row(
@@ -469,18 +463,18 @@ export default function DailyReportViewer() {
             cat.served,
             cat.skipped,
             cat.transferred,
-            completionRate,
+            completionRateCat,
             avgTime
           )
         );
       });
-      blank();
+      lines.push("");
     }
 
     // ========== PERFORMANCE ANALYSIS ==========
-    lines.push(row("PERFORMANCE ANALYSIS"));
-    lines.push(divider());
-    blank();
+    lines.push("PERFORMANCE ANALYSIS");
+    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
+    lines.push("");
 
     // Count performance levels
     const performanceCounts = {
@@ -502,12 +496,12 @@ export default function DailyReportViewer() {
     lines.push(row("⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`));
     lines.push(row("⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`));
     lines.push(row("✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`));
-    blank();
+    lines.push("");
 
     // ========== FOOTER ==========
-    lines.push(row("═════════════════════════════════════════════════════════════════════════════════════════════════════"));
-    lines.push(row("End of Report"));
-    lines.push(row("═════════════════════════════════════════════════════════════════════════════════════════════════════"));
+    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
+    lines.push("End of Report");
+    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
 
     const csv = lines.join("\n");
     const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.csv`;
