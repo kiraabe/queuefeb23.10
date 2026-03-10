@@ -161,6 +161,7 @@ export default function DailyReportViewer() {
   const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
   const [analytics, setAnalytics] = useState<OverallAnalytics | null>(null);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Date range state
   const [fromDate, setFromDate] = useState<Date | null>(() => {
@@ -178,13 +179,56 @@ export default function DailyReportViewer() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Maximum date range in days
+  const MAX_DATE_RANGE_DAYS = 90;
+
+  // Validation helper function
+  const validateDateRange = (from: Date | null, to: Date | null): { isValid: boolean; message: string | null } => {
+    // Check if both dates are selected
+    if (!from || !to) {
+      return { isValid: false, message: "Both From Date and To Date must be selected" };
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // Set to end of today
+
+    // Check if dates are not in the future
+    if (from > today) {
+      return { isValid: false, message: "From Date cannot be in the future" };
+    }
+    if (to > today) {
+      return { isValid: false, message: "To Date cannot be in the future" };
+    }
+
+    // Check if From Date is not greater than To Date
+    if (from > to) {
+      return { isValid: false, message: "From Date must not be greater than To Date" };
+    }
+
+    // Check maximum date range (90 days)
+    const diffTime = Math.abs(to.getTime() - from.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end day
+    if (diffDays > MAX_DATE_RANGE_DAYS) {
+      return { isValid: false, message: `Date range cannot exceed ${MAX_DATE_RANGE_DAYS} days. You selected ${diffDays} days.` };
+    }
+
+    return { isValid: true, message: null };
+  };
+
+  // Update validation when dates change
+  useEffect(() => {
+    const validation = validateDateRange(fromDate, toDate);
+    setValidationError(validation.message);
+  }, [fromDate, toDate]);
+
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
     try {
       setLoading(true);
       setError(null);
 
-      if (!from || !to) {
-        setError("Please select both From and To dates");
+      const validation = validateDateRange(from, to);
+      if (!validation.isValid) {
+        setError(validation.message);
         setLoading(false);
         return;
       }
@@ -637,14 +681,14 @@ export default function DailyReportViewer() {
   return (
     <div className="space-y-8 sm:space-y-12">
       {/* Report Header and Controls */}
-      <Card className="border-2 border-blue-200 dark:border-blue-900">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">
+      <Card className={cn("border-2", validationError ? "border-red-200 dark:border-red-900" : "border-blue-200 dark:border-blue-900")}>
+        <CardHeader className={cn("bg-gradient-to-r rounded-t-lg", validationError ? "from-red-50 to-red-100 dark:from-red-950 dark:to-red-900" : "from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900")}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <CardTitle className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <CardTitle className={cn("text-2xl font-bold", validationError ? "text-red-900 dark:text-red-100" : "text-blue-900 dark:text-blue-100")}>
                 Daily Queue Report
               </CardTitle>
-              <CardDescription className="text-blue-700 dark:text-blue-300 mt-2">
+              <CardDescription className={cn("mt-2", validationError ? "text-red-700 dark:text-red-300" : "text-blue-700 dark:text-blue-300")}>
                 {report ? (
                   <>
                     <span className="font-semibold">Report Period: </span>
@@ -661,7 +705,7 @@ export default function DailyReportViewer() {
             </div>
             <Button
               onClick={downloadPDF}
-              disabled={!report || generatingPDF}
+              disabled={!report || generatingPDF || !!validationError}
               className="gap-2"
             >
               <Download className="h-4 w-4" />
@@ -670,6 +714,16 @@ export default function DailyReportViewer() {
           </div>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
+          {/* Validation Error Alert */}
+          {validationError && (
+            <Alert variant="default" className="border-red-500 bg-red-50 dark:bg-red-950/30">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800 dark:text-red-300">
+                {validationError}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Date Range Picker */}
           <div className="flex flex-wrap gap-4 items-end">
             <div>
@@ -681,7 +735,8 @@ export default function DailyReportViewer() {
                 selected={fromDate}
                 onChange={(date) => setFromDate(date)}
                 dateFormat="yyyy-MM-dd"
-                className="rounded-md border border-input px-3 py-2"
+                maxDate={new Date()}
+                className={cn("rounded-md border px-3 py-2", validationError ? "border-red-300 dark:border-red-700" : "border-input")}
               />
             </div>
             <div>
@@ -693,11 +748,13 @@ export default function DailyReportViewer() {
                 selected={toDate}
                 onChange={(date) => setToDate(date)}
                 dateFormat="yyyy-MM-dd"
-                className="rounded-md border border-input px-3 py-2"
+                maxDate={new Date()}
+                className={cn("rounded-md border px-3 py-2", validationError ? "border-red-300 dark:border-red-700" : "border-input")}
               />
             </div>
             <Button
               onClick={() => fetchReport(fromDate, toDate)}
+              disabled={!!validationError}
               variant="outline"
               className="gap-2"
             >

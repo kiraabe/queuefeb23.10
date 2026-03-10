@@ -9,6 +9,7 @@ import {
   Settings,
   User,
   Briefcase,
+  FileText,
 } from "lucide-react";
 import MobileAdminLayout from "@/components/admin/MobileAdminLayout";
 import AdminDashboard from "@/components/admin/AdminDashboard";
@@ -19,6 +20,7 @@ import AdminProfile from "@/components/admin/AdminProfile";
 import EmploymentManagement from "@/components/admin/EmploymentManagement";
 import AdminWindows from "@/components/admin/AdminWindows";
 import AdminFooter from "@/components/admin/AdminFooter";
+import DailyReportViewer from "@/components/admin/DailyReportViewer";
 
 export default function Admin() {
   // Triple-check: Env Key == Entered Key == DB Key is required for initial activation.
@@ -61,6 +63,12 @@ export default function Admin() {
       onClick: () => setActiveTab("tickets"),
     },
     {
+      id: "reports",
+      label: "Reports",
+      icon: <FileText className="h-5 w-5" />,
+      onClick: () => setActiveTab("reports"),
+    },
+    {
       id: "windows",
       label: "Windows",
       icon: <MonitorPlay className="h-5 w-5" />,
@@ -90,6 +98,8 @@ export default function Admin() {
         return <SessionManagement />;
       case "tickets":
         return <TicketManagement />;
+      case "reports":
+        return <DailyReportViewer />;
       case "windows":
         return <AdminWindows />;
       case "settings":
