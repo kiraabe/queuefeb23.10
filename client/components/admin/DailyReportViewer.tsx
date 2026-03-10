@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import {
   Card,
   CardContent,
@@ -159,6 +160,7 @@ export default function DailyReportViewer() {
   const [error, setError] = useState<string | null>(null);
   const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
   const [analytics, setAnalytics] = useState<OverallAnalytics | null>(null);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   // Date range state
   const [fromDate, setFromDate] = useState<Date | null>(() => {
@@ -170,6 +172,7 @@ export default function DailyReportViewer() {
 
   // Window expansion state
   const [expandedWindows, setExpandedWindows] = useState<Set<number>>(new Set());
+  const reportContentRef = useRef<HTMLDivElement>(null);
 
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
     try {
@@ -280,109 +283,21 @@ export default function DailyReportViewer() {
     return report.detailedTickets;
   }, [report]);
 
-  const downloadPDF = () => {
-    if (!report) return;
+  const downloadPDF = async () => {
+    if (!report || generatingPDF) return;
 
     try {
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4",
-      });
+      setGeneratingPDF(true);
 
-      let yPosition = 15;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const maxWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+      // Create a temporary container with the report content
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.width = "1200px";
+      tempContainer.style.padding = "20px";
+      tempContainer.style.backgroundColor = "white";
+      tempContainer.style.fontFamily = "'Noto Sans Ethiopic', 'Lexend', sans-serif";
 
-      // Helper function to add text and handle page breaks
-      const addText = (text: string, options: any = {}) => {
-        const fontSize = options.fontSize || 11;
-        const isBold = options.bold || false;
-        const isTitle = options.title || false;
-        const isSection = options.section || false;
-
-        if (isBold) pdf.setFont("helvetica", "bold");
-        else if (isTitle) pdf.setFont("helvetica", "bold");
-        else pdf.setFont("helvetica", "normal");
-
-        if (isTitle) pdf.setFontSize(16);
-        else if (isSection) pdf.setFontSize(13);
-        else pdf.setFontSize(fontSize);
-
-        const splitText = pdf.splitTextToSize(text, maxWidth - margin);
-        const textHeight = splitText.length * (fontSize / 2.5);
-
-        if (yPosition + textHeight > pageHeight - margin) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-
-        pdf.text(splitText, margin, yPosition);
-        yPosition += textHeight + (isSection ? 1 : 2);
-      };
-
-      // Helper to add a table
-      const addTable = (headers: string[], rows: any[][]) => {
-        const colWidth = maxWidth / headers.length;
-
-        if (yPosition + 10 > pageHeight - margin) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-
-        // Headers
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(9);
-        pdf.setTextColor(0, 51, 153);
-        let xPos = margin;
-        headers.forEach((header) => {
-          pdf.text(header, xPos + 1, yPosition + 3);
-          xPos += colWidth;
-        });
-        yPosition += 6;
-
-        // Rows with alternating background colors
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(8);
-        pdf.setTextColor(0, 0, 0);
-        rows.forEach((row, rowIndex) => {
-          if (yPosition + 6 > pageHeight - margin) {
-            pdf.addPage();
-            yPosition = margin;
-          }
-
-          // Alternating row background colors
-          if (rowIndex % 2 === 0) {
-            pdf.setFillColor(245, 245, 245);
-            pdf.rect(margin, yPosition - 1, maxWidth, 6, "F");
-          }
-
-          xPos = margin;
-          row.forEach((cell, index) => {
-            const cellText = String(cell || "—");
-            const splitCell = pdf.splitTextToSize(cellText, colWidth - 2);
-            const cellHeight = Math.max(6, splitCell.length * 3);
-            pdf.text(splitCell, xPos + 1, yPosition + 2);
-            xPos += colWidth;
-          });
-          yPosition += 6;
-        });
-
-        yPosition += 8;
-      };
-
-      // ========== REPORT HEADER ==========
-      addText("DAILY QUEUE MANAGEMENT SYSTEM", { title: true });
-      addText("COMPREHENSIVE REPORT", { title: true });
-      yPosition += 3;
-
-      addText(`Report Period: ${report.reportDate}`, { bold: true });
-      addText(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`, { bold: true });
-      yPosition += 3;
-
-      // ========== EXECUTIVE SUMMARY ==========
-      addText("EXECUTIVE SUMMARY", { section: true });
       const avgServiceMinutes = report.summary.averageServiceTime
         ? Math.round(report.summary.averageServiceTime / 60)
         : "N/A";
@@ -390,25 +305,67 @@ export default function DailyReportViewer() {
         ? `${Math.round((report.summary.served / report.summary.totalTicketsCreated) * 100)}%`
         : "N/A";
 
-      const summaryRows = [
-        ["Total Tickets Created", report.summary.totalTicketsCreated],
-        ["Tickets Served", report.summary.served],
-        ["Tickets Skipped", report.summary.skipped],
-        ["Tickets Transferred", report.summary.transferred],
-        ["Average Service Time", `${avgServiceMinutes} minutes`],
-        ["Service Completion Rate", completionRate],
-      ];
-      addTable(["Metric", "Value"], summaryRows);
+      // Build HTML content with proper Amharic font support
+      let htmlContent = `
+        <div style="font-family: 'Noto Sans Ethiopic', 'Lexend', sans-serif;">
+          <h1 style="font-size: 24px; font-weight: bold; text-align: center;">DAILY QUEUE MANAGEMENT SYSTEM</h1>
+          <h1 style="font-size: 24px; font-weight: bold; text-align: center;">COMPREHENSIVE REPORT</h1>
+          <div style="margin: 20px 0; text-align: center;">
+            <p style="font-weight: bold; margin: 5px 0;">Report Period: ${report.reportDate}</p>
+            <p style="font-weight: bold; margin: 5px 0;">Generated: ${format(new Date(report.generatedAt), "PPpp")}</p>
+          </div>
 
-      // ========== WINDOW PERFORMANCE SUMMARY ==========
+          <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">EXECUTIVE SUMMARY</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Metric</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Value</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">Total Tickets Created</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${report.summary.totalTicketsCreated}</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+              <td style="border: 1px solid #ddd; padding: 8px;">Tickets Served</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${report.summary.served}</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">Tickets Skipped</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${report.summary.skipped}</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+              <td style="border: 1px solid #ddd; padding: 8px;">Tickets Transferred</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${report.summary.transferred}</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">Average Service Time</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${avgServiceMinutes} minutes</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+              <td style="border: 1px solid #ddd; padding: 8px;">Service Completion Rate</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${completionRate}</td>
+            </tr>
+          </table>
+      `;
+
+      // Window Performance
       const activeWindows = (report.windowStats || []).filter((w) => {
         const served = parseInt(String(w.servedTickets)) || 0;
         return served > 0;
       });
 
       if (activeWindows.length > 0) {
-        addText("WINDOW PERFORMANCE SUMMARY", { section: true });
-        const windowRows = activeWindows.map((window) => {
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">WINDOW PERFORMANCE SUMMARY</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Window</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Teller</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Served</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Avg Time</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Performance</td>
+            </tr>`;
+
+        activeWindows.forEach((window, idx) => {
           const avgTime = window.averageServiceTime
             ? `${Math.round(window.averageServiceTime / 60)} min`
             : "N/A";
@@ -416,45 +373,100 @@ export default function DailyReportViewer() {
                                    window.performanceLevel === "slightly_over" ? "⚠ Slightly Over" :
                                    window.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
                                    window.performanceLevel === "significantly_over" ? "✕ Significantly Over" : "N/A";
-          return [window.windowName, window.tellerName, window.servedTickets, avgTime, performanceLabel];
+          const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9f9f9";
+          htmlContent += `
+            <tr style="background-color: ${bgColor};">
+              <td style="border: 1px solid #ddd; padding: 8px;">${window.windowName}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${window.tellerName}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${window.servedTickets}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${avgTime}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${performanceLabel}</td>
+            </tr>`;
         });
-        addTable(["Window", "Teller", "Served", "Avg Time", "Performance"], windowRows);
+        htmlContent += `</table>`;
       }
 
-      // ========== EMPLOYEE PERFORMANCE SUMMARY ==========
+      // Employee Performance
       if (analytics && analytics.employees && analytics.employees.length > 0) {
-        addText("EMPLOYEE PERFORMANCE SUMMARY", { section: true });
-        const empRows = analytics.employees.slice(0, 10).map((emp) => {
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">EMPLOYEE PERFORMANCE SUMMARY</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Employee</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Started</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Completed</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Avg Time</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Completion %</td>
+            </tr>`;
+
+        analytics.employees.slice(0, 10).forEach((emp, idx) => {
           const avgCaseTime = emp.averageCaseTime
             ? `${Math.round(emp.averageCaseTime / 60)} min`
-            : "N/A";
-          const totalTime = emp.totalTimeSpent
-            ? `${Math.round(emp.totalTimeSpent / 3600)} hrs`
             : "N/A";
           const completionRateEmp = emp.totalCasesStarted > 0
             ? `${Math.round((emp.casesCompleted / emp.totalCasesStarted) * 100)}%`
             : "N/A";
-          return [emp.employeeName, emp.totalCasesStarted, emp.casesCompleted, avgCaseTime, completionRateEmp];
+          const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9f9f9";
+          htmlContent += `
+            <tr style="background-color: ${bgColor};">
+              <td style="border: 1px solid #ddd; padding: 8px;">${emp.employeeName}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${emp.totalCasesStarted}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${emp.casesCompleted}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${avgCaseTime}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${completionRateEmp}</td>
+            </tr>`;
         });
-        addTable(["Employee", "Started", "Completed", "Avg Time", "Completion %"], empRows);
+        htmlContent += `</table>`;
       }
 
-      // ========== CATEGORY PERFORMANCE ==========
+      // Category Performance
       if (analytics && analytics.categories && analytics.categories.length > 0) {
-        addText("SERVICE CATEGORY PERFORMANCE", { section: true });
-        const catRows = analytics.categories.map((cat) => {
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">SERVICE CATEGORY PERFORMANCE</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Category</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Total</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Served</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Skipped</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Transferred</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Completion %</td>
+              <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Avg Time</td>
+            </tr>`;
+
+        analytics.categories.forEach((cat, idx) => {
           const avgTime = cat.averageServiceTime
             ? `${Math.round(cat.averageServiceTime / 60)} min`
             : "N/A";
-          return [cat.categoryName, cat.totalTickets, cat.served, cat.skipped, cat.transferred, `${cat.completionRate}%`, avgTime];
+          const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9f9f9";
+          htmlContent += `
+            <tr style="background-color: ${bgColor};">
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.categoryName}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.totalTickets}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.served}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.skipped}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.transferred}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${cat.completionRate}%</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${avgTime}</td>
+            </tr>`;
         });
-        addTable(["Category", "Total", "Served", "Skipped", "Transferred", "Completion %", "Avg Time"], catRows);
+        htmlContent += `</table>`;
       }
 
-      // ========== DETAILED TICKETS TABLE ==========
+      // Detailed Tickets
       if (report.detailedTickets && report.detailedTickets.length > 0) {
-        addText("DETAILED TICKETS", { section: true });
-        const ticketRows = report.detailedTickets.slice(0, 50).map((ticket) => {
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">DETAILED TICKETS</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+            <tr style="background-color: #f0f0f0;">
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Ticket #</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Service</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Name</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Window</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Start</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">End</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Duration</td>
+              <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Performance</td>
+            </tr>`;
+
+        report.detailedTickets.slice(0, 50).forEach((ticket, idx) => {
           const formatDate = (ts: number | null | undefined) => {
             if (!ts || ts === 0) return "—";
             try {
@@ -471,22 +483,31 @@ export default function DailyReportViewer() {
             ? ticket.windowName
             : (ticket.windowId ? `Window ${ticket.windowId}` : "—");
           const duration = formatSeconds(ticket.serviceDurationSeconds);
-          return [
-            ticket.ticketCode,
-            ticket.service,
-            ticket.ownerName || "—",
-            windowName,
-            formatDate(ticket.startedAt),
-            formatDate(ticket.completedAt),
-            duration,
-            performance
-          ];
+          const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9f9f9";
+          htmlContent += `
+            <tr style="background-color: ${bgColor};">
+              <td style="border: 1px solid #ddd; padding: 6px;">${ticket.ticketCode}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${ticket.service}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${ticket.ownerName || "—"}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${windowName}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${formatDate(ticket.startedAt)}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${formatDate(ticket.completedAt)}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${duration}</td>
+              <td style="border: 1px solid #ddd; padding: 6px;">${performance}</td>
+            </tr>`;
         });
-        addTable(["Ticket #", "Service", "Name", "Window", "Start", "End", "Duration", "Performance"], ticketRows);
+        htmlContent += `</table>`;
       }
 
-      // ========== PERFORMANCE ANALYSIS ==========
-      addText("PERFORMANCE ANALYSIS", { section: true });
+      // Performance Analysis
+      htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">PERFORMANCE ANALYSIS</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr style="background-color: #f0f0f0;">
+            <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Performance Level</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Count</td>
+            <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Percentage</td>
+          </tr>`;
+
       const performanceCounts = {
         on_time: 0,
         slightly_over: 0,
@@ -501,21 +522,72 @@ export default function DailyReportViewer() {
       });
 
       const total = report.detailedTickets.length;
-      const perfRows = [
+      const perfData = [
         ["✓ On Time", performanceCounts.on_time, `${total > 0 ? Math.round((performanceCounts.on_time / total) * 100) : 0}%`],
         ["⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`],
         ["⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`],
         ["✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`],
       ];
-      addTable(["Performance Level", "Count", "Percentage"], perfRows);
 
-      // ========== FOOTER ==========
-      addText("End of Report", { bold: true });
+      perfData.forEach((row, idx) => {
+        const bgColor = idx % 2 === 0 ? "#ffffff" : "#f9f9f9";
+        htmlContent += `
+          <tr style="background-color: ${bgColor};">
+            <td style="border: 1px solid #ddd; padding: 8px;">${row[0]}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${row[1]}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${row[2]}</td>
+          </tr>`;
+      });
+
+      htmlContent += `
+        </table>
+        <p style="font-weight: bold; margin-top: 20px;">End of Report</p>
+        </div>
+      `;
+
+      tempContainer.innerHTML = htmlContent;
+      document.body.appendChild(tempContainer);
+
+      // Convert to canvas with Amharic font support
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      document.body.removeChild(tempContainer);
+
+      // Create PDF from canvas
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const imgWidth = pdf.internal.pageSize.getWidth();
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+      }
 
       const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.pdf`;
       pdf.save(filename);
     } catch (error) {
       console.error("Error generating PDF:", error);
+    } finally {
+      setGeneratingPDF(false);
     }
   };
 
@@ -584,11 +656,11 @@ export default function DailyReportViewer() {
             </div>
             <Button
               onClick={downloadPDF}
-              disabled={!report}
+              disabled={!report || generatingPDF}
               className="gap-2"
             >
               <Download className="h-4 w-4" />
-              Export PDF
+              {generatingPDF ? "Generating..." : "Export PDF"}
             </Button>
           </div>
         </CardHeader>
