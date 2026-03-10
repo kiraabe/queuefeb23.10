@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { jsPDF } from "jspdf";
 import {
   Card,
   CardContent,
@@ -279,233 +280,197 @@ export default function DailyReportViewer() {
     return report.detailedTickets;
   }, [report]);
 
-  const downloadCSV = () => {
+  const downloadPDF = () => {
     if (!report) return;
 
-    const lines: string[] = [];
-
-    // Helper to create tab-separated values for clean output
-    const tabRow = (...cells: any[]) => cells.map(c => String(c)).join("\t");
-
-    // ========== REPORT HEADER ==========
-    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
-    lines.push("DAILY QUEUE MANAGEMENT SYSTEM - COMPREHENSIVE REPORT");
-    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
-    lines.push("");
-
-    lines.push("REPORT INFORMATION");
-    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-    lines.push(tabRow("Report Period:", report.reportDate));
-    lines.push(tabRow("Generated Date:", format(new Date(report.generatedAt), "PPpp")));
-    lines.push("");
-
-    // ========== EXECUTIVE SUMMARY ==========
-    lines.push("EXECUTIVE SUMMARY");
-    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-    lines.push(tabRow("Metric", "Value"));
-    lines.push(tabRow("Total Tickets Created", report.summary.totalTicketsCreated));
-    lines.push(tabRow("Tickets Served", report.summary.served));
-    lines.push(tabRow("Tickets Skipped", report.summary.skipped));
-    lines.push(tabRow("Tickets Transferred", report.summary.transferred));
-    const avgServiceMinutes = report.summary.averageServiceTime
-      ? Math.round(report.summary.averageServiceTime / 60)
-      : "N/A";
-    lines.push(tabRow("Average Service Time", `${avgServiceMinutes} minutes`));
-    const completionRate = report.summary.totalTicketsCreated > 0
-      ? `${Math.round((report.summary.served / report.summary.totalTicketsCreated) * 100)}%`
-      : "N/A";
-    lines.push(tabRow("Service Completion Rate", completionRate));
-    lines.push("");
-
-    // ========== WINDOW PERFORMANCE SUMMARY ==========
-    if (report.windowStats && report.windowStats.length > 0) {
-      lines.push("WINDOW PERFORMANCE SUMMARY");
-      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-      lines.push(
-        tabRow("Window", "Teller", "Tickets Served", "Avg Service Time", "Performance Level")
-      );
-      report.windowStats.forEach((window) => {
-        const avgTime = window.averageServiceTime
-          ? `${Math.round(window.averageServiceTime / 60)} min`
-          : "N/A";
-        const performanceLabel = window.performanceLevel === "on_time" ? "✓ On Time" :
-                                 window.performanceLevel === "slightly_over" ? "⚠ Slightly Over" :
-                                 window.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
-                                 window.performanceLevel === "significantly_over" ? "✕ Significantly Over" : "N/A";
-        lines.push(
-          tabRow(
-            window.windowName,
-            window.tellerName,
-            window.servedTickets,
-            avgTime,
-            performanceLabel
-          )
-        );
+    try {
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
       });
-      lines.push("");
-    }
 
-    // ========== DETAILED TICKETS SECTION ==========
-    if (report.detailedTickets && report.detailedTickets.length > 0) {
-      lines.push("DETAILED TICKET RECORDS");
-      lines.push(`Total Records: ${report.detailedTickets.length}`);
-      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-      lines.push("");
+      let yPosition = 15;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const maxWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
 
-      lines.push(
-        tabRow("Ticket #", "Service", "Ticketer Name", "Wereda", "Selected Services", "Window", "Service Start", "Service End", "Duration", "Standard", "Performance")
-      );
+      // Helper function to add text and handle page breaks
+      const addText = (text: string, options: any = {}) => {
+        const fontSize = options.fontSize || 11;
+        const isBold = options.bold || false;
+        const isTitle = options.title || false;
+        const isSection = options.section || false;
+
+        if (isBold) pdf.setFont("helvetica", "bold");
+        else if (isTitle) pdf.setFont("helvetica", "bold");
+        else pdf.setFont("helvetica", "normal");
+
+        if (isTitle) pdf.setFontSize(16);
+        else if (isSection) pdf.setFontSize(13);
+        else pdf.setFontSize(fontSize);
+
+        const splitText = pdf.splitTextToSize(text, maxWidth - margin);
+        const textHeight = splitText.length * (fontSize / 2.5);
+
+        if (yPosition + textHeight > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+
+        pdf.text(splitText, margin, yPosition);
+        yPosition += textHeight + (isSection ? 3 : 2);
+      };
+
+      // Helper to add a table
+      const addTable = (headers: string[], rows: any[][]) => {
+        const colWidth = maxWidth / headers.length;
+
+        if (yPosition + 10 > pageHeight - margin) {
+          pdf.addPage();
+          yPosition = margin;
+        }
+
+        // Headers
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(9);
+        pdf.setFillColor(200, 200, 200);
+        let xPos = margin;
+        headers.forEach((header) => {
+          pdf.rect(xPos, yPosition, colWidth, 6, "F");
+          pdf.text(header, xPos + 1, yPosition + 4);
+          xPos += colWidth;
+        });
+        yPosition += 8;
+
+        // Rows
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        rows.forEach((row) => {
+          if (yPosition + 6 > pageHeight - margin) {
+            pdf.addPage();
+            yPosition = margin;
+          }
+          xPos = margin;
+          row.forEach((cell, index) => {
+            const cellText = String(cell || "—");
+            const splitCell = pdf.splitTextToSize(cellText, colWidth - 2);
+            const cellHeight = Math.max(6, splitCell.length * 3);
+            pdf.text(splitCell, xPos + 1, yPosition + 2);
+            xPos += colWidth;
+          });
+          yPosition += 6;
+        });
+
+        yPosition += 3;
+      };
+
+      // ========== REPORT HEADER ==========
+      addText("DAILY QUEUE MANAGEMENT SYSTEM", { title: true });
+      addText("COMPREHENSIVE REPORT", { title: true });
+      yPosition += 3;
+
+      addText(`Report Period: ${report.reportDate}`, { bold: true });
+      addText(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`, { bold: true });
+      yPosition += 3;
+
+      // ========== EXECUTIVE SUMMARY ==========
+      addText("EXECUTIVE SUMMARY", { section: true });
+      const avgServiceMinutes = report.summary.averageServiceTime
+        ? Math.round(report.summary.averageServiceTime / 60)
+        : "N/A";
+      const completionRate = report.summary.totalTicketsCreated > 0
+        ? `${Math.round((report.summary.served / report.summary.totalTicketsCreated) * 100)}%`
+        : "N/A";
+
+      const summaryRows = [
+        ["Total Tickets Created", report.summary.totalTicketsCreated],
+        ["Tickets Served", report.summary.served],
+        ["Tickets Skipped", report.summary.skipped],
+        ["Tickets Transferred", report.summary.transferred],
+        ["Average Service Time", `${avgServiceMinutes} minutes`],
+        ["Service Completion Rate", completionRate],
+      ];
+      addTable(["Metric", "Value"], summaryRows);
+
+      // ========== WINDOW PERFORMANCE SUMMARY ==========
+      if (report.windowStats && report.windowStats.length > 0) {
+        addText("WINDOW PERFORMANCE SUMMARY", { section: true });
+        const windowRows = report.windowStats.map((window) => {
+          const avgTime = window.averageServiceTime
+            ? `${Math.round(window.averageServiceTime / 60)} min`
+            : "N/A";
+          const performanceLabel = window.performanceLevel === "on_time" ? "✓ On Time" :
+                                   window.performanceLevel === "slightly_over" ? "⚠ Slightly Over" :
+                                   window.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
+                                   window.performanceLevel === "significantly_over" ? "✕ Significantly Over" : "N/A";
+          return [window.windowName, window.tellerName, window.servedTickets, avgTime, performanceLabel];
+        });
+        addTable(["Window", "Teller", "Served", "Avg Time", "Performance"], windowRows);
+      }
+
+      // ========== EMPLOYEE PERFORMANCE SUMMARY ==========
+      if (analytics && analytics.employees && analytics.employees.length > 0) {
+        addText("EMPLOYEE PERFORMANCE SUMMARY", { section: true });
+        const empRows = analytics.employees.slice(0, 10).map((emp) => {
+          const avgCaseTime = emp.averageCaseTime
+            ? `${Math.round(emp.averageCaseTime / 60)} min`
+            : "N/A";
+          const totalTime = emp.totalTimeSpent
+            ? `${Math.round(emp.totalTimeSpent / 3600)} hrs`
+            : "N/A";
+          const completionRateEmp = emp.totalCasesStarted > 0
+            ? `${Math.round((emp.casesCompleted / emp.totalCasesStarted) * 100)}%`
+            : "N/A";
+          return [emp.employeeName, emp.totalCasesStarted, emp.casesCompleted, avgCaseTime, completionRateEmp];
+        });
+        addTable(["Employee", "Started", "Completed", "Avg Time", "Completion %"], empRows);
+      }
+
+      // ========== CATEGORY PERFORMANCE ==========
+      if (analytics && analytics.categories && analytics.categories.length > 0) {
+        addText("SERVICE CATEGORY PERFORMANCE", { section: true });
+        const catRows = analytics.categories.map((cat) => {
+          const avgTime = cat.averageServiceTime
+            ? `${Math.round(cat.averageServiceTime / 60)} min`
+            : "N/A";
+          return [cat.categoryName, cat.totalTickets, cat.served, cat.skipped, cat.transferred, `${cat.completionRate}%`, avgTime];
+        });
+        addTable(["Category", "Total", "Served", "Skipped", "Transferred", "Completion %", "Avg Time"], catRows);
+      }
+
+      // ========== PERFORMANCE ANALYSIS ==========
+      addText("PERFORMANCE ANALYSIS", { section: true });
+      const performanceCounts = {
+        on_time: 0,
+        slightly_over: 0,
+        moderately_over: 0,
+        significantly_over: 0,
+      };
 
       report.detailedTickets.forEach((ticket) => {
-        const formatCSVDate = (ts: number | null | undefined) => {
-          if (!ts || ts === 0) return "N/A";
-          try {
-            return format(new Date(ts), "yyyy-MM-dd HH:mm:ss");
-          } catch (e) {
-            return "N/A";
-          }
-        };
-
-        const startDate = formatCSVDate(ticket.startedAt);
-        const endDate = formatCSVDate(ticket.completedAt);
-        const performance = ticket.performanceLevel === "on_time" ? "✓ On Time" :
-                           ticket.performanceLevel === "slightly_over" ? "⚠ Slightly Over" :
-                           ticket.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
-                           ticket.performanceLevel === "significantly_over" ? "✕ Significantly Over" : "N/A";
-        const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes} min` : "N/A";
-        const duration = formatSeconds(ticket.serviceDurationSeconds);
-        const selectedServices = Array.isArray(ticket.selectedServices)
-          ? ticket.selectedServices.join("; ")
-          : ticket.selectedServices || "—";
-
-        const windowId = ticket.windowId !== null && ticket.windowId !== undefined ? ticket.windowId : "N/A";
-        const windowName = (ticket.windowName && ticket.windowName !== "null")
-          ? ticket.windowName
-          : (windowId !== "N/A" ? `Window ${windowId}` : "—");
-
-        lines.push(
-          tabRow(
-            ticket.ticketCode,
-            ticket.service,
-            ticket.ownerName || "—",
-            ticket.woreda || "—",
-            selectedServices,
-            windowName,
-            startDate,
-            endDate,
-            duration,
-            standardTime,
-            performance
-          )
-        );
+        if (ticket.performanceLevel && performanceCounts.hasOwnProperty(ticket.performanceLevel)) {
+          performanceCounts[ticket.performanceLevel as keyof typeof performanceCounts]++;
+        }
       });
-      lines.push("");
+
+      const total = report.detailedTickets.length;
+      const perfRows = [
+        ["✓ On Time", performanceCounts.on_time, `${total > 0 ? Math.round((performanceCounts.on_time / total) * 100) : 0}%`],
+        ["⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`],
+        ["⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`],
+        ["✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`],
+      ];
+      addTable(["Performance Level", "Count", "Percentage"], perfRows);
+
+      // ========== FOOTER ==========
+      addText("End of Report", { bold: true });
+
+      const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.pdf`;
+      pdf.save(filename);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
     }
-
-    // ========== EMPLOYEE PERFORMANCE SUMMARY ==========
-    if (analytics && analytics.employees && analytics.employees.length > 0) {
-      lines.push("EMPLOYEE PERFORMANCE SUMMARY");
-      lines.push(`Total Employees: ${analytics.employees.length}`);
-      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-      lines.push("");
-
-      lines.push(
-        tabRow("Employee Name", "Cases Started", "Completed", "Forwarded", "Avg Time/Case", "Total Time", "Completion Rate")
-      );
-
-      analytics.employees.slice(0, 20).forEach((emp) => {
-        const avgCaseTime = emp.averageCaseTime
-          ? `${Math.round(emp.averageCaseTime / 60)} min`
-          : "N/A";
-        const totalTime = emp.totalTimeSpent
-          ? `${Math.round(emp.totalTimeSpent / 3600)} hrs`
-          : "N/A";
-        const completionRateEmp = emp.totalCasesStarted > 0
-          ? `${Math.round((emp.casesCompleted / emp.totalCasesStarted) * 100)}%`
-          : "N/A";
-
-        lines.push(
-          tabRow(
-            emp.employeeName,
-            emp.totalCasesStarted,
-            emp.casesCompleted,
-            emp.casesProceed,
-            avgCaseTime,
-            totalTime,
-            completionRateEmp
-          )
-        );
-      });
-      lines.push("");
-    }
-
-    // ========== CATEGORY PERFORMANCE DETAILS ==========
-    if (analytics && analytics.categories && analytics.categories.length > 0) {
-      lines.push("SERVICE CATEGORY PERFORMANCE DETAILS");
-      lines.push(`Total Categories: ${analytics.categories.length}`);
-      lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-      lines.push("");
-
-      lines.push(
-        tabRow("Category", "Total", "Served", "Skipped", "Transferred", "Completion Rate", "Avg Service Time")
-      );
-
-      analytics.categories.forEach((cat) => {
-        const avgTime = cat.averageServiceTime
-          ? `${Math.round(cat.averageServiceTime / 60)} min`
-          : "N/A";
-        const completionRateCat = `${cat.completionRate}%`;
-
-        lines.push(
-          tabRow(
-            cat.categoryName,
-            cat.totalTickets,
-            cat.served,
-            cat.skipped,
-            cat.transferred,
-            completionRateCat,
-            avgTime
-          )
-        );
-      });
-      lines.push("");
-    }
-
-    // ========== PERFORMANCE ANALYSIS ==========
-    lines.push("PERFORMANCE ANALYSIS");
-    lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-    lines.push("");
-
-    // Count performance levels
-    const performanceCounts = {
-      on_time: 0,
-      slightly_over: 0,
-      moderately_over: 0,
-      significantly_over: 0,
-    };
-
-    report.detailedTickets.forEach((ticket) => {
-      if (ticket.performanceLevel && performanceCounts.hasOwnProperty(ticket.performanceLevel)) {
-        performanceCounts[ticket.performanceLevel as keyof typeof performanceCounts]++;
-      }
-    });
-
-    const total = report.detailedTickets.length;
-    lines.push(tabRow("Performance Level", "Count", "Percentage"));
-    lines.push(tabRow("✓ On Time", performanceCounts.on_time, `${total > 0 ? Math.round((performanceCounts.on_time / total) * 100) : 0}%`));
-    lines.push(tabRow("⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`));
-    lines.push(tabRow("⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`));
-    lines.push(tabRow("✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`));
-    lines.push("");
-
-    // ========== FOOTER ==========
-    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
-    lines.push("End of Report");
-    lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
-
-    const txt = lines.join("\n");
-    const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.txt`;
-    downloadCSVFile(txt, filename);
   };
 
   const toggleWindowExpanded = (windowId: number) => {
@@ -572,12 +537,12 @@ export default function DailyReportViewer() {
               </CardDescription>
             </div>
             <Button
-              onClick={downloadCSV}
+              onClick={downloadPDF}
               disabled={!report}
               className="gap-2"
             >
               <Download className="h-4 w-4" />
-              Export CSV
+              Export PDF
             </Button>
           </div>
         </CardHeader>
