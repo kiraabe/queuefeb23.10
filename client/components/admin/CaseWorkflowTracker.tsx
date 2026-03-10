@@ -647,24 +647,41 @@ function WorkflowCard({
                 </Badge>
               )}
               {(() => {
-                const { exceeds, standardMinutes, standardSeconds } = getStandardTimeStatus();
-                if (exceeds && standardMinutes) {
-                  return (
-                    <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1 animate-pulse">
-                      <AlertTriangle className="h-3 w-3" />
-                      <span className="hidden xs:inline">⚠️ Time Exceeded</span>
-                      <span className="xs:hidden">⚠️ Exceeded</span>
-                    </Badge>
-                  );
-                }
-                if (standardSeconds && !exceeds) {
-                  return (
-                    <Badge className="bg-green-600 text-white dark:bg-green-700 flex items-center gap-1">
-                      <CheckCircle className="h-3 w-3" />
-                      <span className="hidden xs:inline">✓ On Time</span>
-                      <span className="xs:hidden">✓ OK</span>
-                    </Badge>
-                  );
+                const { performanceLevel, standardMinutes, standardSeconds } = getStandardTimeStatus();
+                if (standardSeconds) {
+                  if (performanceLevel === "on_time") {
+                    return (
+                      <Badge className="bg-green-600 text-white dark:bg-green-700 flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        <span className="hidden xs:inline">✓ On Time</span>
+                        <span className="xs:hidden">✓ Good</span>
+                      </Badge>
+                    );
+                  } else if (performanceLevel === "slightly_over") {
+                    return (
+                      <Badge className="bg-yellow-600 text-white dark:bg-yellow-700 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span className="hidden xs:inline">⚠ Slightly Over</span>
+                        <span className="xs:hidden">⚠ Over</span>
+                      </Badge>
+                    );
+                  } else if (performanceLevel === "moderately_over") {
+                    return (
+                      <Badge className="bg-orange-600 text-white dark:bg-orange-700 flex items-center gap-1 animate-pulse">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span className="hidden xs:inline">⚠ Moderately Over</span>
+                        <span className="xs:hidden">⚠ Slow</span>
+                      </Badge>
+                    );
+                  } else if (performanceLevel === "significantly_over") {
+                    return (
+                      <Badge className="bg-red-600 text-white dark:bg-red-700 flex items-center gap-1 animate-pulse">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span className="hidden xs:inline">✕ Significantly Over</span>
+                        <span className="xs:hidden">✕ Critical</span>
+                      </Badge>
+                    );
+                  }
                 }
                 return null;
               })()}
