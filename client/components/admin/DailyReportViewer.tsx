@@ -121,11 +121,43 @@ interface EmployeeStats {
   avgDuration: number | null;
 }
 
+interface OverallAnalytics {
+  summary: {
+    totalTickets: number;
+    served: number;
+    skipped: number;
+    transferred: number;
+    waiting: number;
+    serving: number;
+    completionRate: number;
+    averageServiceTime: number | null;
+  };
+  employees: Array<{
+    employeeId: string;
+    employeeName: string;
+    totalCasesStarted: number;
+    casesCompleted: number;
+    casesProceed: number;
+    averageCaseTime: number | null;
+    totalTimeSpent: number | null;
+  }>;
+  categories: Array<{
+    categoryName: string;
+    totalTickets: number;
+    served: number;
+    skipped: number;
+    transferred: number;
+    averageServiceTime: number | null;
+    completionRate: number;
+  }>;
+}
+
 export default function DailyReportViewer() {
   const [report, setReport] = useState<DailyReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [employeeStats, setEmployeeStats] = useState<EmployeeStats | null>(null);
+  const [analytics, setAnalytics] = useState<OverallAnalytics | null>(null);
 
   // Date range state
   const [fromDate, setFromDate] = useState<Date | null>(() => {
@@ -209,17 +241,24 @@ export default function DailyReportViewer() {
   useEffect(() => {
     fetchReport(fromDate, toDate);
 
-    // Also fetch employee stats
-    const fetchEmployeeStats = async () => {
+    // Also fetch employee stats and overall analytics
+    const fetchAdditionalData = async () => {
       try {
-        const data = await apiFetch<EmployeeStats>("/api/admin/employee-stats");
-        setEmployeeStats(data);
+        const employeeData = await apiFetch<EmployeeStats>("/api/admin/employee-stats");
+        setEmployeeStats(employeeData);
       } catch (err) {
         console.debug("[DailyReportViewer] Error fetching employee stats");
       }
+
+      try {
+        const analyticsData = await apiFetch<OverallAnalytics>("/api/admin/overall-analytics");
+        setAnalytics(analyticsData);
+      } catch (err) {
+        console.debug("[DailyReportViewer] Error fetching analytics");
+      }
     };
 
-    fetchEmployeeStats();
+    fetchAdditionalData();
   }, [fromDate, toDate]);
 
   // Get unique services from detailedTickets
@@ -249,55 +288,38 @@ export default function DailyReportViewer() {
     const row = (...cells: any[]) => cells.map(formatCSVCell).join(",");
 
     // Report Header
-    lines.push(row("DAILY QUEUE REPORT"));
+    lines.push(row("REPORT"));
     lines.push(row(`Report Date Range: ${report.reportDate}`));
     lines.push(row(`Generated: ${format(new Date(report.generatedAt), "PPpp")}`));
     lines.push("");
 
-    // Summary Section
-    lines.push(row("SUMMARY"));
+    // Performance Metrics Section
+    lines.push(row("Performance Metrics"));
+    const avgHandlingTime = report.summary.averageServiceTime
+      ? `${Math.round(report.summary.averageServiceTime / 60)} minutes`
+      : "N/A";
+    const longestWait = report.detailedTickets.length > 0
+      ? `${Math.max(...report.detailedTickets.map(t => t.serviceDurationSeconds || 0))} seconds`
+      : "N/A";
+    const avgWaitTime = report.summary.averageServiceTime
+      ? `${report.summary.averageServiceTime} seconds`
+      : "N/A";
+
     lines.push(row("Metric", "Value"));
-    lines.push(row("Total Tickets Created", report.summary.totalTicketsCreated));
-    lines.push(row("Total Served", report.summary.served));
-    lines.push(row("Total Skipped", report.summary.skipped));
-    lines.push(row("Total Transferred", report.summary.transferred));
-    lines.push(
-      row("Average Service Time (seconds)", report.summary.averageServiceTime ?? "N/A"),
-    );
+    lines.push(row("Avg Handling Time", avgHandlingTime));
+    lines.push(row("Longest Wait", longestWait));
+    lines.push(row("Avg Wait Time", avgWaitTime));
+    lines.push(row("Total Tickets", report.summary.totalTicketsCreated));
+    lines.push(row("Completed Cases", report.summary.served));
     lines.push("");
 
-    // Window Statistics Section - use ALL windows from report
-    if (report.windowStats && report.windowStats.length > 0) {
-      lines.push(row("WINDOW STATISTICS"));
-      lines.push(
-        row("Window Name", "Teller", "Served Tickets", "Avg Service Time (seconds)", "Performance")
-      );
-      report.windowStats.forEach((window) => {
-        const windowId = window.windowId !== null && window.windowId !== undefined ? window.windowId : "N/A";
-        const windowName = (window.windowName && window.windowName !== "null")
-          ? window.windowName
-          : (windowId !== "N/A" ? `Window ${windowId}` : "N/A");
-        const performance = window.performanceLevel ?
-          (window.performanceLevel === "on_time" ? "On Time" :
-           window.performanceLevel === "slightly_over" ? "Slightly Over" :
-           window.performanceLevel === "moderately_over" ? "Moderately Over" :
-           window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "N/A";
-        const avgTime = window.averageServiceTime !== null && window.averageServiceTime !== undefined ? window.averageServiceTime : "N/A";
-        const servedCount = window.servedTickets !== null && window.servedTickets !== undefined ? window.servedTickets : 0;
-
-        lines.push(
-          row(windowName, window.tellerName, servedCount, avgTime, performance)
-        );
-      });
-      lines.push("");
-    }
-
-    // Detailed Ticket Table - use ALL tickets (not filtered for CSV export)
+    // Detailed Tickets Section
     if (report.detailedTickets && report.detailedTickets.length > 0) {
-      lines.push(row("DETAILED TICKET TABLE"));
+      lines.push(row("Detailed Tickets"));
       lines.push(
-        row("Ticket Code", "Service", "Ticketer Full Name", "Wereda", "Selected Services", "Window Name", "Created At", "Service Start", "Service End", "Duration (seconds)", "Standard Time (minutes)", "Performance")
+        row("Ticket #", "Service", "Ticketer Name", "Wereda", "Selected Services", "Window Name", "Service Start", "Service End", "Duration", "Standard", "Performance")
       );
+
       report.detailedTickets.forEach((ticket) => {
         const formatCSVDate = (ts: number | null | undefined) => {
           if (!ts || ts === 0) return "N/A";
@@ -315,30 +337,86 @@ export default function DailyReportViewer() {
                            ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
                            ticket.performanceLevel === "moderately_over" ? "Moderately Over" :
                            ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
-        const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes}` : "N/A";
+        const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes} min` : "N/A";
+        const duration = formatSeconds(ticket.serviceDurationSeconds);
         const selectedServices = Array.isArray(ticket.selectedServices)
           ? ticket.selectedServices.join("; ")
-          : ticket.selectedServices || "";
+          : ticket.selectedServices || "—";
 
         const windowId = ticket.windowId !== null && ticket.windowId !== undefined ? ticket.windowId : "N/A";
         const windowName = (ticket.windowName && ticket.windowName !== "null")
           ? ticket.windowName
-          : (windowId !== "N/A" ? `Window ${windowId}` : "N/A");
+          : (windowId !== "N/A" ? `Window ${windowId}` : "—");
 
         lines.push(
           row(
             ticket.ticketCode,
             ticket.service,
-            ticket.ownerName || "",
-            ticket.woreda || "",
+            ticket.ownerName || "—",
+            ticket.woreda || "—",
             selectedServices,
             windowName,
-            createdDate,
             startDate,
             endDate,
-            ticket.serviceDurationSeconds ?? "N/A",
+            duration,
             standardTime,
             performance
+          )
+        );
+      });
+      lines.push("");
+    }
+
+    // Employee Performance Summary
+    if (analytics && analytics.employees && analytics.employees.length > 0) {
+      lines.push(row("Employee Performance Summary"));
+      lines.push(
+        row("Employee Name", "Cases Started", "Completed", "Forwarded", "Avg Time/Case", "Total Time")
+      );
+
+      analytics.employees.slice(0, 10).forEach((emp) => {
+        const avgCaseTime = emp.averageCaseTime
+          ? `${Math.round(emp.averageCaseTime / 60)} min`
+          : "N/A";
+        const totalTime = emp.totalTimeSpent
+          ? `${Math.round(emp.totalTimeSpent / 3600)} hrs`
+          : "N/A";
+
+        lines.push(
+          row(
+            emp.employeeName,
+            emp.totalCasesStarted,
+            emp.casesCompleted,
+            emp.casesProceed,
+            avgCaseTime,
+            totalTime
+          )
+        );
+      });
+      lines.push("");
+    }
+
+    // Category Performance Details
+    if (analytics && analytics.categories && analytics.categories.length > 0) {
+      lines.push(row("Category Performance Details"));
+      lines.push(
+        row("Category", "Total", "Served", "Skipped", "Transferred", "Completion Rate", "Avg Time")
+      );
+
+      analytics.categories.forEach((cat) => {
+        const avgTime = cat.averageServiceTime
+          ? `${Math.round(cat.averageServiceTime / 60)} min`
+          : "N/A";
+
+        lines.push(
+          row(
+            cat.categoryName,
+            cat.totalTickets,
+            cat.served,
+            cat.skipped,
+            cat.transferred,
+            `${cat.completionRate}%`,
+            avgTime
           )
         );
       });
