@@ -342,15 +342,22 @@ export default function DailyReportViewer() {
         });
         yPosition += 8;
 
-        // Rows
+        // Rows with alternating background colors
         pdf.setFont("helvetica", "normal");
         pdf.setFontSize(8);
         pdf.setTextColor(0, 0, 0);
-        rows.forEach((row) => {
+        rows.forEach((row, rowIndex) => {
           if (yPosition + 6 > pageHeight - margin) {
             pdf.addPage();
             yPosition = margin;
           }
+
+          // Alternating row background colors
+          if (rowIndex % 2 === 0) {
+            pdf.setFillColor(245, 245, 245);
+            pdf.rect(margin, yPosition - 1, maxWidth, 6, "F");
+          }
+
           xPos = margin;
           row.forEach((cell, index) => {
             const cellText = String(cell || "—");
