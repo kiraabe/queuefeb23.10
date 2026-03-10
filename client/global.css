@@ -214,6 +214,7 @@
 .react-datepicker {
   @apply rounded-md border border-input bg-background text-foreground shadow-lg;
   font-family: var(--font-sans);
+  color: hsl(var(--foreground));
 }
 
 .react-datepicker__header {
@@ -277,7 +278,22 @@
 }
 
 .react-datepicker__navigation-icon {
-  @apply text-muted-foreground hover:text-foreground;
+  @apply text-muted-foreground hover:text-foreground cursor-pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.react-datepicker__navigation-icon::before,
+.react-datepicker__navigation-icon::after {
+  @apply bg-current;
+  border-color: currentColor;
+  border-style: solid;
+}
+
+.react-datepicker__navigation-icon:hover::before,
+.react-datepicker__navigation-icon:hover::after {
+  @apply bg-foreground;
+  border-color: hsl(var(--foreground));
 }
 
 .react-datepicker__navigation--previous {
@@ -288,6 +304,33 @@
 .react-datepicker__navigation--next {
   @apply right-3;
   position: absolute;
+}
+
+.react-datepicker__navigation button {
+  @apply p-2 hover:bg-accent rounded transition-colors;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-datepicker__navigation button:hover {
+  @apply bg-accent border-accent;
+}
+
+.react-datepicker__navigation button svg {
+  color: hsl(var(--foreground));
+  stroke: hsl(var(--foreground));
+  width: 16px;
+  height: 16px;
+}
+
+.react-datepicker__navigation button:hover svg {
+  color: hsl(var(--accent-foreground));
+  stroke: hsl(var(--accent-foreground));
 }
 
 .react-datepicker__current-month {
@@ -301,6 +344,7 @@
 /* Dark mode support */
 .dark .react-datepicker {
   @apply bg-card border-border;
+  color: hsl(var(--foreground));
 }
 
 .dark .react-datepicker__header {
@@ -309,4 +353,18 @@
 
 .dark .react-datepicker__day-name {
   @apply text-muted-foreground;
+}
+
+.dark .react-datepicker__navigation button {
+  color: hsl(var(--foreground));
+}
+
+.dark .react-datepicker__navigation button svg {
+  color: hsl(var(--foreground));
+  stroke: hsl(var(--foreground));
+}
+
+.dark .react-datepicker__navigation button:hover svg {
+  color: hsl(var(--accent-foreground));
+  stroke: hsl(var(--accent-foreground));
 }
