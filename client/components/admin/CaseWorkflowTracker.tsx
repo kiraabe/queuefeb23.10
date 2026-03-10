@@ -1039,18 +1039,43 @@ function WorkflowCard({
 
                                 {/* Percentage Arrow Indicator */}
                                 <div
-                                  className="absolute -top-8 flex flex-col items-center cursor-help"
+                                  className="absolute -top-10 flex flex-col items-center cursor-help"
                                   style={{
-                                    left: `calc(${percentageOfStandard}% - 18px)`,
+                                    left: `calc(${percentageOfStandard}% - 20px)`,
                                     zIndex: 10
                                   }}
                                 >
-                                  {/* Percentage text box */}
-                                  <div className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1">
-                                    {percentageOfStandard}%
+                                  {/* Percentage text box with arrow below */}
+                                  <div className="relative">
+                                    <div className={`px-3 py-1.5 rounded-md shadow-lg whitespace-nowrap font-bold text-sm ${
+                                      performanceLevel === "on_time"
+                                        ? "bg-green-600 dark:bg-green-500 text-white"
+                                        : performanceLevel === "slightly_over"
+                                          ? "bg-yellow-600 dark:bg-yellow-500 text-white"
+                                          : performanceLevel === "moderately_over"
+                                            ? "bg-orange-600 dark:bg-orange-500 text-white"
+                                            : "bg-red-600 dark:bg-red-500 text-white"
+                                    }`}>
+                                      {percentageOfStandard}%
+                                    </div>
+                                    {/* Larger arrow pointing down */}
+                                    <div
+                                      className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-0.5"
+                                      style={{
+                                        width: 0,
+                                        height: 0,
+                                        borderLeft: "6px solid transparent",
+                                        borderRight: "6px solid transparent",
+                                        borderTop: performanceLevel === "on_time"
+                                          ? "8px solid rgb(22, 163, 74)"
+                                          : performanceLevel === "slightly_over"
+                                            ? "8px solid rgb(202, 138, 4)"
+                                            : performanceLevel === "moderately_over"
+                                              ? "8px solid rgb(234, 88, 12)"
+                                              : "8px solid rgb(220, 38, 38)"
+                                      }}
+                                    ></div>
                                   </div>
-                                  {/* Arrow pointing down */}
-                                  <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-200"></div>
                                 </div>
 
                                 {/* 100% marker line */}
