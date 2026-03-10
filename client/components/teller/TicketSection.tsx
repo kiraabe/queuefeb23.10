@@ -786,15 +786,31 @@ function TicketRow({
                               </Tooltip>
                             </div>
                             <div className="flex items-center gap-3">
-                              <div className="flex-1 relative group">
-                                {/* Color Range Tooltip - on slider bar */}
+                              <div className="flex-1 relative">
+                                {/* Color Range Bar with Progress Fill */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div className="relative h-4 rounded-full shadow-sm overflow-hidden cursor-help">
+                                      {/* Background gradient scale */}
                                       <div
                                         className="absolute inset-0 rounded-full"
                                         style={{
                                           background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
+                                        }}
+                                      ></div>
+
+                                      {/* Progress fill overlay */}
+                                      <div
+                                        className="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                                        style={{
+                                          width: `${percentageOfStandard}%`,
+                                          backgroundColor:
+                                            performanceLevel === "on_time" ? "rgb(22, 163, 74)" :
+                                            performanceLevel === "slightly_over" ? "rgb(202, 138, 4)" :
+                                            performanceLevel === "moderately_over" ? "rgb(234, 88, 12)" :
+                                            "rgb(220, 38, 38)",
+                                          opacity: 0.7,
+                                          boxShadow: "inset 0 1px 2px rgba(255, 255, 255, 0.3)"
                                         }}
                                       ></div>
                                     </div>
@@ -812,7 +828,7 @@ function TicketRow({
                                   </TooltipContent>
                                 </Tooltip>
 
-                                {/* Performance Arrow Indicator */}
+                                {/* Performance Percentage Indicator */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div
@@ -823,21 +839,31 @@ function TicketRow({
                                       }}
                                     >
                                       {/* Percentage text */}
-                                      <div className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1">
+                                      <div className={`text-white text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1 ${
+                                        performanceLevel === "on_time" ? "bg-green-600" :
+                                        performanceLevel === "slightly_over" ? "bg-yellow-600" :
+                                        performanceLevel === "moderately_over" ? "bg-orange-600" :
+                                        "bg-red-600"
+                                      }`}>
                                         {percentageOfStandard}%
                                       </div>
                                       {/* Arrow pointing down */}
-                                      <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-200"></div>
+                                      <div className={`w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent ${
+                                        performanceLevel === "on_time" ? "border-t-green-600" :
+                                        performanceLevel === "slightly_over" ? "border-t-yellow-600" :
+                                        performanceLevel === "moderately_over" ? "border-t-orange-600" :
+                                        "border-t-red-600"
+                                      }`}></div>
                                     </div>
                                   </TooltipTrigger>
                                   <TooltipContent side="top">
                                     <div className="space-y-1 text-xs">
                                       <p className="font-semibold">Performance: {percentageOfStandard}%</p>
                                       <p>
-                                        {performanceLevel === "on_time" && "🟢 On Time - Excellent service"}
-                                        {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay"}
-                                        {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay"}
-                                        {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay"}
+                                        {performanceLevel === "on_time" && "🟢 On Time - Excellent service (≥65%)"}
+                                        {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay (50-64%)"}
+                                        {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay (30-49%)"}
+                                        {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay (<30%)"}
                                       </p>
                                     </div>
                                   </TooltipContent>
