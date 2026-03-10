@@ -1033,18 +1033,13 @@ function WorkflowCard({
                                           : "bg-red-600 dark:bg-red-500 group-hover:ring-red-400 dark:group-hover:ring-red-300"
                                   }`}
                                   style={{
-                                    left: `calc(${Math.min(
-                                      ((workflow.totalDuration || 0) /
-                                        standardSeconds) *
-                                        100,
-                                      100
-                                    )}% - 8px)`,
+                                    left: `calc(${percentageOfStandard}% - 8px)`,
                                     zIndex: 10
                                   }}
                                 ></div>
 
                                 {/* 100% marker line */}
-                                {percentageOfStandard > 100 && (
+                                {percentageOfStandard < 100 && (
                                   <div
                                     className="absolute top-0 bottom-0 w-0.5 bg-white dark:bg-slate-900 opacity-70 transition-all"
                                     style={{

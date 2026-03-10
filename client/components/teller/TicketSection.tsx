@@ -765,10 +765,7 @@ function TicketRow({
                                 <div
                                   className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all"
                                   style={{
-                                    left: `calc(${Math.min(
-                                      (totalDuration / standardSeconds) * 100,
-                                      100
-                                    )}% - 8px)`,
+                                    left: `calc(${percentageOfStandard}% - 8px)`,
                                   }}
                                 ></div>
                               </div>
