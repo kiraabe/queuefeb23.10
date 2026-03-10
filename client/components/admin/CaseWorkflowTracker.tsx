@@ -1037,22 +1037,21 @@ function WorkflowCard({
                                   }}
                                 ></div>
 
-                                {/* Current position indicator */}
+                                {/* Percentage Arrow Indicator */}
                                 <div
-                                  className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all group-hover:ring-2 group-hover:ring-offset-2 ${
-                                    performanceLevel === "on_time"
-                                      ? "bg-green-600 dark:bg-green-500 group-hover:ring-green-400 dark:group-hover:ring-green-300"
-                                      : performanceLevel === "slightly_over"
-                                        ? "bg-yellow-600 dark:bg-yellow-500 group-hover:ring-yellow-400 dark:group-hover:ring-yellow-300"
-                                        : performanceLevel === "moderately_over"
-                                          ? "bg-orange-600 dark:bg-orange-500 group-hover:ring-orange-400 dark:group-hover:ring-orange-300"
-                                          : "bg-red-600 dark:bg-red-500 group-hover:ring-red-400 dark:group-hover:ring-red-300"
-                                  }`}
+                                  className="absolute -top-8 flex flex-col items-center cursor-help"
                                   style={{
-                                    left: `calc(${percentageOfStandard}% - 8px)`,
+                                    left: `calc(${percentageOfStandard}% - 18px)`,
                                     zIndex: 10
                                   }}
-                                ></div>
+                                >
+                                  {/* Percentage text box */}
+                                  <div className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1">
+                                    {percentageOfStandard}%
+                                  </div>
+                                  {/* Arrow pointing down */}
+                                  <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-200"></div>
+                                </div>
 
                                 {/* 100% marker line */}
                                 {percentageOfStandard < 100 && (
