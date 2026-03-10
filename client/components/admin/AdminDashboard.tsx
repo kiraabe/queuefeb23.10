@@ -14,6 +14,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Clock,
   Users,
   Zap,
@@ -269,84 +274,164 @@ export default function AdminDashboard() {
                 Real-time system health and activity
               </CardDescription>
             </div>
-            <Badge className={healthBadgeColor}>
-              {stats.systemHealth === "healthy"
-                ? "✓ Healthy"
-                : stats.systemHealth === "warning"
-                  ? "⚠ Warning"
-                  : "✕ Critical"}
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className={healthBadgeColor}>
+                  {stats.systemHealth === "healthy"
+                    ? "✓ Healthy"
+                    : stats.systemHealth === "warning"
+                      ? "⚠ Warning"
+                      : "✕ Critical"}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">System Health Status</p>
+                  <div className="text-xs space-y-1">
+                    <p>
+                      <span className="font-medium text-green-600">🟢 Healthy:</span> Wait time under 30 mins
+                    </p>
+                    <p>
+                      <span className="font-medium text-yellow-600">🟡 Warning:</span> Wait time 30-60 mins
+                    </p>
+                    <p>
+                      <span className="font-medium text-red-600">🔴 Critical:</span> Wait time over 60 mins
+                    </p>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-5">
             {/* Total Employees */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Total Employees
-                </span>
-                <Users className="h-4 w-4 text-blue-500" />
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">
-                {employeeStats.totalEmployees}
-              </p>
-              <p className="text-xs text-muted-foreground">active staff</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Total Employees
+                    </span>
+                    <Users className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">
+                    {employeeStats.totalEmployees}
+                  </p>
+                  <p className="text-xs text-muted-foreground">active staff</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Total Employees</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-blue-600">🔵 Blue:</span> Staff availability indicator
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Total Cases */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Total Cases
-                </span>
-                <Briefcase className="h-4 w-4 text-green-500" />
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.totalCompleted}</p>
-              <p className="text-xs text-muted-foreground">completed tickets</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Total Cases
+                    </span>
+                    <Briefcase className="h-4 w-4 text-green-500" />
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.totalCompleted}</p>
+                  <p className="text-xs text-muted-foreground">completed tickets</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Total Cases</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-green-600">🟢 Green:</span> Success/completed indicator
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Top Performer */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Top Performer
-                </span>
-                <Award className="h-4 w-4 text-yellow-500" />
-              </div>
-              <p className="text-2xl md:text-3xl font-bold truncate">
-                {employeeStats.topPerformer}
-              </p>
-              <p className="text-xs text-muted-foreground">by cases</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Top Performer
+                    </span>
+                    <Award className="h-4 w-4 text-yellow-500" />
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold truncate">
+                    {employeeStats.topPerformer}
+                  </p>
+                  <p className="text-xs text-muted-foreground">by cases</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Top Performer</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-yellow-600">🟡 Yellow:</span> Outstanding/award indicator
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Avg Duration */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Avg Duration
-                </span>
-                <Clock className="h-4 w-4 text-orange-500" />
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">
-                {employeeStats.avgDuration !== null
-                  ? formatSeconds(employeeStats.avgDuration)
-                  : "N/A"}
-              </p>
-              <p className="text-xs text-muted-foreground">per case</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Avg Duration
+                    </span>
+                    <Clock className="h-4 w-4 text-orange-500" />
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">
+                    {employeeStats.avgDuration !== null
+                      ? formatSeconds(employeeStats.avgDuration)
+                      : "N/A"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">per case</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Average Duration</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-orange-600">🟠 Orange:</span> Time-based warning indicator
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Total Windows */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Total Windows
-                </span>
-                <Zap className="h-4 w-4 text-purple-500" />
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{windows.length}</p>
-              <p className="text-xs text-muted-foreground">total available</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Total Windows
+                    </span>
+                    <Zap className="h-4 w-4 text-purple-500" />
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{windows.length}</p>
+                  <p className="text-xs text-muted-foreground">total available</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Total Windows</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-purple-600">🟣 Purple:</span> Capacity/resources indicator
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardContent>
       </Card>
@@ -360,48 +445,84 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Avg Handling Time */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Avg Handling Time
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">
-                {formatSeconds(stats.averageHandlingTime)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                per completed ticket
-              </p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Avg Handling Time
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">
+                    {formatSeconds(stats.averageHandlingTime)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    per completed ticket
+                  </p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Average Handling Time</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-blue-600">🔵 Blue:</span> Average time spent handling cases
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Longest Wait */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-orange-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Longest Wait
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">
-                {formatSeconds(stats.longestWaitTime)}
-              </p>
-              <p className="text-xs text-muted-foreground">current customer</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-orange-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Longest Wait
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">
+                    {formatSeconds(stats.longestWaitTime)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">current customer</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Longest Wait Time</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-orange-600">🟠 Orange:</span> Longest waiting customer (watch for delays)
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Avg Wait Time */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Avg Wait Time
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">
-                {formatSeconds(stats.averageWaitTime)}
-              </p>
-              <p className="text-xs text-muted-foreground">queue average</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Avg Wait Time
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">
+                    {formatSeconds(stats.averageWaitTime)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">queue average</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Average Wait Time</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-gray-600">⚪ Gray:</span> Average time customers wait in queue
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardContent>
       </Card>
@@ -417,76 +538,148 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* Waiting */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Waiting
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.totalWaiting}</p>
-              <p className="text-xs text-muted-foreground">in queue</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Waiting
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.totalWaiting}</p>
+                  <p className="text-xs text-muted-foreground">in queue</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Customers Waiting</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-blue-600">🔵 Blue:</span> Customers currently in queue waiting for service
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Serving */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-green-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Serving
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.totalServing}</p>
-              <p className="text-xs text-muted-foreground">being served</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-green-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Serving
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.totalServing}</p>
+                  <p className="text-xs text-muted-foreground">being served</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Customers Being Served</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-green-600">🟢 Green:</span> Customers currently with staff members
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Served Today */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Served Today
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.servedToday}</p>
-              <p className="text-xs text-muted-foreground">completed</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Served Today
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.servedToday}</p>
+                  <p className="text-xs text-muted-foreground">completed</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Served Today</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-green-600">🟢 Green:</span> Completed customer cases (since midnight)
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Completion Rate */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Completion Rate
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.completionRate}%</p>
-              <p className="text-xs text-muted-foreground">today's rate</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-emerald-600" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Completion Rate
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.completionRate}%</p>
+                  <p className="text-xs text-muted-foreground">today's rate</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Completion Rate</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-emerald-600">💚 Emerald:</span> Percentage of completed vs total cases
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Skipped */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <SkipForward className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Skipped
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.skippedToday}</p>
-              <p className="text-xs text-muted-foreground">skipped today</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <SkipForward className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Skipped
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.skippedToday}</p>
+                  <p className="text-xs text-muted-foreground">skipped today</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Skipped Cases</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-yellow-600">🟡 Yellow:</span> Customers who skipped their turn
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Hold */}
-            <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-2">
-                <Pause className="h-4 w-4 text-orange-500" />
-                <span className="text-sm font-medium text-muted-foreground">
-                  Hold
-                </span>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold">{stats.holdToday}</p>
-              <p className="text-xs text-muted-foreground">hold today</p>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow cursor-help">
+                  <div className="flex items-center gap-2">
+                    <Pause className="h-4 w-4 text-orange-500" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Hold
+                    </span>
+                  </div>
+                  <p className="text-2xl md:text-3xl font-bold">{stats.holdToday}</p>
+                  <p className="text-xs text-muted-foreground">hold today</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2">
+                  <p className="font-semibold">Cases on Hold</p>
+                  <p className="text-xs">
+                    <span className="font-medium text-orange-600">🟠 Orange:</span> Cases transferred or waiting for transfer
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardContent>
       </Card>
