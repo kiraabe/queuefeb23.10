@@ -349,35 +349,6 @@ function TicketRow({
         return {
           exceeds,
           performanceLevel,
-          standardMinutes: totalMinutes,
-          standardSeconds,
-          source: "services" as const
-        };
-      }
-    }
-
-    // Fallback: check service category
-    const serviceCategory = ticket.service;
-    if (serviceCategory) {
-      const standardMinutes = serviceStandardTimes[serviceCategory];
-      if (standardMinutes) {
-        const standardSeconds = standardMinutes * 60;
-        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
-
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
-        if (percentageOfStandard >= 100) {
-          performanceLevel = "on_time";
-        } else if (percentageOfStandard >= 80) {
-          performanceLevel = "slightly_over";
-        } else {
-          performanceLevel = "significantly_over";
-        }
-
-        const exceeds = totalDuration > standardSeconds;
-        return {
-          exceeds,
-          performanceLevel,
           standardMinutes,
           standardSeconds,
           source: "category" as const
