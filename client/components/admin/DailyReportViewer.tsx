@@ -315,7 +315,7 @@ export default function DailyReportViewer() {
             <p style="font-weight: bold; margin: 5px 0;">Generated: ${format(new Date(report.generatedAt), "PPpp")}</p>
           </div>
 
-          <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">EXECUTIVE SUMMARY</h2>
+          <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">EXECUTIVE SUMMARY</h2>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr style="background-color: #f0f0f0;">
               <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Metric</td>
@@ -355,7 +355,7 @@ export default function DailyReportViewer() {
       });
 
       if (activeWindows.length > 0) {
-        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">WINDOW PERFORMANCE SUMMARY</h2>
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">WINDOW PERFORMANCE SUMMARY</h2>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr style="background-color: #f0f0f0;">
               <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Window</td>
@@ -388,7 +388,7 @@ export default function DailyReportViewer() {
 
       // Employee Performance
       if (analytics && analytics.employees && analytics.employees.length > 0) {
-        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">EMPLOYEE PERFORMANCE SUMMARY</h2>
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">EMPLOYEE PERFORMANCE SUMMARY</h2>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr style="background-color: #f0f0f0;">
               <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Employee</td>
@@ -420,7 +420,7 @@ export default function DailyReportViewer() {
 
       // Category Performance
       if (analytics && analytics.categories && analytics.categories.length > 0) {
-        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">SERVICE CATEGORY PERFORMANCE</h2>
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">SERVICE CATEGORY PERFORMANCE</h2>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr style="background-color: #f0f0f0;">
               <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Category</td>
@@ -453,7 +453,7 @@ export default function DailyReportViewer() {
 
       // Detailed Tickets
       if (report.detailedTickets && report.detailedTickets.length > 0) {
-        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">DETAILED TICKETS</h2>
+        htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">DETAILED TICKETS</h2>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
             <tr style="background-color: #f0f0f0;">
               <td style="border: 1px solid #ddd; padding: 6px; font-weight: bold;">Ticket #</td>
@@ -500,7 +500,7 @@ export default function DailyReportViewer() {
       }
 
       // Performance Analysis
-      htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">PERFORMANCE ANALYSIS</h2>
+      htmlContent += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 12px;">PERFORMANCE ANALYSIS</h2>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
           <tr style="background-color: #f0f0f0;">
             <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Performance Level</td>
