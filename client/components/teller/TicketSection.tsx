@@ -786,51 +786,56 @@ function TicketRow({
                               </Tooltip>
                             </div>
                             <div className="flex items-center gap-3">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-hidden cursor-help">
+                              <div className="flex-1 relative group">
+                                {/* Color Range Tooltip - on slider bar */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="relative h-4 rounded-full shadow-sm overflow-hidden cursor-help">
+                                      <div
+                                        className="absolute inset-0 rounded-full"
+                                        style={{
+                                          background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
+                                        }}
+                                      ></div>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom">
+                                    <div className="space-y-2 text-xs">
+                                      <p className="font-semibold">Performance Scale</p>
+                                      <div className="space-y-1">
+                                        <p><span className="font-medium text-green-600">🟢 Green (65-100%):</span> On time</p>
+                                        <p><span className="font-medium text-yellow-600">🟡 Yellow (50-64%):</span> Slightly over</p>
+                                        <p><span className="font-medium text-orange-600">🟠 Orange (30-49%):</span> Moderately over</p>
+                                        <p><span className="font-medium text-red-600">🔴 Red (&lt;30%):</span> Significantly over</p>
+                                      </div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+
+                                {/* Performance Dot Tooltip */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
                                     <div
-                                      className="absolute inset-0 rounded-full"
+                                      className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all cursor-help"
                                       style={{
-                                        background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
+                                        left: `calc(${percentageOfStandard}% - 8px)`,
+                                        zIndex: 10
                                       }}
                                     ></div>
-
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <div
-                                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-slate-200 rounded-full shadow-lg border-2 border-white dark:border-slate-900 transition-all cursor-help"
-                                          style={{
-                                            left: `calc(${percentageOfStandard}% - 8px)`,
-                                          }}
-                                        ></div>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="top">
-                                        <div className="space-y-1 text-xs">
-                                          <p className="font-semibold">Current Performance: {percentageOfStandard}%</p>
-                                          <p>
-                                            {performanceLevel === "on_time" && "🟢 On Time - Excellent service delivery"}
-                                            {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor time overrun"}
-                                            {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay"}
-                                            {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay"}
-                                          </p>
-                                        </div>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom">
-                                  <div className="space-y-2 text-xs">
-                                    <p className="font-semibold">Performance Scale</p>
-                                    <div className="space-y-1">
-                                      <p><span className="font-medium text-green-600">🟢 Green (65-100%):</span> On time - Within standard</p>
-                                      <p><span className="font-medium text-yellow-600">🟡 Yellow (50-64%):</span> Slightly over - Minor delay</p>
-                                      <p><span className="font-medium text-orange-600">🟠 Orange (30-49%):</span> Moderately over - Significant delay</p>
-                                      <p><span className="font-medium text-red-600">🔴 Red (&lt;30%):</span> Significantly over - Major delay</p>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    <div className="space-y-1 text-xs">
+                                      <p className="font-semibold">Performance: {percentageOfStandard}%</p>
+                                      <p>
+                                        {performanceLevel === "on_time" && "🟢 On Time - Excellent service"}
+                                        {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay"}
+                                        {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay"}
+                                        {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay"}
+                                      </p>
                                     </div>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
                               <span className="text-sm font-bold whitespace-nowrap min-w-fit">
                                 {percentageOfStandard}%
                               </span>
