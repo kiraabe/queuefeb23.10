@@ -185,35 +185,23 @@ export function createServer() {
       // Content Security Policy
       contentSecurityPolicy: {
         directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // vite/dev or inline chunks
-          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-          imgSrc: ["'self'", "data:", "blob:"],
-          fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          connectSrc: ["'self'", "/.netlify/functions/api"],
-          frameAncestors: ["'self'", "*.builder.ai", "*.builder.io"],
+          defaultSrc: ["*"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "*"],
+          imgSrc: ["'self'", "data:", "blob:", "*"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com", "*"],
+          connectSrc: ["*"],
+          frameAncestors: ["*"],
         },
       },
+      // Relaxed policies for development/preview environments
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginOpenerPolicy: { policy: "unsafe-none" },
+      crossOriginEmbedderPolicy: false,
       // Prevent browsers from MIME-type sniffing
       noSniff: true,
-      // Clickjacking protection
-      frameguard: { action: "deny" },
-      // Referrer policy
-      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-      // HSTS (HTTP Strict Transport Security)
-      hsts: {
-        maxAge: 31536000, // 1 year
-        includeSubDomains: true,
-        preload: true,
-      },
-      // X-Powered-By header removal
-      hidePoweredBy: true,
-      // DNS prefetch control
-      dnsPrefetchControl: { allow: false },
-      // Disable X-UA-Compatible
-      ieNoOpen: true,
-      // Prevent browsers from accessing certain MIME types
-      xssFilter: true,
+      // Clickjacking protection - disabled for preview
+      frameguard: false,
     }),
   );
 
@@ -229,19 +217,8 @@ export function createServer() {
     next();
   });
 
-  app.use(express.json({ charset: "utf-8" }));
-  app.use(express.urlencoded({ extended: true, charset: "utf-8" }));
-
-  // Ensure all responses have proper UTF-8 charset
-  app.use((req, res, next) => {
-    const originalJson = res.json;
-    res.json = function(data) {
-      res.charset = "utf-8";
-      res.type("application/json; charset=utf-8");
-      return originalJson.call(this, data);
-    };
-    next();
-  });
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Extract user ID from authentication context for rate limiting
   app.use(extractUserIdMiddleware);
