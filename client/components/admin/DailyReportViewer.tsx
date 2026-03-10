@@ -334,7 +334,7 @@ export default function DailyReportViewer() {
         // Headers
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(9);
-        pdf.setFillColor(200, 200, 200);
+        pdf.setFillColor(230, 230, 230);
         pdf.setTextColor(0, 0, 0);
         let xPos = margin;
         headers.forEach((header) => {
@@ -396,7 +396,11 @@ export default function DailyReportViewer() {
       addTable(["Metric", "Value"], summaryRows);
 
       // ========== WINDOW PERFORMANCE SUMMARY ==========
-      const activeWindows = report.windowStats?.filter((w) => w.servedTickets > 0) || [];
+      const activeWindows = (report.windowStats || []).filter((w) => {
+        const served = parseInt(String(w.servedTickets)) || 0;
+        return served > 0;
+      });
+
       if (activeWindows.length > 0) {
         addText("WINDOW PERFORMANCE SUMMARY", { section: true });
         const windowRows = activeWindows.map((window) => {
