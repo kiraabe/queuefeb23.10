@@ -284,8 +284,8 @@ export default function DailyReportViewer() {
 
     const lines: string[] = [];
 
-    // Helper to format a row
-    const row = (...cells: any[]) => cells.map(formatCSVCell).join(",");
+    // Helper to create tab-separated values for clean output
+    const tabRow = (...cells: any[]) => cells.map(c => String(c)).join("\t");
 
     // ========== REPORT HEADER ==========
     lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
@@ -295,26 +295,26 @@ export default function DailyReportViewer() {
 
     lines.push("REPORT INFORMATION");
     lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-    lines.push(row("Report Period:", report.reportDate));
-    lines.push(row("Generated Date:", format(new Date(report.generatedAt), "PPpp")));
+    lines.push(tabRow("Report Period:", report.reportDate));
+    lines.push(tabRow("Generated Date:", format(new Date(report.generatedAt), "PPpp")));
     lines.push("");
 
     // ========== EXECUTIVE SUMMARY ==========
     lines.push("EXECUTIVE SUMMARY");
     lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
-    lines.push(row("Metric", "Value"));
-    lines.push(row("Total Tickets Created", report.summary.totalTicketsCreated));
-    lines.push(row("Tickets Served", report.summary.served));
-    lines.push(row("Tickets Skipped", report.summary.skipped));
-    lines.push(row("Tickets Transferred", report.summary.transferred));
+    lines.push(tabRow("Metric", "Value"));
+    lines.push(tabRow("Total Tickets Created", report.summary.totalTicketsCreated));
+    lines.push(tabRow("Tickets Served", report.summary.served));
+    lines.push(tabRow("Tickets Skipped", report.summary.skipped));
+    lines.push(tabRow("Tickets Transferred", report.summary.transferred));
     const avgServiceMinutes = report.summary.averageServiceTime
       ? Math.round(report.summary.averageServiceTime / 60)
       : "N/A";
-    lines.push(row("Average Service Time", `${avgServiceMinutes} minutes`));
+    lines.push(tabRow("Average Service Time", `${avgServiceMinutes} minutes`));
     const completionRate = report.summary.totalTicketsCreated > 0
       ? `${Math.round((report.summary.served / report.summary.totalTicketsCreated) * 100)}%`
       : "N/A";
-    lines.push(row("Service Completion Rate", completionRate));
+    lines.push(tabRow("Service Completion Rate", completionRate));
     lines.push("");
 
     // ========== WINDOW PERFORMANCE SUMMARY ==========
@@ -322,7 +322,7 @@ export default function DailyReportViewer() {
       lines.push("WINDOW PERFORMANCE SUMMARY");
       lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
       lines.push(
-        row("Window", "Teller", "Tickets Served", "Avg Service Time", "Performance Level")
+        tabRow("Window", "Teller", "Tickets Served", "Avg Service Time", "Performance Level")
       );
       report.windowStats.forEach((window) => {
         const avgTime = window.averageServiceTime
@@ -333,7 +333,7 @@ export default function DailyReportViewer() {
                                  window.performanceLevel === "moderately_over" ? "⚠ Moderately Over" :
                                  window.performanceLevel === "significantly_over" ? "✕ Significantly Over" : "N/A";
         lines.push(
-          row(
+          tabRow(
             window.windowName,
             window.tellerName,
             window.servedTickets,
@@ -353,7 +353,7 @@ export default function DailyReportViewer() {
       lines.push("");
 
       lines.push(
-        row("Ticket #", "Service", "Ticketer Name", "Wereda", "Selected Services", "Window", "Service Start", "Service End", "Duration", "Standard", "Performance")
+        tabRow("Ticket #", "Service", "Ticketer Name", "Wereda", "Selected Services", "Window", "Service Start", "Service End", "Duration", "Standard", "Performance")
       );
 
       report.detailedTickets.forEach((ticket) => {
@@ -384,7 +384,7 @@ export default function DailyReportViewer() {
           : (windowId !== "N/A" ? `Window ${windowId}` : "—");
 
         lines.push(
-          row(
+          tabRow(
             ticket.ticketCode,
             ticket.service,
             ticket.ownerName || "—",
@@ -410,7 +410,7 @@ export default function DailyReportViewer() {
       lines.push("");
 
       lines.push(
-        row("Employee Name", "Cases Started", "Completed", "Forwarded", "Avg Time/Case", "Total Time", "Completion Rate")
+        tabRow("Employee Name", "Cases Started", "Completed", "Forwarded", "Avg Time/Case", "Total Time", "Completion Rate")
       );
 
       analytics.employees.slice(0, 20).forEach((emp) => {
@@ -425,7 +425,7 @@ export default function DailyReportViewer() {
           : "N/A";
 
         lines.push(
-          row(
+          tabRow(
             emp.employeeName,
             emp.totalCasesStarted,
             emp.casesCompleted,
@@ -447,7 +447,7 @@ export default function DailyReportViewer() {
       lines.push("");
 
       lines.push(
-        row("Category", "Total", "Served", "Skipped", "Transferred", "Completion Rate", "Avg Service Time")
+        tabRow("Category", "Total", "Served", "Skipped", "Transferred", "Completion Rate", "Avg Service Time")
       );
 
       analytics.categories.forEach((cat) => {
@@ -457,7 +457,7 @@ export default function DailyReportViewer() {
         const completionRateCat = `${cat.completionRate}%`;
 
         lines.push(
-          row(
+          tabRow(
             cat.categoryName,
             cat.totalTickets,
             cat.served,
@@ -491,11 +491,11 @@ export default function DailyReportViewer() {
     });
 
     const total = report.detailedTickets.length;
-    lines.push(row("Performance Level", "Count", "Percentage"));
-    lines.push(row("✓ On Time", performanceCounts.on_time, `${total > 0 ? Math.round((performanceCounts.on_time / total) * 100) : 0}%`));
-    lines.push(row("⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`));
-    lines.push(row("⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`));
-    lines.push(row("✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`));
+    lines.push(tabRow("Performance Level", "Count", "Percentage"));
+    lines.push(tabRow("✓ On Time", performanceCounts.on_time, `${total > 0 ? Math.round((performanceCounts.on_time / total) * 100) : 0}%`));
+    lines.push(tabRow("⚠ Slightly Over", performanceCounts.slightly_over, `${total > 0 ? Math.round((performanceCounts.slightly_over / total) * 100) : 0}%`));
+    lines.push(tabRow("⚠ Moderately Over", performanceCounts.moderately_over, `${total > 0 ? Math.round((performanceCounts.moderately_over / total) * 100) : 0}%`));
+    lines.push(tabRow("✕ Significantly Over", performanceCounts.significantly_over, `${total > 0 ? Math.round((performanceCounts.significantly_over / total) * 100) : 0}%`));
     lines.push("");
 
     // ========== FOOTER ==========
@@ -503,9 +503,9 @@ export default function DailyReportViewer() {
     lines.push("End of Report");
     lines.push("═════════════════════════════════════════════════════════════════════════════════════════════════════");
 
-    const csv = lines.join("\n");
-    const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.csv`;
-    downloadCSVFile(csv, filename);
+    const txt = lines.join("\n");
+    const filename = `QueueReport_${report.reportDate.replace(/ /g, "_")}_${format(new Date(), "yyyy-MM-dd_HHmmss")}.txt`;
+    downloadCSVFile(txt, filename);
   };
 
   const toggleWindowExpanded = (windowId: number) => {
