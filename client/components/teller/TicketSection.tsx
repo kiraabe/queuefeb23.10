@@ -304,8 +304,9 @@ function TicketRow({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
+        // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+        const performance = Math.max(0, Math.min(100, (standardSeconds / totalDuration) * 65));
+        const percentageOfStandard = Math.round(performance);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard >= 65) {
@@ -335,8 +336,9 @@ function TicketRow({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
+        // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+        const performance = Math.max(0, Math.min(100, (standardSeconds / totalDuration) * 65));
+        const percentageOfStandard = Math.round(performance);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard >= 65) {
@@ -650,10 +652,9 @@ function TicketRow({
                   const selectedServices = ticket.selectedServices || [];
 
                   if (standardSeconds && totalDuration) {
-                    // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-                    const percentageOfStandard = Math.round(
-                      100 - ((totalDuration - standardSeconds) / standardSeconds) * 100
-                    );
+                    // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+                    const performance = Math.max(0, Math.min(100, (standardSeconds / totalDuration) * 65));
+                    const percentageOfStandard = Math.round(performance);
 
                     const getBgColor = () => {
                       switch (performanceLevel) {
