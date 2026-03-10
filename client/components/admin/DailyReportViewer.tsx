@@ -174,6 +174,10 @@ export default function DailyReportViewer() {
   const [expandedWindows, setExpandedWindows] = useState<Set<number>>(new Set());
   const reportContentRef = useRef<HTMLDivElement>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
     try {
       setLoading(true);
@@ -244,6 +248,7 @@ export default function DailyReportViewer() {
 
   useEffect(() => {
     fetchReport(fromDate, toDate);
+    setCurrentPage(1); // Reset to first page when dates change
 
     // Also fetch employee stats and overall analytics
     const fetchAdditionalData = async () => {
@@ -709,7 +714,7 @@ export default function DailyReportViewer() {
       <Card className="border-border/70">
         <CardHeader>
           <CardTitle className="text-xl">
-            Detailed Tickets ({filteredTickets.length})
+            Detailed Tickets
           </CardTitle>
           <CardDescription>
             Ticket details with service performance and customer information
@@ -735,7 +740,7 @@ export default function DailyReportViewer() {
               </TableHeader>
               <TableBody>
                 {filteredTickets.length > 0 ? (
-                  filteredTickets.map((ticket) => (
+                  filteredTickets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((ticket) => (
                     <TableRow key={ticket.ticketId}>
                       <TableCell className="font-semibold">
                         {ticket.ticketCode}
@@ -825,6 +830,46 @@ export default function DailyReportViewer() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {filteredTickets.length > itemsPerPage && (
+            <div className="flex items-center justify-between mt-6 pt-6 border-t">
+              <div className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredTickets.length)} of {filteredTickets.length} tickets
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: Math.ceil(filteredTickets.length / itemsPerPage) }, (_, i) => i + 1).map(page => (
+                    <Button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredTickets.length / itemsPerPage)))}
+                  disabled={currentPage === Math.ceil(filteredTickets.length / itemsPerPage)}
+                  variant="outline"
+                  size="sm"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
