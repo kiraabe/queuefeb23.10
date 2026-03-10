@@ -136,7 +136,6 @@ export default function DailyReportViewer() {
   const [toDate, setToDate] = useState<Date | null>(new Date());
 
   // Filter state
-  const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedWindow, setSelectedWindow] = useState<number | null>(null);
   const [expandedWindows, setExpandedWindows] = useState<Set<number>>(new Set());
 
@@ -236,17 +235,15 @@ export default function DailyReportViewer() {
     return report.windowStats.map((w) => w.windowId).sort((a, b) => a - b);
   }, [report]);
 
-  // Filter detailed tickets based on selected service and window
+  // Filter detailed tickets based on selected window
   const filteredTickets = useMemo(() => {
     if (!report) return [];
     return report.detailedTickets.filter((ticket) => {
-      const serviceMatch =
-        !selectedService || ticket.service === selectedService;
       const windowMatch =
         selectedWindow === null || ticket.windowId === selectedWindow;
-      return serviceMatch && windowMatch;
+      return windowMatch;
     });
-  }, [report, selectedService, selectedWindow]);
+  }, [report, selectedWindow]);
 
   const downloadCSV = () => {
     if (!report) return;
@@ -469,23 +466,6 @@ export default function DailyReportViewer() {
 
           {/* Filter Options */}
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
-                Filter by Service
-              </label>
-              <select
-                value={selectedService || ""}
-                onChange={(e) => setSelectedService(e.target.value || null)}
-                className="w-full rounded-md border border-input px-3 py-2"
-              >
-                <option value="">All Services</option>
-                {services.map((service) => (
-                  <option key={service} value={service}>
-                    {service}
-                  </option>
-                ))}
-              </select>
-            </div>
             <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Filter by Window
