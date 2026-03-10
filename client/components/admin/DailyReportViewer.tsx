@@ -394,9 +394,10 @@ export default function DailyReportViewer() {
       addTable(["Metric", "Value"], summaryRows);
 
       // ========== WINDOW PERFORMANCE SUMMARY ==========
-      if (report.windowStats && report.windowStats.length > 0) {
+      const activeWindows = report.windowStats?.filter((w) => w.servedTickets > 0) || [];
+      if (activeWindows.length > 0) {
         addText("WINDOW PERFORMANCE SUMMARY", { section: true });
-        const windowRows = report.windowStats.map((window) => {
+        const windowRows = activeWindows.map((window) => {
           const avgTime = window.averageServiceTime
             ? `${Math.round(window.averageServiceTime / 60)} min`
             : "N/A";
