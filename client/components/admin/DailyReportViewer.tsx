@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -590,22 +591,32 @@ export default function DailyReportViewer() {
                           : "—"}
                       </TableCell>
                       <TableCell>
-                        <span
-                          className={cn(
-                            "inline-block px-2 py-1 rounded text-xs font-semibold whitespace-nowrap",
-                            getPerformanceColor(ticket.performanceLevel)
-                          )}
-                        >
-                          {ticket.performanceLevel === "on_time"
-                            ? "✓ On Time"
-                            : ticket.performanceLevel === "slightly_over"
-                              ? "⚠ Slightly Over"
-                              : ticket.performanceLevel === "moderately_over"
-                                ? "⚠ Moderately Over"
-                                : ticket.performanceLevel === "significantly_over"
-                                  ? "✕ Over"
-                                  : "—"}
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className={cn(
+                                "inline-block px-2 py-1 rounded text-xs font-semibold whitespace-nowrap cursor-help",
+                                getPerformanceColor(ticket.performanceLevel)
+                              )}
+                            >
+                              {ticket.performanceLevel === "on_time"
+                                ? "✓ On Time"
+                                : ticket.performanceLevel === "slightly_over"
+                                  ? "⚠ Slightly Over"
+                                  : ticket.performanceLevel === "moderately_over"
+                                    ? "⚠ Moderately Over"
+                                    : ticket.performanceLevel === "significantly_over"
+                                      ? "✕ Over"
+                                      : "—"}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="left">
+                            {ticket.performanceLevel === "on_time" && "🟢 On Time - Good performance (≥ 65%)"}
+                            {ticket.performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay (50-64%)"}
+                            {ticket.performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay (30-49%)"}
+                            {ticket.performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay (< 30%)"}
+                          </TooltipContent>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))

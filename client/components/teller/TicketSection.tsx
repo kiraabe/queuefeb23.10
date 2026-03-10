@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import type { Ticket } from "@shared/api";
 import {
   ChevronLeft,
@@ -759,20 +760,30 @@ function TicketRow({
                                   </span>
                                 )}
                               </p>
-                              <div className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                                performanceLevel === "on_time"
-                                  ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : performanceLevel === "slightly_over"
-                                    ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    : performanceLevel === "moderately_over"
-                                      ? "bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                                      : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              }`}>
-                                {performanceLevel === "on_time" && "✓ On Time"}
-                                {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
-                                {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
-                                {performanceLevel === "significantly_over" && "✕ Significantly Over"}
-                              </div>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap cursor-help ${
+                                    performanceLevel === "on_time"
+                                      ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                      : performanceLevel === "slightly_over"
+                                        ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                        : performanceLevel === "moderately_over"
+                                          ? "bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                          : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                  }`}>
+                                    {performanceLevel === "on_time" && "✓ On Time"}
+                                    {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                                    {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
+                                    {performanceLevel === "significantly_over" && "✕ Significantly Over"}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  {performanceLevel === "on_time" && "🟢 On Time - Good performance (≥ 65%)"}
+                                  {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay (50-64%)"}
+                                  {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay (30-49%)"}
+                                  {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay (< 30%)"}
+                                </TooltipContent>
+                              </Tooltip>
                             </div>
                             <div className="flex items-center gap-3">
                               <div className="flex-1 relative h-4 rounded-full shadow-sm overflow-hidden">
