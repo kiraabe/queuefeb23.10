@@ -335,7 +335,7 @@ export default function DailyReportViewer() {
         pdf.setFont("helvetica", "bold");
         pdf.setFontSize(9);
         pdf.setFillColor(230, 230, 230);
-        pdf.setTextColor(0, 0, 0);
+        pdf.setTextColor(0, 51, 153);
         let xPos = margin;
         headers.forEach((header) => {
           pdf.rect(xPos, yPosition, colWidth, 6, "F");
