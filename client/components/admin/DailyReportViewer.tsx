@@ -319,7 +319,7 @@ export default function DailyReportViewer() {
         }
 
         pdf.text(splitText, margin, yPosition);
-        yPosition += textHeight + (isSection ? 3 : 2);
+        yPosition += textHeight + (isSection ? 1 : 2);
       };
 
       // Helper to add a table
@@ -337,10 +337,10 @@ export default function DailyReportViewer() {
         pdf.setTextColor(0, 51, 153);
         let xPos = margin;
         headers.forEach((header) => {
-          pdf.text(header, xPos + 1, yPosition + 4);
+          pdf.text(header, xPos + 1, yPosition + 3);
           xPos += colWidth;
         });
-        yPosition += 8;
+        yPosition += 6;
 
         // Rows with alternating background colors
         pdf.setFont("helvetica", "normal");
@@ -369,7 +369,7 @@ export default function DailyReportViewer() {
           yPosition += 6;
         });
 
-        yPosition += 3;
+        yPosition += 8;
       };
 
       // ========== REPORT HEADER ==========
@@ -558,7 +558,7 @@ export default function DailyReportViewer() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 sm:space-y-12">
       {/* Report Header and Controls */}
       <Card className="border-2 border-blue-200 dark:border-blue-900">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-t-lg">

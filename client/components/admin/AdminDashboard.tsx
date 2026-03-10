@@ -251,7 +251,7 @@ export default function AdminDashboard() {
         : "bg-red-100 text-red-800";
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12">
       {/* Health Alert */}
       {stats.systemHealth !== "healthy" && (
         <Alert variant="default" className="border-orange-500 bg-orange-50">
@@ -943,7 +943,7 @@ export default function AdminDashboard() {
 
       {/* Overall Analytics View */}
       {analyticsView === "overall" && (
-        <div className="space-y-6">
+        <div className="space-y-8 sm:space-y-10 md:space-y-12">
           {/* Overall Employee Analytics */}
           <OverallEmployeeAnalytics />
 
@@ -957,7 +957,7 @@ export default function AdminDashboard() {
 
       {/* Daily Analytics View */}
       {analyticsView === "daily" && (
-        <div className="space-y-6">
+        <div className="space-y-8 sm:space-y-10 md:space-y-12">
           {/* Employee Performance Dashboard Section */}
           <EmployeePerformanceDashboard />
 
