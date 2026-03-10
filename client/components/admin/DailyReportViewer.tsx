@@ -348,7 +348,7 @@ export default function DailyReportViewer() {
     // ========== DETAILED TICKETS SECTION ==========
     if (report.detailedTickets && report.detailedTickets.length > 0) {
       lines.push("DETAILED TICKET RECORDS");
-      lines.push(row("Total Records:", report.detailedTickets.length));
+      lines.push(`Total Records: ${report.detailedTickets.length}`);
       lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
       lines.push("");
 
@@ -405,7 +405,7 @@ export default function DailyReportViewer() {
     // ========== EMPLOYEE PERFORMANCE SUMMARY ==========
     if (analytics && analytics.employees && analytics.employees.length > 0) {
       lines.push("EMPLOYEE PERFORMANCE SUMMARY");
-      lines.push(row("Total Employees:", analytics.employees.length));
+      lines.push(`Total Employees: ${analytics.employees.length}`);
       lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
       lines.push("");
 
@@ -442,7 +442,7 @@ export default function DailyReportViewer() {
     // ========== CATEGORY PERFORMANCE DETAILS ==========
     if (analytics && analytics.categories && analytics.categories.length > 0) {
       lines.push("SERVICE CATEGORY PERFORMANCE DETAILS");
-      lines.push(row("Total Categories:", analytics.categories.length));
+      lines.push(`Total Categories: ${analytics.categories.length}`);
       lines.push("─────────────────────────────────────────────────────────────────────────────────────────────────────");
       lines.push("");
 
