@@ -659,17 +659,19 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         const standardTime = serviceStandardTimes[r.name] || null;
         const servedCount = Number(r.served || 0);
 
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null = null;
+        let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over" | null = null;
         if (avgServiceTime && standardTime) {
           const standardSeconds = standardTime * 60;
           // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
           const percentageOfStandard = Math.round(100 - ((avgServiceTime - standardSeconds) / standardSeconds) * 100);
-          if (percentageOfStandard < 80) {
-            performanceLevel = "significantly_over";
-          } else if (percentageOfStandard < 100) {
-            performanceLevel = "slightly_over";
-          } else {
+          if (percentageOfStandard >= 65) {
             performanceLevel = "on_time";
+          } else if (percentageOfStandard >= 50) {
+            performanceLevel = "slightly_over";
+          } else if (percentageOfStandard >= 30) {
+            performanceLevel = "moderately_over";
+          } else {
+            performanceLevel = "significantly_over";
           }
         }
 
@@ -717,12 +719,14 @@ export const getDailyReport: RequestHandler = async (req, res) => {
           const standardSeconds = standardTime * 60;
           // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
           const percentageOfStandard = Math.round(100 - ((duration - standardSeconds) / standardSeconds) * 100);
-          if (percentageOfStandard < 80) {
-            performanceLevel = "significantly_over";
-          } else if (percentageOfStandard < 100) {
-            performanceLevel = "slightly_over";
-          } else {
+          if (percentageOfStandard >= 65) {
             performanceLevel = "on_time";
+          } else if (percentageOfStandard >= 50) {
+            performanceLevel = "slightly_over";
+          } else if (percentageOfStandard >= 30) {
+            performanceLevel = "moderately_over";
+          } else {
+            performanceLevel = "significantly_over";
           }
         }
 

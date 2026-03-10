@@ -466,11 +466,11 @@ function WorkflowCard({
         const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
-        if (percentageOfStandard >= 100) {
+        if (percentageOfStandard >= 65) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard >= 80) {
-          performanceLevel = "slightly_over";
         } else if (percentageOfStandard >= 50) {
+          performanceLevel = "slightly_over";
+        } else if (percentageOfStandard >= 30) {
           performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
@@ -497,11 +497,11 @@ function WorkflowCard({
         const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
-        if (percentageOfStandard >= 100) {
+        if (percentageOfStandard >= 65) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard >= 80) {
-          performanceLevel = "slightly_over";
         } else if (percentageOfStandard >= 50) {
+          performanceLevel = "slightly_over";
+        } else if (percentageOfStandard >= 30) {
           performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
@@ -1016,7 +1016,7 @@ function WorkflowCard({
                                 <div
                                   className="absolute inset-0 rounded-full"
                                   style={{
-                                    background: "linear-gradient(to right, rgb(34, 197, 94) 0%, rgb(34, 197, 94) 35%, rgb(251, 191, 36) 35%, rgb(251, 191, 36) 60%, rgb(251, 146, 60) 60%, rgb(251, 146, 60) 80%, rgb(239, 68, 68) 80%, rgb(239, 68, 68) 100%)",
+                                    background: "linear-gradient(to right, rgb(239, 68, 68) 0%, rgb(239, 68, 68) 29%, rgb(251, 146, 60) 29%, rgb(251, 146, 60) 49%, rgb(251, 191, 36) 49%, rgb(251, 191, 36) 64%, rgb(34, 197, 94) 64%, rgb(34, 197, 94) 100%)",
                                     width: "100%"
                                   }}
                                 ></div>

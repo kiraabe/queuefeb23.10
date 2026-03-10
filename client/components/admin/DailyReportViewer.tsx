@@ -47,7 +47,7 @@ interface DailyReport {
     tellerName: string;
     servedTickets: number;
     averageServiceTime: number | null;
-    performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null;
+    performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over" | null;
   }>;
   detailedTickets: Array<{
     ticketId: string;
@@ -63,7 +63,7 @@ interface DailyReport {
     completedAt: number;
     serviceDurationSeconds: number | null;
     standardTimeMinutes: number | null;
-    performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null;
+    performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over" | null;
   }>;
   serviceStandardTimes: Record<string, number>;
 }
@@ -89,6 +89,8 @@ const getPerformanceColor = (level: string | null) => {
       return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
     case "slightly_over":
       return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+    case "moderately_over":
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
     case "significantly_over":
       return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
     default:
@@ -102,6 +104,8 @@ const getPerformanceBarColor = (level: string | null) => {
       return "bg-green-600";
     case "slightly_over":
       return "bg-yellow-600";
+    case "moderately_over":
+      return "bg-orange-600";
     case "significantly_over":
       return "bg-red-600";
     default:
@@ -283,6 +287,7 @@ export default function DailyReportViewer() {
         const performance = window.performanceLevel ?
           (window.performanceLevel === "on_time" ? "On Time" :
            window.performanceLevel === "slightly_over" ? "Slightly Over" :
+           window.performanceLevel === "moderately_over" ? "Moderately Over" :
            window.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A") : "N/A";
         const avgTime = window.averageServiceTime !== null && window.averageServiceTime !== undefined ? window.averageServiceTime : "N/A";
         const servedCount = window.servedTickets !== null && window.servedTickets !== undefined ? window.servedTickets : 0;
@@ -315,6 +320,7 @@ export default function DailyReportViewer() {
         const endDate = formatCSVDate(ticket.completedAt);
         const performance = ticket.performanceLevel === "on_time" ? "On Time" :
                            ticket.performanceLevel === "slightly_over" ? "Slightly Over" :
+                           ticket.performanceLevel === "moderately_over" ? "Moderately Over" :
                            ticket.performanceLevel === "significantly_over" ? "Significantly Over" : "N/A";
         const standardTime = ticket.standardTimeMinutes ? `${ticket.standardTimeMinutes}` : "N/A";
         const selectedServices = Array.isArray(ticket.selectedServices)
@@ -594,9 +600,11 @@ export default function DailyReportViewer() {
                             ? "✓ On Time"
                             : ticket.performanceLevel === "slightly_over"
                               ? "⚠ Slightly Over"
-                              : ticket.performanceLevel === "significantly_over"
-                                ? "✕ Over"
-                                : "—"}
+                              : ticket.performanceLevel === "moderately_over"
+                                ? "⚠ Moderately Over"
+                                : ticket.performanceLevel === "significantly_over"
+                                  ? "✕ Over"
+                                  : "—"}
                         </span>
                       </TableCell>
                     </TableRow>

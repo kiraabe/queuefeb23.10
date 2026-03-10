@@ -307,11 +307,13 @@ function TicketRow({
         // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
         const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
 
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
-        if (percentageOfStandard >= 100) {
+        let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
+        if (percentageOfStandard >= 65) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard >= 80) {
+        } else if (percentageOfStandard >= 50) {
           performanceLevel = "slightly_over";
+        } else if (percentageOfStandard >= 30) {
+          performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
         }
@@ -336,11 +338,13 @@ function TicketRow({
         // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
         const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
 
-        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
-        if (percentageOfStandard >= 100) {
+        let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
+        if (percentageOfStandard >= 65) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard >= 80) {
+        } else if (percentageOfStandard >= 50) {
           performanceLevel = "slightly_over";
+        } else if (percentageOfStandard >= 30) {
+          performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
         }
@@ -657,6 +661,8 @@ function TicketRow({
                           return "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800";
                         case "slightly_over":
                           return "bg-yellow-50 dark:bg-yellow-950/50 border-yellow-200 dark:border-yellow-800";
+                        case "moderately_over":
+                          return "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800";
                         case "significantly_over":
                           return "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800";
                         default:
@@ -677,6 +683,13 @@ function TicketRow({
                               totalDuration - standardSeconds
                             )} (${100 - percentageOfStandard}% over)`,
                             color: "text-yellow-600 dark:text-yellow-400"
+                          };
+                        case "moderately_over":
+                          return {
+                            text: `Moderately over by ${formatSeconds(
+                              totalDuration - standardSeconds
+                            )} (${100 - percentageOfStandard}% over)`,
+                            color: "text-orange-600 dark:text-orange-400"
                           };
                         case "significantly_over":
                           return {
@@ -746,10 +759,13 @@ function TicketRow({
                                   ? "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200"
                                   : performanceLevel === "slightly_over"
                                     ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                    : performanceLevel === "moderately_over"
+                                      ? "bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                      : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
                               }`}>
                                 {performanceLevel === "on_time" && "✓ On Time"}
                                 {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                                {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
                                 {performanceLevel === "significantly_over" && "✕ Significantly Over"}
                               </div>
                             </div>
