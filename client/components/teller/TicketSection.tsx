@@ -672,31 +672,35 @@ function TicketRow({
                     };
 
                     const getStatusMessage = () => {
+                      const timeDiffSeconds = totalDuration - standardSeconds;
+                      const overTime = Math.max(0, timeDiffSeconds);
+
                       switch (performanceLevel) {
                         case "on_time":
-                          return {
-                            text: "Within standard time",
-                            color: "text-green-600 dark:text-green-400"
-                          };
+                          if (timeDiffSeconds <= 0) {
+                            return {
+                              text: "Within standard time",
+                              color: "text-green-600 dark:text-green-400"
+                            };
+                          } else {
+                            return {
+                              text: `Slightly over by ${formatSeconds(overTime)}`,
+                              color: "text-green-600 dark:text-green-400"
+                            };
+                          }
                         case "slightly_over":
                           return {
-                            text: `Slightly over by ${formatSeconds(
-                              totalDuration - standardSeconds
-                            )} (${100 - percentageOfStandard}% over)`,
+                            text: `Over by ${formatSeconds(overTime)}`,
                             color: "text-yellow-600 dark:text-yellow-400"
                           };
                         case "moderately_over":
                           return {
-                            text: `Moderately over by ${formatSeconds(
-                              totalDuration - standardSeconds
-                            )} (${100 - percentageOfStandard}% over)`,
+                            text: `Over by ${formatSeconds(overTime)}`,
                             color: "text-orange-600 dark:text-orange-400"
                           };
                         case "significantly_over":
                           return {
-                            text: `Significantly over by ${formatSeconds(
-                              totalDuration - standardSeconds
-                            )} (${100 - percentageOfStandard}% over)`,
+                            text: `Significantly over by ${formatSeconds(overTime)}`,
                             color: "text-red-600 dark:text-red-400"
                           };
                         default:

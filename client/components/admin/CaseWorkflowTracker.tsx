@@ -462,8 +462,9 @@ function WorkflowCard({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-        const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
+        // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+        const performance = Math.max(0, Math.min(100, (standardSeconds / workflow.totalDuration) * 65));
+        const percentageOfStandard = Math.round(performance);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard >= 65) {
@@ -493,8 +494,9 @@ function WorkflowCard({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
-        const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
+        // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+        const performance = Math.max(0, Math.min(100, (standardSeconds / workflow.totalDuration) * 65));
+        const percentageOfStandard = Math.round(performance);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
         if (percentageOfStandard >= 65) {
@@ -867,10 +869,9 @@ function WorkflowCard({
 
                 // Always show the comparison section
                 if (standardSeconds) {
-                  // Formula: (Standard Time ÷ Actual Work Time) × 35
-                  const percentageOfStandard = Math.round(
-                    (standardSeconds / (workflow.totalDuration || 1)) * 35
-                  );
+                  // Formula: (standard_time / actual_time) * 65, clamped to [0, 100]
+                  const performance = Math.max(0, Math.min(100, (standardSeconds / (workflow.totalDuration || 1)) * 65));
+                  const percentageOfStandard = Math.round(performance);
 
                   // Determine background color based on performance level
                   const getBgColor = () => {
@@ -906,31 +907,35 @@ function WorkflowCard({
 
                   // Determine status message and color
                   const getStatusMessage = () => {
+                    const timeDiffSeconds = (workflow.totalDuration || 0) - standardSeconds;
+                    const overTime = Math.max(0, timeDiffSeconds);
+
                     switch (performanceLevel) {
                       case "on_time":
-                        return {
-                          text: "Within standard time",
-                          color: "text-green-600 dark:text-green-400"
-                        };
+                        if (timeDiffSeconds <= 0) {
+                          return {
+                            text: "Within standard time",
+                            color: "text-green-600 dark:text-green-400"
+                          };
+                        } else {
+                          return {
+                            text: `Slightly over by ${formatSeconds(overTime)}`,
+                            color: "text-green-600 dark:text-green-400"
+                          };
+                        }
                       case "slightly_over":
                         return {
-                          text: `Slightly over by ${formatSeconds(
-                            (workflow.totalDuration || 0) - standardSeconds
-                          )} (${100 - percentageOfStandard}% over)`,
+                          text: `Over by ${formatSeconds(overTime)}`,
                           color: "text-yellow-600 dark:text-yellow-400"
                         };
                       case "moderately_over":
                         return {
-                          text: `Moderately over by ${formatSeconds(
-                            (workflow.totalDuration || 0) - standardSeconds
-                          )} (${100 - percentageOfStandard}% over)`,
+                          text: `Over by ${formatSeconds(overTime)}`,
                           color: "text-orange-600 dark:text-orange-400"
                         };
                       case "significantly_over":
                         return {
-                          text: `Significantly over by ${formatSeconds(
-                            (workflow.totalDuration || 0) - standardSeconds
-                          )} (${100 - percentageOfStandard}% over)`,
+                          text: `Significantly over by ${formatSeconds(overTime)}`,
                           color: "text-red-600 dark:text-red-400"
                         };
                       default:
