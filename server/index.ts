@@ -191,7 +191,7 @@ export function createServer() {
           imgSrc: ["'self'", "data:", "blob:"],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
           connectSrc: ["'self'", "/.netlify/functions/api"],
-          frameAncestors: ["'none'"],
+          frameAncestors: ["'self'", "*.builder.ai", "*.builder.io"],
         },
       },
       // Prevent browsers from MIME-type sniffing
