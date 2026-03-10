@@ -135,8 +135,7 @@ export default function DailyReportViewer() {
   });
   const [toDate, setToDate] = useState<Date | null>(new Date());
 
-  // Filter state
-  const [selectedWindow, setSelectedWindow] = useState<number | null>(null);
+  // Window expansion state
   const [expandedWindows, setExpandedWindows] = useState<Set<number>>(new Set());
 
   const fetchReport = async (from?: Date | null, to?: Date | null) => {
@@ -235,15 +234,11 @@ export default function DailyReportViewer() {
     return report.windowStats.map((w) => w.windowId).sort((a, b) => a - b);
   }, [report]);
 
-  // Filter detailed tickets based on selected window
+  // All detailed tickets (no filtering)
   const filteredTickets = useMemo(() => {
     if (!report) return [];
-    return report.detailedTickets.filter((ticket) => {
-      const windowMatch =
-        selectedWindow === null || ticket.windowId === selectedWindow;
-      return windowMatch;
-    });
-  }, [report, selectedWindow]);
+    return report.detailedTickets;
+  }, [report]);
 
   const downloadCSV = () => {
     if (!report) return;
@@ -464,28 +459,6 @@ export default function DailyReportViewer() {
             </Button>
           </div>
 
-          {/* Filter Options */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-medium text-muted-foreground mb-2">
-                Filter by Window
-              </label>
-              <select
-                value={selectedWindow !== null ? selectedWindow : ""}
-                onChange={(e) =>
-                  setSelectedWindow(e.target.value ? Number(e.target.value) : null)
-                }
-                className="w-full rounded-md border border-input px-3 py-2"
-              >
-                <option value="">All Windows</option>
-                {windows.map((window) => (
-                  <option key={window} value={window}>
-                    Window {window}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
