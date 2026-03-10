@@ -462,15 +462,15 @@ function WorkflowCard({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = Math.round((standardSeconds / (workflow.totalDuration || 1)) * 35);
+        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+        const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
-        if (percentageOfStandard <= 100) {
+        if (percentageOfStandard >= 100) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard <= 120) {
+        } else if (percentageOfStandard >= 80) {
           performanceLevel = "slightly_over";
-        } else if (percentageOfStandard <= 150) {
+        } else if (percentageOfStandard >= 50) {
           performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
@@ -493,15 +493,15 @@ function WorkflowCard({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = Math.round((standardSeconds / (workflow.totalDuration || 1)) * 35);
+        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+        const percentageOfStandard = Math.round(100 - ((workflow.totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "moderately_over" | "significantly_over";
-        if (percentageOfStandard <= 100) {
+        if (percentageOfStandard >= 100) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard <= 120) {
+        } else if (percentageOfStandard >= 80) {
           performanceLevel = "slightly_over";
-        } else if (percentageOfStandard <= 150) {
+        } else if (percentageOfStandard >= 50) {
           performanceLevel = "moderately_over";
         } else {
           performanceLevel = "significantly_over";
@@ -916,21 +916,21 @@ function WorkflowCard({
                         return {
                           text: `Slightly over by ${formatSeconds(
                             (workflow.totalDuration || 0) - standardSeconds
-                          )} (${percentageOfStandard - 100}%)`,
+                          )} (${100 - percentageOfStandard}% over)`,
                           color: "text-yellow-600 dark:text-yellow-400"
                         };
                       case "moderately_over":
                         return {
                           text: `Moderately over by ${formatSeconds(
                             (workflow.totalDuration || 0) - standardSeconds
-                          )} (${percentageOfStandard - 100}%)`,
+                          )} (${100 - percentageOfStandard}% over)`,
                           color: "text-orange-600 dark:text-orange-400"
                         };
                       case "significantly_over":
                         return {
                           text: `Significantly over by ${formatSeconds(
                             (workflow.totalDuration || 0) - standardSeconds
-                          )} (${percentageOfStandard - 100}%)`,
+                          )} (${100 - percentageOfStandard}% over)`,
                           color: "text-red-600 dark:text-red-400"
                         };
                       default:

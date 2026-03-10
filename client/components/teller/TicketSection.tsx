@@ -304,13 +304,13 @@ function TicketRow({
       const totalMinutes = getSelectedServicesStandardTime();
       if (totalMinutes > 0) {
         const standardSeconds = totalMinutes * 60;
-        // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = Math.round((standardSeconds / (totalDuration || 1)) * 35);
+        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
-        if (percentageOfStandard <= 100) {
+        if (percentageOfStandard >= 100) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard <= 120) {
+        } else if (percentageOfStandard >= 80) {
           performanceLevel = "slightly_over";
         } else {
           performanceLevel = "significantly_over";
@@ -333,13 +333,42 @@ function TicketRow({
       const standardMinutes = serviceStandardTimes[serviceCategory];
       if (standardMinutes) {
         const standardSeconds = standardMinutes * 60;
-        // Formula: (Standard Time ÷ Actual Work Time) × 35
-        const percentageOfStandard = Math.round((standardSeconds / (totalDuration || 1)) * 35);
+        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
 
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
-        if (percentageOfStandard <= 100) {
+        if (percentageOfStandard >= 100) {
           performanceLevel = "on_time";
-        } else if (percentageOfStandard <= 120) {
+        } else if (percentageOfStandard >= 80) {
+          performanceLevel = "slightly_over";
+        } else {
+          performanceLevel = "significantly_over";
+        }
+
+        const exceeds = totalDuration > standardSeconds;
+        return {
+          exceeds,
+          performanceLevel,
+          standardMinutes: totalMinutes,
+          standardSeconds,
+          source: "services" as const
+        };
+      }
+    }
+
+    // Fallback: check service category
+    const serviceCategory = ticket.service;
+    if (serviceCategory) {
+      const standardMinutes = serviceStandardTimes[serviceCategory];
+      if (standardMinutes) {
+        const standardSeconds = standardMinutes * 60;
+        // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+        const percentageOfStandard = Math.round(100 - ((totalDuration - standardSeconds) / standardSeconds) * 100);
+
+        let performanceLevel: "on_time" | "slightly_over" | "significantly_over";
+        if (percentageOfStandard >= 100) {
+          performanceLevel = "on_time";
+        } else if (percentageOfStandard >= 80) {
           performanceLevel = "slightly_over";
         } else {
           performanceLevel = "significantly_over";
@@ -646,9 +675,9 @@ function TicketRow({
                   const selectedServices = ticket.selectedServices || [];
 
                   if (standardSeconds && totalDuration) {
-                    // Formula: (Standard Time ÷ Actual Work Time) × 35
+                    // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
                     const percentageOfStandard = Math.round(
-                      (standardSeconds / totalDuration) * 35
+                      100 - ((totalDuration - standardSeconds) / standardSeconds) * 100
                     );
 
                     const getBgColor = () => {
@@ -675,14 +704,14 @@ function TicketRow({
                           return {
                             text: `Slightly over by ${formatSeconds(
                               totalDuration - standardSeconds
-                            )} (${percentageOfStandard - 100}%)`,
+                            )} (${100 - percentageOfStandard}% over)`,
                             color: "text-yellow-600 dark:text-yellow-400"
                           };
                         case "significantly_over":
                           return {
                             text: `Significantly over by ${formatSeconds(
                               totalDuration - standardSeconds
-                            )} (${percentageOfStandard - 100}%)`,
+                            )} (${100 - percentageOfStandard}% over)`,
                             color: "text-red-600 dark:text-red-400"
                           };
                         default:
@@ -773,7 +802,7 @@ function TicketRow({
                                 ></div>
                               </div>
                               <span className="text-sm font-bold whitespace-nowrap min-w-fit">
-                                {Math.min(percentageOfStandard, 100)}%
+                                {percentageOfStandard}%
                               </span>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">

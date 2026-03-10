@@ -662,11 +662,11 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         let performanceLevel: "on_time" | "slightly_over" | "significantly_over" | null = null;
         if (avgServiceTime && standardTime) {
           const standardSeconds = standardTime * 60;
-          // Formula: (Standard Time ÷ Actual Work Time) × 35
-          const percentageOfStandard = Math.round((standardSeconds / avgServiceTime) * 35);
-          if (percentageOfStandard > 120) {
+          // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+          const percentageOfStandard = Math.round(100 - ((avgServiceTime - standardSeconds) / standardSeconds) * 100);
+          if (percentageOfStandard < 80) {
             performanceLevel = "significantly_over";
-          } else if (percentageOfStandard > 100) {
+          } else if (percentageOfStandard < 100) {
             performanceLevel = "slightly_over";
           } else {
             performanceLevel = "on_time";
@@ -715,11 +715,11 @@ export const getDailyReport: RequestHandler = async (req, res) => {
         let performanceLevel = null;
         if (duration && standardTime) {
           const standardSeconds = standardTime * 60;
-          // Formula: (Standard Time ÷ Actual Work Time) × 35
-          const percentageOfStandard = Math.round((standardSeconds / duration) * 35);
-          if (percentageOfStandard > 120) {
+          // Formula: 100 - ((Actual Duration - Standard Duration) ÷ Standard Duration) × 100
+          const percentageOfStandard = Math.round(100 - ((duration - standardSeconds) / standardSeconds) * 100);
+          if (percentageOfStandard < 80) {
             performanceLevel = "significantly_over";
-          } else if (percentageOfStandard > 100) {
+          } else if (percentageOfStandard < 100) {
             performanceLevel = "slightly_over";
           } else {
             performanceLevel = "on_time";
