@@ -786,62 +786,95 @@ function TicketRow({
                               </Tooltip>
                             </div>
                             <div className="flex items-center gap-3">
-                              <div className="flex-1 relative group">
-                                {/* Color Range Tooltip - on slider bar */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative h-4 rounded-full shadow-sm overflow-hidden cursor-help">
+                              <div className="flex-1 flex items-center gap-2">
+                                <div
+                                  className="flex-1 relative h-4 rounded-full shadow-sm overflow-visible group cursor-help"
+                                  title={`${performanceLevel === "on_time" ? "On Time" : performanceLevel === "slightly_over" ? "Slightly Over" : performanceLevel === "moderately_over" ? "Moderately Over" : "Significantly Over"}: ${percentageOfStandard}% | Actual: ${formatSeconds(totalDuration || 0)} | Standard: ${formatSeconds(standardSeconds)}`}
+                                >
+                                  {/* Gradient background with color stops for performance levels */}
+                                  <div
+                                    className="absolute inset-0 rounded-full"
+                                    style={{
+                                      background: "linear-gradient(to right, rgb(239, 68, 68) 0%, rgb(239, 68, 68) 29%, rgb(251, 146, 60) 29%, rgb(251, 146, 60) 49%, rgb(251, 191, 36) 49%, rgb(251, 191, 36) 64%, rgb(34, 197, 94) 64%, rgb(34, 197, 94) 100%)",
+                                      width: "100%"
+                                    }}
+                                  ></div>
+
+                                  {/* Percentage Arrow Indicator */}
+                                  <div
+                                    className="absolute -top-10 flex flex-col items-center cursor-help"
+                                    style={{
+                                      left: `calc(${percentageOfStandard}% - 20px)`,
+                                      zIndex: 10
+                                    }}
+                                  >
+                                    {/* Percentage text box with arrow below */}
+                                    <div className="relative">
+                                      <div className={`px-3 py-1.5 rounded-md shadow-lg whitespace-nowrap font-bold text-sm ${
+                                        performanceLevel === "on_time"
+                                          ? "bg-green-600 dark:bg-green-500 text-white"
+                                          : performanceLevel === "slightly_over"
+                                            ? "bg-yellow-600 dark:bg-yellow-500 text-white"
+                                            : performanceLevel === "moderately_over"
+                                              ? "bg-orange-600 dark:bg-orange-500 text-white"
+                                              : "bg-red-600 dark:bg-red-500 text-white"
+                                      }`}>
+                                        {percentageOfStandard}%
+                                      </div>
+                                      {/* Larger arrow pointing down */}
                                       <div
-                                        className="absolute inset-0 rounded-full"
+                                        className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-0.5"
                                         style={{
-                                          background: "linear-gradient(to right, rgb(34, 197, 94), rgb(251, 191, 36), rgb(251, 146, 60), rgb(239, 68, 68))"
+                                          width: 0,
+                                          height: 0,
+                                          borderLeft: "6px solid transparent",
+                                          borderRight: "6px solid transparent",
+                                          borderTop: performanceLevel === "on_time"
+                                            ? "8px solid rgb(22, 163, 74)"
+                                            : performanceLevel === "slightly_over"
+                                              ? "8px solid rgb(202, 138, 4)"
+                                              : performanceLevel === "moderately_over"
+                                                ? "8px solid rgb(234, 88, 12)"
+                                                : "8px solid rgb(220, 38, 38)"
                                         }}
                                       ></div>
                                     </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">
-                                    <div className="space-y-2 text-xs">
-                                      <p className="font-semibold">Performance Scale</p>
-                                      <div className="space-y-1">
-                                        <p><span className="font-medium text-green-600">🟢 Green (65-100%):</span> On time</p>
-                                        <p><span className="font-medium text-yellow-600">🟡 Yellow (50-64%):</span> Slightly over</p>
-                                        <p><span className="font-medium text-orange-600">🟠 Orange (30-49%):</span> Moderately over</p>
-                                        <p><span className="font-medium text-red-600">🔴 Red (&lt;30%):</span> Significantly over</p>
-                                      </div>
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
+                                  </div>
 
-                                {/* Performance Arrow Indicator */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
+                                  {/* 100% marker line */}
+                                  {percentageOfStandard < 100 && (
                                     <div
-                                      className="absolute -top-6 -translate-y-full flex flex-col items-center cursor-help"
+                                      className="absolute top-0 bottom-0 w-0.5 bg-white dark:bg-slate-900 opacity-70 transition-all"
                                       style={{
-                                        left: `calc(${percentageOfStandard}% - 12px)`,
-                                        zIndex: 10
+                                        left: "100%"
                                       }}
-                                    >
-                                      {/* Percentage text */}
-                                      <div className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap mb-1">
-                                        {percentageOfStandard}%
-                                      </div>
-                                      {/* Arrow pointing down */}
-                                      <div className="w-0 h-0 border-l-2 border-r-2 border-t-2 border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-200"></div>
+                                    ></div>
+                                  )}
+
+                                  {/* Hover tooltip */}
+                                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none shadow-lg border border-slate-700 dark:border-slate-600">
+                                    <div className="font-semibold">
+                                      {performanceLevel === "on_time" && "✓ On Time"}
+                                      {performanceLevel === "slightly_over" && "⚠ Slightly Over"}
+                                      {performanceLevel === "moderately_over" && "⚠ Moderately Over"}
+                                      {performanceLevel === "significantly_over" && "✕ Significantly Over"}
                                     </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top">
-                                    <div className="space-y-1 text-xs">
-                                      <p className="font-semibold">Performance: {percentageOfStandard}%</p>
-                                      <p>
-                                        {performanceLevel === "on_time" && "🟢 On Time - Excellent service"}
-                                        {performanceLevel === "slightly_over" && "🟡 Slightly Over - Minor delay"}
-                                        {performanceLevel === "moderately_over" && "🟠 Moderately Over - Significant delay"}
-                                        {performanceLevel === "significantly_over" && "🔴 Significantly Over - Major delay"}
-                                      </p>
+                                    <div className="text-xs opacity-90 mt-1">
+                                      {percentageOfStandard}% of standard
                                     </div>
-                                  </TooltipContent>
-                                </Tooltip>
+                                    <div className="text-xs opacity-90">
+                                      Actual: {formatSeconds(totalDuration || 0)}
+                                    </div>
+                                    <div className="text-xs opacity-90">
+                                      Standard: {formatSeconds(standardSeconds)}
+                                    </div>
+                                    {/* Tooltip arrow */}
+                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 dark:bg-slate-700 transform rotate-45 border-b border-r border-slate-700 dark:border-slate-600"></div>
+                                  </div>
+                                </div>
+                                <span className="text-sm font-bold whitespace-nowrap min-w-fit group cursor-help" title={`Total: ${percentageOfStandard}%`}>
+                                  {percentageOfStandard}%
+                                </span>
                               </div>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
