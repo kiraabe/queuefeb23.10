@@ -285,6 +285,8 @@ export default function TellerWindow() {
     queryKey: ["teller-stats", windowId],
     queryFn: () => apiFetch<TellerStats>(`/api/teller/${windowId}/stats`),
     refetchInterval: 10000,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 5000),
   });
 
   const ticketsQuery = useQuery({
@@ -293,6 +295,8 @@ export default function TellerWindow() {
       apiFetch<TellerTicketsResponse>(
         `/api/teller/${windowId}/tickets?tab=${encodeURIComponent(tab)}`,
       ),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * Math.pow(2, attemptIndex), 5000),
   });
 
   useSSE(apiUrl("/api/events"), (ev) => {
