@@ -488,7 +488,7 @@ export default function Reception() {
     const serviceName = firstSelectedService?.name || serviceCode;
 
     createTicket.mutate({
-      service: serviceName,
+      service: serviceCode,
       ownerName: ownerName.trim(),
       woreda,
       serviceCategory: serviceCode, // Use the code, not the ID, for proper window routing
