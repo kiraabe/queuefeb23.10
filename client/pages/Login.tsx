@@ -11,51 +11,48 @@ import { useTranslation } from "@/hooks/use-translation";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SESSION_CHECK_DEBOUNCE_MS = 800;
-const SESSION_CHECK_TIMEOUT_MS = 10_000;
+const SESSION_CHECK_TIMEOUT_MS  = 10_000;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SessionInfo {
-  username: string;
+  username:           string;
   activeSessionCount: number;
-  maxSessions: number;
-  canLogin: boolean;
-  isBlocked: boolean;
+  maxSessions:        number;
+  canLogin:           boolean;
+  isBlocked:          boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
  * Returns the default post-login path for a given role.
- * Kept pure so it's easy to unit-test independently of the component.
+ * Pure function — easy to unit-test independently of the component.
  */
 function defaultPathForRole(role: string, windowId?: number | null): string {
   switch (role) {
-    case "admin": return "/admin";
-    case "teller": return windowId ? `/teller/${windowId}` : "/teller";
+    case "admin":     return "/admin";
+    case "teller":    return windowId ? `/teller/${windowId}` : "/teller";
     case "reception": return "/reception";
-    case "employee": return "/employee";
+    case "employee":  return "/employee";
     case "archiever": return "/archiever";
-    default: return "/";
+    default:          return "/";
   }
 }
 
-/**
- * Allowed redirect prefixes per role.
- * Paths ending with "/" already cover sub-routes via the prefix check below.
- */
+/** Allowed redirect prefixes per role. */
 const ALLOWED_REDIRECTS: Record<string, string[]> = {
-  admin: ["/", "/admin", "/teller", "/reception", "/queue", "/display", "/tickets/", "/role-selector"],
-  teller: ["/", "/teller", "/queue", "/display", "/tickets/", "/role-selector"],
+  admin:     ["/", "/admin", "/teller", "/reception", "/queue", "/display", "/tickets/", "/role-selector"],
+  teller:    ["/", "/teller", "/queue", "/display", "/tickets/", "/role-selector"],
   reception: ["/", "/reception", "/queue", "/display", "/tickets/", "/role-selector"],
-  employee: ["/", "/employee", "/queue", "/display", "/tickets/", "/role-selector"],
+  employee:  ["/", "/employee", "/queue", "/display", "/tickets/", "/role-selector"],
   archiever: ["/", "/archiever", "/queue", "/display", "/tickets/", "/role-selector"],
 };
 
 /**
- * Validates a redirect param against an allowlist.
- * Uses exact-match or prefix + "/" guard to prevent open-redirect attacks
- * where "/admin.evil.com" would pass a naive startsWith("/admin") check.
+ * Validates a redirect param against the role's allowlist.
+ * Prefix check requires the next character to be "/" to prevent
+ * open-redirect attacks like "/admin.evil.com" passing "/admin".
  */
 function isSafeRedirect(redirectParam: string, role: string): boolean {
   const allowed = ALLOWED_REDIRECTS[role] ?? ["/"];
@@ -70,31 +67,31 @@ function isSafeRedirect(redirectParam: string, role: string): boolean {
 
 export default function Login() {
   const { login } = useAuth();
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const { t }     = useTranslation();
+  const navigate  = useNavigate();
+  const [params]  = useSearchParams();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+  const [username,       setUsername]       = useState("");
+  const [password,       setPassword]       = useState("");
+  const [showPassword,   setShowPassword]   = useState(false);
+  const [error,          setError]          = useState<string | null>(null);
+  const [pending,        setPending]        = useState(false);
+  const [sessionInfo,    setSessionInfo]    = useState<SessionInfo | null>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
 
   // Stable IDs for aria linkage
-  const errorId = useId();
+  const errorId       = useId();
   const sessionInfoId = useId();
 
-  // Capture viewport width once at mount for device-type detection on the server.
-  // Reading it at submit time would give the post-resize width, which is misleading.
+  // Capture viewport width once at mount.
+  // Reading it at submit time would give the post-resize value.
   const [viewportWidth] = useState(() => window.innerWidth);
 
   // ── Session-count check ────────────────────────────────────────────────────
   //
-  // Debounced so we don't hammer the API on every keystroke.
-  // The AbortController is created outside the async fn so it can be cancelled
-  // both by the debounce cleanup AND on component unmount.
+  // Debounced to avoid hammering the API on every keystroke.
+  // AbortController created outside the async fn so it cancels on both
+  // debounce reset and component unmount.
 
   useEffect(() => {
     const trimmed = username.trim();
@@ -109,22 +106,17 @@ export default function Login() {
       setSessionLoading(true);
       try {
         const timeoutId = setTimeout(() => controller.abort(), SESSION_CHECK_TIMEOUT_MS);
-        const response = await fetch(
+        const response  = await fetch(
           `/api/auth/session-count/${encodeURIComponent(trimmed)}`,
           {
-            signal: controller.signal,
+            signal:      controller.signal,
             credentials: "include",
-            headers: { "X-Requested-With": "fetch" },
+            headers:     { "X-Requested-With": "fetch" },
           },
         );
         clearTimeout(timeoutId);
 
-        if (response.ok) {
-          const data: SessionInfo = await response.json();
-          setSessionInfo(data);
-        } else {
-          setSessionInfo(null);
-        }
+        setSessionInfo(response.ok ? await response.json() : null);
       } catch {
         // Session count is informational — silently ignore failures
         setSessionInfo(null);
@@ -135,7 +127,7 @@ export default function Login() {
 
     return () => {
       clearTimeout(timer);
-      controller.abort(); // cancel any in-flight request on cleanup / unmount
+      controller.abort(); // cancel in-flight request on cleanup / unmount
     };
   }, [username]);
 
@@ -146,7 +138,7 @@ export default function Login() {
     setError(null);
 
     const u = username.trim();
-    // Do NOT trim the password — trailing/leading spaces are valid password chars.
+    // Do NOT trim the password — spaces are valid password characters.
     const p = password;
 
     if (!u) { setError(t("login.enterUsername")); return; }
@@ -161,13 +153,13 @@ export default function Login() {
         return;
       }
 
-      const defaultPath = defaultPathForRole(user.role, user.windowId);
+      const defaultPath   = defaultPathForRole(user.role, user.windowId);
       const redirectParam = params.get("redirect");
 
       const to =
         redirectParam &&
-          redirectParam !== defaultPath &&
-          isSafeRedirect(redirectParam, user.role)
+        redirectParam !== defaultPath &&
+        isSafeRedirect(redirectParam, user.role)
           ? redirectParam
           : defaultPath;
 
@@ -181,18 +173,16 @@ export default function Login() {
 
   // ── Derived UI state ───────────────────────────────────────────────────────
 
-  const showSessionWarning = sessionInfo?.isBlocked && !sessionInfo.canLogin;
-  const showSessionNotice = sessionInfo?.isBlocked && sessionInfo.canLogin;
-  const remainingSlots = sessionInfo
+  const isBlocked         = Boolean(sessionInfo?.isBlocked && !sessionInfo.canLogin);
+  const showSessionNotice = Boolean(sessionInfo?.isBlocked &&  sessionInfo.canLogin);
+  const remainingSlots    = sessionInfo
     ? sessionInfo.maxSessions - sessionInfo.activeSessionCount
     : 0;
 
   const ariaDescribedBy = [
-    error ? errorId : null,
-    showSessionWarning ? sessionInfoId : null,
-  ]
-    .filter(Boolean)
-    .join(" ") || undefined;
+    error     ? errorId       : null,
+    isBlocked ? sessionInfoId : null,
+  ].filter(Boolean).join(" ") || undefined;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -203,7 +193,7 @@ export default function Login() {
           <CardHeader>
             <CardTitle>{t("login.title")}</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              {t("login.subtitle")}
+              {t("login.enterUsername")}
             </p>
           </CardHeader>
 
@@ -220,7 +210,7 @@ export default function Login() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder={t("login.usernamePlaceholder")}
+                  placeholder={t("login.enterUsername")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
@@ -240,8 +230,8 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={pending}
-                  // Do NOT prevent copy/paste — it breaks password managers
-                  // and is explicitly discouraged by NIST SP 800-63B.
+                    // copy/paste intentionally NOT blocked — prevents password
+                    // managers from working and violates NIST SP 800-63B §5.1.1
                   />
                   <button
                     type="button"
@@ -256,8 +246,8 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Session info — blocked (cannot log in) */}
-              {showSessionWarning && (
+              {/* Session blocked warning */}
+              {isBlocked && (
                 <div
                   id={sessionInfoId}
                   role="alert"
@@ -272,7 +262,7 @@ export default function Login() {
                 </div>
               )}
 
-              {/* Session info — approaching limit but still can log in */}
+              {/* Session notice — still has capacity */}
               {showSessionNotice && (
                 <div className="rounded-md p-3 text-sm bg-blue-50 border border-blue-200">
                   <p className="font-medium text-blue-900">
@@ -284,7 +274,7 @@ export default function Login() {
                 </div>
               )}
 
-              {/* Session count loading indicator */}
+              {/* Session count loading */}
               {sessionLoading && (
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                   <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
@@ -301,7 +291,7 @@ export default function Login() {
 
               <Button
                 type="submit"
-                disabled={pending || showSessionWarning}
+                disabled={pending || isBlocked}
               >
                 {pending ? `${t("login.signIn")}…` : t("login.signIn")}
               </Button>
