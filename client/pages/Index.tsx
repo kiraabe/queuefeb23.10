@@ -340,7 +340,7 @@ export default function Index() {
   return (
     <div className="relative overflow-visible">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(20,158,255,0.22),_transparent_60%)]" />
+        <div className="absolute inset-0 -z-10 bg-blue-50" />
         <div className="w-full px-4 sm:px-6 lg:px-8 grid items-center gap-8 sm:gap-12 py-12 sm:py-16 md:py-20 lg:py-24 md:grid-cols-2">
           <div className="space-y-6 sm:space-y-8">
             <Badge className="w-fit rounded-full border border-primary/30 bg-primary/10 px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium text-primary">
