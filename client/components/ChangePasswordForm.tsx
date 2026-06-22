@@ -121,8 +121,20 @@ export function ChangePasswordForm() {
       // Reset success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      const message =
+      let message =
         error instanceof Error ? error.message : "Failed to change password";
+
+      // Map specific error messages for better UX
+      if (message.includes("Invalid current password") || message.includes("INVALID_CURRENT_PASSWORD")) {
+        message = "Current password is incorrect. Please try again.";
+      } else if (message.includes("Passwords do not match") || message.includes("PASSWORD_MISMATCH")) {
+        message = "New passwords do not match. Please check and try again.";
+      } else if (message.includes("Password does not meet security requirements") || message.includes("WEAK_PASSWORD")) {
+        message = "New password does not meet security requirements. Please ensure it meets all the requirements listed above.";
+      } else if (message.includes("New password cannot be the same as current password") || message.includes("SAME_PASSWORD")) {
+        message = "New password must be different from your current password.";
+      }
+
       setValidationErrors([message]);
       toast.error(message);
     } finally {

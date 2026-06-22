@@ -276,16 +276,27 @@ export async function apiFetch<T>(
           message = "Your session has expired. Please sign in again.";
         }
       } else {
-        if (data?.code === "NO_SESSION") {
+        // Handle specific error codes for non-login endpoints
+        if (data?.code === "INVALID_CURRENT_PASSWORD") {
+          message = data.message || "Current password is incorrect.";
+        } else if (data?.code === "NO_SESSION") {
           message = "Access denied. Please login to continue.";
+        } else if (data?.code === "SESSION_EXPIRED" || data?.code === "SESSION_INVALIDATED") {
+          message = "Your session has expired. Please sign in again.";
+          // Auto-redirect to login for session expiry
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1000);
+          }
         } else {
           message = "Your session has expired. Please sign in again.";
-        }
-        // Auto-redirect to login for non-login endpoints with 401
-        if (typeof window !== "undefined") {
-          setTimeout(() => {
-            window.location.href = "/login";
-          }, 1000);
+          // Auto-redirect to login for non-login endpoints with 401
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1000);
+          }
         }
       }
     } else if (res.status === 403) {
