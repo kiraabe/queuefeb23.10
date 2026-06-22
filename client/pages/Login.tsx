@@ -1,49 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "@/hooks/use-translation";
 
-function isMobileOrTablet(): boolean {
-  const userAgent = navigator.userAgent.toLowerCase();
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-  // Detect mobile/tablet devices
-  const mobilePatterns = [
-    /android/,
-    /webos/,
-    /iphone/,
-    /ipad/,
-    /ipod/,
-    /blackberry/,
-    /windows phone/,
-  ];
+const SESSION_CHECK_DEBOUNCE_MS = 800;
+const SESSION_CHECK_TIMEOUT_MS = 10_000;
 
-  if (mobilePatterns.some((pattern) => pattern.test(userAgent))) {
-    return true;
-  }
-
-  // Check screen size as additional indicator
-  if (window.innerWidth <= 1024) {
-    // Additional check: if it looks like a phone/tablet, not just a small desktop
-    const touchSupport = () => {
-      return (
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0 ||
-        (navigator as any).msMaxTouchPoints > 0
-      );
-    };
-
-    if (touchSupport() && window.innerWidth <= 768) {
-      return true;
-    }
-  }
-
-  return false;
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SessionInfo {
   username: string;
@@ -53,50 +23,100 @@ interface SessionInfo {
   isBlocked: boolean;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Returns the default post-login path for a given role.
+ * Kept pure so it's easy to unit-test independently of the component.
+ */
+function defaultPathForRole(role: string, windowId?: number | null): string {
+  switch (role) {
+    case "admin": return "/admin";
+    case "teller": return windowId ? `/teller/${windowId}` : "/teller";
+    case "reception": return "/reception";
+    case "employee": return "/employee";
+    case "archiever": return "/archiever";
+    default: return "/";
+  }
+}
+
+/**
+ * Allowed redirect prefixes per role.
+ * Paths ending with "/" already cover sub-routes via the prefix check below.
+ */
+const ALLOWED_REDIRECTS: Record<string, string[]> = {
+  admin: ["/", "/admin", "/teller", "/reception", "/queue", "/display", "/tickets/", "/role-selector"],
+  teller: ["/", "/teller", "/queue", "/display", "/tickets/", "/role-selector"],
+  reception: ["/", "/reception", "/queue", "/display", "/tickets/", "/role-selector"],
+  employee: ["/", "/employee", "/queue", "/display", "/tickets/", "/role-selector"],
+  archiever: ["/", "/archiever", "/queue", "/display", "/tickets/", "/role-selector"],
+};
+
+/**
+ * Validates a redirect param against an allowlist.
+ * Uses exact-match or prefix + "/" guard to prevent open-redirect attacks
+ * where "/admin.evil.com" would pass a naive startsWith("/admin") check.
+ */
+function isSafeRedirect(redirectParam: string, role: string): boolean {
+  const allowed = ALLOWED_REDIRECTS[role] ?? ["/"];
+  return allowed.some(
+    (path) =>
+      redirectParam === path ||
+      redirectParam.startsWith(path.endsWith("/") ? path : path + "/"),
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Login() {
-  const [isMobile, setIsMobile] = useState(false);
   const { login } = useAuth();
   const { t } = useTranslation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
-  const [checkingSession, setCheckingSession] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(false);
+
+  // Stable IDs for aria linkage
+  const errorId = useId();
+  const sessionInfoId = useId();
+
+  // Capture viewport width once at mount for device-type detection on the server.
+  // Reading it at submit time would give the post-resize width, which is misleading.
+  const [viewportWidth] = useState(() => window.innerWidth);
+
+  // ── Session-count check ────────────────────────────────────────────────────
+  //
+  // Debounced so we don't hammer the API on every keystroke.
+  // The AbortController is created outside the async fn so it can be cancelled
+  // both by the debounce cleanup AND on component unmount.
 
   useEffect(() => {
-    const detected = isMobileOrTablet();
-    setIsMobile(detected);
-  }, []);
-
-  // Check session count when username changes
-  useEffect(() => {
-    if (!username.trim()) {
+    const trimmed = username.trim();
+    if (!trimmed) {
       setSessionInfo(null);
       return;
     }
 
-    const checkSessionCount = async () => {
-      setCheckingSession(true);
-      try {
-        const trimmedUsername = username.trim();
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const controller = new AbortController();
 
+    const timer = setTimeout(async () => {
+      setSessionLoading(true);
+      try {
+        const timeoutId = setTimeout(() => controller.abort(), SESSION_CHECK_TIMEOUT_MS);
         const response = await fetch(
-          `/api/auth/session-count/${encodeURIComponent(trimmedUsername)}`,
+          `/api/auth/session-count/${encodeURIComponent(trimmed)}`,
           {
             signal: controller.signal,
             credentials: "include",
-            headers: {
-              "X-Requested-With": "fetch",
-            },
-          }
+            headers: { "X-Requested-With": "fetch" },
+          },
         );
-
         clearTimeout(timeoutId);
 
         if (response.ok) {
@@ -105,130 +125,76 @@ export default function Login() {
         } else {
           setSessionInfo(null);
         }
-      } catch (err) {
-        // Silently fail for session count check - it's not critical
-        console.debug("Failed to fetch session count:", err);
+      } catch {
+        // Session count is informational — silently ignore failures
         setSessionInfo(null);
       } finally {
-        setCheckingSession(false);
+        setSessionLoading(false);
       }
-    };
+    }, SESSION_CHECK_DEBOUNCE_MS);
 
-    // Debounce the check (wait 800ms after user stops typing to reduce requests)
-    const timer = setTimeout(checkSessionCount, 800);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort(); // cancel any in-flight request on cleanup / unmount
+    };
   }, [username]);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  // ── Submit ─────────────────────────────────────────────────────────────────
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
     const u = username.trim();
-    const p = password.trim();
+    // Do NOT trim the password — trailing/leading spaces are valid password chars.
+    const p = password;
 
-    if (!u) {
-      setError(t("login.enterUsername"));
-      return;
-    }
-
-    if (!p) {
-      setError(t("login.enterPassword"));
-      return;
-    }
+    if (!u) { setError(t("login.enterUsername")); return; }
+    if (!p) { setError(t("login.enterPassword")); return; }
 
     setPending(true);
     try {
-      const user = await login(u, p, window.innerWidth);
+      const user = await login(u, p, viewportWidth);
 
-      // If user has multiple roles, redirect to role selector
       if (user.roles && user.roles.length > 1) {
         navigate("/role-selector");
-      } else {
-        // Determine default redirect based on user role
-        const defaultRedirect =
-          user.role === "admin"
-            ? "/admin"
-            : user.role === "teller" && user.windowId
-              ? `/teller/${user.windowId}`
-              : user.role === "reception"
-                ? "/reception"
-                : user.role === "employee"
-                  ? "/employee"
-                  : user.role === "archiever"
-                    ? "/archiever"
-                    : "/";
-
-        // Only use redirect param if it's safe for this user's role
-        const redirectParam = params.get("redirect");
-        let to = defaultRedirect;
-
-        if (redirectParam) {
-          // Map allowed redirect destinations by role
-          const allowedByRole: Record<string, string[]> = {
-            admin: [
-              "/",
-              "/role-selector",
-              "/admin",
-              "/teller",
-              "/reception",
-              "/queue",
-              "/display",
-              "/tickets/",
-            ],
-            teller: [
-              "/",
-              "/role-selector",
-              "/teller",
-              "/queue",
-              "/display",
-              "/tickets/",
-            ],
-            reception: [
-              "/",
-              "/role-selector",
-              "/reception",
-              "/queue",
-              "/display",
-              "/tickets/",
-            ],
-            employee: [
-              "/",
-              "/role-selector",
-              "/employee",
-              "/queue",
-              "/display",
-              "/tickets/",
-            ],
-            archiever: [
-              "/",
-              "/role-selector",
-              "/archiever",
-              "/queue",
-              "/display",
-              "/tickets/",
-            ],
-          };
-
-          const allowed = allowedByRole[user.role] || ["/"];
-          const isAllowed = allowed.some(
-            (path) => redirectParam === path || redirectParam.startsWith(path),
-          );
-
-          if (isAllowed && redirectParam !== defaultRedirect) {
-            to = redirectParam;
-          }
-        }
-
-        navigate(to);
+        return;
       }
-    } catch (e: any) {
-      setError(
-        e?.message || t("errors.serverError"),
-      );
+
+      const defaultPath = defaultPathForRole(user.role, user.windowId);
+      const redirectParam = params.get("redirect");
+
+      const to =
+        redirectParam &&
+          redirectParam !== defaultPath &&
+          isSafeRedirect(redirectParam, user.role)
+          ? redirectParam
+          : defaultPath;
+
+      navigate(to);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("errors.serverError"));
     } finally {
       setPending(false);
     }
-  };
+  }
+
+  // ── Derived UI state ───────────────────────────────────────────────────────
+
+  const showSessionWarning = sessionInfo?.isBlocked && !sessionInfo.canLogin;
+  const showSessionNotice = sessionInfo?.isBlocked && sessionInfo.canLogin;
+  const remainingSlots = sessionInfo
+    ? sessionInfo.maxSessions - sessionInfo.activeSessionCount
+    : 0;
+
+  const ariaDescribedBy = [
+    error ? errorId : null,
+    showSessionWarning ? sessionInfoId : null,
+  ]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="container py-16">
@@ -237,23 +203,33 @@ export default function Login() {
           <CardHeader>
             <CardTitle>{t("login.title")}</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              {t("login.enterUsername")}
+              {t("login.subtitle")}
             </p>
           </CardHeader>
+
           <CardContent>
-            <form className="grid gap-4" onSubmit={onSubmit}>
+            <form
+              className="grid gap-4"
+              onSubmit={onSubmit}
+              aria-describedby={ariaDescribedBy}
+              noValidate
+            >
+              {/* Username */}
               <div className="grid gap-2">
                 <Label htmlFor="username">{t("login.username")}</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder={t("login.enterUsername")}
+                  placeholder={t("login.usernamePlaceholder")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
                   autoFocus
+                  disabled={pending}
                 />
               </div>
+
+              {/* Password */}
               <div className="grid gap-2">
                 <Label htmlFor="password">{t("login.password")}</Label>
                 <div className="relative">
@@ -263,69 +239,70 @@ export default function Login() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onCopy={(e) => e.preventDefault()}
-                    onCut={(e) => e.preventDefault()}
-                    onContextMenu={(e) => e.preventDefault()}
-                    aria-label="Password"
-                    className={showPassword ? "select-none" : undefined}
+                    disabled={pending}
+                  // Do NOT prevent copy/paste — it breaks password managers
+                  // and is explicitly discouraged by NIST SP 800-63B.
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    aria-label={
-                      showPassword ? t("login.hidePassword") : t("login.showPassword")
-                    }
+                    aria-label={showPassword ? t("login.hidePassword") : t("login.showPassword")}
                     aria-pressed={showPassword}
+                    disabled={pending}
                     className="absolute inset-y-0 right-2 inline-flex items-center rounded-md p-2 text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              {/* Active Sessions Display - Only show if user is blocked */}
-              {sessionInfo && sessionInfo.isBlocked && (
+              {/* Session info — blocked (cannot log in) */}
+              {showSessionWarning && (
                 <div
-                  className={`rounded-md p-3 text-sm ${
-                    sessionInfo.canLogin
-                      ? "bg-blue-50 border border-blue-200"
-                      : "bg-red-50 border border-red-200"
-                  }`}
+                  id={sessionInfoId}
+                  role="alert"
+                  className="rounded-md p-3 text-sm bg-red-50 border border-red-200"
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <p
-                        className={`font-medium ${
-                          sessionInfo.canLogin
-                            ? "text-blue-900"
-                            : "text-red-900"
-                        }`}
-                      >
-                        {sessionInfo.activeSessionCount} of{" "}
-                        {sessionInfo.maxSessions} devices logged in
-                      </p>
-                      <p
-                        className={`text-xs mt-1 ${
-                          sessionInfo.canLogin
-                            ? "text-blue-700"
-                            : "text-red-700"
-                        }`}
-                      >
-                        {sessionInfo.canLogin
-                          ? `You can log in on ${sessionInfo.maxSessions - sessionInfo.activeSessionCount} more device${sessionInfo.maxSessions - sessionInfo.activeSessionCount === 1 ? "" : "s"}.`
-                          : "Maximum session limit reached. Please log out from another device to continue."}
-                      </p>
-                    </div>
-                  </div>
+                  <p className="font-medium text-red-900">
+                    {sessionInfo!.activeSessionCount} of {sessionInfo!.maxSessions} devices logged in
+                  </p>
+                  <p className="text-xs mt-1 text-red-700">
+                    Maximum session limit reached. Please log out from another device to continue.
+                  </p>
                 </div>
               )}
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" disabled={pending}>
+              {/* Session info — approaching limit but still can log in */}
+              {showSessionNotice && (
+                <div className="rounded-md p-3 text-sm bg-blue-50 border border-blue-200">
+                  <p className="font-medium text-blue-900">
+                    {sessionInfo!.activeSessionCount} of {sessionInfo!.maxSessions} devices logged in
+                  </p>
+                  <p className="text-xs mt-1 text-blue-700">
+                    You can log in on {remainingSlots} more device{remainingSlots === 1 ? "" : "s"}.
+                  </p>
+                </div>
+              )}
+
+              {/* Session count loading indicator */}
+              {sessionLoading && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
+                  Checking active sessions…
+                </p>
+              )}
+
+              {/* Error */}
+              {error && (
+                <p id={errorId} role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={pending || showSessionWarning}
+              >
                 {pending ? `${t("login.signIn")}…` : t("login.signIn")}
               </Button>
             </form>
