@@ -1,39 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSSE } from "@/hooks/use-sse";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiUrl } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import type {
-  DisplayResponse,
-  DisplayState,
-  Ticket,
-  WindowState,
-} from "@shared/api";
+import type { DisplayState, Ticket, WindowState } from "@shared/api";
 
-async function getDisplay(): Promise<DisplayResponse> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+// ─── Data fetching ───────────────────────────────────────────────────────────
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 10000);
   try {
-    const res = await fetch("/api/display", { signal: controller.signal });
-    if (!res.ok) throw new Error(`Failed to fetch display: ${res.status}`);
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } finally {
-    clearTimeout(timeout);
+    clearTimeout(t);
   }
 }
 
-async function getWindows(): Promise<WindowState[]> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-  try {
-    const res = await fetch("/api/windows", { signal: controller.signal });
-    if (!res.ok) throw new Error(`Failed to fetch windows: ${res.status}`);
-    return res.json();
-  } finally {
-    clearTimeout(timeout);
-  }
-}
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 type QueueEntry = {
   id: string;
@@ -41,6 +27,182 @@ type QueueEntry = {
   createdAt: number;
   number: number;
 };
+
+// ─── Live Clock ──────────────────────────────────────────────────────────────
+
+function LiveClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const time = now.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const date = now.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return (
+    <div className="text-right">
+      <div className="font-mono text-3xl font-bold tracking-widest text-amber-400">
+        {time}
+      </div>
+      <div className="font-mono text-xs tracking-widest text-slate-400 uppercase mt-0.5">
+        {date}
+      </div>
+    </div>
+  );
+}
+
+// ─── Flip animation for ticket code ──────────────────────────────────────────
+
+function TicketCode({
+  code,
+  size = "lg",
+}: {
+  code: string | null;
+  size?: "lg" | "xl";
+}) {
+  const [displayed, setDisplayed] = useState(code);
+  const [flipping, setFlipping] = useState(false);
+
+  useEffect(() => {
+    if (code === displayed) return;
+    setFlipping(true);
+    const t = setTimeout(() => {
+      setDisplayed(code);
+      setFlipping(false);
+    }, 220);
+    return () => clearTimeout(t);
+  }, [code]);
+
+  const sizeClass =
+    size === "xl"
+      ? "text-6xl sm:text-7xl md:text-8xl"
+      : "text-4xl sm:text-5xl";
+
+  return (
+    <span
+      className={cn(
+        "font-mono font-black tracking-widest transition-all duration-200",
+        sizeClass,
+        flipping ? "opacity-0 scale-95" : "opacity-100 scale-100",
+        displayed ? "text-amber-400" : "text-slate-600",
+      )}
+    >
+      {displayed ?? "———"}
+    </span>
+  );
+}
+
+// ─── Serving row (airport departures board style) ────────────────────────────
+
+function ServingRow({
+  win,
+  code,
+  isFs,
+}: {
+  win: WindowState;
+  code: string | null;
+  isFs: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between border-b border-slate-700/60",
+        "px-4 sm:px-8",
+        isFs ? "py-5 sm:py-6" : "py-3 sm:py-4",
+      )}
+      role="row"
+      aria-label={`${win.name}: ${code ? `serving ${code}` : "idle"}`}
+    >
+      {/* Window label */}
+      <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+        <div
+          className={cn(
+            "flex-shrink-0 rounded font-mono font-bold tracking-widest text-center",
+            "bg-slate-800 text-slate-300 border border-slate-600",
+            isFs
+              ? "text-base sm:text-lg px-3 py-1.5 min-w-[72px]"
+              : "text-xs sm:text-sm px-2 py-1 min-w-[56px]",
+          )}
+        >
+          {win.name}
+        </div>
+
+        {/* Status pill */}
+        <div className="flex items-center gap-1.5">
+          <span
+            className={cn(
+              "h-2 w-2 rounded-full flex-shrink-0",
+              win.busy
+                ? "bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.5)]"
+                : "bg-slate-600",
+            )}
+          />
+          <span
+            className={cn(
+              "font-mono uppercase tracking-widest",
+              isFs ? "text-sm" : "text-xs",
+              win.busy ? "text-emerald-400" : "text-slate-500",
+            )}
+          >
+            {win.busy ? "SERVING" : "IDLE"}
+          </span>
+        </div>
+      </div>
+
+      {/* Ticket code */}
+      <TicketCode code={code} size={isFs ? "xl" : "lg"} />
+    </div>
+  );
+}
+
+// ─── Waiting queue ticker ─────────────────────────────────────────────────────
+
+function WaitingTicker({ entries }: { entries: QueueEntry[] }) {
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-0 overflow-hidden border-t border-slate-700/60 bg-slate-900/80">
+      <div className="flex-shrink-0 bg-amber-500 px-3 sm:px-4 py-2 sm:py-3">
+        <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-900">
+          WAITING
+        </span>
+      </div>
+      <div className="flex-1 overflow-hidden relative">
+        <div
+          className="flex gap-6 sm:gap-8 px-4 sm:px-6 py-2 sm:py-3 overflow-x-auto scrollbar-none"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {entries.map((entry, i) => (
+            <div key={entry.id} className="flex items-center gap-2 flex-shrink-0">
+              <span className="font-mono text-xs text-slate-500">{String(i + 1).padStart(2, "0")}</span>
+              <span className="font-mono text-sm sm:text-base font-bold text-slate-200 tracking-widest">
+                {entry.code}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 bg-slate-900/80 border-l border-slate-700/60">
+        <span className="font-mono text-xs text-slate-400 tracking-widest">
+          {entries.length} IN QUEUE
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function QueuePublic() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -63,27 +225,29 @@ export default function QueuePublic() {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [tickets, setTickets] = useState<Record<string, Ticket>>({});
 
+  // Initial data load
   useEffect(() => {
-    let stop = false;
-    Promise.all([getDisplay(), getWindows()])
+    let cancelled = false;
+    Promise.all([
+      fetchJson<{ state: DisplayState }>("/api/display"),
+      fetchJson<WindowState[]>("/api/windows"),
+    ])
       .then(([d, w]) => {
-        if (stop) return;
+        if (cancelled) return;
         setDisplay(d.state);
         setWindows(w);
       })
       .catch(() => {});
-    return () => {
-      stop = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
+  // Live SSE updates
   useSSE(apiUrl("/api/events"), (ev) => {
     if (ev.type === "init") {
-      const payload: any = ev.payload;
-      if (payload.windows) setWindows(payload.windows as WindowState[]);
-      if (payload.tickets)
-        setTickets(payload.tickets as Record<string, Ticket>);
-      if (payload.display) setDisplay(payload.display as DisplayState);
+      const p = ev.payload as any;
+      if (p.windows) setWindows(p.windows as WindowState[]);
+      if (p.tickets) setTickets(p.tickets as Record<string, Ticket>);
+      if (p.display) setDisplay(p.display as DisplayState);
     }
     if (ev.type === "window.updated") {
       const w = ev.payload as WindowState;
@@ -93,297 +257,161 @@ export default function QueuePublic() {
       const t = ev.payload as Ticket;
       setTickets((m) => ({ ...m, [t.id]: t }));
     }
-    if (ev.type === "display.updated") setDisplay(ev.payload as DisplayState);
+    if (ev.type === "display.updated") {
+      setDisplay(ev.payload as DisplayState);
+    }
   });
 
+  // Map each window to its current ticket code
+  // NOTE: renamed loop var from `window` to `win` to avoid shadowing global window
   const windowCodes = useMemo(() => {
     const map: Record<number, string | null> = {};
-    windows.forEach((window) => {
-      const ticketId = window.currentTicketId;
-      if (!ticketId) {
-        map[window.id] = null;
-        return;
-      }
+    windows.forEach((win) => {
+      const ticketId = win.currentTicketId;
+      if (!ticketId) { map[win.id] = null; return; }
 
-      const directCode = tickets[ticketId]?.code;
-      if (directCode) {
-        map[window.id] = directCode;
-        return;
-      }
+      const direct = tickets[ticketId]?.code;
+      if (direct) { map[win.id] = direct; return; }
 
-      const currentTicket = display?.current?.find((t) => t.id === ticketId);
-      const fallbackCode =
-        (currentTicket && currentTicket.code) ||
-        (display?.next?.id === ticketId && display.next.code) ||
-        (display?.nextAfter?.id === ticketId && display.nextAfter.code) ||
-        display?.waiting.find((entry) => entry.id === ticketId)?.code;
+      const fromCurrent = display?.current?.find((t) => t.id === ticketId);
+      const fallback =
+        fromCurrent?.code ??
+        (display?.next?.id === ticketId ? display.next.code : undefined) ??
+        (display?.nextAfter?.id === ticketId ? display.nextAfter.code : undefined) ??
+        display?.waiting.find((e) => e.id === ticketId)?.code;
 
-      map[window.id] = fallbackCode ?? null;
+      map[win.id] = fallback ?? null;
     });
     return map;
   }, [windows, tickets, display]);
 
-  const serving = useMemo(
-    () =>
-      windows
-        .map((window) =>
-          window.currentTicketId
-            ? { window, ticket: tickets[window.currentTicketId] }
-            : null,
-        )
-        .filter((entry): entry is { window: WindowState; ticket: Ticket } =>
-          Boolean(entry?.ticket),
-        ),
-    [windows, tickets],
-  );
-
+  // Sorted waiting queue
   const waitingQueue = useMemo<QueueEntry[]>(() => {
-    const waitingTickets = Object.values(tickets)
+    const live = Object.values(tickets)
       .filter((t) => t.status === "waiting")
-      .map((t) => ({
-        id: t.id,
-        code: t.code,
-        createdAt: t.createdAt,
-        number: t.number,
-      }))
+      .map((t) => ({ id: t.id, code: t.code, createdAt: t.createdAt, number: t.number }))
       .sort((a, b) => a.createdAt - b.createdAt || a.number - b.number);
 
-    if (waitingTickets.length || !display) return waitingTickets;
+    if (live.length || !display) return live;
 
     const fallback: QueueEntry[] = [];
-    const push = (
-      entry:
-        | DisplayState["next"]
-        | DisplayState["nextAfter"]
-        | DisplayState["waiting"][number]
-        | null
-        | undefined,
-    ) => {
-      if (!entry) return;
-      fallback.push({
-        id: entry.id,
-        code: entry.code,
-        createdAt: entry.createdAt,
-        number: fallback.length,
-      });
+    const push = (e: { id: string; code: string; createdAt: number } | null | undefined) => {
+      if (!e) return;
+      fallback.push({ id: e.id, code: e.code, createdAt: e.createdAt, number: fallback.length });
     };
-
     push(display.next);
     push(display.nextAfter);
-    display.waiting.forEach((item) => push(item));
-
+    display.waiting.forEach(push);
     return fallback;
   }, [tickets, display]);
 
-  const [nextTicket, nextAfterTicket, ...restTickets] = waitingQueue;
-
-  const hasLiveQueue = useMemo(() => {
-    if (serving.length > 0) return true;
-    if (waitingQueue.length > 0) return true;
-    if (
-      display &&
-      (display.current.length > 0 || display.next || display.nextAfter)
-    )
-      return true;
-    return false;
-  }, [display, serving, waitingQueue]);
-
-  const actionMessage =
-    serving.length > 0 || (display?.current.length ?? 0) > 0
-      ? "Please proceed when called"
-      : "Please proceed to waiting area";
+  const [nextTicket, nextAfterTicket] = waitingQueue;
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "w-full bg-background",
-        isFs ? "fixed inset-0 min-h-screen overflow-auto" : "min-h-screen",
+        "w-full min-h-screen bg-slate-950 text-white flex flex-col",
+        isFs && "fixed inset-0 overflow-auto",
       )}
     >
-      <div
-        className={cn(
-          isFs
-            ? "px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10"
-            : "px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10",
-        )}
-      >
-        {/* Header */}
-        <div className="mb-6 sm:mb-8 flex items-center justify-between gap-4 flex-wrap">
-          <h1
-            className={cn(
-              "font-display font-bold text-foreground",
-              isFs
-                ? "text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
-                : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl",
-            )}
-          >
-            {isFs ? "Now Serving" : "Queue Status"}
-          </h1>
+      {/* ── Header bar ── */}
+      <header className="flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4 bg-slate-900 border-b border-slate-700/80 flex-shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          {/* Amber accent bar */}
+          <div className="h-8 w-1 bg-amber-400 rounded-full flex-shrink-0" />
+          <div>
+            <h1 className="font-mono text-base sm:text-xl font-bold tracking-widest text-white uppercase">
+              Service Queue
+            </h1>
+            <p className="font-mono text-xs text-slate-400 tracking-widest uppercase">
+              Live Display
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 sm:gap-8">
+          <LiveClock />
           <Button
             variant="outline"
             size="sm"
             onClick={toggleFs}
             aria-pressed={isFs}
             aria-label={isFs ? "Exit full screen" : "Enter full screen"}
-            className="text-xs sm:text-sm h-9 sm:h-10 px-3 sm:px-4 flex-shrink-0"
+            className="font-mono text-xs tracking-widest uppercase border-slate-600 text-slate-300 hover:text-white hover:border-amber-400 h-8 px-3 bg-transparent"
           >
-            {isFs ? "Exit FS" : "Full Screen"}
+            {isFs ? "EXIT FS" : "FULLSCREEN"}
           </Button>
         </div>
+      </header>
 
-        {/* Window Cards Grid */}
-        <div
-          className={cn(
-            "w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-            isFs
-              ? "gap-4 sm:gap-6 md:gap-8 mb-0"
-              : "gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-12 md:mb-16",
-          )}
-        >
-          {windows.map((w) => {
-            const code = windowCodes[w.id] ?? null;
-            return (
-              <Card
-                key={w.id}
-                className={cn(
-                  "border border-border/60 bg-card/90 shadow-lg hover:shadow-xl transition-shadow",
-                  isFs
-                    ? "rounded-3xl sm:rounded-4xl p-6 sm:p-8 md:p-10"
-                    : "rounded-2xl sm:rounded-3xl p-4 sm:p-6",
-                )}
-                role="region"
-                aria-label={`${w.name}: ${code ? `Now serving ${code}` : "Idle"}`}
-              >
-                <div
-                  className={cn(
-                    "uppercase tracking-wide font-medium text-muted-foreground",
-                    isFs ? "text-sm sm:text-base" : "text-xs sm:text-sm",
-                  )}
-                >
-                  {w.name}
-                </div>
-                <div
-                  className={cn(
-                    "mt-4 font-display font-bold",
-                    isFs
-                      ? "text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
-                      : "text-xl sm:text-2xl md:text-3xl",
-                  )}
-                >
-                  <span className="text-green-600 dark:text-green-400">
-                    {code ?? "—"}
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "mt-3 text-muted-foreground font-medium",
-                    isFs ? "text-sm sm:text-base" : "text-xs sm:text-sm",
-                  )}
-                >
-                  {w.busy ? (
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-green-600 dark:bg-green-400 inline-block"></span>
-                      Serving
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-amber-600 dark:bg-amber-400 inline-block"></span>
-                      Idle
-                    </span>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
+      {/* ── Now Serving board ── */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Column headers */}
+        <div className="flex items-center justify-between px-4 sm:px-8 py-2 bg-slate-800/60 border-b border-slate-700/40">
+          <span className="font-mono text-xs tracking-[0.25em] text-slate-500 uppercase">
+            Window
+          </span>
+          <span className="font-mono text-xs tracking-[0.25em] text-slate-500 uppercase">
+            Ticket
+          </span>
         </div>
 
-        {/* Queue Information Card - Only show in normal mode */}
-        {!isFs && (
-          <div className="w-full">
-            <Card className="rounded-2xl sm:rounded-3xl border border-border/60 bg-card/90 p-4 sm:p-6 md:p-8 shadow-lg">
-              <div className="space-y-4 sm:space-y-6">
-                {/* Now Serving Section */}
-                <div className="rounded-lg sm:rounded-2xl border border-green-500/40 bg-green-500/10 p-3 sm:p-4">
-                  <p className="text-xs uppercase tracking-widest text-green-600 dark:text-green-400 font-medium">
-                    Now Serving
-                  </p>
-                  {serving.length ? (
-                    <div className="mt-3 grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2">
-                      {serving.map(({ window, ticket }) => (
-                        <div
-                          key={window.id}
-                          className="flex items-center justify-between rounded-xl bg-card/80 p-3"
-                        >
-                          <span className="font-display text-2xl sm:text-3xl font-semibold text-green-600 dark:text-green-400">
-                            {ticket.code}
-                          </span>
-                          <span className="text-xs sm:text-sm text-muted-foreground">
-                            {window.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-muted-foreground">—</p>
-                  )}
-                </div>
+        {/* Serving rows */}
+        <div className="flex-1 divide-y-0" role="table" aria-label="Now serving">
+          {windows.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-mono text-slate-600 tracking-widest uppercase text-sm">
+                Loading…
+              </span>
+            </div>
+          ) : (
+            windows.map((win) => (
+              <ServingRow
+                key={win.id}
+                win={win}
+                code={windowCodes[win.id] ?? null}
+                isFs={isFs}
+              />
+            ))
+          )}
+        </div>
 
-                {/* Next and Next After */}
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-                  <div className="rounded-lg sm:rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-4">
-                    <p className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-medium">
-                      Next
-                    </p>
-                    <p className="mt-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold text-amber-600 dark:text-amber-400">
-                      {nextTicket?.code ?? "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-lg sm:rounded-2xl border border-sky-500/40 bg-sky-500/10 p-3 sm:p-4">
-                    <p className="text-xs uppercase tracking-widest text-sky-600 dark:text-sky-400 font-medium">
-                      Next After
-                    </p>
-                    <p className="mt-2 font-display text-xl sm:text-2xl md:text-3xl font-semibold text-sky-600 dark:text-sky-400">
-                      {nextAfterTicket?.code ?? "—"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Waiting Queue */}
-                {restTickets.length > 0 && (
-                  <div className="rounded-lg sm:rounded-2xl border border-border/60 bg-background/70 p-3 sm:p-4">
-                    <p className="mb-3 text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                      Waiting ({restTickets.length})
-                    </p>
-                    <ol className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-                      {restTickets.map((entry) => (
-                        <li
-                          key={entry.id}
-                          className="rounded-xl bg-card/80 p-3 font-medium text-foreground"
-                        >
-                          {entry.code}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-
-                {/* Action Message */}
-                <div className="flex items-start justify-between gap-3 rounded-lg sm:rounded-2xl border border-primary/40 bg-primary/10 p-3 sm:p-4 text-xs sm:text-sm text-primary">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest font-medium">
-                      Action
-                    </p>
-                    <p className="font-semibold text-sm sm:text-base">
-                      {actionMessage}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
+        {/* ── Next / Next After strip ── */}
+        {(nextTicket || nextAfterTicket) && (
+          <div className="flex items-stretch border-t border-slate-700/60 bg-slate-900/60 divide-x divide-slate-700/60">
+            <div className="flex-1 px-4 sm:px-8 py-3 sm:py-4">
+              <p className="font-mono text-xs tracking-[0.2em] text-amber-500 uppercase mb-1">
+                Up Next
+              </p>
+              <span className="font-mono text-2xl sm:text-3xl font-black tracking-widest text-amber-300">
+                {nextTicket?.code ?? "—"}
+              </span>
+            </div>
+            <div className="flex-1 px-4 sm:px-8 py-3 sm:py-4">
+              <p className="font-mono text-xs tracking-[0.2em] text-slate-500 uppercase mb-1">
+                After Next
+              </p>
+              <span className="font-mono text-2xl sm:text-3xl font-black tracking-widest text-slate-400">
+                {nextAfterTicket?.code ?? "—"}
+              </span>
+            </div>
           </div>
         )}
+
+        {/* ── Waiting ticker ── */}
+        <WaitingTicker entries={waitingQueue.slice(2)} />
       </div>
+
+      {/* ── Footer ── */}
+      <footer className="flex-shrink-0 px-4 sm:px-8 py-2 bg-slate-900 border-t border-slate-700/60 flex items-center justify-between">
+        <span className="font-mono text-xs text-slate-600 tracking-widest uppercase">
+          Please wait until your number is called
+        </span>
+        <span className="font-mono text-xs text-slate-600 tracking-widest uppercase">
+          {windows.filter((w) => w.busy).length}/{windows.length} windows active
+        </span>
+      </footer>
     </div>
   );
 }
