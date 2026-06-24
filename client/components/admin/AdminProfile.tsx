@@ -14,16 +14,16 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LogOut,
   ShieldCheck,
   Sun,
   Moon,
   Monitor,
-  User,
-  Clock,
   KeyRound,
   Settings2,
+  Activity,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -32,103 +32,168 @@ import { format } from "date-fns";
 
 function getInitials(fullName?: string, username?: string) {
   const name = fullName || username || "?";
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
 function getRoleColor(role: string) {
-  switch (role) {
-    case "admin":
-      return "bg-purple-100 text-purple-800";
-    case "reception":
-      return "bg-blue-100 text-blue-800";
-    case "teller":
-      return "bg-green-100 text-green-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
+  const map: Record<string, string> = {
+    admin: "bg-purple-100 text-purple-800",
+    reception: "bg-blue-100 text-blue-800",
+    teller: "bg-green-100 text-green-800",
+  };
+  return map[role] ?? "bg-gray-100 text-gray-800";
 }
 
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+// ─── Identity Sidebar ────────────────────────────────────────────────────────
 
-// ─── Sub-components ─────────────────────────────────────────────────────────
+function IdentitySidebar({
+  user,
+  loginTime,
+  onLogout,
+}: {
+  user: NonNullable<ReturnType<typeof useAuth>["user"]>;
+  loginTime: Date;
+  onLogout: () => void;
+}) {
+  const sessionMinutes = Math.floor(
+    (new Date().getTime() - loginTime.getTime()) / 60000
+  );
 
-function ProfileHeader({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   return (
-    <div className="flex items-center gap-4">
-      <Avatar className="h-16 w-16">
-        <AvatarFallback className="text-lg">
-          {getInitials(user.fullName, user.username)}
-        </AvatarFallback>
-      </Avatar>
-      <div className="space-y-2">
-        <div>
-          <p className="text-lg font-semibold">{user.fullName || user.username}</p>
-          <p className="text-sm text-muted-foreground">Admin Account</p>
-        </div>
-        <Badge className={getRoleColor(user.role)}>
-          <ShieldCheck className="mr-1 h-3 w-3" />
-          {capitalize(user.role)}
-        </Badge>
-      </div>
+    <div className="flex flex-col gap-4">
+      {/* Avatar + Name */}
+      <Card>
+        <CardContent className="pt-6 flex flex-col items-center text-center gap-3">
+          <Avatar className="h-20 w-20">
+            <AvatarFallback className="text-xl">
+              {getInitials(user.fullName, user.username)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold text-base leading-tight">
+              {user.fullName || user.username}
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">@{user.username}</p>
+          </div>
+          <Badge className={getRoleColor(user.role)}>
+            <ShieldCheck className="mr-1 h-3 w-3" />
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          </Badge>
+          <div className="w-full rounded-md border px-3 py-2 text-left">
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              <span className="text-xs text-muted-foreground">Active</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Session Snapshot */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+            <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+            Session
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div>
+            <p className="text-xs text-muted-foreground">Logged in at</p>
+            <p className="font-medium">{format(loginTime, "HH:mm:ss")}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Duration</p>
+            <p className="font-medium">{sessionMinutes} min</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Auth method</p>
+            <p className="font-medium">Secure Cookie</p>
+          </div>
+          <Separator />
+          <div className="rounded-md bg-blue-50 dark:bg-blue-950 px-3 py-2">
+            <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+              Session secured with httpOnly cookies & CSRF protection.
+            </p>
+          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onLogout}
+            className="w-full"
+          >
+            <LogOut className="mr-2 h-3.5 w-3.5" />
+            Sign out
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function AccountDetailGrid({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
+// ─── Account Details Tab ─────────────────────────────────────────────────────
+
+function AccountTab({
+  user,
+}: {
+  user: NonNullable<ReturnType<typeof useAuth>["user"]>;
+}) {
   const fields = [
+    { label: "User ID", value: user.id, mono: true, full: true },
+    { label: "Full name", value: user.fullName || "N/A" },
     { label: "Username", value: user.username },
-    { label: "Full Name", value: user.fullName || "N/A" },
-    { label: "User ID", value: user.id, mono: true },
-    { label: "Primary Role", value: capitalize(user.role) },
+    { label: "Role", value: user.role.charAt(0).toUpperCase() + user.role.slice(1) },
+    { label: "Account type", value: "System Administrator" },
     ...(user.windowId
-      ? [{ label: "Assigned Window", value: `Window ${user.windowId}` }]
+      ? [{ label: "Assigned window", value: `Window ${user.windowId}` }]
       : []),
-    { label: "Account Type", value: "System Administrator" },
     {
-      label: "Created Date",
+      label: "Member since",
       value: format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), "MMM d, yyyy"),
     },
     {
-      label: "Last Login",
-      value: format(new Date(), "MMM d, yyyy HH:mm:ss"),
+      label: "Last login",
+      value: format(new Date(), "MMM d, yyyy · HH:mm"),
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {fields.map(({ label, value, mono }) => (
-        <div key={label}>
-          <Label className="text-xs text-muted-foreground">{label}</Label>
-          <p className={`font-medium ${mono ? "font-mono text-sm break-all" : ""}`}>{value}</p>
+    <div className="space-y-1">
+      {fields.map(({ label, value, mono, full }) => (
+        <div
+          key={label}
+          className={`flex items-start justify-between gap-4 py-3 border-b last:border-0 ${full ? "flex-col gap-1" : ""}`}
+        >
+          <span className="text-sm text-muted-foreground shrink-0">{label}</span>
+          <span
+            className={`text-sm font-medium text-right break-all ${mono ? "font-mono text-xs" : ""}`}
+          >
+            {value}
+          </span>
         </div>
       ))}
     </div>
   );
 }
 
-function AccountStatusBadge() {
+// ─── Security Tab ────────────────────────────────────────────────────────────
+
+function SecurityTab() {
   return (
-    <div className="space-y-2 rounded-lg border p-3">
-      <p className="text-sm font-medium">Account Status</p>
-      <div className="flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-green-500" />
-        <p className="text-sm text-muted-foreground">Active</p>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-sm font-medium mb-1">Change password</h3>
+        <p className="text-xs text-muted-foreground mb-4">
+          Use a strong, unique password you don't use elsewhere.
+        </p>
+        <ChangePasswordForm />
       </div>
-      <p className="text-xs text-muted-foreground">
-        Last activity: {format(new Date(), "MMM d, yyyy HH:mm:ss")}
-      </p>
     </div>
   );
 }
 
-function ThemeSelector() {
+// ─── Preferences Tab ─────────────────────────────────────────────────────────
+
+function PreferencesTab() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -136,83 +201,39 @@ function ThemeSelector() {
     setMounted(true);
   }, []);
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    toast.success(`Theme changed to ${newTheme}`);
-  };
-
   const options = [
     { value: "light", label: "Light", icon: Sun },
     { value: "dark", label: "Dark", icon: Moon },
     { value: "system", label: "System", icon: Monitor },
   ];
 
-  if (!mounted) return null;
-
   return (
-    <div className="space-y-2">
-      <Label htmlFor="theme">Theme Preference</Label>
-      <div className="flex gap-2">
-        {options.map(({ value, label, icon: Icon }) => (
-          <Button
-            key={value}
-            variant={theme === value ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleThemeChange(value)}
-            className="flex-1"
-          >
-            <Icon className="mr-2 h-4 w-4" />
-            {label}
-          </Button>
-        ))}
+    <div className="space-y-6">
+      <div>
+        <Label className="text-sm font-medium">Appearance</Label>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+          Choose how the interface looks to you.
+        </p>
+        {mounted && (
+          <div className="flex gap-2">
+            {options.map(({ value, label, icon: Icon }) => (
+              <Button
+                key={value}
+                variant={theme === value ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setTheme(value);
+                  toast.success(`Theme set to ${value}`);
+                }}
+                className="flex-1"
+              >
+                <Icon className="mr-2 h-4 w-4" />
+                {label}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
-
-function SessionDetails({ loginTime }: { loginTime: Date }) {
-  const sessionFields = [
-    {
-      label: "Login Time",
-      value: format(loginTime, "MMM d, yyyy HH:mm:ss"),
-    },
-    {
-      label: "Session Duration",
-      value: `${Math.floor((new Date().getTime() - loginTime.getTime()) / 60000)} minutes`,
-    },
-    { label: "Session Type", value: "Secure Cookie" },
-    { label: "Status", value: "active" as const },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-4 text-sm">
-      {sessionFields.map(({ label, value }) => (
-        <div key={label}>
-          <Label className="text-xs text-muted-foreground">{label}</Label>
-          {value === "active" ? (
-            <div className="flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-green-500" />
-              <p className="font-medium">Active</p>
-            </div>
-          ) : (
-            <p className="font-medium">{value}</p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SessionSecurityNotice() {
-  return (
-    <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
-      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-        Session Security
-      </p>
-      <p className="mt-1 text-xs text-blue-700 dark:text-blue-200">
-        Your session is secured with httpOnly cookies and CSRF protection.
-        For additional security, consider logging out when finished.
-      </p>
     </div>
   );
 }
@@ -243,71 +264,42 @@ export default function AdminProfile() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* ── Profile Identity ── */}
+    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 items-start">
+      {/* Left: identity + session */}
+      <IdentitySidebar user={user} loginTime={loginTime} onLogout={handleLogout} />
+
+      {/* Right: tabbed content */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <CardTitle>Profile Information</CardTitle>
-          </div>
-          <CardDescription>View your account details</CardDescription>
+          <CardTitle>My account</CardTitle>
+          <CardDescription>Manage your profile, security, and preferences.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <ProfileHeader user={user} />
-          <Separator />
-          <AccountDetailGrid user={user} />
-          <Separator />
-          <AccountStatusBadge />
-        </CardContent>
-      </Card>
+        <CardContent>
+          <Tabs defaultValue="account">
+            <TabsList className="mb-6">
+              <TabsTrigger value="account" className="gap-1.5">
+                Account
+              </TabsTrigger>
+              <TabsTrigger value="security" className="gap-1.5">
+                <KeyRound className="h-3.5 w-3.5" />
+                Security
+              </TabsTrigger>
+              <TabsTrigger value="preferences" className="gap-1.5">
+                <Settings2 className="h-3.5 w-3.5" />
+                Preferences
+              </TabsTrigger>
+            </TabsList>
 
-      {/* ── Security & Preferences ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Change Password */}
-        <div className="space-y-0">
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <KeyRound className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Security</span>
-          </div>
-          <ChangePasswordForm />
-        </div>
-
-        {/* Account Settings */}
-        <div className="space-y-0">
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <Settings2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Preferences</span>
-          </div>
-          <Card className="border-border/60 bg-card/90 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ThemeSelector />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* ── Active Session ── */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <CardTitle>Current Session</CardTitle>
-          </div>
-          <CardDescription>Information about your active session</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SessionDetails loginTime={loginTime} />
-          <Separator />
-          <SessionSecurityNotice />
-          <Button variant="destructive" onClick={handleLogout} className="w-fit">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+            <TabsContent value="account">
+              <AccountTab user={user} />
+            </TabsContent>
+            <TabsContent value="security">
+              <SecurityTab />
+            </TabsContent>
+            <TabsContent value="preferences">
+              <PreferencesTab />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
