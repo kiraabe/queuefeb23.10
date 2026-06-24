@@ -5,6 +5,7 @@ import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiFetch } from "@/lib/api";
 import SiteHeader from "@/components/layout/SiteHeader";
+import { LanguageSwitcher } from "@/components/language/LanguageSwitcher";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import {
   Card,
@@ -79,16 +80,19 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
       {(user.role === "reception" || user.role === "teller") && <SiteHeader />}
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-border/40 bg-background/95">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="h-10 w-10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl sm:text-2xl font-semibold">My Profile</h1>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="h-10 w-10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl sm:text-2xl font-semibold">My Profile</h1>
+            </div>
+            <LanguageSwitcher variant="dropdown-icon" />
           </div>
         </div>
 
