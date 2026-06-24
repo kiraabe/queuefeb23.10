@@ -574,7 +574,7 @@ export default function TellerWindow() {
   const employeesWithJobTitle = useMemo(() => {
     if (!selectedJobTitleId || !usersQuery.data) return [];
     return usersQuery.data.users.filter(
-      (u) => !u.disabled && u.windowId !== windowId,
+      (u) => !u.disabled && u.windowId !== windowId && u.role !== "archiever",
     );
   }, [selectedJobTitleId, usersQuery.data, windowId]);
 
