@@ -19,16 +19,18 @@ type LanguageSwitcherVariant = "select" | "dropdown" | "dropdown-icon";
 
 interface LanguageSwitcherProps {
   variant?: LanguageSwitcherVariant;
-  size?: "sm" | "md";
+  size?: "sm" | "default" | "lg";
   className?: string;
 }
 
 export function LanguageSwitcher({
   variant = "select",
-  size = "md",
+  size = "default",
   className,
 }: LanguageSwitcherProps) {
   const { language, setLanguage } = useLanguage();
+
+  const buttonSize = size === "sm" ? "sm" : size === "lg" ? "lg" : "default";
 
   if (variant === "select") {
     return (
@@ -53,7 +55,7 @@ export function LanguageSwitcher({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            size={size === "sm" ? "sm" : "md"}
+            size={buttonSize}
             className={className}
           >
             <Globe className="h-4 w-4 mr-2" />
