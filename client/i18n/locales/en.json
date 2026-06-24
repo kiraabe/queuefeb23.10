@@ -1,4 +1,8 @@
 {
+  "app": {
+    "name": "CTTCS Solution",
+    "tagline": "Track cases, ensure compliance"
+  },
   "home": {
     "badgeText": "Case Tracking and Time Standard Compliance",
     "heroTitle": "Track cases and",

@@ -1,4 +1,8 @@
 {
+  "app": {
+    "name": "CTTCS Furmaata",
+    "tagline": "Haajaawwan hordofaa fi jidduu kaa'uu mirkaneessaa"
+  },
   "home": {
     "badgeText": "Hordoffii Dhimmootaa fi Galmeessa Istandardii Yeroo",
     "heroTitle": "Dhimmoota hordofaa, mirkaneessa",
