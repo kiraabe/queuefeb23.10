@@ -1100,11 +1100,13 @@ export default function TellerWindow() {
                       }}
                     >
                       <option value="">{t("teller.window.selectJobTitle")}</option>
-                      {jobTitlesQuery.data.jobTitles.map((title) => (
-                        <option key={title.id} value={title.id}>
-                          {title.nameAmharic}
-                        </option>
-                      ))}
+                      {jobTitlesQuery.data.jobTitles
+                        .filter((title) => !title.nameEnglish?.toLowerCase().includes("archiever"))
+                        .map((title) => (
+                          <option key={title.id} value={title.id}>
+                            {title.nameAmharic}
+                          </option>
+                        ))}
                     </select>
 
                     {selectedJobTitleId && (
