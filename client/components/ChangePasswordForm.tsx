@@ -264,7 +264,7 @@ export function ChangePasswordForm() {
   const confirmMismatch        = passwordsTyped && newPassword !== confirmPassword;
 
   return (
-    <Card className="border-border/60 bg-card/90 shadow-lg mt-8">
+    <Card className="border-border/60 bg-card/90 shadow-lg">
       <CardHeader>
         <CardTitle className="text-lg sm:text-xl">Change Password</CardTitle>
         <CardDescription>

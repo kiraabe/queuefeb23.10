@@ -190,52 +190,53 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      {/* Change Password Card */}
-      <ChangePasswordForm />
+      {/* Change Password & Account Settings Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChangePasswordForm />
 
-      {/* Settings Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Settings</CardTitle>
-          <CardDescription>Manage your account preferences</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="theme">Theme Preference</Label>
-            {mounted && (
-              <div className="flex gap-2">
-                <Button
-                  variant={theme === "light" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleThemeChange("light")}
-                  className="flex-1"
-                >
-                  <Sun className="mr-2 h-4 w-4" />
-                  Light
-                </Button>
-                <Button
-                  variant={theme === "dark" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleThemeChange("dark")}
-                  className="flex-1"
-                >
-                  <Moon className="mr-2 h-4 w-4" />
-                  Dark
-                </Button>
-                <Button
-                  variant={theme === "system" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleThemeChange("system")}
-                  className="flex-1"
-                >
-                  <Monitor className="mr-2 h-4 w-4" />
-                  System
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="border-border/60 bg-card/90 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-lg sm:text-xl">Account Settings</CardTitle>
+            <CardDescription>Manage your account preferences</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="theme">Theme Preference</Label>
+              {mounted && (
+                <div className="flex gap-2">
+                  <Button
+                    variant={theme === "light" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleThemeChange("light")}
+                    className="flex-1"
+                  >
+                    <Sun className="mr-2 h-4 w-4" />
+                    Light
+                  </Button>
+                  <Button
+                    variant={theme === "dark" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleThemeChange("dark")}
+                    className="flex-1"
+                  >
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark
+                  </Button>
+                  <Button
+                    variant={theme === "system" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleThemeChange("system")}
+                    className="flex-1"
+                  >
+                    <Monitor className="mr-2 h-4 w-4" />
+                    System
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Session Info */}
       <Card>
