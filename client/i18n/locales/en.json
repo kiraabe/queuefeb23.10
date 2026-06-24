@@ -84,6 +84,18 @@
     "analytics": "Service analytics",
     "analyticsDesc": "Track service times, customer satisfaction, and operational metrics."
   },
+  "phase4": {
+    "title": "Employee / Back Office (Complex Cases)",
+    "description": "The employee works on the case, can transfer to another employee if needed, and completes the case.",
+    "caseAssignment": "Case Assignment",
+    "caseAssignmentDesc": "Receive transferred cases requiring detailed management and complex decision-making.",
+    "workflowTracking": "Workflow Tracking",
+    "workflowTrackingDesc": "Track case progress through multiple workflow stages with status updates.",
+    "collaboration": "Staff Collaboration",
+    "collaborationDesc": "Transfer cases to other employees if specialized knowledge or further review is needed.",
+    "completion": "Case Completion",
+    "completionDesc": "Mark cases as complete and initiate archival process for record-keeping."
+  },
   "errors": {
     "notFound": "Page not found",
     "unauthorized": "Unauthorized access",
