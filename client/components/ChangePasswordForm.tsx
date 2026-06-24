@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
+import { useTranslation } from "@/hooks/use-translation";
 import {
   Card,
   CardContent,
@@ -157,6 +158,7 @@ function PasswordInput({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function ChangePasswordForm() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading]                   = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword]         = useState(false);
@@ -266,9 +268,9 @@ export function ChangePasswordForm() {
   return (
     <Card className="border-border/60 bg-card/90 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Change Password</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">{t("profile.changePassword")}</CardTitle>
         <CardDescription>
-          Update your password to keep your account secure.
+          {t("profile.updatePasswordDesc")}
         </CardDescription>
       </CardHeader>
 
@@ -312,8 +314,8 @@ export function ChangePasswordForm() {
           {/* ── Current password ── */}
           <PasswordInput
             id="current-password"
-            label="Current Password"
-            placeholder="Enter your current password"
+            label={t("profile.currentPassword")}
+            placeholder={t("profile.enterCurrentPassword")}
             value={currentPassword}
             onChange={setCurrentPassword}
             disabled={isLoading}
@@ -325,8 +327,8 @@ export function ChangePasswordForm() {
           {/* ── New password ── */}
           <PasswordInput
             id="new-password"
-            label="New Password"
-            placeholder="Enter your new password"
+            label={t("profile.newPassword")}
+            placeholder={t("profile.enterNewPassword")}
             value={newPassword}
             onChange={setNewPassword}
             disabled={isLoading}
@@ -356,8 +358,8 @@ export function ChangePasswordForm() {
           {/* ── Confirm password ── */}
           <PasswordInput
             id="confirm-password"
-            label="Confirm New Password"
-            placeholder="Confirm your new password"
+            label={t("profile.confirmNewPassword")}
+            placeholder={t("profile.confirmPassword")}
             value={confirmPassword}
             onChange={setConfirmPassword}
             disabled={isLoading}
@@ -367,7 +369,7 @@ export function ChangePasswordForm() {
             hint={
               confirmMismatch ? (
                 <p className="text-xs text-destructive mt-1" role="alert">
-                  Passwords do not match.
+                  {t("common.dash")} {t("common.error")}
                 </p>
               ) : undefined
             }
@@ -380,7 +382,7 @@ export function ChangePasswordForm() {
               disabled={isLoading || !isPasswordValid}
               className="flex-1"
             >
-              {isLoading ? "Saving…" : "Save New Password"}
+              {isLoading ? t("common.loading") : t("profile.saveNewPassword")}
             </Button>
 
             <Button
@@ -389,7 +391,7 @@ export function ChangePasswordForm() {
               onClick={resetForm}
               disabled={isLoading}
             >
-              Clear
+              {t("profile.clear")}
             </Button>
           </div>
 

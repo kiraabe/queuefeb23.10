@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "@/hooks/use-translation";
 import { apiFetch } from "@/lib/api";
 import SiteHeader from "@/components/layout/SiteHeader";
 import { LanguageSwitcher } from "@/components/language/LanguageSwitcher";
@@ -23,6 +24,7 @@ import { toast } from "sonner";
 
 function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [user, setUser] = useState(initialUser);
   const queryClient = useQueryClient();
@@ -90,7 +92,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl sm:text-2xl font-semibold">My Profile</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold">{t("buttons.myProfile")}</h1>
             </div>
             <LanguageSwitcher variant="dropdown-icon" />
           </div>
@@ -112,12 +114,12 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base capitalize mt-2">
                     {user.role === "employee" || user.role === "archiever"
-                      ? "Staff Member"
+                      ? t("profile.title")
                       : user.role === "teller"
-                        ? "Teller"
+                        ? t("profile.roles.teller")
                         : user.role === "reception"
-                          ? "Reception Staff"
-                          : "Administrator"}
+                          ? t("profile.roles.reception")
+                          : t("profile.roles.admin")}
                   </CardDescription>
                   {jobTitle && (
                     <p className="text-sm text-muted-foreground mt-1">
@@ -134,7 +136,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
           <Card className="border-border/60 bg-card/90 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">
-                Account Information
+                {t("profile.accountInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -142,19 +144,19 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Full Name */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Full Name
+                    {t("profile.fullName")}
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input
                       readOnly
-                      value={user.fullName || "Not provided"}
+                      value={user.fullName || t("profile.notProvided")}
                       className="bg-muted/50 cursor-default"
                     />
                     {user.fullName && (
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => copyToClipboard(user.fullName!, "Full Name")}
+                        onClick={() => copyToClipboard(user.fullName!, t("profile.fullName"))}
                         className="h-10 w-10 flex-shrink-0"
                       >
                         {copiedField === "Full Name" ? (
@@ -170,7 +172,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Username */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Username
+                    {t("profile.username")}
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input
@@ -181,7 +183,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => copyToClipboard(user.username, "Username")}
+                      onClick={() => copyToClipboard(user.username, t("profile.username"))}
                       className="h-10 w-10 flex-shrink-0"
                     >
                       {copiedField === "Username" ? (
@@ -196,11 +198,11 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Role */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Role
+                    {t("profile.role")}
                   </Label>
                   <Input
                     readOnly
-                    value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    value={t(`profile.roles.${user.role}`)}
                     className="bg-muted/50 cursor-default"
                   />
                 </div>
@@ -209,7 +211,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {user.windowId ? (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-muted-foreground">
-                      Assigned Window
+                      {t("teller.window.selectJobTitle")}
                     </Label>
                     <Input
                       readOnly
@@ -224,7 +226,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
               {user.roles && user.roles.length > 1 && (
                 <div className="space-y-2 mt-6">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Available Roles
+                    {t("buttons.language")}
                   </Label>
                   <div className="flex flex-wrap gap-2">
                     {user.roles.map((role) => (
@@ -245,7 +247,7 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
           <Card className="mt-8 border-border/60 bg-card/90 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">
-                Contact & Job Information
+                {t("profile.contactJobInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -253,11 +255,11 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Phone */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Phone
+                    {t("profile.phone")}
                   </Label>
                   <Input
                     readOnly
-                    value={user.phone || "Not provided"}
+                    value={user.phone || t("profile.notProvided")}
                     className="bg-muted/50 cursor-default"
                   />
                 </div>
@@ -265,11 +267,11 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Email */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Email
+                    {t("profile.email")}
                   </Label>
                   <Input
                     readOnly
-                    value={user.email || "Not provided"}
+                    value={user.email || t("profile.notProvided")}
                     className="bg-muted/50 cursor-default"
                   />
                 </div>
@@ -277,11 +279,11 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Department */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Department
+                    {t("profile.department")}
                   </Label>
                   <Input
                     readOnly
-                    value={user.department || "Not provided"}
+                    value={user.department || t("profile.notProvided")}
                     className="bg-muted/50 cursor-default"
                   />
                 </div>
@@ -289,11 +291,11 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
                 {/* Job Title */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    Job Title
+                    {t("profile.jobTitleLabel")}
                   </Label>
                   <Input
                     readOnly
-                    value={jobTitle?.nameEnglish || jobTitle?.nameAmharic || "Not provided"}
+                    value={jobTitle?.nameEnglish || jobTitle?.nameAmharic || t("profile.notProvided")}
                     className="bg-muted/50 cursor-default"
                   />
                 </div>
@@ -307,17 +309,15 @@ function ProfileContent({ user: initialUser }: { user: NonNullable<ReturnType<ty
           {/* Additional Info */}
           <Card className="mt-8 border-border/60 bg-card/90 shadow-lg border-dashed">
             <CardHeader>
-              <CardTitle className="text-lg">Information</CardTitle>
+              <CardTitle className="text-lg">{t("profile.information")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  To update account details other than your password, please
-                  contact your administrator.
+                  {t("profile.updateInfoDesc")}
                 </p>
                 <p>
-                  Your account information is automatically synced with the
-                  system when you log in.
+                  {t("profile.autoSync")}
                 </p>
               </div>
             </CardContent>
