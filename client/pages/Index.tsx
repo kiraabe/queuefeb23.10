@@ -35,141 +35,113 @@ import { useTranslation } from "@/hooks/use-translation";
 // Live system stats are computed from SSE init + updates
 
 interface PhaseHighlight {
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   icon: LucideIcon;
 }
 
-const PHASES: Array<{
-  phase: string;
-  title: string;
-  caption: string;
+interface Phase {
+  phaseKey: string;
+  titleKey: string;
+  captionKey: string;
   highlights: PhaseHighlight[];
-}> = [
+}
+
+const PHASES: Phase[] = [
   {
-    phase: "Phase 1",
-    title: "Reception / Case Manager",
-    caption:
-      "A ticket is created with the selected service, a QR code is generated, and the ticket number is displayed to the customer.",
+    phaseKey: "phase1.title",
+    titleKey: "phase1.title",
+    captionKey: "phase1.description",
     highlights: [
       {
-        title: "Eligibility verification",
-        description:
-          "Verify customer service eligibility before creating a ticket.",
+        titleKey: "phase1.eligibility",
+        descriptionKey: "phase1.eligibilityDesc",
         icon: ClipboardCheck,
       },
       {
-        title: "Quick QR ticket issuance",
-        description:
-          "Generate QR-coded tickets with service type and estimated wait time.",
+        titleKey: "phase1.qrTicket",
+        descriptionKey: "phase1.qrTicketDesc",
         icon: QrCode,
       },
       {
-        title: "Queue management",
-        description:
-          "Assign customers to appropriate service lines with real-time position tracking.",
+        titleKey: "phase1.queueMgmt",
+        descriptionKey: "phase1.queueMgmtDesc",
         icon: Monitor,
       },
       {
-        title: "Customer notifications",
-        description:
-          "Send real-time updates via QR code scans when customer's turn approaches.",
+        titleKey: "phase1.notifications",
+        descriptionKey: "phase1.notificationsDesc",
         icon: BellRing,
       },
     ],
   },
   {
-    phase: "Phase 2",
-    title: "Archiver / Documentation",
-    caption:
-      "The archiver claims the ticket, fetches and verifies the required documents, and marks the case as ready.",
+    phaseKey: "phase2.title",
+    titleKey: "phase2.title",
+    captionKey: "phase2.description",
     highlights: [
       {
-        title: "Document collection",
-        description:
-          "Gather all supporting documents and attachments for completed cases.",
+        titleKey: "phase2.documents",
+        descriptionKey: "phase2.documentsDesc",
         icon: ClipboardCheck,
       },
       {
-        title: "Compliance verification",
-        description:
-          "Verify that all required documents meet compliance standards and completeness.",
+        titleKey: "phase2.compliance",
+        descriptionKey: "phase2.complianceDesc",
         icon: CheckCircle2,
       },
       {
-        title: "Archive storage",
-        description:
-          "Store organized records and documents for future reference and audit trails.",
+        titleKey: "phase2.archive",
+        descriptionKey: "phase2.archiveDesc",
         icon: Monitor,
-      },
-      {
-        title: "Case readiness",
-        description:
-          "Mark the case as ready for service delivery once all documents are verified.",
-        icon: LineChart,
       },
     ],
   },
   {
-    phase: "Phase 3",
-    title: "Editor / Teller / Front Window",
-    caption:
-      "The teller calls the next ticket, serves the customer, and either completes the case, transfers it for complex handling, or skips it if the customer is absent.",
+    phaseKey: "phase3.title",
+    titleKey: "phase3.title",
+    captionKey: "phase3.description",
     highlights: [
       {
-        title: "Serve next customer",
-        description:
-          "One-click call next to bring customer to the service window.",
+        titleKey: "phase3.ticketCall",
+        descriptionKey: "phase3.ticketCallDesc",
         icon: Users,
       },
       {
-        title: "Handle transactions",
-        description:
-          "Process routine services and inquiries quickly and efficiently.",
+        titleKey: "phase3.caseWorkflow",
+        descriptionKey: "phase3.caseWorkflowDesc",
         icon: ClipboardCheck,
       },
       {
-        title: "Route to employees",
-        description:
-          "Transfer complex cases to employees for detailed case management.",
+        titleKey: "phase3.analytics",
+        descriptionKey: "phase3.analyticsDesc",
         icon: ArrowRight,
-      },
-      {
-        title: "Skip or complete",
-        description:
-          "Skip tickets for absent customers or complete routine service cases.",
-        icon: LineChart,
       },
     ],
   },
   {
-    phase: "Phase 4",
-    title: "Employee / Back Window (Complex Cases)",
-    caption:
-      "The employee works on the case, may forward it to another employee if needed, and completes the case.",
+    phaseKey: "phase4.title",
+    titleKey: "phase4.title",
+    captionKey: "phase4.description",
     highlights: [
       {
-        title: "Case assignment",
-        description:
-          "Receive transferred cases requiring detailed handling and complex decision-making.",
+        titleKey: "phase4.caseAssignment",
+        descriptionKey: "phase4.caseAssignmentDesc",
         icon: ClipboardCheck,
       },
       {
-        title: "Workflow progress tracking",
-        description:
-          "Track case progress through multiple workflow stages with status updates.",
+        titleKey: "phase4.workflowTracking",
+        descriptionKey: "phase4.workflowTrackingDesc",
         icon: CalendarClock,
       },
       {
-        title: "Employee collaboration",
-        description:
-          "Forward cases to other employees if specialized expertise or additional review is needed.",
+        titleKey: "phase4.collaboration",
+        descriptionKey: "phase4.collaborationDesc",
         icon: Smartphone,
       },
       {
-        title: "Case completion",
-        description:
-          "Mark cases complete and trigger archival process for record keeping.",
+        titleKey: "phase4.completion",
+        descriptionKey: "phase4.completionDesc",
         icon: CheckCircle2,
       },
     ],
@@ -204,23 +176,23 @@ const SampleQRCode = () => (
   </div>
 );
 
-const TicketSnapshot = () => (
+const TicketSnapshot = ({ t }: { t: (key: string) => string }) => (
   <div className="relative rounded-3xl border border-border/70 bg-card/90 p-6 shadow-xl shadow-primary/10 backdrop-blur">
     <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
-      <span>Virtual ticket</span>
-      <span>Window 3</span>
+      <span>{t("home.virtualTicket")}</span>
+      <span>{t("home.window")} 3</span>
     </div>
     <div className="mt-4 flex flex-col gap-6 rounded-2xl bg-background/80 p-5">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Ticket number
+            {t("home.ticketNumber")}
           </p>
           <p className="font-display text-4xl font-semibold text-foreground">
             015
           </p>
           <p className="text-sm text-muted-foreground">
-            Service: Social Security Renewal
+            {t("home.service")}
           </p>
         </div>
         <SampleQRCode />
@@ -228,44 +200,44 @@ const TicketSnapshot = () => (
       <div className="grid gap-3 text-sm">
         <div className="flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3">
           <span className="font-medium text-secondary-foreground">
-            Position in line
+            {t("home.position")}
           </span>
           <span className="font-display text-lg text-foreground">#4</span>
         </div>
         <div className="flex items-center justify-between rounded-2xl bg-accent/60 px-4 py-3">
           <span className="font-medium text-accent-foreground">
-            Estimated wait
+            {t("home.estWait")}
           </span>
           <span className="font-display text-lg text-foreground">
             07:45 min
           </span>
         </div>
         <div className="flex items-center justify-between rounded-2xl bg-primary/10 px-4 py-3 text-sm">
-          <span className="font-medium text-primary">Status</span>
+          <span className="font-medium text-primary">{t("home.status")}</span>
           <span className="font-display text-base text-primary">
-            You're next—head to waiting area
+            {t("home.statusText")}
           </span>
         </div>
       </div>
     </div>
     <div className="mt-6 rounded-2xl border border-border/70 bg-background/80 p-4">
       <div className="flex items-center justify-between text-xs uppercase tracking-wide text-muted-foreground">
-        <span>Now serving</span>
-        <span>Updated moments ago</span>
+        <span>{t("home.nowServing")}</span>
+        <span>{t("home.updated")}</span>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2 text-sm font-semibold text-foreground">
         <div className="rounded-xl bg-primary/10 px-4 py-3">
-          <p className="text-xs uppercase text-muted-foreground">Window 1</p>
+          <p className="text-xs uppercase text-muted-foreground">{t("home.window")} 1</p>
           <p className="font-display text-lg">012</p>
         </div>
         <div className="rounded-xl bg-primary px-4 py-3 text-primary-foreground">
           <p className="text-xs uppercase text-primary-foreground/70">
-            Window 2
+            {t("home.window")} 2
           </p>
           <p className="font-display text-lg">013</p>
         </div>
         <div className="rounded-xl bg-primary/10 px-4 py-3">
-          <p className="text-xs uppercase text-muted-foreground">Window 3</p>
+          <p className="text-xs uppercase text-muted-foreground">{t("home.window")} 3</p>
           <p className="font-display text-lg">014</p>
         </div>
       </div>
@@ -273,48 +245,45 @@ const TicketSnapshot = () => (
   </div>
 );
 
-const PhaseCard = ({
-  phase,
-  title,
-  caption,
-  highlights,
-}: (typeof PHASES)[number]) => (
-  <Card className="h-full border-border/60 bg-card/80 p-6 shadow-lg shadow-primary/5 backdrop-blur">
-    <div className="flex items-center justify-between">
-      <Badge
-        variant="secondary"
-        className="rounded-full border-none px-3 py-1 text-xs font-semibold"
-      >
-        {phase}
-      </Badge>
-      <QrCode className="h-6 w-6 text-primary" />
-    </div>
-    <h3 className="mt-5 font-display text-2xl font-semibold text-foreground">
-      {title}
-    </h3>
-    <p className="mt-2 text-sm text-muted-foreground">{caption}</p>
-    <div className="mt-6 space-y-5">
-      {highlights.map(
-        ({ title: itemTitle, description, icon: Icon }, index) => (
-          <div
-            key={itemTitle}
-            className="flex items-start gap-4 rounded-2xl border border-border/60 bg-background/60 p-4"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" />
+const PhaseCard = ({ t }: { t: (key: string) => string }) => {
+  return ({ phaseKey, titleKey, captionKey, highlights }: Phase) => (
+    <Card className="h-full border-border/60 bg-card/80 p-6 shadow-lg shadow-primary/5 backdrop-blur">
+      <div className="flex items-center justify-between">
+        <Badge
+          variant="secondary"
+          className="rounded-full border-none px-3 py-1 text-xs font-semibold"
+        >
+          {t(phaseKey)}
+        </Badge>
+        <QrCode className="h-6 w-6 text-primary" />
+      </div>
+      <h3 className="mt-5 font-display text-2xl font-semibold text-foreground">
+        {t(titleKey)}
+      </h3>
+      <p className="mt-2 text-sm text-muted-foreground">{t(captionKey)}</p>
+      <div className="mt-6 space-y-5">
+        {highlights.map(
+          ({ titleKey: itemTitleKey, descriptionKey, icon: Icon }, index) => (
+            <div
+              key={itemTitleKey}
+              className="flex items-start gap-4 rounded-2xl border border-border/60 bg-background/60 p-4"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {index + 1}. {t(itemTitleKey)}
+                </p>
+                <p className="text-sm text-muted-foreground">{t(descriptionKey)}</p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
-                {index + 1}. {itemTitle}
-              </p>
-              <p className="text-sm text-muted-foreground">{description}</p>
-            </div>
-          </div>
-        ),
-      )}
-    </div>
-  </Card>
-);
+          ),
+        )}
+      </div>
+    </Card>
+  );
+};
 
 export default function Index() {
   const { user } = useAuth();
@@ -394,29 +363,28 @@ export default function Index() {
           <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
             <div className="rounded-lg border border-border/60 bg-card/90 p-4 sm:p-5 hover:bg-card/95 transition-colors">
               <h3 className="text-sm sm:text-base font-semibold text-foreground">
-                Reception & Tickets
+                {t("home.feat1Title")}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Quick QR ticket issuance with guided prompts for staff.
+                {t("home.feat1Desc")}
               </p>
             </div>
 
             <div className="rounded-lg border border-border/60 bg-card/90 p-4 sm:p-5 hover:bg-card/95 transition-colors">
               <h3 className="text-sm sm:text-base font-semibold text-foreground">
-                Virtual Waiting
+                {t("home.feat2Title")}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Ticket-specific status pages show live position and ETA.
+                {t("home.feat2Desc")}
               </p>
             </div>
 
             <div className="rounded-lg border border-border/60 bg-card/90 p-4 sm:p-5 hover:bg-card/95 transition-colors">
               <h3 className="text-sm sm:text-base font-semibold text-foreground">
-                Now Serving
+                {t("home.feat3Title")}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Large-format lobby displays and staff dashboards for real-time
-                sync.
+                {t("home.feat3Desc")}
               </p>
             </div>
           </div>
@@ -427,16 +395,17 @@ export default function Index() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start mb-8 sm:mb-12">
             <h2 className="font-display text-2xl sm:text-3xl font-semibold text-foreground">
-              Workflow phases
+              {t("home.workflowPhases")}
             </h2>
             <p className="mt-1 sm:mt-2 text-sm text-muted-foreground max-w-2xl">
-              Complete case management from intake to completion with real-time tracking.
+              {t("home.workflowSubtitle")}
             </p>
           </div>
           <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
-            {PHASES.map((phase) => (
-              <PhaseCard key={phase.phase} {...phase} />
-            ))}
+            {PHASES.map((phase) => {
+              const Card = PhaseCard({ t });
+              return <div key={phase.phaseKey}>{Card(phase)}</div>;
+            })}
           </div>
         </div>
       </section>
