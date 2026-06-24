@@ -36,7 +36,7 @@ export function LanguageSwitcher({
     return (
       <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
         <SelectTrigger className={className}>
-          <SelectValue />
+          <SelectValue placeholder="Select Language" />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(LANGUAGE_LABELS).map(([lang, label]) => (
