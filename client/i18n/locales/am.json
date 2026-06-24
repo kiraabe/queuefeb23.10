@@ -30,93 +30,7 @@
     "privacy": "ግላዊነት",
     "terms": "ውል",
     "liveStatus": "ቀጥታ ሁኔታ",
-    "copyright": "© {year} EKD ቴክ ሪጋዎች ያሰራዋል። ሙሉ መብቶች ተጠብቀዋል።"
-  },
-  "navigation": {
-    "home": "መነሻ",
-    "queue": "ወረፋ",
-    "display": "ማሳያ",
-    "login": "ግባ",
-    "profile": "መገለጫ",
-    "reception": "ሪሴፕሽን",
-    "teller": "ጠወራ",
-    "employee": "ሰራተኛ",
-    "archiever": "አርካይቨር",
-    "admin": "አስተዳዳሪ"
-  },
-  "login": {
-    "title": "ግባ",
-    "username": "ተጠቃሚ ስም",
-    "password": "ይለፍ ሃ句",
-    "signIn": "ግባ",
-    "enterUsername": "የተጠቃሚ ስምህን ያስገባ",
-    "enterPassword": "የይለፍ ሃ句ህን ያስገባ",
-    "showPassword": "ይለፍ ሃ句 አሳይ",
-    "hidePassword": "ይለፍ ሃ句ን ደብቅ",
-    "invalidCredentials": "ተጠቃሚ ስም ወይም ይለፍ ሃ句ት ትክክል አይደለም",
-    "sessionLimitReached": "የክፍለ-ስራ ገደብ ተደርሷል",
-    "accountBlocked": "ሂሳብህ ታግዷል",
-    "tooManyAttempts": "ብዙ ግቤት ሙከራዎች። እባክህ በኋላ ይሞክር"
-  },
-  "phase1": {
-    "title": "ሪሴፕሽን / ጉዳይ ክዋኔ",
-    "description": "ቲኬት ከተመረጠው አገልግሎት ጋር ይመሰረታል ፣ QR ኮድ ይመነጨል ፣ እና የቲኬት ቁጥር ለደንበኛ ይታያል።",
-    "eligibility": "ብቁነት ጂምግራም",
-    "eligibilityDesc": "ቲኬት ከመሥራቱ በፊት የደንበኛው አገልግሎት ብቁነት ይረጋግጡ።",
-    "qrTicket": "ፈጣን QR ቲኬት ይሰጥ",
-    "qrTicketDesc": "QR-ኮድ ቲኬቶችን ከአገልግሎት ዓይነት እና ግምታዊ ጊዜ ጋር ያመንጨ።",
-    "queueMgmt": "ወረፋ አስተዳደር",
-    "queueMgmtDesc": "ደንበኞችን ለተገቢው አገልግሎት ቀጥታዎች ወይም ገበታ ለውጥ ዕቃ።",
-    "notifications": "ደንበኛ ማስታወቂያዎች",
-    "notificationsDesc": "ደንበኛ ወደ QR ኮድ ስካን ሲደርሱ ብዙ ጊዜ በ-ሪሌ-ዓይነት ማሳወቂያ ይላኩ።"
-  },
-  "phase2": {
-    "title": "ቃል አወዳድሮ / ሰነድ",
-    "description": "ዛቁ ቲኬቱን ይወስናል ፣ አስፈላጊ ሰነዶችን ይያዛል ዳግመ ይረጋግጣል ፣ እና ጉዳዩን ዝግጁ ብሎ ምልክት ያድርግ።",
-    "documents": "የሰነድ ስብስብ",
-    "documentsDesc": "ሁሉንም ድጋፊ ሰነዶች እና ኃላፊዎች ለተጠናቀቀ ጉዳዮች ይሰበስቡ።",
-    "compliance": "ተስማሚነት ጂምግራም",
-    "complianceDesc": "ሁሉም አስፈላጊ ሰነዶች ተስማሚነት አለም አቀፍ ደረጃዎችንም ሙሉነት ይያዙ።",
-    "archive": "ጎታ ማከማቻ",
-    "archiveDesc": "ሰነዶችን ታስ ይጠብቁ እና ለወደፊት ጊዜ ለማስመልሰት ተካሄድ።"
-  },
-  "phase3": {
-    "title": "ጠወራ / አገልግሎት ስጠት",
-    "description": "ጠወራ ቲኬቱን ይጠራል ፣ ደንበኛ ያገለግለል ፣ እና ግንኙነቱን ሰነዱ።",
-    "ticketCall": "ሪያል-ግዜ ቲኬት ጠራ",
-    "ticketCallDesc": "ቅደም ተከተላ ቲኬቶችን በራስ ተነሳሽ ተታሪ ጎብኚ ወይ ሮች ጎ.",
-    "caseWorkflow": "ጉዳይ ስራ ቅደም ተከተል ዝግጅት",
-    "caseWorkflowDesc": "የአገልግሎት ግንኙነቶችን ሰነድ እና ውጤቶች በቅጡ ውስጥ ይገቡ።",
-    "analytics": "የአገልግሎት መተንተን",
-    "analyticsDesc": "አገልግሎት ጊዜ ፣ ደንበኛ 족족 እና ንግድ መስፈሮች ይከታተሉ።"
-  },
-  "errors": {
-    "notFound": "ገጽ አልተገኘም",
-    "unauthorized": "ያልተፈቀደ ድረስ",
-    "forbidden": "ድረስ ታግዷል",
-    "serverError": "ሰርቭር ስህተት",
-    "tryAgain": "እንደገና ይሞክር"
-  },
-  "buttons": {
-    "cancel": "ይሰርዙ",
-    "save": "ይቁም",
-    "delete": "ይሰርዙ",
-    "edit": "ይቀይሩ",
-    "close": "ይዝጉ",
-    "submit": "ያስገቡ",
-    "next": "ሚቀጥለው",
-    "back": "ኋላ",
-    "logout": "ውጣ",
-    "signingOut": "በመውጣት ላይ...",
-    "myProfile": " የእኔ መገለጫ",
-    "language": "ቋንቋ"
-  },
-  "language": {
-    "select": "ቋንቋ ይምረጡ",
-    "changeLanguage": "ቋንቋ ይቀይሩ",
-    "current": "ያሁኑ ቋንቋ"
-  },
-  "common": {
+    "copyright": "© {year} EKD ቴክ ሪጋዎች ያሰራዋል። ሙሉ መብቶች ተጠብቀዋል።",
     "na": "N/A",
     "dash": "—",
     "loading": "ይጫናል...",
@@ -139,6 +53,102 @@
     "connectionError": "ከሰርቨር ጋር ግንኙነት መቋቋም አይቻለም። የእርስዎን ግንኙነት ይመልከቱ እና እንደገና ይሞክሩ።",
     "processingError": "ስህተት ተከስቷል። እባክህ እንደገና ይሞክር።",
     "unknown": "ያልታወቀ"
+  },
+  "navigation": {
+    "home": "መነሻ",
+    "queue": "ወረፋ",
+    "display": "ማሳያ",
+    "login": "ግባ",
+    "profile": "መገለጫ",
+    "reception": "ሪሴፕሽን",
+    "teller": "ጠወራ",
+    "employee": "ሰራተኛ",
+    "archiever": "አርካይቨር",
+    "admin": "አስተዳዳሪ"
+  },
+  "login": {
+    "title": "ግባ",
+    "username": "ተጠቃሚ ስም",
+    "password": "ይለፍ ቃል",
+    "signIn": "ግባ",
+    "enterUsername": "የተጠቃሚ ስምህን ያስገባ",
+    "enterPassword": "የይለፍ ቃልህን ያስገባ",
+    "showPassword": "ይለፍ ቃል አሳይ",
+    "hidePassword": "ይለፍ ቃልን ደብቅ",
+    "invalidCredentials": "ተጠቃሚ ስም ወይም ይለፍ ቃል ትክክል አይደለም",
+    "sessionLimitReached": "የክፍለ-ስራ ገደብ ተደርሷል",
+    "accountBlocked": "ሂሳብህ ታግዷል",
+    "tooManyAttempts": "ብዙ ግቤት ሙከራዎች። እባክህ በኋላ ይሞክር"
+  },
+  "phase1": {
+    "title": "መቀበያ / ጉዳይ አስተዳዳሪ",
+    "description": "ከተመረጠው አገልግሎት ጋር ትኬት ይፈጠራል፣ የ QR ኮድ ይወጣል፣ እና የትኬት ቁጥሩ ለደንበኛው ይታያል።",
+    "eligibility": "የብቃት ማረጋገጫ",
+    "eligibilityDesc": "ትኬት ከመፍጠርዎ በፊት የደንበኞችን አገልግሎት የማግኘት ብቃት ያረጋግጡ።",
+    "qrTicket": "ፈጣን የ QR ትኬት አሰጣጥ",
+    "qrTicketDesc": "የአገልግሎት አይነት እና የሚገመት የጥበቃ ጊዜ ያላቸውን የ QR ኮድ ትኬቶችን ያመንጩ።",
+    "queueMgmt": "የወረፋ አስተዳደር",
+    "queueMgmtDesc": "ከእውነተኛ ጊዜ ቦታ መከታተያ ጋር ደንበኞችን ወደ ተገቢው የአገልግሎት መስመር ይመድቡ።",
+    "notifications": "የደንበኛ ማሳወቂያዎች",
+    "notificationsDesc": "የደንበኛው ተራ ሲቃረብ በ QR ኮድ ቅኝት አማካኝነት እውነተኛ ጊዜ ዝመናዎችን ይላኩ።"
+  },
+  "phase2": {
+    "title": "አርካይቨር / ሰነድ ማደራጃ",
+    "description": "አርካይቨሩ ትኬቱን ይረከባል፣ የሚያስፈልጉትን ሰነዶች ያመጣ እንዲሁም ያረጋግጣል፣ እና ጉዳዩ ዝግጁ መሆኑን ምልክት ያደርጋል።",
+    "documents": "ሰነድ መሰብሰብ",
+    "documentsDesc": "ለተጠናቀቁ ጉዳዮች ሁሉንም ደጋፊ ሰነዶች እና አባሪዎችን ይሰብስቡ።",
+    "compliance": "የህግ ተገዢነት ማረጋገጫ",
+    "complianceDesc": "ሁሉም አስፈላጊ ሰነዶች የተሟሉ እና የህግ ደረጃዎችን የሚያሟሉ መሆናቸውን ያረጋግጡ።",
+    "archive": "የመዝገብ ቤት ማከማቻ",
+    "archiveDesc": "ለወደፊት ማጣቀሻ እና የኦዲት ዱካዎች የተደራጁ መዝገቦችን እና ሰነዶችን ያከማቹ።"
+  },
+  "phase3": {
+    "title": "አርታኢ / ቴለር / የፊት መስኮት",
+    "description": "ቴለሩ ቀጣዩን ትኬት ይጠራል፣ ደንበኛውን ያስተናግዳል፣ እና ጉዳዩን ያጠናቅቃል ወይም ለተወሳሰቡ ጉዳዮች ያስተላልፋል ወይም ደንበኛው ከሌለ ያልፈዋል።",
+    "ticketCall": "ቀጣዩን ደንበኛ ማስተናገድ",
+    "ticketCallDesc": "ደንበኛውን ወደ አገልግሎት መስኮቱ ለማምጣት አንድ ጊዜ ጠቅ በማድረግ ቀጣዩን መጥራት።",
+    "caseWorkflow": "ግብይቶችን ማከናወን",
+    "caseWorkflowDesc": "የተለመዱ አገልግሎቶችን እና ጥያቄዎችን በፍጥነት እና በብቃት ማካሄድ።",
+    "analytics": "ወደ ሰራተኞች መምራት",
+    "analyticsDesc": "ለዝርዝር የጉዳይ አስተዳደር ውስብስብ ጉዳዮችን ወደ ሰራተኞች ማስተላለፍ።"
+  },
+  "phase4": {
+    "title": "ሰራተኛ / የጀርባ መስኮት (ውስብስብ ጉዳዮች)",
+    "description": "ሰራተኛው በጉዳዩ ላይ ይሰራል፣ ካስፈለገም ወደ ሌላ ሰራተኛ ሊያስተላልፈው ይችላል፣ እና ጉዳዩን ያጠናቅቃል።",
+    "caseAssignment": "የጉዳይ ምደባ",
+    "caseAssignmentDesc": "ዝርዝር አያያዝ እና ውስብስብ ውሳኔ አሰጣጥ የሚሹ የተላለፉ ጉዳዮችን መቀበል።",
+    "workflowTracking": "የስራ ሂደት ክትትል",
+    "workflowTrackingDesc": "በበርካታ የስራ ሂደት ደረጃዎች ውስጥ የጉዳይ ሂደቱን ከሁኔታዎች ዝመናዎች ጋር መከታተል።",
+    "collaboration": "የሰራተኞች ትብብር",
+    "collaborationDesc": "ልዩ እውቀት ወይም ተጨማሪ ክለሳ ካስፈለገ ጉዳዮችን ወደ ሌሎች ሰራተኞች ማስተላለፍ።",
+    "completion": "ጉዳይ ማጠናቀቅ",
+    "completionDesc": "ጉዳዮችን እንደተጠናቀቁ ምልክት ማድረግ እና ለመዝገብ አያያዝ የአርካይቭ ሂደትን ማስጀመር።"
+  },
+  "errors": {
+    "notFound": "ገጽ አልተገኘም",
+    "unauthorized": "ያልተፈቀደ ድረስ",
+    "forbidden": "ድረስ ታግዷል",
+    "serverError": "ሰርቭር ስህተት",
+    "tryAgain": "እንደገና ይሞክር"
+  },
+  "buttons": {
+    "cancel": "ይሰርዙ",
+    "save": "ይቁም",
+    "delete": "ይሰርዙ",
+    "edit": "ይቀይሩ",
+    "close": "ይዝጉ",
+    "submit": "ያስገቡ",
+    "next": "ሚቀጥለው",
+    "back": "ኋላ",
+    "logout": "ውጣ",
+    "signingOut": "በመውጣት ላይ...",
+    "myProfile": "የእኔ መገለጫ",
+    "language": "ቋንቋ"
+  },
+  "language": {
+    "select": "ቋንቋ ይምረጡ",
+    "changeLanguage": "ቋንቋ ይቀይሩ",
+    "current": "ያሁኑ ቋንቋ"
   },
   "archiever": {
     "title": "ቃል አወዳድሮ መስተዋወቂያ",
@@ -196,7 +206,7 @@
       "retrieveBtn": "ተመለሱ - ወደ አገልግሎት ወረፋ ተወስዷል",
       "releasing": "ተለቋል...",
       "releaseBtn": "ወደ ዓለምአቀፍ ወረፋ ተመለስ",
-      "selectTicket": "ምንም ቲኬት ተመርጦ አለ አቃ། ዓለምአቀፍ ወረፋ ላይ ቲኬት ይምረጡ።",
+      "selectTicket": "ምንም ቲኬት ተመርጦ አለ አቃ። ዓለምአቀፍ ወረፋ ላይ ቲኬት ይምረጡ።",
       "errors": {
         "fetchFailed": "ቲኬት ዝርዝር ማምጣት ተስኖ",
         "loadFailed": "ቲኬት ዝርዝር ጫና ተስኖ። እባክህ እንደገና ይሞክር።"
@@ -341,7 +351,7 @@
   },
   "reception": {
     "title": "ሪሴፕሽን ኮንሶል",
-    "issueTicket": "ሀሰተኛ ቲኬት ስጥ",
+    "issueTicket": "ቲኬት ስጥ",
     "preview": "ቲኬት ቅድመ-ዕይታ",
     "previewDesc": "ቅጹን ሙላ አሁንም ቁጥር ስጥ እና QR ቲኬት ያመንጫ።",
     "owner": "የንብረት ባለቤት:",
@@ -371,7 +381,7 @@
     "autoRefresh": "QR ሰአታ በ 60 ሰከንድ ይሻሻላል። ወደ ስቴ ወይም ጎብኚ አሳይ።",
     "orderNo": "ትዕዛዝ ቁጥር:",
     "autoAssigned": "ራስ-ተሰጥ",
-    "qrPlaceholder": "QR ኮድ ሳለ ውስጥ ይቆምብ। ሪሴፕሽን ሊጠፍ ወይም ተደምደም።",
+    "qrPlaceholder": "QR ኮድ ሳለ ውስጥ ይቆምብ። ሪሴፕሽን ሊጠፍ ወይም ተደምደም።",
     "generating2": "QR ቅድመ-ዕይታ ይመሰረታል…",
     "generatingTicket": "QR ቲኬት ይመሰረታል…",
     "eligibility": {
@@ -467,7 +477,6 @@
     "employeesTime": "ሰራተኞች ጊዜ",
     "timeSpent": "ጊዜ ወጥቷል",
     "onHoldText": "ተገድቦ",
-    "received": "ቀብልህ",
     "status": {
       "initiated": "ተጀመረ",
       "completed": "ተጠናቀቀ",
