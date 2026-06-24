@@ -551,6 +551,7 @@
   "profile": {
     "title": "Staff Member",
     "jobTitle": "Senior Surveyor Specialist / የካዳስተር/ ከፍተኛ ቀያሽ ባለሙያ",
+    "documentationInfo": "Documentation and Information",
     "accountInfo": "Account Information",
     "fullName": "Full Name",
     "username": "Username",
@@ -561,8 +562,6 @@
     "department": "Department",
     "jobTitleLabel": "Job Title",
     "notProvided": "Not provided",
-    "employee": "Employee",
-    "backOffice": "Back Office",
     "changePassword": "Change Password",
     "updatePasswordDesc": "Update your password to keep your account secure.",
     "currentPassword": "Current Password",
@@ -576,6 +575,13 @@
     "information": "Information",
     "updateInfoDesc": "To update account details other than your password, please contact your administrator.",
     "autoSync": "Your account information is automatically synced with the system when you log in.",
-    "noRecords": "No records available."
+    "noRecords": "No records available.",
+    "roles": {
+      "reception": "Reception",
+      "teller": "Teller",
+      "archiever": "Archiever",
+      "employee": "Employee",
+      "admin": "Admin"
+    }
   }
 }
