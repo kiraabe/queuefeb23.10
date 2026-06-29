@@ -249,6 +249,14 @@ function TicketRow({
     enabled: ticket.status === "done",
   });
 
+  // Fetch job titles for displaying transferred user's job title
+  const { data: jobTitlesData } = useQuery({
+    queryKey: ["job-titles-for-ticket"],
+    queryFn: async () => {
+      return apiFetch<any>("/api/admin/job-titles");
+    },
+  });
+
   // Calculate total duration from workflow items
   const totalDuration = useMemo(() => {
     if (!performanceData?.items) return null;
@@ -270,6 +278,13 @@ function TicketRow({
     } else {
       return `${secs}sec`;
     }
+  };
+
+  // Helper function to get job title name from ID
+  const getJobTitleName = (jobTitleId: string | null | undefined) => {
+    if (!jobTitleId || !jobTitlesData?.jobTitles) return null;
+    const jobTitle = jobTitlesData.jobTitles.find((jt: any) => jt.id === jobTitleId);
+    return jobTitle?.nameEnglish || jobTitle?.name || null;
   };
 
   // Get standard time for selected services
@@ -567,13 +582,22 @@ function TicketRow({
                       : "—"}
                   </span>
                   <ArrowRight className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-muted-foreground font-medium">
+                  <div className="text-muted-foreground font-medium">
                     {ticket.transferredToWindow
                       ? getWindowName(ticket.transferredToWindow)
                       : ticket.transferredToUserId
-                        ? userMap.get(ticket.transferredToUserId) || "—"
+                        ? (
+                            <>
+                              <span>{userMap.get(ticket.transferredToUserId) || "—"}</span>
+                              {ticket.jobTitleForProceed && (
+                                <span className="block text-xs text-muted-foreground font-normal">
+                                  {getJobTitleName(ticket.jobTitleForProceed) || ticket.jobTitleForProceed}
+                                </span>
+                              )}
+                            </>
+                          )
                         : "—"}
-                  </span>
+                  </div>
                 </div>
                 {ticket.transferredAt && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
