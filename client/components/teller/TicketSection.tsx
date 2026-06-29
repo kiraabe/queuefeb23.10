@@ -234,8 +234,12 @@ function TicketRow({
   currentWindowId?: number;
   serviceStandardTimes?: Record<string, number>;
 }) {
-  // Auto-expand completed tickets by default
-  const [isExpanded, setIsExpanded] = useState(ticket.status === "done");
+  // Auto-expand completed tickets and transferred tickets by default
+  const [isExpanded, setIsExpanded] = useState(
+    ticket.status === "done" ||
+    !!ticket.transferredToUserId ||
+    !!ticket.transferredToWindow
+  );
 
   // Fetch workflow data for completed tickets
   const { data: performanceData } = useQuery({
@@ -525,6 +529,14 @@ function TicketRow({
               <p className="text-sm text-muted-foreground">
                 {ticket.ownerName || "—"}
               </p>
+              {ticket.transferredToUserId && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sent to: {userMap.get(ticket.transferredToUserId) || "—"}
+                  {ticket.jobTitleForProceed && (
+                    <span className="block">{getJobTitleName(ticket.jobTitleForProceed) || ticket.jobTitleForProceed}</span>
+                  )}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {ticket.status === "done" && (
