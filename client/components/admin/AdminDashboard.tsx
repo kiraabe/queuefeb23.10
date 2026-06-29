@@ -701,30 +701,36 @@ export default function AdminDashboard() {
 
               <TabsContent value="current" className="space-y-3 sm:space-y-4 mt-4">
                 {display.current.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {display.current.map((ticket) => (
                       <div key={ticket.id} className="rounded-[16px] border p-4 md:p-5 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between">
+                        <div className="space-y-3">
                           <div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">
                               Now Serving
                             </p>
-                            <p className="text-3xl font-bold text-green-600">
+                            <p className="text-3xl font-bold text-green-600 mt-1">
                               {ticket.code}
                             </p>
-                            {ticket.ownerName && (
-                              <p className="text-sm font-medium text-foreground mt-1">
-                                {ticket.ownerName}
-                              </p>
-                            )}
                           </div>
-                          {ticket.currentEmployee && (
-                            <div className="text-right">
-                              <div className="rounded-lg bg-blue-50 px-3 py-2">
-                                <p className="text-xs font-semibold text-blue-700">
-                                  Handler
-                                </p>
-                                <p className="text-sm font-bold text-blue-900">
+                          {ticket.ownerName && (
+                            <p className="text-sm font-medium text-foreground">
+                              {ticket.ownerName}
+                            </p>
+                          )}
+                          {ticket.windowId && (
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium">Window {ticket.windowId}</span>
+                            </p>
+                          )}
+                          <div className="border-t pt-3 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">
+                              Service: {ticket.service}
+                            </p>
+                            {ticket.currentEmployee && (
+                              <div className="rounded-lg bg-blue-50 px-2 py-2">
+                                <p className="text-xs font-semibold text-blue-700">Handler</p>
+                                <p className="text-xs font-bold text-blue-900">
                                   {ticket.currentEmployee.fullName}
                                 </p>
                                 <p className="text-xs text-blue-700">
@@ -732,40 +738,8 @@ export default function AdminDashboard() {
                                     ticket.currentEmployee.jobTitle}
                                 </p>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-3 space-y-2 border-t pt-3">
-                          <p className="text-sm">
-                            <span className="font-medium">Service:</span>{" "}
-                            {ticket.service}
-                          </p>
-                          {ticket.selectedServices &&
-                            ticket.selectedServices.length > 0 && (
-                              <div className="text-sm">
-                                <p className="font-medium mb-1">
-                                  Selected Services:
-                                </p>
-                                <ul className="ml-4 space-y-1">
-                                  {ticket.selectedServices.map(
-                                    (service, index) => (
-                                      <li
-                                        key={index}
-                                        className="text-sm text-muted-foreground list-disc"
-                                      >
-                                        {service}
-                                      </li>
-                                    ),
-                                  )}
-                                </ul>
-                              </div>
                             )}
-                          {ticket.windowId && (
-                            <p className="text-sm">
-                              <span className="font-medium">Window:</span>{" "}
-                              {ticket.windowId}
-                            </p>
-                          )}
+                          </div>
                         </div>
                       </div>
                     ))}
